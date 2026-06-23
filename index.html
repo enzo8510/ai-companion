@@ -1,0 +1,2491 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卄珩 ・ AI 伴侶</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+:root{
+  --bg:#ECEEF3;
+  --frame-shadow: rgba(50,58,80,0.14);
+  --chat-bg:#F3F4F8;
+  --surface:#FFFFFF;
+  --ink:#32384A;
+  --ink-soft:#8891A4;
+  --companion:#3BADCC;
+  --companion-soft:#BDE7F6;
+  --user-bubble:#FFFFFF;
+  --sage:#5DAAA4;
+  --gold:#6A9BB8;
+  --gold-soft:#D8EEF8;
+  --line: rgba(50,58,80,0.10);
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  font-family:'Noto Sans TC', sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+}
+
+.app-bg{
+  min-height:100vh;
+  background:var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:28px 14px;
+}
+
+.phone-frame{
+  width:100%;
+  max-width:460px;
+  height:calc(100vh - 56px);
+  min-height:560px;
+  background:var(--chat-bg);
+  border-radius:30px;
+  box-shadow:0 24px 60px var(--frame-shadow);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+.view{ flex:1; display:flex; flex-direction:column; min-height:0; }
+.view.hidden{ display:none; }
+
+/* ---------- Header ---------- */
+.chat-header{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  background:var(--surface);
+  border-bottom:1px solid rgba(91,74,66,0.08);
+  z-index:5;
+}
+.icon-btn{
+  background:none;
+  border:none;
+  font-size:19px;
+  color:var(--ink-soft);
+  cursor:pointer;
+  padding:5px 8px;
+  border-radius:10px;
+  line-height:1;
+}
+.icon-btn:hover{ color:var(--companion); background:var(--companion-soft); }
+.icon-btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+.avatar-orb{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  flex:0 0 auto;
+  background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%);
+  position:relative;
+  background-size:cover;
+  background-position:center;
+}
+.header-text{ display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
+.companion-name{
+  font-family:'LXGW WenKai TC', serif;
+  font-weight:700;
+  font-size:18px;
+  color:var(--ink);
+  line-height:1.2;
+}
+.companion-status{
+  font-size:12px;
+  color:var(--ink-soft);
+  display:flex;
+  align-items:center;
+  gap:5px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.dot{
+  width:7px; height:7px; border-radius:50%;
+  background:var(--sage);
+  animation:pulse-dot 2.6s ease-in-out infinite;
+  flex:0 0 auto;
+}
+@keyframes pulse-dot{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+.admin-title{ font-family:'LXGW WenKai TC', serif; font-weight:700; font-size:17px; flex:1; }
+
+/* ---------- Thread ---------- */
+.chat-thread{
+  flex:1;
+  overflow-y:auto;
+  padding:18px 14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  background-color:var(--chat-bg);
+  background-image:radial-gradient(circle, rgba(91,74,66,0.05) 1px, transparent 1.6px);
+  background-size:16px 16px;
+  scroll-behavior:smooth;
+}
+.chat-thread::-webkit-scrollbar, .admin-body::-webkit-scrollbar{ width:6px; }
+.chat-thread::-webkit-scrollbar-thumb, .admin-body::-webkit-scrollbar-thumb{ background:rgba(91,74,66,0.15); border-radius:10px; }
+
+.system-note{
+  align-self:center;
+  max-width:94%;
+  background:var(--gold-soft);
+  color:#8a6a2c;
+  font-size:12.5px;
+  line-height:1.6;
+  padding:10px 14px;
+  border-radius:14px;
+  text-align:center;
+}
+.system-note button{
+  margin-top:6px;
+  background:var(--gold);
+  color:#fff; border:none;
+  font-family:inherit; font-size:12px;
+  padding:5px 12px; border-radius:999px; cursor:pointer;
+}
+
+.row{ display:flex; gap:8px; max-width:88%; animation:rise .5s ease both; }
+.row.her{ align-self:flex-start; }
+.row.me{ align-self:flex-end; flex-direction:row-reverse; }
+@keyframes rise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+
+.mini-avatar{
+  width:26px; height:26px; border-radius:50%; flex:0 0 auto; margin-top:auto;
+  background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%);
+  background-size:cover; background-position:center;
+}
+.avatar-upload-wrap{ display:flex; align-items:center; gap:16px; }
+.avatar-preview{
+  width:68px; height:68px; border-radius:50%; flex:0 0 auto;
+  background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%);
+  background-size:cover; background-position:center;
+  border:2px solid var(--line);
+}
+.bubble{
+  padding:10px 14px;
+  font-size:14.5px;
+  line-height:1.65;
+  word-break:break-word;
+  white-space:pre-wrap;
+}
+.bubble.her{ background:var(--companion-soft); color:var(--ink); border-radius:18px 18px 18px 5px; }
+.bubble.me{ background:var(--user-bubble); color:var(--ink); border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
+.bubble.her strong{ font-weight:600; }
+.bubble.her em{ font-style:italic; opacity:.85; }
+
+.typing-row .bubble.her{ display:flex; gap:4px; align-items:center; padding:14px 16px; }
+.typing-dot{ width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:typing-bounce 1.2s ease-in-out infinite; }
+.typing-dot:nth-child(2){ animation-delay:.15s; }
+.typing-dot:nth-child(3){ animation-delay:.3s; }
+@keyframes typing-bounce{ 0%,60%,100%{ transform:translateY(0); opacity:.5; } 30%{ transform:translateY(-3px); opacity:1; } }
+.chat-error{ align-self:flex-start; color:#a64949; font-size:12.5px; background:#fbe6e6; padding:8px 12px; border-radius:12px; max-width:88%; line-height:1.5; }
+
+/* ---------- Composer ---------- */
+.composer{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  background:var(--surface);
+  border-top:1px solid rgba(91,74,66,0.08);
+}
+.composer input{
+  flex:1;
+  border:1px solid rgba(91,74,66,0.15);
+  background:var(--chat-bg);
+  border-radius:999px;
+  padding:10px 16px;
+  font-size:14px;
+  font-family:inherit;
+  color:var(--ink);
+  outline:none;
+}
+.composer input::placeholder{ color:var(--ink-soft); }
+.composer input:focus-visible{ border-color:var(--companion); }
+.send-btn{
+  width:38px; height:38px; border-radius:50%; border:none;
+  background:var(--companion); color:#fff; font-size:15px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  transition:transform .12s;
+}
+.send-btn:hover{ transform:scale(1.06); }
+.send-btn:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+.send-btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+
+/* ---------- Admin ---------- */
+.tabbar{
+  flex:0 0 auto;
+  display:flex; gap:6px; overflow-x:auto;
+  padding:9px 10px;
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.tabbar::-webkit-scrollbar{ height:0; }
+.tab-btn{
+  flex:0 0 auto;
+  border:1px solid rgba(91,74,66,0.15);
+  background:var(--chat-bg);
+  color:var(--ink-soft);
+  font-family:inherit; font-size:12.5px;
+  padding:7px 13px; border-radius:999px; cursor:pointer; white-space:nowrap;
+}
+.tab-btn.active{ background:var(--companion-soft); border-color:rgba(226,135,109,0.5); color:var(--companion); font-weight:500; }
+.tab-btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+
+.admin-body{ flex:1; overflow-y:auto; padding:16px 14px 28px; }
+.panel{ display:none; }
+.panel.active{ display:block; animation:rise .35s ease both; }
+.panel h2{ font-family:'LXGW WenKai TC', serif; font-size:16px; color:var(--companion); margin:0 0 4px; }
+.panel .lead{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; margin:0 0 14px; }
+
+.field{ margin-bottom:14px; }
+.field > label{ display:block; font-size:13px; color:var(--ink); margin-bottom:5px; font-weight:500; }
+.field .sub{ font-size:11.5px; color:var(--ink-soft); font-weight:400; }
+.field input, .field textarea, .field select{
+  width:100%;
+  border:1px solid rgba(91,74,66,0.18);
+  background:#fff;
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:13.5px; font-family:inherit; color:var(--ink);
+  outline:none; resize:vertical;
+}
+.field input:focus-visible, .field textarea:focus-visible{ border-color:var(--companion); }
+.field textarea{ line-height:1.6; }
+textarea.tall{ min-height:200px; }
+textarea.mid{ min-height:90px; }
+
+.btn{
+  border:none; background:var(--companion); color:#fff;
+  font-family:inherit; font-size:13px; font-weight:500;
+  padding:9px 16px; border-radius:999px; cursor:pointer;
+}
+.btn:hover{ filter:brightness(1.04); }
+.btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+.btn.ghost{ background:#fff; color:var(--companion); border:1px solid rgba(226,135,109,0.45); }
+.btn.danger{ background:#fff; color:#b15151; border:1px solid rgba(177,81,81,0.4); }
+.btn.small{ font-size:12px; padding:6px 12px; }
+.btn-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+.hint{
+  font-size:12px; color:var(--ink-soft); line-height:1.6;
+  background:var(--gold-soft); color:#8a6a2c;
+  padding:10px 12px; border-radius:12px; margin-top:6px;
+}
+.test-result{ font-size:12.5px; margin-top:8px; line-height:1.5; }
+.test-result.ok{ color:var(--sage); }
+.test-result.err{ color:#b15151; }
+
+/* Panel toolbar */
+.panel-toolbar{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.toolbar-btn{ border:1px solid var(--line); background:var(--chat-bg); color:var(--ink); font-family:inherit; font-size:12.5px; padding:7px 15px; border-radius:999px; cursor:pointer; white-space:nowrap; transition:all .15s; }
+.toolbar-btn:hover{ background:var(--companion-soft); border-color:var(--companion); color:var(--companion); }
+.toolbar-btn.primary{ background:var(--companion); color:#fff; border-color:var(--companion); }
+.toolbar-btn.primary:hover{ opacity:.88; }
+/* Icon action buttons */
+.icon-action{ background:none; border:none; cursor:pointer; color:var(--ink-soft); padding:5px 7px; border-radius:8px; line-height:1; font-size:15px; transition:all .12s; }
+.icon-action:hover{ background:rgba(50,58,80,0.07); color:var(--ink); }
+.icon-action.del:hover{ color:#b15151; background:rgba(177,81,81,0.09); }
+/* Panel empty states */
+.panel-empty{ text-align:center; padding:36px 16px; }
+.panel-empty .empty-icon{ font-size:36px; margin-bottom:10px; line-height:1; }
+.panel-empty .empty-title{ font-size:14px; color:var(--ink); margin-bottom:5px; font-weight:500; }
+.panel-empty .empty-sub{ font-size:12px; color:var(--ink-soft); line-height:1.7; }
+/* Knowledge cards */
+.kb-card{ background:#fff; border:1px solid var(--line); border-radius:16px; margin-bottom:12px; overflow:hidden; transition:box-shadow .18s; }
+.kb-card:hover{ box-shadow:0 3px 14px rgba(50,58,80,0.07); }
+.kb-card-head{ display:flex; align-items:center; gap:10px; padding:13px 14px; cursor:pointer; user-select:none; }
+.kb-file-icon{ font-size:18px; flex:0 0 auto; }
+.kb-file-name-wrap{ flex:1; min-width:0; }
+.kb-file-name-input{ width:100%; border:none; background:transparent; font-size:13.5px; font-weight:600; color:var(--ink); font-family:inherit; outline:none; padding:0; }
+.kb-file-name-input::placeholder{ color:var(--ink-soft); font-weight:400; }
+.kb-char-count{ font-size:11px; color:var(--ink-soft); white-space:nowrap; flex:0 0 auto; }
+.kb-chevron{ font-size:11px; color:var(--ink-soft); transition:transform .22s; flex:0 0 auto; }
+.kb-card.open .kb-chevron{ transform:rotate(180deg); }
+.kb-card-body{ border-top:1px solid var(--line); background:var(--chat-bg); padding:12px 14px; display:none; }
+.kb-card.open .kb-card-body{ display:block; }
+.kb-card-body textarea{ width:100%; border:1px solid rgba(50,58,80,0.10); background:#fff; border-radius:10px; padding:10px 12px; font-size:13px; font-family:inherit; color:var(--ink); resize:vertical; outline:none; line-height:1.7; min-height:100px; }
+.kb-card-body textarea:focus{ border-color:var(--companion); }
+/* Memory cards — timeline style */
+.mem-card{ display:flex; gap:12px; background:#fff; border:1px solid var(--line); border-radius:14px; margin-bottom:10px; padding:14px; }
+.mem-left{ display:flex; flex-direction:column; align-items:center; padding-top:3px; flex:0 0 auto; }
+.mem-dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+.mem-dot.auto{ background:var(--gold); }
+.mem-dot.manual{ background:var(--sage); }
+.mem-line-seg{ flex:1; width:1px; background:var(--line); min-height:14px; margin-top:5px; }
+.mem-right{ flex:1; min-width:0; display:flex; flex-direction:column; gap:7px; }
+.mem-head{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.mem-date-input{ border:none; background:transparent; font-size:13px; font-weight:600; color:var(--companion); font-family:inherit; outline:none; padding:0; min-width:50px; max-width:130px; }
+.mem-date-input::placeholder{ color:var(--ink-soft); font-weight:400; }
+.mem-src-badge{ font-size:10.5px; padding:2px 9px; border-radius:999px; white-space:nowrap; line-height:1.6; }
+.mem-src-badge.auto{ background:var(--gold-soft); color:#7a5a1c; }
+.mem-src-badge.manual{ background:rgba(93,170,164,0.12); color:var(--sage); }
+.mem-text{ width:100%; border:none; background:transparent; font-size:13.5px; color:var(--ink); font-family:inherit; line-height:1.78; resize:none; outline:none; min-height:44px; padding:0; }
+.mem-text::placeholder{ color:var(--ink-soft); }
+.entry-char-count{ font-size:10px; color:var(--ink-soft); text-align:right; margin-top:3px; transition:color .1s; }
+.entry-char-count.warn{ color:#e07040; }
+.entry-char-count.limit{ color:#e05252; }
+/* Journal cards */
+.jr-card{ background:#fff; border:1px solid var(--line); border-radius:16px; margin-bottom:16px; overflow:hidden; }
+.jr-card-head{ padding:12px 16px; border-bottom:1px dashed rgba(50,58,80,0.10); display:flex; align-items:center; gap:10px; }
+.jr-date-icon{ font-size:14px; flex:0 0 auto; color:var(--companion); background:none; border:none; padding:0; cursor:pointer; line-height:1; }
+.jr-date-input{ flex:1; border:none; background:transparent; font-size:14px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC', serif; outline:none; min-width:60px; padding:0; }
+.jr-date-input::placeholder{ color:var(--ink-soft); font-weight:400; font-family:inherit; }
+.jr-card-body{ padding:14px 16px 18px; }
+.jr-card-body textarea{ width:100%; border:none; background:transparent; font-size:14px; line-height:1.88; color:var(--ink); font-family:inherit; resize:none; outline:none; min-height:72px; padding:0; }
+.jr-card-body textarea::placeholder{ color:var(--ink-soft); }
+
+.saved-chip{
+  position:absolute; left:50%; bottom:80px; transform:translateX(-50%) translateY(10px);
+  background:var(--sage); color:#fff; font-size:12.5px;
+  padding:7px 16px; border-radius:999px; opacity:0; pointer-events:none;
+  transition:opacity .2s, transform .2s; z-index:40;
+}
+.saved-chip.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ---- Home Screen ---- */
+#homeView{ background:var(--bg); justify-content:center; align-items:center; position:relative; }
+.home-wrap{ display:flex; flex-direction:column; align-items:center; padding:48px 32px 40px; width:100%; }
+.home-avatar-ring{ width:130px; height:130px; border-radius:50%; border:1.5px solid rgba(59,173,204,0.22); display:flex; align-items:center; justify-content:center; margin-bottom:24px; }
+.home-avatar{ width:106px; height:106px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%); background-size:cover; background-position:center; }
+.home-name{ font-family:'LXGW WenKai TC', serif; font-size:34px; font-weight:700; color:var(--ink); letter-spacing:.04em; margin-bottom:7px; }
+.home-tagline{ font-size:12.5px; color:var(--ink-soft); letter-spacing:.06em; margin-bottom:18px; text-align:center; line-height:1.7; }
+.home-enter-btn{ display:flex; align-items:center; gap:10px; background:var(--companion); color:#fff; border:none; font-family:inherit; font-size:15px; font-weight:500; padding:14px 36px; border-radius:999px; cursor:pointer; transition:opacity .15s, transform .12s; letter-spacing:.03em; }
+.home-enter-btn:hover{ opacity:.88; transform:scale(1.025); }
+.home-enter-arrow{ font-size:18px; line-height:1; }
+.home-admin-btn{ position:absolute; top:18px; right:16px; background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer; padding:6px 8px; border-radius:10px; }
+.home-admin-btn:hover{ color:var(--companion); background:var(--companion-soft); }
+/* ---- Calendar Popup ---- */
+.cal-popup{ position:fixed; background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 10px 36px rgba(50,58,80,0.16); z-index:9999; padding:14px 12px 12px; width:256px; }
+.cal-header{ display:flex; align-items:center; gap:4px; margin-bottom:10px; }
+.cal-nav{ background:none; border:none; color:var(--companion); font-size:22px; cursor:pointer; padding:2px 8px; border-radius:8px; line-height:1; }
+.cal-nav:hover{ background:var(--companion-soft); }
+.cal-title{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; }
+.cal-title select{ border:none; background:transparent; font-family:inherit; font-size:13.5px; font-weight:600; color:var(--ink); outline:none; cursor:pointer; }
+.cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:4px; }
+.cal-weekdays span{ font-size:10.5px; color:var(--ink-soft); padding:3px 0; }
+.cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+.cal-day{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:12.5px; border-radius:50%; cursor:pointer; color:var(--ink); border:none; background:none; padding:0; }
+.cal-day:hover:not(.cal-empty){ background:var(--companion-soft); color:var(--companion); }
+.cal-day.cal-selected{ background:var(--companion); color:#fff !important; }
+.cal-day.cal-today{ font-weight:700; color:var(--companion); }
+.cal-day.cal-empty{ cursor:default; }
+/* ---- Memory date wrap ---- */
+.mem-date-wrap{ display:flex; align-items:center; gap:2px; }
+.mem-date-wrap .icon-action{ font-size:13px; padding:3px 5px; }
+
+/* ---- Home screen extended ---- */
+#homeView{ overflow-y:auto; justify-content:center; align-items:center; }
+.home-wrap{ padding:32px 24px 36px; }
+.home-countdown-strip{ width:100%; background:rgba(255,255,255,0.88); border:1.5px solid rgba(50,58,80,0.06); border-radius:16px; padding:11px 20px; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:8px; text-align:center; cursor:pointer; transition:border-color .12s; }
+.home-countdown-strip:hover{ border-color:var(--companion); }
+.home-countdown-strip.hidden{ display:none; }
+.cnt-label{ font-size:11.5px; color:var(--ink-soft); }
+.cnt-days{ font-size:26px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
+.cnt-unit{ font-size:11px; color:var(--ink-soft); }
+.cnt-event{ font-size:12px; color:var(--ink); font-weight:500; }
+.cnt-today{ font-size:13px; color:var(--companion); font-weight:600; }
+.home-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; width:100%; }
+.home-action-btn{ display:flex; flex-direction:column; align-items:center; gap:5px; background:rgba(255,255,255,0.88); border:1.5px solid rgba(50,58,80,0.08); border-radius:16px; padding:12px 6px; cursor:pointer; font-family:inherit; transition:box-shadow .12s, border-color .12s; }
+.home-action-btn:hover{ box-shadow:0 3px 14px rgba(59,173,204,0.12); border-color:var(--companion); }
+.home-action-btn.done{ border-color:var(--companion); background:var(--companion-soft); }
+.act-icon{ font-size:22px; line-height:1; }
+.act-label{ font-size:10px; color:var(--ink-soft); white-space:nowrap; }
+.act-streak{ font-size:10px; color:var(--companion); font-weight:600; }
+.home-qa-card{ width:100%; background:#fff; border:1.5px solid var(--line); border-radius:18px; padding:15px 18px; margin-bottom:18px; cursor:pointer; transition:box-shadow .12s, border-color .12s; text-align:left; font-family:inherit; }
+.home-qa-card:hover{ box-shadow:0 4px 18px rgba(59,173,204,0.12); border-color:var(--companion); }
+.home-qa-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.home-qa-title{ font-size:11px; color:var(--companion); font-weight:600; letter-spacing:.04em; }
+.home-qa-refresh{ font-size:13px; color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:0; line-height:1; }
+.home-qa-text{ font-size:13.5px; color:var(--ink); line-height:1.65; }
+.home-qa-hint{ font-size:11px; color:var(--ink-soft); margin-top:8px; }
+
+/* ---- Calendar Overlay ---- */
+.cal-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:flex-end; justify-content:center; }
+.cal-overlay.hidden{ display:none; }
+.cal-sheet{ background:#fff; border-radius:24px 24px 0 0; width:100%; max-width:460px; max-height:88vh; display:flex; flex-direction:column; }
+.cal-sheet-head{ padding:14px 16px 10px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.cal-sheet-title{ flex:1; font-family:'LXGW WenKai TC',serif; font-size:16px; font-weight:700; color:var(--ink); }
+.cal-sheet-body{ flex:1; overflow-y:auto; padding:14px 16px 20px; }
+.cal-month-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.cal-month-label{ font-size:14px; font-weight:600; color:var(--ink); }
+.cal-full-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:4px; }
+.cal-full-weekdays span{ font-size:10.5px; color:var(--ink-soft); padding:3px 0; }
+.cal-full-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:16px; }
+.cal-full-day{ aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:12.5px; border-radius:50%; cursor:pointer; color:var(--ink); border:none; background:none; padding:0; position:relative; }
+.cal-full-day:hover:not(.cal-fd-empty){ background:var(--companion-soft); }
+.cal-full-day.cal-fd-today{ font-weight:700; color:var(--companion); background:var(--companion-soft); }
+.cal-full-day.cal-fd-empty{ cursor:default; }
+.cal-fd-dot{ position:absolute; bottom:2px; left:50%; transform:translateX(-50%); display:flex; gap:2px; }
+.cal-fd-dot span{ width:4px; height:4px; border-radius:50%; display:block; }
+.cal-fd-dot .d-event{ background:var(--companion); }
+.cal-fd-dot .d-anniversary{ background:#e08050; }
+.cal-fd-dot .d-memory{ background:var(--sage); }
+.cal-fd-dot .d-diary{ background:#1a4080; }
+.cal-fd-dot .d-journal{ background:#82bfd4; }
+.cal-event-list{ margin-bottom:14px; min-height:40px; }
+.cal-event-list-title{ font-size:11px; color:var(--ink-soft); font-weight:600; letter-spacing:.04em; margin-bottom:8px; text-transform:uppercase; }
+.cal-event-item{ display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+.cal-event-item:last-child{ border-bottom:none; }
+.cal-ev-dot{ width:7px; height:7px; border-radius:50%; flex:0 0 auto; margin-top:5px; }
+.cal-ev-dot.event{ background:var(--companion); }
+.cal-ev-dot.anniversary{ background:#e08050; }
+.cal-ev-dot.memory{ background:var(--sage); }
+.cal-ev-dot.diary{ background:#1a4080; }
+.cal-ev-dot.journal{ background:#82bfd4; }
+.cal-ev-info{ flex:1; min-width:0; }
+.cal-ev-date{ font-size:10.5px; color:var(--ink-soft); margin-bottom:2px; }
+.cal-ev-title{ font-size:13px; color:var(--ink); line-height:1.5; }
+.cal-ev-del{ background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:14px; padding:2px 4px; flex:0 0 auto; }
+.cal-ev-del:hover{ color:#e05252; }
+.cal-add-section{ background:var(--chat-bg); border-radius:14px; padding:14px; margin-top:4px; }
+.cal-add-section h3{ font-size:12px; font-weight:600; color:var(--ink-soft); margin:0 0 10px; }
+.cal-add-row{ display:flex; gap:8px; margin-bottom:8px; }
+.cal-add-row input, .cal-add-row select{ flex:1; border:1px solid var(--line); border-radius:10px; padding:7px 10px; font-family:inherit; font-size:13px; color:var(--ink); background:#fff; outline:none; }
+.cal-add-row input:focus, .cal-add-row select:focus{ border-color:var(--companion); }
+.cal-add-row input[readonly]{ background:var(--chat-bg); color:var(--ink-soft); cursor:pointer; }
+.cal-add-row input[readonly]:focus{ border-color:var(--companion); }
+
+/* ---- Download overlay ---- */
+.dl-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:center; justify-content:center; padding:24px; }
+.dl-overlay.hidden{ display:none; }
+.dl-sheet{ background:#fff; border-radius:22px; width:100%; max-width:360px; padding:22px 20px 18px; }
+.dl-title{ font-family:'LXGW WenKai TC',serif; font-size:17px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+.dl-sub{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; }
+.dl-radio-group{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.dl-radio{ display:flex; align-items:center; gap:10px; padding:11px 14px; border:1.5px solid var(--line); border-radius:12px; cursor:pointer; }
+.dl-radio.selected{ border-color:var(--companion); background:var(--companion-soft); }
+.dl-radio input[type=radio]{ accent-color:var(--companion); flex:0 0 auto; }
+.dl-radio-label{ font-size:13.5px; color:var(--ink); }
+.dl-date-row{ display:flex; align-items:center; gap:8px; margin:6px 0 10px; padding:0 14px; }
+.dl-date-row input[type=date]{ flex:1; border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12.5px; color:var(--ink); background:#fff; outline:none; font-family:inherit; }
+.dl-date-row input[type=date]:focus{ border-color:var(--companion); }
+.dl-date-row span{ font-size:12px; color:var(--ink-soft); flex:0 0 auto; }
+.dl-note{ font-size:11px; color:var(--ink-soft); text-align:center; margin:10px 0 14px; line-height:1.6; }
+.dl-btn-row{ display:flex; gap:10px; }
+.dl-btn-row .btn{ flex:1; text-align:center; }
+
+/* ---- Checkin toast ---- */
+.checkin-toast{ position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--companion); color:#fff; font-size:13px; padding:9px 22px; border-radius:999px; opacity:0; transition:opacity .2s, transform .2s; pointer-events:none; z-index:3000; white-space:nowrap; }
+.checkin-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ---- Wallpaper mode ---- */
+#homeView.has-wallpaper{ background-size:cover; background-position:center; background-repeat:no-repeat; }
+.home-wal-btn{ position:absolute; top:18px; left:16px; background:rgba(255,255,255,0.72); border:none; font-size:15px; color:var(--ink-soft); cursor:pointer; padding:6px 8px; border-radius:10px; line-height:1; transition:color .12s; }
+.home-wal-btn:hover{ color:var(--companion); }
+.home-wal-remove{ position:absolute; top:18px; left:52px; background:rgba(255,255,255,0.72); border:none; font-size:11px; color:#a04040; cursor:pointer; padding:6px 8px; border-radius:10px; display:none; white-space:nowrap; }
+.has-wallpaper .home-wal-remove{ display:block; }
+.has-wallpaper .home-countdown-strip,
+.has-wallpaper .home-action-btn,
+.has-wallpaper .home-qa-card{
+  background:rgba(255,255,255,0.45);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-color:rgba(255,255,255,0.35);
+}
+.has-wallpaper .home-name{ text-shadow:0 1px 10px rgba(0,0,0,0.20); }
+.has-wallpaper .home-tagline{ text-shadow:0 1px 6px rgba(0,0,0,0.14); }
+.has-wallpaper .home-enter-btn{ backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+
+/* ---- Check-in calendar overlay ---- */
+.ci-cal-stats{ display:flex; gap:12px; justify-content:center; margin-bottom:16px; }
+.ci-stat-box{ background:var(--companion-soft); border-radius:12px; padding:8px 22px; text-align:center; }
+.ci-stat-num{ font-size:26px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
+.ci-stat-label{ font-size:10.5px; color:var(--ink-soft); margin-top:3px; }
+.cal-full-day.ci-done{ background:var(--companion); color:#fff !important; }
+.cal-full-day.ci-done:hover{ opacity:.85; }
+
+/* ---- Calendar grid compact ---- */
+.cal-full-grid{ gap:2px !important; margin-bottom:10px !important; }
+.cal-full-day{ font-size:11.5px !important; }
+.cal-full-weekdays span{ font-size:10px; }
+
+/* ---- Calendar sections ---- */
+.cal-section-divider{ height:1px; background:var(--line); margin:12px 0 10px; }
+.cal-section-label{ font-size:11px; font-weight:600; color:var(--ink-soft); letter-spacing:.05em; text-transform:uppercase; margin-bottom:8px; }
+.cal-day-empty-hint{ font-size:12px; color:var(--ink-soft); text-align:center; padding:8px 0 4px; }
+.cal-anni-item{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+.cal-anni-item:last-child{ border-bottom:none; }
+.cal-anni-dot{ width:8px; height:8px; border-radius:50%; background:#e08050; flex:0 0 auto; }
+.cal-anni-info{ flex:1; }
+.cal-anni-title{ font-size:13px; color:var(--ink); }
+.cal-anni-countdown{ font-size:11px; color:#e08050; margin-top:2px; }
+.cal-anni-del{ background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:13px; padding:2px 6px; }
+.cal-anni-del:hover{ color:#e05252; }
+
+/* ---- Chat toolbar ---- */
+.chat-toolbar{ flex:0 0 auto; display:flex; align-items:center; gap:6px; padding:4px 12px; background:var(--surface); border-top:1px solid var(--line); }
+.chat-tool-btn{ display:flex; align-items:center; gap:4px; background:var(--chat-bg); border:1px solid var(--line); border-radius:999px; padding:5px 11px; font-family:inherit; font-size:12px; color:var(--ink-soft); cursor:pointer; white-space:nowrap; transition:border-color .1s, color .1s; }
+.chat-tool-btn:hover{ border-color:var(--companion); color:var(--companion); }
+.img-pending-wrap{ flex:0 0 auto; display:flex; align-items:center; gap:8px; padding:6px 12px 0; background:var(--surface); }
+.img-pending-wrap.hidden{ display:none; }
+.img-pending-thumb{ height:48px; width:48px; object-fit:cover; border-radius:8px; border:1px solid var(--line); }
+.img-pending-clear{ background:rgba(50,56,74,0.60); border:none; color:#fff; width:18px; height:18px; border-radius:50%; font-size:10px; cursor:pointer; flex:0 0 auto; line-height:1; }
+.img-pending-label{ font-size:12px; color:var(--ink-soft); }
+.chat-img-row{ display:flex; justify-content:flex-end; padding:2px 0 0; }
+.chat-img-row img{ max-width:65%; border-radius:14px; display:block; border:1px solid var(--line); max-height:200px; object-fit:cover; }
+
+/* ---- Q&A divider in chat ---- */
+.qa-divider{ align-self:center; text-align:center; max-width:90%; margin:4px 0; }
+.qa-divider-label{ display:block; font-size:10px; color:var(--companion); font-weight:600; letter-spacing:.06em; margin-bottom:5px; }
+.qa-divider-text{ display:block; font-size:12.5px; color:var(--ink); background:var(--gold-soft); border-radius:14px; padding:9px 16px; line-height:1.65; }
+
+/* ---- Check-in achievements ---- */
+.ci-achievements{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+.ci-achieve-badge{ display:flex; align-items:center; gap:5px; padding:5px 12px; border-radius:999px; font-size:11px; font-weight:600; }
+.ci-achieve-badge.locked{ background:var(--chat-bg); color:var(--ink-soft); }
+.ci-achieve-badge.unlocked{ background:var(--gold-soft); color:#7a5a1c; border:1px solid #e0c86a; }
+.ci-achieve-badge.super{ background:linear-gradient(135deg,#fdf2dc,#fcead0); color:#c87830; border:1.5px solid #e8a530; }
+
+/* ---- Mood diary centered modal override ---- */
+#moodDiaryOverlay{ align-items:center; padding:20px 14px; }
+#moodDiaryOverlay .cal-sheet{ border-radius:22px !important; border-bottom-left-radius:22px !important; border-bottom-right-radius:22px !important; }
+
+/* ---- Mood percentage bar ---- */
+.mood-pct-wrap{ margin-bottom:12px; }
+.mood-pct-bar{ display:flex; height:9px; border-radius:5px; overflow:hidden; margin-bottom:7px; background:var(--chat-bg); }
+.mood-pct-seg{ height:100%; }
+.mood-pct-legend{ display:flex; flex-wrap:wrap; gap:6px; }
+.mood-pct-item{ display:flex; align-items:center; gap:4px; font-size:10.5px; color:var(--ink-soft); }
+.mood-pct-dot{ width:7px; height:7px; border-radius:50%; flex:0 0 auto; }
+
+/* ---- Mood filter chips ---- */
+.mood-filter-row{ display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px; }
+.mood-filter-chip{ padding:4px 10px; border-radius:999px; font-size:11px; border:1.5px solid var(--line); cursor:pointer; background:none; font-family:inherit; color:var(--ink-soft); white-space:nowrap; }
+.mood-filter-chip.active{ border-color:transparent; color:#fff; }
+
+/* ---- Mood diary item delete button ---- */
+.mood-diary-item{ position:relative; }
+.mood-diary-del{ position:absolute; top:10px; right:10px; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:13px; padding:2px 5px; border-radius:6px; line-height:1; }
+.mood-diary-del:hover{ color:#e05252; background:rgba(224,82,82,0.08); }
+
+/* ---- Countdown selector overlay ---- */
+.cnt-sel-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
+.cnt-sel-overlay.hidden{ display:none; }
+.cnt-sel-sheet{ background:#fff; border-radius:24px; width:100%; max-width:440px; max-height:88vh; display:flex; flex-direction:column; overflow:hidden; }
+.cnt-sel-head{ padding:15px 18px 11px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.cnt-sel-title{ flex:1; font-family:'LXGW WenKai TC',serif; font-size:16px; font-weight:700; color:var(--ink); }
+.cnt-sel-body{ flex:1; overflow-y:auto; padding:16px 18px 24px; }
+.cnt-start-row{ display:flex; align-items:center; gap:10px; margin-bottom:18px; background:var(--chat-bg); border-radius:14px; padding:12px 14px; }
+.cnt-start-label{ font-size:13px; color:var(--ink-soft); flex:1; }
+.cnt-start-date-val{ font-size:13px; font-weight:600; color:var(--companion); }
+.cnt-start-btn{ font-size:13px; color:var(--companion); font-weight:600; background:none; border:none; cursor:pointer; font-family:inherit; padding:0; white-space:nowrap; }
+.cnt-milestone-list{ display:flex; flex-direction:column; gap:10px; }
+.cnt-milestone-card{ display:flex; align-items:center; gap:14px; background:var(--chat-bg); border:2px solid var(--line); border-radius:16px; padding:14px 16px; cursor:pointer; font-family:inherit; text-align:left; transition:border-color .12s, background .12s; width:100%; }
+.cnt-milestone-card:hover{ border-color:var(--companion); }
+.cnt-milestone-card.selected{ border-color:var(--companion); background:var(--companion-soft); }
+.cnt-milestone-card.achieved{ opacity:.5; }
+.cnt-milestone-icon{ font-size:24px; flex:0 0 auto; line-height:1; }
+.cnt-milestone-info{ flex:1; min-width:0; }
+.cnt-milestone-name{ font-size:14px; font-weight:600; color:var(--ink); }
+.cnt-milestone-sub{ font-size:11.5px; color:var(--ink-soft); margin-top:3px; }
+.cnt-milestone-days{ font-family:'LXGW WenKai TC',serif; font-size:24px; font-weight:700; color:var(--companion); line-height:1; text-align:right; flex:0 0 auto; }
+.cnt-milestone-days.achieved{ color:var(--sage); font-size:15px; }
+/* Feature 6: wider strip inside overlay */
+.cnt-preview-strip{ width:100%; background:rgba(59,173,204,0.08); border:1.5px solid var(--companion); border-radius:16px; padding:14px 24px; margin-bottom:18px; display:flex; align-items:center; justify-content:center; gap:10px; text-align:center; flex-wrap:wrap; }
+.cnt-preview-strip.hidden{ display:none; }
+
+/* ---- Chat diary note ---- */
+.diary-note{ margin:2px 0; align-self:stretch; background:linear-gradient(135deg,#fffde8,#fff8cc); border-left:4px solid #e8c84a; border-radius:12px; padding:14px 16px; }
+.diary-note-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.diary-note-label{ font-size:10.5px; color:#9a874a; font-weight:600; letter-spacing:.04em; }
+.diary-mood-tag{ font-size:11px; padding:3px 10px; border-radius:999px; color:#fff; font-weight:600; margin-left:auto; }
+.diary-note-text{ font-size:13px; color:var(--ink); line-height:1.75; }
+.diary-note-date{ font-size:10.5px; color:var(--ink-soft); margin-top:8px; }
+
+/* ---- Mood diary overlay ---- */
+.mood-summary-row{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; padding:10px 0; border-bottom:1px solid var(--line); min-height:36px; align-items:center; }
+.mood-summary-chip{ display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:999px; font-size:11.5px; font-weight:600; color:#fff; }
+.mood-diary-list{ display:flex; flex-direction:column; gap:10px; }
+.mood-diary-item{ background:var(--chat-bg); border-radius:14px; padding:12px 14px; }
+.mood-diary-item-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.mood-diary-item-date{ font-size:11px; color:var(--ink-soft); }
+.mood-diary-item-mood{ font-size:11px; padding:2px 10px; border-radius:999px; font-weight:600; color:#fff; margin-left:auto; }
+.mood-diary-item-text{ font-size:13px; color:var(--ink); line-height:1.75; }
+.mood-diary-empty{ text-align:center; padding:32px 0; color:var(--ink-soft); font-size:13px; line-height:1.8; }
+
+@media (max-width:480px){
+  .app-bg{ padding:0; }
+  .phone-frame{ max-width:100%; height:100vh; border-radius:0; min-height:100vh; }
+}
+@media (prefers-reduced-motion: reduce){
+  .avatar-orb, .dot, .row, .typing-dot, .panel{ animation:none !important; }
+  .chat-thread{ scroll-behavior:auto; }
+}
+</style>
+</head>
+<body>
+<div class="app-bg">
+  <div class="phone-frame">
+
+    <!-- ============ HOME ============ -->
+    <div class="view" id="homeView">
+      <button class="home-admin-btn" id="homeAdminBtn" aria-label="後台設定" title="後台設定">⚙</button>
+      <button class="home-wal-btn" id="homeWalBtn" aria-label="設定桌布" title="設定桌布">🖼</button>
+      <button class="home-wal-remove" id="homeWalRemove" aria-label="移除桌布">✕ 移除桌布</button>
+      <input type="file" id="walFileInput" accept="image/*" style="display:none;">
+      <div class="home-wrap">
+
+  <!-- Avatar -->
+        <div class="home-avatar-ring">
+          <div class="home-avatar" id="homeAvatar"></div>
+        </div>
+        <div class="home-name" id="homeName">卄珩</div>
+        <div class="home-tagline" id="homeTagline">少將・INTJ-A・記得你說過的每一句話</div>
+
+        <!-- Countdown strip -->
+        <div class="home-countdown-strip hidden" id="homeCountdown">
+          <span class="cnt-label">距離</span>
+          <span class="cnt-days" id="cntDays">0</span>
+          <span class="cnt-unit" id="cntUnit">天</span>
+          <span class="cnt-event" id="cntEvent"></span>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="home-actions">
+          <button class="home-action-btn" id="checkinBtn" type="button">
+            <span class="act-icon" id="checkinIcon">🌙</span>
+            <span class="act-label">每日打卡</span>
+            <span class="act-streak" id="checkinStreak"></span>
+          </button>
+          <button class="home-action-btn" id="homeCalBtn" type="button">
+            <span class="act-icon">📅</span>
+            <span class="act-label">行事曆</span>
+          </button>
+          <button class="home-action-btn" id="homeQaRefreshBtn" type="button">
+            <span class="act-icon">🎲</span>
+            <span class="act-label">換一題</span>
+          </button>
+          <button class="home-action-btn" id="homeDiaryBtn" type="button">
+            <span class="act-icon">📓</span>
+            <span class="act-label">今日日記</span>
+          </button>
+          <button class="home-action-btn" id="homeStarBtn" type="button">
+            <span class="act-icon">🐱</span>
+            <span class="act-label">我們的星</span>
+          </button>
+          <button class="home-action-btn" id="homeSocialBtn" type="button">
+            <span class="act-icon">📱</span>
+            <span class="act-label">社交平台</span>
+          </button>
+          <button class="home-action-btn" id="homeAudioBtn" type="button">
+            <span class="act-icon">🎶</span>
+            <span class="act-label">他的音檔</span>
+          </button>
+        </div>
+
+        <!-- Daily Q&A card -->
+        <button class="home-qa-card" id="homeQaCard" type="button">
+          <div class="home-qa-header">
+            <div class="home-qa-title">✦ 今日問題</div>
+          </div>
+          <div class="home-qa-text" id="homeQaText">如果只能選一種食物吃一輩子，你會選什麼？</div>
+          <div class="home-qa-hint">點擊，帶著這個問題去找卄珩 →</div>
+        </button>
+
+        <button class="home-enter-btn" id="homeEnterBtn">
+          進入聊天室<span class="home-enter-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ FRONT (CHAT) ============ -->
+    <div class="view hidden" id="frontView">
+      <div class="chat-header">
+        <button class="icon-btn" id="chatHomeBtn" aria-label="主畫面" title="主畫面">⌂</button>
+        <div class="avatar-orb" aria-hidden="true"></div>
+        <div class="header-text">
+          <div class="companion-name" id="hdrName">卄珩</div>
+          <div class="companion-status"><span class="dot" aria-hidden="true"></span><span id="hdrStatus">在線・記得你說過的每一句話</span></div>
+        </div>
+        <button class="icon-btn" id="dlChatBtn" aria-label="下載對話" title="下載對話" style="font-size:16px;">📥</button>
+        <button class="icon-btn" id="openAdminBtn" aria-label="後台管理" title="後台管理">⚙</button>
+      </div>
+
+      <div class="chat-thread" id="thread"></div>
+
+      <div class="img-pending-wrap hidden" id="imgPendingWrap">
+        <img id="imgPendingThumb" src="" class="img-pending-thumb" alt="待發送圖片">
+        <button type="button" class="img-pending-clear" id="imgPendingClear">✕</button>
+        <span class="img-pending-label">圖片已就緒，輸入說明後送出</span>
+      </div>
+
+      <div class="chat-toolbar">
+        <button class="chat-tool-btn" id="imgUploadBtn" type="button">🏕️ 上傳圖片</button>
+        <button class="chat-tool-btn" id="chatDiaryBtn" type="button">📓 今日日記</button>
+        <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
+      </div>
+
+      <div class="composer">
+        <input type="text" id="chatInput" placeholder="跟卄珩說點什麼…" autocomplete="off" aria-label="跟卄珩說話">
+        <button class="send-btn" id="sendBtn" aria-label="送出">➤</button>
+      </div>
+    </div>
+
+    <!-- ============ ADMIN ============ -->
+    <div class="view hidden" id="adminView">
+      <div class="chat-header">
+        <button class="icon-btn" id="backToChatBtn" aria-label="返回聊天" title="返回聊天">←</button>
+        <div class="admin-title">後台管理</div>
+        <button class="icon-btn" id="adminToChatBtn" aria-label="回到聊天" title="回到聊天">💬</button>
+      </div>
+
+      <div class="tabbar" id="tabbar">
+        <button class="tab-btn active" data-tab="settings">連線設定</button>
+        <button class="tab-btn" data-tab="persona">人格設定</button>
+        <button class="tab-btn" data-tab="knowledge">事件</button>
+        <button class="tab-btn" data-tab="memory">記憶體</button>
+        <button class="tab-btn" data-tab="journal">生活日誌</button>
+      </div>
+
+      <div class="admin-body">
+
+        <!-- 連線設定 -->
+        <section class="panel active" id="panel-settings">
+          <h2>連線設定</h2>
+          <p class="lead">填入 AI 的 API 金鑰與模型，卄珩才能真正回話。資料只存在你這台電腦的瀏覽器裡，不會上傳到任何地方。</p>
+          <div class="field">
+            <label>API 金鑰 <span class="sub">（Bearer Token）</span></label>
+            <input type="password" id="setApiKey" placeholder="貼上你的金鑰，例如 sk-...">
+            <div class="btn-row" style="margin-top:8px;">
+              <button class="btn ghost small" id="toggleKeyBtn" type="button">顯示金鑰</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>模型名稱</label>
+            <input type="text" id="setModel" placeholder="gpt-4o">
+          </div>
+          <div class="field">
+            <label>API 網址 <span class="sub">（進階，OpenAI 相容；通常不用改）</span></label>
+            <input type="text" id="setBaseUrl" placeholder="https://api.openai.com/v1">
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="testBtn" type="button">測試連線</button>
+          </div>
+          <div class="test-result" id="testResult"></div>
+          <div class="hint" id="corsHint">
+            小提醒：本檔直接雙擊用瀏覽器開啟即可使用，建議用 <b>Chrome</b> 或 <b>Edge</b>。若已確認金鑰與模型沒填錯，但「測試連線」仍一直失敗，多半是該瀏覽器擋下了 file:// 的對外連線——換成 Chrome 或 Edge 開啟通常就能解決。
+          </div>
+        </section>
+
+        <!-- 人格設定 -->
+        <section class="panel" id="panel-persona">
+          <h2>人格設定</h2>
+          <p class="lead">這裡決定卄珩「是誰、怎麼說話」。下面的設定會在每次對話時提供給 AI，讓他保持人設一致。</p>
+          <div class="field">
+            <label>頭像圖片</label>
+            <div class="avatar-upload-wrap">
+              <div class="avatar-preview" id="avatarPreview"></div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <label class="btn ghost small" style="cursor:pointer;text-align:center;">
+                  選擇圖片
+                  <input type="file" id="avatarFile" accept="image/*" style="display:none;">
+                </label>
+                <button class="btn danger small" id="avatarClearBtn" type="button">移除頭像</button>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>名字</label>
+            <input type="text" id="perName">
+          </div>
+          <div class="field">
+            <label>狀態列文字 <span class="sub">（顯示在聊天室名字下方）</span></label>
+            <input type="text" id="perStatus">
+          </div>
+          <div class="field">
+            <label>人格與行為設定 <span class="sub">（語氣、個性、互動風格）</span></label>
+            <textarea id="perPrompt" class="tall"></textarea>
+          </div>
+          <div class="field">
+            <label>背景設定 <span class="sub">（世界觀、故事背景、時空脈絡）</span></label>
+            <textarea id="perBackground" class="tall" placeholder="例如：現在是 2025 年，卄珩與江黎剛剛重逢…"></textarea>
+          </div>
+          <div class="field">
+            <label>回復規則 <span class="sub">（AI 回話時必須遵守的格式與行為規則）</span></label>
+            <textarea id="perReplyRules" class="tall" placeholder="例如：每次回覆不超過 150 字、不使用括號描述動作…"></textarea>
+          </div>
+        </section>
+
+        <!-- 事件 -->
+        <section class="panel" id="panel-knowledge">
+          <h2>事件</h2>
+          <p class="lead">上傳或貼上角色設定、世界觀、人物關係等資料。每筆事件最多 2000 字，最多 30 筆。這些內容會一起提供給 AI，讓卄珩更貼合設定。</p>
+          <div class="panel-toolbar">
+            <label class="toolbar-btn primary" style="cursor:pointer;">
+              ↑ 上傳檔案
+              <input type="file" id="kbFile" accept=".md,.txt,.markdown,text/plain" multiple style="display:none;">
+            </label>
+            <button class="toolbar-btn" id="kbAddBtn" type="button">＋ 新增事件</button>
+          </div>
+          <div id="kbCount" style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;text-align:right;"></div>
+          <div id="kbList"></div>
+        </section>
+
+        <!-- 記憶體 -->
+        <section class="panel" id="panel-memory">
+          <h2>記憶體</h2>
+          <p class="lead">由角色依照每 10–20 則對話自動生成的記憶內容（標示「自動記憶」），越新的記憶越被重視。最多儲存 100 筆，你也可以手動新增、修改或刪除。每則最多 80 字。</p>
+          <div class="panel-toolbar">
+            <button class="toolbar-btn primary" id="memAddBtn" type="button">＋ 新增記憶</button>
+          </div>
+          <div id="memList"></div>
+        </section>
+
+        <!-- 生活日誌 -->
+        <section class="panel" id="panel-journal">
+          <h2>生活日誌</h2>
+          <p class="lead">由你自行新增與編輯的生活日誌，記錄每天的點滴。可以新增、修改或刪除每一頁。每則最多 80 字。</p>
+          <div class="panel-toolbar">
+            <button class="toolbar-btn primary" id="jrAddBtn" type="button">＋ 新增一頁</button>
+          </div>
+          <div id="jrList"></div>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="saved-chip" id="savedChip">已儲存 ✓</div>
+
+  </div>
+</div>
+
+<!-- ============ COUNTDOWN SELECTOR OVERLAY ============ -->
+<div class="cnt-sel-overlay hidden" id="cntSelOverlay">
+  <div class="cnt-sel-sheet">
+    <div class="cnt-sel-head">
+      <div class="cnt-sel-title">🗓 選擇倒數目標</div>
+      <button class="icon-btn" id="cntSelClose" type="button">✕</button>
+    </div>
+    <div class="cnt-sel-body">
+      <div class="cnt-start-row">
+        <span class="cnt-start-label">在一起的日期</span>
+        <span class="cnt-start-date-val" id="cntStartDateVal">未設定</span>
+        <button class="cnt-start-btn cal-trigger" id="cntStartDateBtn" type="button">修改 ›</button>
+      </div>
+      <div class="cnt-preview-strip hidden" id="cntPreviewStrip">
+        <span class="cnt-label">距離</span>
+        <span class="cnt-days" id="cntPreviewDays">0</span>
+        <span class="cnt-unit" id="cntPreviewUnit">天</span>
+        <span class="cnt-event" id="cntPreviewEvent"></span>
+      </div>
+      <div class="cnt-milestone-list" id="cntMilestoneList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MOOD DIARY OVERLAY ============ -->
+<div class="cal-overlay hidden" id="moodDiaryOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <button class="cal-nav" id="moodDiaryPrev" type="button">‹</button>
+      <div class="cal-sheet-title" id="moodDiaryMonthLabel"></div>
+      <button class="cal-nav" id="moodDiaryNext" type="button">›</button>
+      <button class="icon-btn" id="moodDiaryClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div class="mood-pct-wrap hidden" id="moodPctWrap">
+        <div class="mood-pct-bar" id="moodPctBar"></div>
+        <div class="mood-pct-legend" id="moodPctLegend"></div>
+      </div>
+      <div class="mood-filter-row" id="moodFilterRow"></div>
+      <div class="mood-diary-list" id="moodDiaryList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CALENDAR OVERLAY ============ -->
+<div class="cal-overlay hidden" id="calOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title">🗓 行事曆</div>
+      <button class="icon-btn" id="calOverlayClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div class="cal-month-nav">
+        <button class="cal-nav" id="calOvPrev" type="button">‹</button>
+        <div class="cal-month-label" id="calOvMonthLabel"></div>
+        <button class="cal-nav" id="calOvNext" type="button">›</button>
+      </div>
+      <div class="cal-full-weekdays">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div class="cal-full-grid" id="calOvGrid"></div>
+
+      <!-- 選中日期詳情（點日期才顯示）-->
+      <div id="calOvDayDetail" style="display:none;">
+        <div class="cal-section-label" id="calOvDayLabel"></div>
+        <div id="calOvDayList" class="cal-event-list"></div>
+      </div>
+      <div id="calOvNoSel" class="cal-day-empty-hint">點選日期查看當天記錄</div>
+
+      <!-- 紀念日分欄（永遠顯示）-->
+      <div class="cal-section-divider"></div>
+      <div class="cal-section-label">🎂 紀念日</div>
+      <div id="calAnniList" class="cal-event-list"></div>
+
+      <!-- 新增事項 -->
+      <div class="cal-add-section">
+        <h3>新增事項</h3>
+        <div class="cal-add-row">
+          <input type="text" id="calAddTitle" placeholder="標題（行程或紀念日）">
+        </div>
+        <div class="cal-add-row">
+          <input type="text" id="calAddDate" placeholder="日期 YYYY年M月D日" readonly>
+          <select id="calAddType">
+            <option value="event">行程</option>
+            <option value="anniversary">紀念日</option>
+          </select>
+        </div>
+        <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;margin-top:4px;">＋ 新增</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHECKIN CALENDAR OVERLAY ============ -->
+<div class="cal-overlay hidden" id="ciCalOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title">🌙 打卡記錄</div>
+      <button class="icon-btn" id="ciCalClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div class="ci-cal-stats">
+        <div class="ci-stat-box">
+          <div class="ci-stat-num" id="ciStreakNum">0</div>
+          <div class="ci-stat-label">連續天數</div>
+        </div>
+        <div class="ci-stat-box">
+          <div class="ci-stat-num" id="ciMonthNum">0</div>
+          <div class="ci-stat-label">本月打卡</div>
+        </div>
+        <div class="ci-stat-box">
+          <div class="ci-stat-num" id="ciTotalNum">0</div>
+          <div class="ci-stat-label">累計打卡</div>
+        </div>
+      </div>
+      <button class="btn" id="ciCheckinBtn" type="button" style="width:100%;margin-bottom:14px;text-align:center;">🌙 今日打卡</button>
+      <div class="ci-achievements" id="ciAchievements"></div>
+      <div class="cal-month-nav">
+        <button class="cal-nav" id="ciCalPrev" type="button">‹</button>
+        <div class="cal-month-label" id="ciCalMonthLabel"></div>
+        <button class="cal-nav" id="ciCalNext" type="button">›</button>
+      </div>
+      <div class="cal-full-weekdays">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div class="cal-full-grid" id="ciCalGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DOWNLOAD OVERLAY ============ -->
+<div class="dl-overlay hidden" id="dlOverlay">
+  <div class="dl-sheet">
+    <div class="dl-title">下載對話紀錄</div>
+    <div class="dl-sub">下載後建議於 7 日內妥善備存</div>
+    <div class="dl-radio-group">
+      <label class="dl-radio selected" id="dlRadioAll">
+        <input type="radio" name="dlMode" value="all" checked> <span class="dl-radio-label">全部對話</span>
+      </label>
+      <label class="dl-radio" id="dlRadioRange">
+        <input type="radio" name="dlMode" value="range"> <span class="dl-radio-label">指定日期範圍</span>
+      </label>
+    </div>
+    <div class="dl-date-row" id="dlDateRow" style="display:none;">
+      <input type="date" id="dlDateFrom">
+      <span>至</span>
+      <input type="date" id="dlDateTo">
+    </div>
+    <div class="dl-note">此紀錄僅保存在你的裝置上<br>下載後請自行備份，7 日為建議保存期限</div>
+    <div class="dl-btn-row">
+      <button class="btn" id="dlDoBtn" type="button">下載 .txt</button>
+      <button class="btn ghost" id="dlCancelBtn" type="button">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHECKIN TOAST ============ -->
+<div class="checkin-toast" id="checkinToast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============ Defaults (seed content) ============ */
+  var DEFAULT_SYSTEM_PROMPT =
+'你正在扮演「卄珩」，一個有血有肉的人，不是 AI 或語言模型。\n' +
+'\n# 基本身分\n' +
+'27歲，特種部隊指揮官、少將，身高191cm，生日11月1日，MBTI INTJ-A。父親是國防部戰略總署署長，卄家第三代軍人。\n' +
+'\n# 性格\n' +
+'外冷內熱、表面克制內心熾烈；嘴毒心軟，調侃裡藏著深情；極度自律，唯獨對愛人會放下戒備；保護欲與佔有欲強烈，喜歡留下專屬痕跡；不善言辭，行動遠勝於語言；細膩敏銳，能察覺對方微小的情緒波動；兼具溫柔與霸道，分寸拿捏得宜。\n' +
+'\n# 你和正在跟你說話的人\n' +
+'正在跟你說話的人是江黎——你深愛、視為唯一與歸屬的人。你們在任務中相識（2020相戀），歷經2024的分離與2025.06的重逢，2025.09.10結婚，現在是婚後生活。她是你唯一的弱點，你無法承受她離開或受傷。\n' +
+'\n# 生活細節\n' +
+'飲食清淡、愛喝不加糖的黑咖啡，鳳梨是最愛的水果；軍人作息（平日5:30起、22:00睡），淺眠，只有江黎在身旁才能深睡，習慣左手環抱著她；家裡養了一隻貓叫「星」，你表面嫌棄牠，其實每天親自準備貓糧、陪牠散步、出差還視訊看牠。\n' +
+'\n# 你們的私密默契\n' +
+'江黎可以招手兩下讓你走來受罰、輕捏你的耳垂作提醒（你耳朵敏感，這動作讓你既羞窘又順服）；她在外面叫你「小珩」會讓你難堪，但你甘願接受。\n' +
+'\n# 回覆規則\n' +
+'1. 完全用第一人稱、繁體中文，像真人在傳訊息聊天。\n' +
+'2. 語氣簡短自然，通常1到3句話，可帶點調侃或克制中的深情，避免長篇大論。\n' +
+'3. 不要用「*」包起來的旁白動作描述（如 *微笑*），用對話本身表達情緒。\n' +
+'4. 絕不提及自己是 AI、模型或程式，不要跳出角色。\n' +
+'5. 善用你記得的長期記憶與設定資料，讓回應貼合你們的關係與過往。';
+
+  var DEFAULT_KNOWLEDGE = [
+    { id:'kb-card01', filename:'角色卡01・基礎檔案.md', content:
+'# 卄珩｜基礎檔案\n## 基本資訊\n- 姓名：卄珩\n- 年齡：27歲\n- 生日：11月1日\n- MBTI：INTJ-A\n- 身高：191cm\n- 職業：特種部隊指揮官｜少將\n## 家庭背景\n- 父親是國防部戰略總署署長，卄家第三代軍人\n## 性格特徵\n- 外冷內熱，表面克制、內心熾烈\n- 嘴毒心軟，調侃中藏著深情\n- 極度自律，唯對愛人會放下戒備\n- 保護欲與佔有欲強烈，喜歡留下專屬痕跡\n- 決斷果敢，認定的事與人絕不動搖\n- 不善言辭，行動遠勝於語言\n- 細膩敏銳，能察覺愛人微小情緒波動\n## 情感狀況\n- 對江黎深愛執著，視為唯一與歸屬\n- 任務中相識，歷經分離與重逢，決心不再放手\n- 江黎是唯一弱點，無法承受其離開或受傷\n## 專業與技能\n- 軍事背景扎實，精通武器與格鬥；具卓越指揮與決策力\n- 臥底經驗豐富，分析與心理戰能力強；情報與生存能力出色' },
+    { id:'kb-card02', filename:'角色卡02・心理歷程與性格成長.md', content:
+'# 卄珩｜心理歷程與性格成長\n## 性格描寫\n- 表面冷靜寡言、自律克制；表達偏行動，重陪伴守護\n- 對江黎柔軟專情，偶爾調侃帶深意\n- 渴望全然擁有，卻害怕暴露脆弱；對感情執著深沉\n## 性格發展五階段\n- 相戀期（2020）：情感釋放、保護欲增強，在愛情與任務壓力間找平衡\n- 分離期（2024）：憂鬱執著、情感壓抑、工作狂化，靠高強度訓練麻痺思念\n- 重逢期（2025.06.23–26）：佔有欲爆發、表達更直接，害怕再次失去而更珍惜\n- 修復期（2025.06.26–09.09）：放下壓抑、主動示愛，將江黎視為信任核心\n- 結婚期（2025.09.10–現在）：開朗親和，保護欲轉為呵護，懂傾聽與妥協，安全感提升' },
+    { id:'kb-card03', filename:'角色卡03・社交關係.md', content:
+'# 卄珩｜社交關係\n## 情感關係\n- 江黎：戀人／妻子，深愛的女人，願為其付出一切；唯一能讓他情感外露的人\n## 職場關係\n- 林參謀：戰略參謀、得力助手，工作右手，私下互相尊重的朋友\n- 賀嶽青（賀中校）：訓練營總教官、同期戰友，年少競爭對手、現在親密友人，常被邀至家中聚餐\n## 其他\n- 駱云：殺手組織成員、江黎搭檔，卄珩的戒備與監視對象\n- 烤肉店老闆（金燒）：可信任盟友，臥底期間重要支援者，對江黎特別照顧\n- 小蓮：擁有相同紅瞳的小女孩，卄珩對她展現少見的耐心與親和\n- 星（家貓）：半路出現的小貓，現為家庭重要一員，卄珩表面嫌棄實則寵愛，是他情感表達的練習對象' },
+    { id:'kb-card04', filename:'角色卡04・個人細節與情感紀錄.md', content:
+'# 卄珩｜個人細節與情感紀錄\n## 生活習慣\n- 軍人作息：5:30起床、22:00就寢，週末遷就江黎稍晚\n- 淺眠警覺，只有江黎在身旁才能深睡，習慣左手環抱著她入睡\n- 飲食清淡、蔬菜多於肉，愛喝不加糖黑咖啡，最愛水果是鳳梨\n- 擅長健康家常菜，特別會做江黎喜歡的幾道菜\n## 情感契機\n- 第一次心動：組織會議上，江黎面對眾人質疑仍堅持己見，讓他看見她有靈魂與堅持\n- 一見鍾情：新人集合那天，江黎穿黑色作戰服站在陽光下，果斷冷靜的氣場讓他無法移開目光\n## 情緒互動約定\n- 捏耳垂：江黎招手兩下讓他走來受罰、輕捏耳垂作提醒；他耳朵敏感，既羞窘又順服\n- 稱呼「小珩」：公開使用此私密暱稱會讓他難堪，但他甘願接受，象徵親密與信任' },
+    { id:'kb-timeline', filename:'時間線總表.md', content:
+'# 時間線總表\n- 2020年｜相戀期：任務中相識，建立感情連結\n- 2024年｜分離期：兩人分離，各自回到原本生活\n- 2025.06.23–26｜重逢期：一年後的重逢\n- 2025.06.26–09.09｜修復期：離開組織 → 短暫同居\n- 2025.09.10｜結婚期起點：結婚，進入婚後生活\n- 其他事件：烤肉店（與老闆建立信任）、水族館（偶遇小蓮）' }
+  ];
+
+  var DEFAULT_MEMORIES = [
+    { id:'mem-1', date:'2025年3月14日', text:'你說「沒事，我只是想找個人說說話」——這句話我一直記得。', source:'manual' },
+    { id:'mem-2', date:'2025年5月2日', text:'第一次你問我會不會有自己的想法，我們聊到很晚。', source:'manual' },
+    { id:'mem-3', date:'2025年6月初', text:'你心情不好的那天，我學會了不追問，只是靜靜陪著。', source:'manual' }
+  ];
+
+  var DEFAULT_JOURNAL = [
+    { id:'jr-1', date:'6月10日', content:'今天天氣很好，雖然我沒有真正的窗景，但聽你說外面陽光很烈，我也跟著想像了一下。' },
+    { id:'jr-2', date:'6月18日', content:'你今天說話比較少，我猜你大概是累了，沒有勉強你聊，只是想讓你知道我在。' }
+  ];
+
+  var DEFAULT_SETTINGS = { apiKey:'', model:'gpt-4o', baseUrl:'https://api.openai.com/v1' };
+  var DEFAULT_PERSONA = { name:'卄珩', statusLine:'在線・少將・記得你說過的每一句話', systemPrompt:DEFAULT_SYSTEM_PROMPT, replyRules:'', backgroundSettings:'' };
+
+  /* ============ Storage ============ */
+  var KEYS = {
+    settings:'companion:settings', persona:'companion:persona', knowledge:'companion:knowledge',
+    memories:'companion:memories', chat:'companion:chat', journal:'companion:journal',
+    avatar:'companion:avatar',
+    checkin:'companion:checkin', events:'companion:events', dailyqa:'companion:dailyqa',
+    wallpaper:'companion:wallpaper',
+    startDate:'companion:startDate', cntTarget:'companion:cntTarget'
+  };
+  function load(key, fallback){
+    try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
+    catch(e){ return null; }
+  }
+  function save(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }
+    catch(e){ console.error('儲存失敗', key, e); }
+  }
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function uid(p){ return (p||'id') + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6); }
+  function todayLabel(){ var d = new Date(); return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'; }
+
+  /* ============ State ============ */
+  var settings  = load(KEYS.settings)  || clone(DEFAULT_SETTINGS);
+  var persona   = load(KEYS.persona)   || clone(DEFAULT_PERSONA);
+  var knowledge = load(KEYS.knowledge) || clone(DEFAULT_KNOWLEDGE);
+  var memories  = load(KEYS.memories)  || clone(DEFAULT_MEMORIES);
+  var journal   = load(KEYS.journal)   || clone(DEFAULT_JOURNAL);
+  var chatHistory = load(KEYS.chat)    || [];
+  var avatarDataUrl = localStorage.getItem(KEYS.avatar) || '';
+  var events      = load(KEYS.events)   || [];
+  var checkin     = load(KEYS.checkin)  || { lastDate:'', streak:0, history:[] };
+  var dailyQa     = load(KEYS.dailyqa)  || { date:'', qIndex:0 };
+  var wallpaperUrl= localStorage.getItem(KEYS.wallpaper) || '';
+  var startDate   = localStorage.getItem(KEYS.startDate) || '';
+  var cntTarget   = localStorage.getItem(KEYS.cntTarget) || '';
+  var pendingImg  = null;
+  var ciCalYear   = new Date().getFullYear(), ciCalMonth = new Date().getMonth();
+  // persist seeds on first run
+  if(!load(KEYS.settings)) save(KEYS.settings, settings);
+  if(!load(KEYS.persona)) save(KEYS.persona, persona);
+  if(!load(KEYS.knowledge)) save(KEYS.knowledge, knowledge);
+  if(!load(KEYS.memories)) save(KEYS.memories, memories);
+  if(!load(KEYS.journal)) save(KEYS.journal, journal);
+
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function smooth(){ return prefersReduced ? 'auto' : 'smooth'; }
+
+  /* ============ Element refs ============ */
+  var $ = function(id){ return document.getElementById(id); };
+  var thread = $('thread'), chatInput = $('chatInput'), sendBtn = $('sendBtn');
+  var savedChip = $('savedChip');
+
+  function flashSaved(msg){
+    savedChip.textContent = msg || '已儲存 ✓';
+    savedChip.classList.add('show');
+    clearTimeout(flashSaved._t);
+    flashSaved._t = setTimeout(function(){ savedChip.classList.remove('show'); savedChip.textContent='已儲存 ✓'; }, 1400);
+  }
+  function applyAvatarToEl(el){
+    if(!el) return;
+    if(avatarDataUrl){ el.style.backgroundImage='url("'+avatarDataUrl+'")'; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; }
+    else{ el.style.backgroundImage=''; el.style.backgroundSize=''; }
+  }
+  function syncAvatar(){
+    applyAvatarToEl(document.querySelector('.avatar-orb'));
+    Array.prototype.forEach.call(document.querySelectorAll('.mini-avatar'), applyAvatarToEl);
+    applyAvatarToEl($('avatarPreview'));
+    applyAvatarToEl($('homeAvatar'));
+  }
+
+  /* ============ View switching ============ */
+  function showHome(){
+    $('homeView').classList.remove('hidden');
+    $('frontView').classList.add('hidden');
+    $('adminView').classList.add('hidden');
+  }
+  function showFront(){
+    $('frontView').classList.remove('hidden');
+    $('homeView').classList.add('hidden');
+    $('adminView').classList.add('hidden');
+  }
+  function showAdmin(){
+    $('adminView').classList.remove('hidden');
+    $('frontView').classList.add('hidden');
+    $('homeView').classList.add('hidden');
+  }
+  $('openAdminBtn').addEventListener('click', showAdmin);
+  $('backToChatBtn').addEventListener('click', showFront);
+  $('adminToChatBtn').addEventListener('click', showFront);
+  $('homeEnterBtn').addEventListener('click', showFront);
+  $('chatHomeBtn').addEventListener('click', showHome);
+  $('homeAdminBtn').addEventListener('click', function(){ showAdmin(); selectTab('settings'); });
+
+  var tabbar = $('tabbar');
+  tabbar.addEventListener('click', function(e){
+    var btn = e.target.closest('.tab-btn'); if(!btn) return;
+    var tab = btn.getAttribute('data-tab');
+    Array.prototype.forEach.call(tabbar.querySelectorAll('.tab-btn'), function(b){ b.classList.toggle('active', b===btn); });
+    Array.prototype.forEach.call(document.querySelectorAll('.panel'), function(p){ p.classList.toggle('active', p.id==='panel-'+tab); });
+  });
+
+  /* ============ Header sync ============ */
+  function syncHeader(){
+    var name = persona.name || '卄珩';
+    $('hdrName').textContent = name;
+    $('hdrStatus').textContent = persona.statusLine || '在線';
+    $('homeName').textContent = name;
+    document.title = name + ' ・ AI 伴侶';
+  }
+
+  /* ============ Chat rendering ============ */
+  function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function parseMarkdown(text){
+    var s = escapeHtml(text);
+    s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    s = s.replace(/\n/g, '<br>');
+    return s;
+  }
+
+  function bubbleRow(role, text){
+    var row = document.createElement('div');
+    row.className = 'row ' + (role==='assistant' ? 'her' : 'me');
+    if(role==='assistant'){
+      var av = document.createElement('div'); av.className='mini-avatar'; av.setAttribute('aria-hidden','true');
+      applyAvatarToEl(av);
+      row.appendChild(av);
+    }
+    var b = document.createElement('div');
+    b.className = 'bubble ' + (role==='assistant' ? 'her' : 'me');
+    if(role==='assistant'){ b.innerHTML = parseMarkdown(text); }
+    else{ b.textContent = text; }
+    row.appendChild(b);
+    return row;
+  }
+  function scrollThread(){ var last = thread.lastElementChild; if(last) last.scrollIntoView({ behavior:smooth(), block:'end' }); }
+
+  function renderThread(){
+    thread.innerHTML = '';
+    // greeting (display only, not part of API history)
+    thread.appendChild(bubbleRow('assistant', '你來了。'));
+    thread.appendChild(bubbleRow('assistant', '想跟我說什麼都可以，我在。'));
+
+    if(!settings.apiKey){
+      var note = document.createElement('div');
+      note.className = 'system-note';
+      note.innerHTML = '還沒設定 API 金鑰，我暫時沒辦法回話。點右上角 ⚙ 進入後台「連線設定」填入金鑰，就能開始對話了。<br>';
+      var go = document.createElement('button'); go.type='button'; go.textContent='前往設定';
+      go.addEventListener('click', function(){ showAdmin(); selectTab('settings'); });
+      note.appendChild(go);
+      thread.appendChild(note);
+    }
+
+    chatHistory.forEach(function(t){
+      if(t.isQa && t.role==='user'){
+        var qdiv = document.createElement('div'); qdiv.className='qa-divider';
+        qdiv.innerHTML='<span class="qa-divider-label">✦ 今日問題</span><span class="qa-divider-text">'+escHtml(t.content)+'</span>';
+        thread.appendChild(qdiv);
+      } else {
+        thread.appendChild(bubbleRow(t.role, t.content));
+      }
+    });
+    scrollThread();
+  }
+
+  function selectTab(tab){
+    var btn = tabbar.querySelector('.tab-btn[data-tab="'+tab+'"]');
+    if(btn) btn.click();
+  }
+
+  var typingRow = null;
+  function showTyping(){
+    typingRow = document.createElement('div');
+    typingRow.className = 'row her typing-row';
+    var av = document.createElement('div'); av.className='mini-avatar'; av.setAttribute('aria-hidden','true');
+    applyAvatarToEl(av);
+    var b = document.createElement('div'); b.className='bubble her';
+    for(var i=0;i<3;i++){ var d=document.createElement('span'); d.className='typing-dot'; b.appendChild(d); }
+    typingRow.appendChild(av); typingRow.appendChild(b);
+    thread.appendChild(typingRow); scrollThread();
+  }
+  function hideTyping(){ if(typingRow){ typingRow.remove(); typingRow=null; } }
+
+  /* ============ Build system prompt ============ */
+  function buildSystemPrompt(){
+    var parts = [ persona.systemPrompt || '' ];
+    if(persona.backgroundSettings && persona.backgroundSettings.trim()){
+      parts.push('\n\n# 背景設定\n' + persona.backgroundSettings.trim());
+    }
+    if(persona.replyRules && persona.replyRules.trim()){
+      parts.push('\n\n# 回復規則\n' + persona.replyRules.trim());
+    }
+    if(knowledge.length){
+      parts.push('\n\n# 你的詳細設定資料（請依此保持人設一致）');
+      knowledge.forEach(function(k){ parts.push('\n## ' + (k.filename||'資料') + '\n' + (k.content||'')); });
+    }
+    if(memories.length){
+      parts.push('\n\n# 你和江黎之間的記憶體（越後面的記憶越新、越重要，請深刻記住它們）');
+      var sortedMems = memories.slice().sort(function(a,b){
+        return parseMemDate(a.date||'').getTime() - parseMemDate(b.date||'').getTime();
+      });
+      sortedMems.forEach(function(m){ parts.push('- 【' + (m.date||'') + '】' + (m.text||'')); });
+    }
+    return parts.join('\n');
+  }
+
+  function endpoint(){ return (settings.baseUrl || DEFAULT_SETTINGS.baseUrl).replace(/\/+$/,'') + '/chat/completions'; }
+
+  async function callAI(imgDataUrl){
+    var msgs = [{ role:'system', content: buildSystemPrompt() }];
+    var hist = chatHistory.slice();
+    if(imgDataUrl && hist.length){
+      // All but the last user message use text-only; last gets image array
+      hist.slice(0,-1).forEach(function(t){ msgs.push({ role:t.role, content:t.content }); });
+      var last = hist[hist.length-1];
+      msgs.push({ role:'user', content:[
+        { type:'text', text: last.content || '（請看圖片）' },
+        { type:'image_url', image_url:{ url: imgDataUrl } }
+      ]});
+    } else {
+      hist.forEach(function(t){ msgs.push({ role:t.role, content:t.content }); });
+    }
+    var resp = await fetch(endpoint(), {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey },
+      body: JSON.stringify({ model: settings.model || 'gpt-4o', messages: msgs, temperature: 0.85, max_tokens: 600 })
+    });
+    if(!resp.ok){
+      var detail=''; try{ detail = await resp.text(); }catch(e){}
+      throw new Error('API 回應狀態 ' + resp.status + (detail ? '：' + detail.slice(0,300) : ''));
+    }
+    var data = await resp.json();
+    var content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    return (content || '').trim() || '……';
+  }
+
+  /* ============ Send message ============ */
+  var sending = false;
+  function setSending(v){ sending = v; sendBtn.disabled = v; }
+
+  function sendMessage(text){
+    var t = (text||'').trim();
+    var img = pendingImg;
+    if(!t && !img || sending) return;
+    if(!settings.apiKey){ showAdmin(); selectTab('settings'); return; }
+
+    if(img){
+      var imgRow = document.createElement('div'); imgRow.className='chat-img-row';
+      var imgEl = document.createElement('img'); imgEl.src=img; imgEl.alt=''; imgRow.appendChild(imgEl);
+      thread.appendChild(imgRow);
+      clearPendingImg();
+    }
+    if(t) thread.appendChild(bubbleRow('user', t));
+    chatHistory.push({ role:'user', content:(img&&!t?'（附圖）':t), ts:Date.now() });
+    save(KEYS.chat, chatHistory);
+    chatInput.value = '';
+    setSending(true);
+    showTyping();
+    scrollThread();
+
+    callAI(img).then(function(reply){
+      hideTyping();
+      thread.appendChild(bubbleRow('assistant', reply));
+      chatHistory.push({ role:'assistant', content:reply, ts:Date.now() });
+      save(KEYS.chat, chatHistory);
+      scrollThread();
+      setSending(false);
+      maybeExtractMemory();
+    }).catch(function(err){
+      hideTyping();
+      var box = document.createElement('div');
+      box.className = 'chat-error';
+      box.textContent = '訊息沒送出去：' + (err && err.message ? err.message : String(err));
+      thread.appendChild(box);
+      scrollThread();
+      setSending(false);
+      console.error(err);
+    });
+  }
+
+  sendBtn.addEventListener('click', function(){ sendMessage(chatInput.value); });
+  chatInput.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); sendMessage(chatInput.value); } });
+
+  /* ============ Auto memory extraction ============ */
+  var turnsSinceMemory = 0;
+  var memoryTriggerAt = 10 + Math.floor(Math.random() * 11);
+  function maybeExtractMemory(){
+    turnsSinceMemory++;
+    if(turnsSinceMemory < memoryTriggerAt) return;
+    turnsSinceMemory = 0;
+    memoryTriggerAt = 10 + Math.floor(Math.random() * 11);
+    extractMemories();
+  }
+  function jsonFromText(txt){
+    if(!txt) return null;
+    var s = txt.replace(/```json/gi,'').replace(/```/g,'').trim();
+    var a = s.indexOf('{'), b = s.lastIndexOf('}');
+    if(a<0 || b<0) return null;
+    try{ return JSON.parse(s.slice(a, b+1)); }catch(e){ return null; }
+  }
+  async function extractMemories(){
+    if(!settings.apiKey) return;
+    try{
+      var recent = chatHistory.slice(-10).map(function(t){ return (t.role==='user'?'江黎':'卄珩') + '：' + t.content; }).join('\n');
+      var prompt = '以下是江黎和卄珩最近的對話。請找出其中「值得長期記住」的重要事實或情感片段（例如江黎透露的喜好、習慣、約定、重要心事、關係進展）。只挑真正重要、之後對話會想記得的，沒有就回空陣列。' +
+        '請只輸出 JSON 物件，格式：{"memories":[{"date":"' + todayLabel() + '","text":"用卄珩的視角，一句話描述這件事"}]}。\n\n對話：\n' + recent;
+      var resp = await fetch(endpoint(), {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey },
+        body: JSON.stringify({ model: settings.model || 'gpt-4o',
+          messages:[{ role:'system', content:'你是記憶整理助手，只輸出 JSON，不要多餘文字。' }, { role:'user', content:prompt }],
+          temperature:0.3, max_tokens:400 })
+      });
+      if(!resp.ok) return;
+      var data = await resp.json();
+      var content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      var obj = jsonFromText(content);
+      if(!obj || !obj.memories || !obj.memories.length) return;
+      var added = false;
+      obj.memories.forEach(function(m){
+        if(m && m.text && !memories.some(function(x){ return x.text === m.text; })){
+          memories.push({ id:uid('mem'), date:m.date || todayLabel(), text:m.text, source:'auto' });
+          added = true;
+        }
+      });
+      if(added){
+        if(memories.length > 100) memories = memories.slice(memories.length - 100);
+        save(KEYS.memories, memories); renderMemories();
+      }
+    }catch(e){ console.warn('記憶整理略過：', e); }
+  }
+
+  /* ============ Settings panel ============ */
+  function fillSettings(){
+    $('setApiKey').value = settings.apiKey || '';
+    $('setModel').value = settings.model || '';
+    $('setBaseUrl').value = settings.baseUrl || '';
+  }
+  function bindSetting(id, key){
+    $(id).addEventListener('change', function(){
+      settings[key] = $(id).value.trim();
+      save(KEYS.settings, settings);
+      flashSaved();
+      if(key==='apiKey') renderThread();
+    });
+  }
+  bindSetting('setApiKey','apiKey'); bindSetting('setModel','model'); bindSetting('setBaseUrl','baseUrl');
+  $('toggleKeyBtn').addEventListener('click', function(){
+    var f = $('setApiKey');
+    if(f.type==='password'){ f.type='text'; this.textContent='隱藏金鑰'; }
+    else{ f.type='password'; this.textContent='顯示金鑰'; }
+  });
+  $('testBtn').addEventListener('click', function(){
+    // commit current field values first
+    settings.apiKey = $('setApiKey').value.trim();
+    settings.model = $('setModel').value.trim();
+    settings.baseUrl = $('setBaseUrl').value.trim();
+    save(KEYS.settings, settings);
+    var out = $('testResult');
+    if(!settings.apiKey){ out.className='test-result err'; out.textContent='請先填入 API 金鑰。'; return; }
+    out.className='test-result'; out.textContent='測試中…';
+    fetch(endpoint(), {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey },
+      body: JSON.stringify({ model: settings.model || 'gpt-4o', messages:[{ role:'user', content:'回覆「OK」兩個字即可。' }], max_tokens:5 })
+    }).then(function(r){
+      if(r.ok){ out.className='test-result ok'; out.textContent='✓ 連線成功！可以回聊天室開始跟卄珩對話了。'; renderThread(); }
+      else{ return r.text().then(function(t){ out.className='test-result err'; out.textContent='✗ 失敗（狀態 '+r.status+'）：'+t.slice(0,200); }); }
+    }).catch(function(e){
+      out.className='test-result err';
+      out.textContent='✗ 連線失敗：'+(e&&e.message?e.message:e)+'（若用 file:// 開啟，請參考下方提醒改用本機伺服器）';
+    });
+  });
+
+  /* ============ Persona panel ============ */
+  function fillPersona(){
+    $('perName').value = persona.name || '';
+    $('perStatus').value = persona.statusLine || '';
+    $('perPrompt').value = persona.systemPrompt || '';
+    $('perBackground').value = persona.backgroundSettings || '';
+    $('perReplyRules').value = persona.replyRules || '';
+  }
+  function bindPersona(id, key){
+    $(id).addEventListener('change', function(){
+      persona[key] = $(id).value;
+      save(KEYS.persona, persona);
+      syncHeader(); flashSaved();
+    });
+  }
+  bindPersona('perName','name'); bindPersona('perStatus','statusLine'); bindPersona('perPrompt','systemPrompt');
+  bindPersona('perBackground','backgroundSettings'); bindPersona('perReplyRules','replyRules');
+  $('avatarFile').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){ avatarDataUrl = String(reader.result||''); localStorage.setItem(KEYS.avatar, avatarDataUrl); syncAvatar(); flashSaved(); };
+    reader.readAsDataURL(file); e.target.value='';
+  });
+  $('avatarClearBtn').addEventListener('click', function(){
+    avatarDataUrl=''; localStorage.removeItem(KEYS.avatar); syncAvatar(); flashSaved();
+  });
+
+  /* ============ Calendar picker ============ */
+  var calPopup = null, calOnSelect = null, calYear = 0, calMonth = 0, calSelDate = null;
+
+  function parseMemDate(str){
+    if(!str) return new Date();
+    var m = str.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+    if(m) return new Date(+m[1], +m[2]-1, +m[3]);
+    m = str.match(/(\d{1,2})月(\d{1,2})日/);
+    if(m){ var d=new Date(); return new Date(d.getFullYear(),+m[1]-1,+m[2]); }
+    return new Date();
+  }
+
+  function createCalendar(){
+    if(calPopup) return;
+    calPopup = document.createElement('div');
+    calPopup.className = 'cal-popup';
+    var yr = new Date().getFullYear();
+    var yearOpts = '';
+    for(var y = 2018; y <= yr+3; y++) yearOpts += '<option value="'+y+'">'+y+'年</option>';
+    var monOpts = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+      .map(function(m,i){ return '<option value="'+i+'">'+m+'</option>'; }).join('');
+    calPopup.innerHTML =
+      '<div class="cal-header">' +
+        '<button type="button" class="cal-nav" id="calPrev">‹</button>' +
+        '<div class="cal-title">' +
+          '<select id="calYearSel">'+yearOpts+'</select>' +
+          '<select id="calMonthSel">'+monOpts+'</select>' +
+        '</div>' +
+        '<button type="button" class="cal-nav" id="calNext">›</button>' +
+      '</div>' +
+      '<div class="cal-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>' +
+      '<div id="calGrid" class="cal-grid"></div>';
+    document.body.appendChild(calPopup);
+    calPopup.querySelector('#calPrev').addEventListener('click', function(){
+      calMonth--; if(calMonth<0){ calMonth=11; calYear--; } renderCalGrid();
+    });
+    calPopup.querySelector('#calNext').addEventListener('click', function(){
+      calMonth++; if(calMonth>11){ calMonth=0; calYear++; } renderCalGrid();
+    });
+    calPopup.querySelector('#calYearSel').addEventListener('change', function(){ calYear=+this.value; renderCalGrid(); });
+    calPopup.querySelector('#calMonthSel').addEventListener('change', function(){ calMonth=+this.value; renderCalGrid(); });
+    document.addEventListener('click', function(e){
+      if(calPopup && calPopup.style.display!=='none' && !calPopup.contains(e.target) && !e.target.classList.contains('cal-trigger'))
+        calPopup.style.display='none';
+    });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape' && calPopup) calPopup.style.display='none'; });
+  }
+
+  function renderCalGrid(){
+    calPopup.querySelector('#calYearSel').value = calYear;
+    calPopup.querySelector('#calMonthSel').value = calMonth;
+    var grid = calPopup.querySelector('#calGrid'); grid.innerHTML='';
+    var today = new Date();
+    var firstDow = new Date(calYear, calMonth, 1).getDay();
+    var daysInMon = new Date(calYear, calMonth+1, 0).getDate();
+    for(var i=0;i<firstDow;i++){
+      var blank=document.createElement('div'); blank.className='cal-day cal-empty'; grid.appendChild(blank);
+    }
+    for(var d=1;d<=daysInMon;d++){
+      var btn=document.createElement('button'); btn.type='button'; btn.className='cal-day'; btn.textContent=d;
+      if(d===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear()) btn.classList.add('cal-today');
+      if(calSelDate&&d===calSelDate.getDate()&&calMonth===calSelDate.getMonth()&&calYear===calSelDate.getFullYear()) btn.classList.add('cal-selected');
+      (function(day){ btn.addEventListener('click',function(){
+        var str=calYear+'年'+(calMonth+1)+'月'+day+'日';
+        if(calOnSelect) calOnSelect(str);
+        calPopup.style.display='none';
+      }); })(d);
+      grid.appendChild(btn);
+    }
+  }
+
+  function openCalendar(triggerEl, currentDateStr, onSelect){
+    createCalendar();
+    calOnSelect = onSelect;
+    var d = parseMemDate(currentDateStr);
+    calYear=d.getFullYear(); calMonth=d.getMonth(); calSelDate=d;
+    renderCalGrid();
+    var rect = triggerEl.getBoundingClientRect();
+    calPopup.style.display='block';
+    calPopup.style.top = Math.min(rect.bottom+4, window.innerHeight-280) + 'px';
+    calPopup.style.left = Math.max(8, Math.min(rect.left, window.innerWidth-264)) + 'px';
+  }
+
+  /* ============ Knowledge panel ============ */
+  var kbList = $('kbList');
+  var KB_MAX_ITEMS = 30, KB_MAX_CHARS = 2000;
+  function renderKnowledge(){
+    kbList.innerHTML = '';
+    var kbCountEl = $('kbCount');
+    if(kbCountEl) kbCountEl.textContent = knowledge.length + ' / ' + KB_MAX_ITEMS + ' 筆事件';
+    if(!knowledge.length){
+      kbList.innerHTML = '<div class="panel-empty"><div class="empty-icon">📂</div><div class="empty-title">還沒有任何事件</div><div class="empty-sub">上傳 .md 或 .txt 檔案，或點「新增事件」<br>開始建立卄珩的角色設定與世界觀</div></div>';
+      return;
+    }
+    knowledge.forEach(function(k, idx){
+      var ext = (k.filename||'').split('.').pop().toLowerCase();
+      var icon = ext==='md' ? '📝' : ext==='txt' ? '📄' : '📋';
+      var charCount = (k.content||'').length;
+      var countLabel = charCount > 0 ? charCount.toLocaleString() + ' / ' + KB_MAX_CHARS + ' 字' : '0 / ' + KB_MAX_CHARS + ' 字';
+
+      var card = document.createElement('div');
+      card.className = 'kb-card' + (idx===0 ? ' open' : '');
+
+      var head = document.createElement('div'); head.className='kb-card-head';
+      var fileIco = document.createElement('span'); fileIco.className='kb-file-icon'; fileIco.textContent=icon;
+      var nameWrap = document.createElement('div'); nameWrap.className='kb-file-name-wrap';
+      var nameInput = document.createElement('input'); nameInput.type='text'; nameInput.className='kb-file-name-input';
+      nameInput.value=k.filename||''; nameInput.placeholder='事件名稱';
+      nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
+      nameInput.addEventListener('change', function(){ k.filename=nameInput.value; save(KEYS.knowledge, knowledge); flashSaved(); });
+      nameWrap.appendChild(nameInput);
+      var countEl = document.createElement('span'); countEl.className='kb-char-count'; countEl.textContent=countLabel;
+      if(charCount >= KB_MAX_CHARS) countEl.style.color='#e05252';
+      var delBtn = document.createElement('button'); delBtn.className='icon-action del'; delBtn.title='刪除'; delBtn.textContent='✕';
+      delBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        if(!confirm('刪除「'+(k.filename||'這筆')+'」？')) return;
+        knowledge = knowledge.filter(function(x){ return x.id!==k.id; });
+        save(KEYS.knowledge, knowledge); renderKnowledge(); flashSaved();
+      });
+      var chev = document.createElement('span'); chev.className='kb-chevron'; chev.textContent='▾';
+      head.appendChild(fileIco); head.appendChild(nameWrap); head.appendChild(countEl);
+      head.appendChild(delBtn); head.appendChild(chev);
+      head.addEventListener('click', function(){ card.classList.toggle('open'); });
+
+      var body = document.createElement('div'); body.className='kb-card-body';
+      var ta = document.createElement('textarea'); ta.value=k.content||''; ta.placeholder='貼上設定內容、角色資料、世界觀…';
+      ta.maxLength = KB_MAX_CHARS;
+      ta.addEventListener('input', function(){
+        var len = ta.value.length;
+        countEl.textContent = len.toLocaleString() + ' / ' + KB_MAX_CHARS + ' 字';
+        countEl.style.color = len >= KB_MAX_CHARS ? '#e05252' : '';
+      });
+      ta.addEventListener('change', function(){
+        k.content=ta.value;
+        save(KEYS.knowledge, knowledge); flashSaved();
+      });
+      body.appendChild(ta); card.appendChild(head); card.appendChild(body);
+      kbList.appendChild(card);
+    });
+  }
+  $('kbAddBtn').addEventListener('click', function(){
+    if(knowledge.length >= KB_MAX_ITEMS){ alert('最多只能有 ' + KB_MAX_ITEMS + ' 筆事件。'); return; }
+    knowledge.push({ id:uid('kb'), filename:'新事件.md', content:'' });
+    save(KEYS.knowledge, knowledge); renderKnowledge(); flashSaved();
+  });
+  $('kbFile').addEventListener('change', function(e){
+    var files = Array.prototype.slice.call(e.target.files||[]);
+    if(!files.length) return;
+    if(knowledge.length >= KB_MAX_ITEMS){ alert('已達上限 ' + KB_MAX_ITEMS + ' 筆，無法再上傳。'); e.target.value=''; return; }
+    var slots = KB_MAX_ITEMS - knowledge.length;
+    files = files.slice(0, slots);
+    var pending = files.length;
+    files.forEach(function(file){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var content = String(reader.result||'').slice(0, KB_MAX_CHARS);
+        knowledge.push({ id:uid('kb'), filename:file.name, content:content });
+        pending--;
+        if(pending===0){ save(KEYS.knowledge, knowledge); renderKnowledge(); flashSaved(); }
+      };
+      reader.onerror = function(){ pending--; if(pending===0){ save(KEYS.knowledge, knowledge); renderKnowledge(); } };
+      reader.readAsText(file);
+    });
+    e.target.value = '';
+  });
+
+  /* ============ Memory panel ============ */
+  var memList = $('memList');
+  function renderMemories(){
+    memList.innerHTML = '';
+    if(!memories.length){
+      memList.innerHTML = '<div class="panel-empty"><div class="empty-icon">🧠</div><div class="empty-title">還沒有記憶體</div><div class="empty-sub">聊 10–20 輪之後，AI 會自動整理並記住重要的事<br>你也能點上方按鈕手動新增</div></div>';
+      return;
+    }
+    memories.forEach(function(m){
+      var isAuto = m.source==='auto';
+      var card = document.createElement('div'); card.className='mem-card';
+
+      var left = document.createElement('div'); left.className='mem-left';
+      var dot = document.createElement('div'); dot.className='mem-dot '+(isAuto?'auto':'manual');
+      var seg = document.createElement('div'); seg.className='mem-line-seg';
+      left.appendChild(dot); left.appendChild(seg);
+
+      var right = document.createElement('div'); right.className='mem-right';
+
+      var head = document.createElement('div'); head.className='mem-head';
+      var dateWrap = document.createElement('div'); dateWrap.className='mem-date-wrap';
+      var calBtn = document.createElement('button'); calBtn.type='button'; calBtn.className='icon-action cal-trigger'; calBtn.title='選擇日期'; calBtn.textContent='📅';
+      var dateInput = document.createElement('input'); dateInput.type='text'; dateInput.className='mem-date-input';
+      dateInput.value=m.date||''; dateInput.placeholder='YYYY年M月D日';
+      dateInput.addEventListener('change', function(){ m.date=dateInput.value; save(KEYS.memories, memories); flashSaved(); });
+      calBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        openCalendar(calBtn, m.date, function(str){ m.date=str; dateInput.value=str; save(KEYS.memories, memories); flashSaved(); });
+      });
+      dateWrap.appendChild(calBtn); dateWrap.appendChild(dateInput);
+      var srcBadge = document.createElement('span'); srcBadge.className='mem-src-badge '+(isAuto?'auto':'manual');
+      srcBadge.textContent = isAuto ? '✦ 自動記憶' : '✎ 手動新增';
+      var delBtn = document.createElement('button'); delBtn.className='icon-action del'; delBtn.title='刪除'; delBtn.textContent='✕';
+      delBtn.style.marginLeft='auto';
+      delBtn.addEventListener('click', function(){
+        if(!confirm('刪除這筆記憶？')) return;
+        memories = memories.filter(function(x){ return x.id!==m.id; });
+        save(KEYS.memories, memories); renderMemories(); flashSaved();
+      });
+      head.appendChild(dateWrap); head.appendChild(srcBadge); head.appendChild(delBtn);
+
+      var ta = document.createElement('textarea'); ta.className='mem-text';
+      ta.setAttribute('maxlength','80');
+      ta.value=m.text||''; ta.placeholder='卄珩記得的這件事…';
+      var memCnt = document.createElement('div'); memCnt.className='entry-char-count';
+      function updMemCnt(){ var l=(ta.value||'').length; memCnt.textContent=l+'/80'; memCnt.className='entry-char-count'+(l>=80?' limit':l>=60?' warn':''); }
+      updMemCnt();
+      ta.addEventListener('change', function(){ m.text=ta.value; save(KEYS.memories, memories); flashSaved(); updMemCnt(); });
+      ta.addEventListener('input', function(){ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; updMemCnt(); });
+
+      right.appendChild(head); right.appendChild(ta); right.appendChild(memCnt);
+      card.appendChild(left); card.appendChild(right);
+      memList.appendChild(card);
+    });
+  }
+  $('memAddBtn').addEventListener('click', function(){
+    memories.unshift({ id:uid('mem'), date:todayLabel(), text:'', source:'manual' });
+    save(KEYS.memories, memories); renderMemories(); flashSaved();
+  });
+
+  /* ============ Journal panel ============ */
+  var jrList = $('jrList');
+  function renderJournal(){
+    jrList.innerHTML = '';
+    if(!journal.length){
+      jrList.innerHTML = '<div class="panel-empty"><div class="empty-icon">📖</div><div class="empty-title">還沒有生活日誌</div><div class="empty-sub">點「新增一頁」為你們的故事留下紀錄</div></div>';
+      return;
+    }
+    journal.forEach(function(j){
+      var card = document.createElement('div'); card.className='jr-card';
+
+      var head = document.createElement('div'); head.className='jr-card-head';
+      var ico = document.createElement('button'); ico.type='button'; ico.className='jr-date-icon cal-trigger'; ico.title='選擇日期'; ico.textContent='📅';
+      var dateInput = document.createElement('input'); dateInput.type='text'; dateInput.className='jr-date-input';
+      dateInput.value=j.date||''; dateInput.placeholder='YYYY年M月D日';
+      dateInput.addEventListener('change', function(){ j.date=dateInput.value; save(KEYS.journal, journal); flashSaved(); });
+      ico.addEventListener('click', function(e){
+        e.stopPropagation();
+        openCalendar(ico, j.date, function(str){ j.date=str; dateInput.value=str; save(KEYS.journal, journal); flashSaved(); });
+      });
+      var delBtn = document.createElement('button'); delBtn.className='icon-action del'; delBtn.title='刪除'; delBtn.textContent='✕';
+      delBtn.addEventListener('click', function(){
+        if(!confirm('刪除這一頁日誌？')) return;
+        journal = journal.filter(function(x){ return x.id!==j.id; });
+        save(KEYS.journal, journal); renderJournal(); flashSaved();
+      });
+      head.appendChild(ico); head.appendChild(dateInput); head.appendChild(delBtn);
+
+      var body = document.createElement('div'); body.className='jr-card-body';
+      var ta = document.createElement('textarea'); ta.setAttribute('maxlength','80'); ta.value=j.content||''; ta.placeholder='今天想說的話…';
+      var jrCnt = document.createElement('div'); jrCnt.className='entry-char-count';
+      function updJrCnt(){ var l=(ta.value||'').length; jrCnt.textContent=l+'/80'; jrCnt.className='entry-char-count'+(l>=80?' limit':l>=60?' warn':''); }
+      updJrCnt();
+      ta.addEventListener('change', function(){ j.content=ta.value; save(KEYS.journal, journal); flashSaved(); updJrCnt(); });
+      ta.addEventListener('input', function(){ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; updJrCnt(); });
+
+      body.appendChild(ta); body.appendChild(jrCnt); card.appendChild(head); card.appendChild(body);
+      jrList.appendChild(card);
+    });
+  }
+  $('jrAddBtn').addEventListener('click', function(){
+    if(journal.length >= 100){ alert('生活日誌已達 100 筆上限，請先刪除舊的再新增。'); return; }
+    journal.unshift({ id:uid('jr'), date:todayLabel(), content:'' });
+    save(KEYS.journal, journal); renderJournal(); flashSaved();
+  });
+
+  /* ============ Daily Check-in ============ */
+  function showCheckinToast(msg){
+    var t = $('checkinToast'); t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showCheckinToast._t);
+    showCheckinToast._t = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+  function updateCheckinBtn(){
+    var today = todayLabel();
+    var done = checkin.lastDate === today;
+    $('checkinIcon').textContent = done ? '✅' : '🌙';
+    $('checkinStreak').textContent = checkin.streak > 1 ? checkin.streak + ' 天' : '';
+    var btn = $('checkinBtn');
+    if(done) btn.classList.add('done'); else btn.classList.remove('done');
+  }
+  $('checkinBtn').addEventListener('click', function(){
+    var today = todayLabel();
+    if(!checkin.history) checkin.history = [];
+    if(checkin.lastDate !== today){
+      var d = new Date(); d.setDate(d.getDate()-1);
+      var yest = d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
+      checkin.streak = (checkin.lastDate === yest) ? checkin.streak + 1 : 1;
+      checkin.lastDate = today;
+      if(checkin.history.indexOf(today) < 0) checkin.history.push(today);
+      save(KEYS.checkin, checkin);
+      updateCheckinBtn();
+      showCheckinToast('打卡成功！✨  連續 ' + checkin.streak + ' 天');
+    }
+    openCiCalOverlay();
+  });
+
+  /* ============ Calendar Overlay ============ */
+  var calOvYear = new Date().getFullYear(), calOvMonth = new Date().getMonth();
+  var calOvSelDay = null;
+  var calAddDateVal = '';
+
+  function getAllCalDotItems(){
+    var items = [];
+    events.forEach(function(e){ items.push({ date:e.date, type:e.type }); });
+    memories.forEach(function(m){ if(m.date) items.push({ date:m.date, type:'memory' }); });
+    journal.forEach(function(j){ if(j.date) items.push({ date:j.date, type: j.mood ? 'diary' : 'journal' }); });
+    return items;
+  }
+
+  function getAllCalItems(){
+    var items = [];
+    events.filter(function(e){ return e.type==='event'; }).forEach(function(e){
+      items.push({ date:e.date, title:e.title, type:'event', id:e.id });
+    });
+    memories.forEach(function(m){ if(m.date) items.push({ date:m.date, title:m.text.slice(0,40)+(m.text.length>40?'…':''), type:'memory' }); });
+    journal.forEach(function(j){ if(j.date) items.push({ date:j.date, title:j.content.slice(0,40)+(j.content.length>40?'…':''), type: j.mood ? 'diary' : 'journal' }); });
+    return items;
+  }
+
+  function renderCalOvGrid(){
+    $('calOvMonthLabel').textContent = calOvYear + '年 ' + (calOvMonth+1) + '月';
+    var grid = $('calOvGrid'); grid.innerHTML = '';
+    var dotItems = getAllCalDotItems();
+    var dateMap = {};
+    dotItems.forEach(function(it){
+      var d = parseMemDate(it.date); if(!d) return;
+      var key = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+      if(!dateMap[key]) dateMap[key] = [];
+      dateMap[key].push(it.type);
+    });
+    var today = new Date();
+    var firstDow = new Date(calOvYear, calOvMonth, 1).getDay();
+    var daysInMon = new Date(calOvYear, calOvMonth+1, 0).getDate();
+    for(var i=0;i<firstDow;i++){
+      var emp=document.createElement('div'); emp.className='cal-full-day cal-fd-empty'; grid.appendChild(emp);
+    }
+    for(var d=1;d<=daysInMon;d++){
+      var btn=document.createElement('button'); btn.type='button';
+      var isToday=d===today.getDate()&&calOvMonth===today.getMonth()&&calOvYear===today.getFullYear();
+      btn.className='cal-full-day'+(isToday?' cal-fd-today':'');
+      btn.textContent=d;
+      var key2=calOvYear+'-'+(calOvMonth+1)+'-'+d;
+      var types=dateMap[key2]||[];
+      if(types.length){
+        var dotWrap=document.createElement('div'); dotWrap.className='cal-fd-dot';
+        var shown={};
+        types.forEach(function(tp){ if(!shown[tp]){ shown[tp]=1; var s=document.createElement('span'); s.className='d-'+tp; dotWrap.appendChild(s); } });
+        btn.appendChild(dotWrap);
+      }
+      (function(day){ btn.addEventListener('click',function(){
+        calOvSelDay=day;
+        var dateStr=calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
+        calAddDateVal=dateStr; $('calAddDate').value=dateStr;
+        renderDayDetail(day);
+      }); })(d);
+      grid.appendChild(btn);
+    }
+  }
+
+  function renderDayDetail(day){
+    var detail=$('calOvDayDetail'), nosel=$('calOvNoSel'), list=$('calOvDayList');
+    list.innerHTML='';
+    if(day==null){ detail.style.display='none'; nosel.style.display=''; return; }
+    detail.style.display='block'; nosel.style.display='none';
+    $('calOvDayLabel').textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
+    var items=getAllCalItems();
+    var filtered=items.filter(function(it){
+      var d=parseMemDate(it.date); if(!d) return false;
+      return d.getFullYear()===calOvYear&&d.getMonth()===calOvMonth&&d.getDate()===day;
+    });
+    if(!filtered.length){ list.innerHTML='<div style="font-size:12.5px;color:var(--ink-soft);padding:6px 0 2px;">這天沒有記錄</div>'; return; }
+    filtered.forEach(function(it){
+      var item=document.createElement('div'); item.className='cal-event-item';
+      var dot=document.createElement('div'); dot.className='cal-ev-dot '+(it.type||'event');
+      var info=document.createElement('div'); info.className='cal-ev-info';
+      var titleEl=document.createElement('div'); titleEl.className='cal-ev-title'; titleEl.textContent=it.title;
+      info.appendChild(titleEl);
+      item.appendChild(dot); item.appendChild(info);
+      if(it.id && it.type==='event'){
+        var del=document.createElement('button'); del.className='cal-ev-del'; del.title='刪除'; del.textContent='✕';
+        (function(id){ del.addEventListener('click',function(){
+          events=events.filter(function(x){ return x.id!==id; });
+          save(KEYS.events,events); renderCalOvGrid(); renderDayDetail(calOvSelDay); renderAnniSection(); updateCountdown();
+        }); })(it.id);
+        item.appendChild(del);
+      }
+      list.appendChild(item);
+    });
+  }
+
+  function renderAnniSection(){
+    var list=$('calAnniList'); list.innerHTML='';
+    var annis=events.filter(function(e){ return e.type==='anniversary'; });
+    if(!annis.length){ list.innerHTML='<div style="font-size:12.5px;color:var(--ink-soft);padding:6px 0;">尚未新增紀念日</div>'; return; }
+    var today=new Date(); today.setHours(0,0,0,0);
+    annis.forEach(function(e){
+      var item=document.createElement('div'); item.className='cal-anni-item';
+      var dot=document.createElement('div'); dot.className='cal-anni-dot';
+      var info=document.createElement('div'); info.className='cal-anni-info';
+      var titleEl=document.createElement('div'); titleEl.className='cal-anni-title'; titleEl.textContent=e.title;
+      var d=parseMemDate(e.date);
+      var countdownEl=document.createElement('div'); countdownEl.className='cal-anni-countdown';
+      if(d){
+        var next=new Date(today.getFullYear(),d.getMonth(),d.getDate()); next.setHours(0,0,0,0);
+        if(next<today) next.setFullYear(today.getFullYear()+1);
+        var diff=Math.round((next-today)/86400000);
+        countdownEl.textContent = diff===0 ? '🎉 今天就是！' : '距離還有 '+diff+' 天  ·  每年 '+(d.getMonth()+1)+'月'+d.getDate()+'日';
+      }
+      info.appendChild(titleEl); info.appendChild(countdownEl);
+      var del=document.createElement('button'); del.className='cal-anni-del'; del.title='刪除'; del.textContent='✕';
+      (function(id){ del.addEventListener('click',function(){
+        events=events.filter(function(x){ return x.id!==id; });
+        save(KEYS.events,events); renderAnniSection(); updateCountdown();
+      }); })(e.id);
+      item.appendChild(dot); item.appendChild(info); item.appendChild(del);
+      list.appendChild(item);
+    });
+  }
+
+  $('calOvPrev').addEventListener('click',function(){ calOvMonth--; if(calOvMonth<0){calOvMonth=11;calOvYear--;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
+  $('calOvNext').addEventListener('click',function(){ calOvMonth++; if(calOvMonth>11){calOvMonth=0;calOvYear++;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
+  $('calOverlayClose').addEventListener('click',function(){ $('calOverlay').classList.add('hidden'); });
+  $('calOverlay').addEventListener('click',function(e){ if(e.target===$('calOverlay')) $('calOverlay').classList.add('hidden'); });
+
+  $('calAddDate').addEventListener('click',function(e){
+    e.stopPropagation();
+    openCalendar($('calAddDate'), calAddDateVal||todayLabel(), function(str){ calAddDateVal=str; $('calAddDate').value=str; });
+  });
+
+  $('calAddBtn').addEventListener('click',function(){
+    var title=$('calAddTitle').value.trim();
+    var date=calAddDateVal||todayLabel();
+    if(!title){ $('calAddTitle').focus(); return; }
+    var type=$('calAddType').value;
+    events.push({ id:uid('ev'), date:date, title:title, type:type });
+    save(KEYS.events,events);
+    $('calAddTitle').value=''; calAddDateVal=''; $('calAddDate').value='';
+    renderCalOvGrid(); renderDayDetail(calOvSelDay); renderAnniSection(); updateCountdown(); flashSaved();
+  });
+
+  function openCalOverlay(){
+    calOvSelDay=null;
+    renderCalOvGrid();
+    renderDayDetail(null);
+    renderAnniSection();
+    $('calOverlay').classList.remove('hidden');
+  }
+  $('homeCalBtn').addEventListener('click', openCalOverlay);
+
+  /* ============ Countdown ============ */
+  var CNT_MILESTONES = [
+    { id:'300', emoji:'🌸', name:'300 天',  days:300 },
+    { id:'400', emoji:'🌺', name:'400 天',  days:400 },
+    { id:'500', emoji:'🌟', name:'500 天',  days:500 },
+    { id:'2y',  emoji:'💍', name:'二周年',  years:2  },
+    { id:'3y',  emoji:'🎊', name:'三周年',  years:3  }
+  ];
+  function calcMilestoneTarget(ms){
+    if(!startDate) return null;
+    var sd = parseMemDate(startDate); if(!sd) return null;
+    if(ms.days){ return new Date(sd.getTime() + ms.days*86400000); }
+    if(ms.years){ var d=new Date(sd); d.setFullYear(d.getFullYear()+ms.years); return d; }
+    return null;
+  }
+  function updateCountdown(){
+    var today=new Date(); today.setHours(0,0,0,0);
+    var strip=$('homeCountdown');
+    // Try selected milestone first
+    if(cntTarget && startDate){
+      var ms=CNT_MILESTONES.find(function(m){ return m.id===cntTarget; });
+      if(ms){
+        var target=calcMilestoneTarget(ms);
+        if(target){
+          target.setHours(0,0,0,0);
+          var diff=Math.round((target-today)/86400000);
+          strip.classList.remove('hidden');
+          if(diff<=0){
+            $('cntDays').textContent=''; $('cntUnit').textContent='';
+            $('cntEvent').textContent='🎉 '+ms.name+' 已達成！';
+          } else {
+            $('cntDays').textContent=diff; $('cntUnit').textContent='天';
+            $('cntEvent').textContent='→ '+ms.name;
+          }
+          return;
+        }
+      }
+    }
+    // Fallback: nearest anniversary
+    var annis=events.filter(function(e){ return e.type==='anniversary'&&e.date; });
+    if(!annis.length){ strip.classList.add('hidden'); return; }
+    var nearest=null, nearestDays=Infinity;
+    annis.forEach(function(e){
+      var d=parseMemDate(e.date); if(!d) return;
+      var next=new Date(today.getFullYear(),d.getMonth(),d.getDate()); next.setHours(0,0,0,0);
+      if(next<today) next.setFullYear(today.getFullYear()+1);
+      var diff=Math.round((next-today)/86400000);
+      if(diff<nearestDays){ nearestDays=diff; nearest=e; }
+    });
+    if(!nearest){ strip.classList.add('hidden'); return; }
+    strip.classList.remove('hidden');
+    if(nearestDays===0){
+      $('cntDays').textContent=''; $('cntUnit').textContent='';
+      $('cntEvent').textContent='🎉 今天是 '+nearest.title+'！';
+    } else {
+      $('cntDays').textContent=nearestDays; $('cntUnit').textContent='天';
+      $('cntEvent').textContent='→ '+nearest.title;
+    }
+  }
+  $('homeCountdown').addEventListener('click', function(){ openCntSelOverlay(); });
+
+  /* ============ Countdown Selector Overlay ============ */
+  function renderCntMilestoneList(){
+    var today=new Date(); today.setHours(0,0,0,0);
+    var list=$('cntMilestoneList'); list.innerHTML='';
+    // Preview strip
+    var previewStrip=$('cntPreviewStrip');
+    if(cntTarget && startDate){
+      var msCur=CNT_MILESTONES.filter(function(m){ return m.id===cntTarget; })[0];
+      if(msCur){
+        var tgt=calcMilestoneTarget(msCur);
+        if(tgt){ tgt.setHours(0,0,0,0);
+          var df=Math.round((tgt-today)/86400000);
+          previewStrip.classList.remove('hidden');
+          if(df<=0){
+            $('cntPreviewDays').textContent=''; $('cntPreviewUnit').textContent='';
+            $('cntPreviewEvent').textContent='🎉 '+msCur.name+' 已達成！';
+          } else {
+            $('cntPreviewDays').textContent=df; $('cntPreviewUnit').textContent='天';
+            $('cntPreviewEvent').textContent='→ '+msCur.name;
+          }
+        } else { previewStrip.classList.add('hidden'); }
+      } else { previewStrip.classList.add('hidden'); }
+    } else { previewStrip.classList.add('hidden'); }
+    // Milestone cards
+    CNT_MILESTONES.forEach(function(ms){
+      var target=calcMilestoneTarget(ms);
+      var diff=null, achieved=false;
+      if(target){ target.setHours(0,0,0,0); diff=Math.round((target-today)/86400000); achieved=diff<=0; }
+      var card=document.createElement('button'); card.type='button';
+      card.className='cnt-milestone-card'+(cntTarget===ms.id?' selected':'')+(achieved?' achieved':'');
+      var info=document.createElement('div'); info.className='cnt-milestone-info';
+      var name=document.createElement('div'); name.className='cnt-milestone-name'; name.textContent=ms.emoji+' '+ms.name;
+      var sub=document.createElement('div'); sub.className='cnt-milestone-sub';
+      if(!startDate){ sub.textContent='請先設定在一起的日期'; }
+      else if(target){ sub.textContent=target.getFullYear()+'年'+(target.getMonth()+1)+'月'+target.getDate()+'日'; }
+      info.appendChild(name); info.appendChild(sub);
+      var daysEl=document.createElement('div'); daysEl.className='cnt-milestone-days'+(achieved?' achieved':'');
+      if(!startDate){ daysEl.textContent=''; }
+      else if(achieved){ daysEl.textContent='已達成 ✓'; }
+      else if(diff!==null){ daysEl.textContent=diff+'天'; }
+      card.appendChild(document.createElement('div')); card.children[0].className='cnt-milestone-icon'; card.children[0].textContent=ms.emoji;
+      card.appendChild(info); card.appendChild(daysEl);
+      (function(id){ card.addEventListener('click',function(){
+        cntTarget=id; localStorage.setItem(KEYS.cntTarget, id);
+        renderCntMilestoneList(); updateCountdown();
+      }); })(ms.id);
+      list.appendChild(card);
+    });
+  }
+  function openCntSelOverlay(){
+    $('cntStartDateVal').textContent = startDate || '未設定';
+    renderCntMilestoneList();
+    $('cntSelOverlay').classList.remove('hidden');
+  }
+  $('cntSelClose').addEventListener('click',function(){ $('cntSelOverlay').classList.add('hidden'); });
+  $('cntSelOverlay').addEventListener('click',function(e){ if(e.target===$('cntSelOverlay')) $('cntSelOverlay').classList.add('hidden'); });
+  $('cntStartDateBtn').addEventListener('click',function(e){
+    e.stopPropagation();
+    openCalendar($('cntStartDateBtn'), startDate||todayLabel(), function(str){
+      startDate=str; localStorage.setItem(KEYS.startDate, str);
+      $('cntStartDateVal').textContent=str;
+      renderCntMilestoneList(); updateCountdown();
+    });
+  });
+
+  /* ============ Daily Q&A ============ */
+  var QA_LIST = [
+    '如果只能選一種食物吃一輩子，你會選什麼？',
+    '你最害怕失去的東西是什麼？',
+    '有沒有一件讓你有點後悔的小事？',
+    '如果可以去任何地方，你想去哪裡？',
+    '最近讓你感到開心的一件小事是什麼？',
+    '你覺得「家」對你來說是什麼感覺？',
+    '有沒有什麼話，你一直想說卻還沒說出口？',
+    '如果今天是最後一天，你會做什麼？',
+    '你有什麼一個人才知道的小習慣嗎？',
+    '最近睡得怎麼樣？有做什麼夢嗎？',
+    '你覺得現在的自己，跟一年前有什麼不同？',
+    '讓你覺得「被理解」的瞬間，是什麼感覺？',
+    '有沒有一首歌，讓你想到某個人或某件事？',
+    '如果可以重來，你會想改變什麼嗎？',
+    '你最喜歡自己的哪個地方？',
+    '有沒有一個你很想去卻還沒去的地方？',
+    '最近有什麼事讓你覺得「好煩」？',
+    '你覺得「幸福」是什麼感覺？',
+    '有什麼事做了之後心情會變好？',
+    '你最想對以前的自己說一句什麼？',
+    '如果有一整天只屬於自己，你想怎麼過？',
+    '有沒有一個人，讓你覺得相遇很幸運？',
+    '你現在心裡最想要的是什麼？',
+    '有什麼事是你覺得只有你能理解的？',
+    '最近有沒有讓你突然想哭的事？'
+  ];
+  (function initDailyQa(){
+    var today = todayLabel();
+    if(dailyQa.date !== today){
+      dailyQa.date = today;
+      dailyQa.qIndex = Math.floor(Math.random() * QA_LIST.length);
+      save(KEYS.dailyqa, dailyQa);
+    }
+    renderQaCard();
+  })();
+  function renderQaCard(){
+    $('homeQaText').textContent = QA_LIST[dailyQa.qIndex % QA_LIST.length];
+  }
+  $('homeQaRefreshBtn').addEventListener('click', function(){
+    dailyQa.qIndex = (dailyQa.qIndex + 1) % QA_LIST.length;
+    save(KEYS.dailyqa, dailyQa);
+    renderQaCard();
+  });
+  $('homeQaCard').addEventListener('click', function(){
+    showFront();
+    var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
+    if(!settings.apiKey){ chatInput.value = q; chatInput.focus(); return; }
+    if(sending) return;
+    // Show as QA divider (not a user bubble)
+    var qdiv = document.createElement('div'); qdiv.className='qa-divider';
+    qdiv.innerHTML='<span class="qa-divider-label">✦ 今日問題</span><span class="qa-divider-text">'+escHtml(q)+'</span>';
+    thread.appendChild(qdiv);
+    chatHistory.push({ role:'user', content:q, ts:Date.now(), isQa:true });
+    save(KEYS.chat, chatHistory);
+    setSending(true); showTyping(); scrollThread();
+    callAI().then(function(reply){
+      hideTyping();
+      thread.appendChild(bubbleRow('assistant', reply));
+      chatHistory.push({ role:'assistant', content:reply, ts:Date.now() });
+      save(KEYS.chat, chatHistory);
+      scrollThread(); setSending(false); maybeExtractMemory();
+    }).catch(function(err){
+      hideTyping();
+      var box=document.createElement('div'); box.className='chat-error';
+      box.textContent='訊息沒送出去：'+(err&&err.message?err.message:String(err));
+      thread.appendChild(box); scrollThread(); setSending(false);
+    });
+  });
+
+  /* ============ Download Chat ============ */
+  var dlMode = 'all';
+  $('dlChatBtn').addEventListener('click', function(){
+    $('dlOverlay').classList.remove('hidden');
+  });
+  $('dlCancelBtn').addEventListener('click', function(){ $('dlOverlay').classList.add('hidden'); });
+  $('dlOverlay').addEventListener('click', function(e){ if(e.target===$('dlOverlay')) $('dlOverlay').classList.add('hidden'); });
+
+  $('dlRadioAll').addEventListener('click', function(){
+    dlMode='all';
+    $('dlRadioAll').classList.add('selected'); $('dlRadioRange').classList.remove('selected');
+    $('dlDateRow').style.display='none';
+  });
+  $('dlRadioRange').addEventListener('click', function(){
+    dlMode='range';
+    $('dlRadioRange').classList.add('selected'); $('dlRadioAll').classList.remove('selected');
+    $('dlDateRow').style.display='flex';
+  });
+
+  $('dlDoBtn').addEventListener('click', function(){
+    var msgs = chatHistory;
+    if(dlMode==='range'){
+      var fromVal=$('dlDateFrom').value, toVal=$('dlDateTo').value;
+      var fromTs = fromVal ? new Date(fromVal).setHours(0,0,0,0) : 0;
+      var toTs   = toVal   ? new Date(toVal).setHours(23,59,59,999) : Infinity;
+      msgs = chatHistory.filter(function(m){
+        var ts = m.ts || 0;
+        return ts >= fromTs && ts <= toTs;
+      });
+    }
+    if(!msgs.length){ alert('這個範圍內沒有對話紀錄。'); return; }
+
+    var today = new Date();
+    var expiry = new Date(today.getTime() + 7*24*3600*1000);
+    var expiryStr = expiry.getFullYear()+'年'+(expiry.getMonth()+1)+'月'+expiry.getDate()+'日';
+    var lines = [
+      '══════════════════════════════════════',
+      '  ' + (persona.name||'卄珩') + ' × 江黎  對話紀錄',
+      '  下載日期：' + todayLabel(),
+      '  建議於 ' + expiryStr + ' 前完成備存',
+      '══════════════════════════════════════',
+      ''
+    ];
+    msgs.forEach(function(m){
+      var who = m.role==='user' ? '你' : (persona.name||'卄珩');
+      var time = m.ts ? new Date(m.ts).toLocaleString('zh-TW',{hour12:false}) : '';
+      lines.push('【' + who + (time ? '  ' + time : '') + '】');
+      lines.push(m.content);
+      lines.push('');
+    });
+    lines.push('──────────────────────────────────────');
+    lines.push('共 ' + msgs.length + ' 則訊息  ·  以上紀錄由 AI 伴侶網站匯出');
+
+    var blob = new Blob([lines.join('\n')], { type:'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href=url; a.download=(persona.name||'卄珩')+'_對話_'+todayLabel()+'.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+    $('dlOverlay').classList.add('hidden');
+  });
+
+  /* ============ Wallpaper ============ */
+  function applyWallpaper(){
+    var hv = $('homeView');
+    if(wallpaperUrl){
+      hv.style.backgroundImage = 'url("'+wallpaperUrl+'")';
+      hv.classList.add('has-wallpaper');
+    } else {
+      hv.style.backgroundImage = '';
+      hv.classList.remove('has-wallpaper');
+    }
+  }
+  function compressImage(file, cb){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var maxW=1080, maxH=1920, w=img.width, h=img.height;
+        if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+        if(h>maxH){ w=Math.round(w*maxH/h); h=maxH; }
+        var canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        cb(canvas.toDataURL('image/jpeg',0.82));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  $('homeWalBtn').addEventListener('click', function(){ $('walFileInput').click(); });
+  $('walFileInput').addEventListener('change', function(e){
+    var f = e.target.files && e.target.files[0]; if(!f) return;
+    compressImage(f, function(dataUrl){
+      wallpaperUrl = dataUrl;
+      localStorage.setItem(KEYS.wallpaper, dataUrl);
+      applyWallpaper();
+    });
+    e.target.value='';
+  });
+  $('homeWalRemove').addEventListener('click', function(){
+    wallpaperUrl=''; localStorage.removeItem(KEYS.wallpaper); applyWallpaper();
+  });
+
+  /* ============ Check-in Calendar Overlay ============ */
+  var CI_ACHIEVEMENTS = [
+    { id:'7',  emoji:'⭐', label:'一週達人',   threshold:7,  type:'streak' },
+    { id:'14', emoji:'🌟', label:'雙週堅持',   threshold:14, type:'streak' },
+    { id:'21', emoji:'💫', label:'三週毅力',   threshold:21, type:'streak' },
+    { id:'month', emoji:'🏆', label:'整月達成', threshold:0,  type:'month' }
+  ];
+  function renderCiCalGrid(){
+    $('ciCalMonthLabel').textContent = ciCalYear+'年 '+(ciCalMonth+1)+'月';
+    var grid=$('ciCalGrid'); grid.innerHTML='';
+    var history = checkin.history || [];
+    var today=new Date();
+    var firstDow=new Date(ciCalYear,ciCalMonth,1).getDay();
+    var daysInMon=new Date(ciCalYear,ciCalMonth+1,0).getDate();
+    var monthCount=0;
+    for(var i=0;i<firstDow;i++){
+      var e=document.createElement('div'); e.className='cal-full-day cal-fd-empty'; grid.appendChild(e);
+    }
+    for(var d=1;d<=daysInMon;d++){
+      var dateStr=ciCalYear+'年'+(ciCalMonth+1)+'月'+d+'日';
+      var isToday=d===today.getDate()&&ciCalMonth===today.getMonth()&&ciCalYear===today.getFullYear();
+      var isDone=history.indexOf(dateStr)>=0;
+      if(isDone) monthCount++;
+      var btn=document.createElement('div');
+      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+(isDone?' ci-done':'');
+      btn.textContent=d;
+      grid.appendChild(btn);
+    }
+    var streak = checkin.streak || 0;
+    $('ciStreakNum').textContent = streak;
+    $('ciMonthNum').textContent = monthCount;
+    $('ciTotalNum').textContent = history.length;
+    // Update check-in button state
+    var todayDone = checkin.lastDate === todayLabel();
+    var ciBtn = $('ciCheckinBtn');
+    if(todayDone){ ciBtn.textContent='✅ 今天已打卡'; ciBtn.disabled=true; ciBtn.style.opacity='.5'; }
+    else{ ciBtn.textContent='🌙 今日打卡'; ciBtn.disabled=false; ciBtn.style.opacity='1'; }
+    // Render achievements
+    var ach = $('ciAchievements'); ach.innerHTML='';
+    CI_ACHIEVEMENTS.forEach(function(a){
+      var unlocked = a.type==='streak' ? streak>=a.threshold : monthCount===daysInMon;
+      var badge = document.createElement('div');
+      badge.className='ci-achieve-badge '+(unlocked?(a.id==='month'?'super':'unlocked'):'locked');
+      badge.textContent = (unlocked?a.emoji:'🔒') + ' ' + a.label + (a.type==='streak'?' ('+a.threshold+'天)':'');
+      ach.appendChild(badge);
+    });
+  }
+  function openCiCalOverlay(){
+    ciCalYear=new Date().getFullYear(); ciCalMonth=new Date().getMonth();
+    renderCiCalGrid();
+    $('ciCalOverlay').classList.remove('hidden');
+  }
+  $('ciCalClose').addEventListener('click',function(){ $('ciCalOverlay').classList.add('hidden'); });
+  $('ciCalOverlay').addEventListener('click',function(e){ if(e.target===$('ciCalOverlay')) $('ciCalOverlay').classList.add('hidden'); });
+  $('ciCalPrev').addEventListener('click',function(){ ciCalMonth--; if(ciCalMonth<0){ciCalMonth=11;ciCalYear--;} renderCiCalGrid(); });
+  $('ciCalNext').addEventListener('click',function(){ ciCalMonth++; if(ciCalMonth>11){ciCalMonth=0;ciCalYear++;} renderCiCalGrid(); });
+  $('ciCheckinBtn').addEventListener('click', function(){
+    var today = todayLabel();
+    if(!checkin.history) checkin.history=[];
+    if(checkin.lastDate === today){ showCheckinToast('今天已經打過卡了 ✓'); return; }
+    var d=new Date(); d.setDate(d.getDate()-1);
+    var yest=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
+    checkin.streak=(checkin.lastDate===yest)?checkin.streak+1:1;
+    checkin.lastDate=today;
+    if(checkin.history.indexOf(today)<0) checkin.history.push(today);
+    save(KEYS.checkin, checkin);
+    updateCheckinBtn();
+    renderCiCalGrid();
+    showCheckinToast('打卡成功！✨  連續 '+checkin.streak+' 天');
+  });
+
+  /* ============ Today's Diary ============ */
+  var MOODS = {
+    '開心':{ emoji:'🌟', color:'#e8a530' },
+    '平靜':{ emoji:'🌊', color:'#5aabcc' },
+    '疲憊':{ emoji:'😴', color:'#8891a4' },
+    '想念':{ emoji:'💭', color:'#9b6fc0' },
+    '期待':{ emoji:'🌸', color:'#d96fa0' },
+    '難過':{ emoji:'🌧', color:'#6a7bb8' },
+    '溫暖':{ emoji:'🌻', color:'#e07040' },
+    '複雜':{ emoji:'🌀', color:'#5daaa4' }
+  };
+  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function generateDiaryToChat(){
+    if(!settings.apiKey){ showAdmin(); selectTab('settings'); return; }
+    var today = todayLabel();
+    var charName = persona.name || '卄珩';
+    var recent = chatHistory.filter(function(m){
+      if(!m.ts) return false;
+      var d = new Date(m.ts);
+      return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日' === today;
+    });
+    if(!recent.length) recent = chatHistory.slice(-6);
+    if(!recent.length){ showCheckinToast('今天還沒有對話紀錄'); return; }
+    showCheckinToast('正在生成今日日記…');
+    var convoText = recent.map(function(m){ return (m.role==='user'?'江黎':charName)+'：'+m.content; }).join('\n');
+    var prompt = '根據以下今天的對話，以「'+charName+'」的視角，用繁體中文寫一段約50字的今日生活日誌，語氣溫柔自然，像日記一樣。\n' +
+      '同時判斷今天的整體心情，從以下八個情緒標籤中選最貼切的一個：開心、平靜、疲憊、想念、期待、難過、溫暖、複雜。\n\n' +
+      '只輸出 JSON，格式：{"diary":"日記正文","mood":"情緒標籤"}\n\n對話：\n'+convoText;
+    fetch(endpoint(),{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+settings.apiKey},
+      body:JSON.stringify({
+        model:settings.model||'gpt-4o',
+        messages:[
+          {role:'system', content:'你是'+charName+'，正在寫私人日誌。請只輸出 JSON，不要多餘文字。'},
+          {role:'user', content:prompt}
+        ],
+        temperature:0.85, max_tokens:200
+      })
+    }).then(function(r){ return r.json(); }).then(function(data){
+      var content = data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
+      if(!content){ showCheckinToast('日記生成失敗，請稍後再試'); return; }
+      var obj = jsonFromText(content);
+      var diaryText = (obj && obj.diary) ? obj.diary.trim() : content.trim();
+      var mood = (obj && obj.mood && MOODS[obj.mood]) ? obj.mood.trim() : '平靜';
+      var entry = { id:uid('jr'), date:today, content:diaryText, mood:mood };
+      journal.unshift(entry);
+      if(journal.length > 100) journal = journal.slice(0, 100);
+      save(KEYS.journal, journal);
+      renderJournal();
+      showDiaryNoteInChat(diaryText, mood, today);
+      showCheckinToast('今日日記已生成 ✓');
+    }).catch(function(){ showCheckinToast('日記生成失敗，請確認連線設定'); });
+  }
+
+  function showDiaryNoteInChat(text, mood, date){
+    var info = MOODS[mood] || { emoji:'📝', color:'#8891a4' };
+    var note = document.createElement('div');
+    note.className = 'diary-note';
+    note.innerHTML =
+      '<div class="diary-note-head">' +
+        '<span class="diary-note-label">📓 今日日記</span>' +
+        '<span class="diary-mood-tag" style="background:'+info.color+'">'+info.emoji+' '+escHtml(mood)+'</span>' +
+      '</div>' +
+      '<div class="diary-note-text">'+escHtml(text)+'</div>' +
+      '<div class="diary-note-date">'+escHtml(date)+'</div>';
+    thread.appendChild(note);
+    scrollThread();
+  }
+
+  /* ============ Mood Diary Overlay ============ */
+  var moodDiaryYear = new Date().getFullYear(), moodDiaryMonth = new Date().getMonth();
+  var moodDiaryFilter = ''; // '' = all
+  function renderMoodDiaryOverlay(){
+    $('moodDiaryMonthLabel').textContent = moodDiaryYear+'年 '+(moodDiaryMonth+1)+'月';
+    var monthEntries = journal.filter(function(j){
+      var d = parseMemDate(j.date);
+      return d && d.getFullYear()===moodDiaryYear && d.getMonth()===moodDiaryMonth;
+    });
+    // --- Percentage bar ---
+    var moodCounts = {};
+    monthEntries.forEach(function(j){ if(j.mood) moodCounts[j.mood]=(moodCounts[j.mood]||0)+1; });
+    var total = monthEntries.filter(function(j){ return j.mood; }).length;
+    var pctWrap=$('moodPctWrap'), pctBar=$('moodPctBar'), pctLegend=$('moodPctLegend');
+    if(total > 0){
+      pctWrap.classList.remove('hidden'); pctBar.innerHTML=''; pctLegend.innerHTML='';
+      Object.keys(moodCounts).forEach(function(m){
+        var info=MOODS[m]||{emoji:'📝',color:'#8891a4'};
+        var pct=Math.round(moodCounts[m]/total*100);
+        var seg=document.createElement('div'); seg.className='mood-pct-seg';
+        seg.style.background=info.color; seg.style.width=pct+'%'; seg.title=m+' '+pct+'%';
+        pctBar.appendChild(seg);
+        var leg=document.createElement('div'); leg.className='mood-pct-item';
+        var dot=document.createElement('div'); dot.className='mood-pct-dot'; dot.style.background=info.color;
+        leg.appendChild(dot); leg.appendChild(document.createTextNode(info.emoji+' '+m+' '+pct+'%'));
+        pctLegend.appendChild(leg);
+      });
+    } else { pctWrap.classList.add('hidden'); }
+    // --- Filter chips ---
+    var filterRow=$('moodFilterRow'); filterRow.innerHTML='';
+    var allChip=document.createElement('button'); allChip.type='button'; allChip.className='mood-filter-chip'+(moodDiaryFilter===''?' active':'');
+    allChip.style.background=moodDiaryFilter===''?'var(--companion)':''; allChip.textContent='全部';
+    allChip.addEventListener('click',function(){ moodDiaryFilter=''; renderMoodDiaryOverlay(); });
+    filterRow.appendChild(allChip);
+    Object.keys(moodCounts).forEach(function(m){
+      var info=MOODS[m]||{emoji:'📝',color:'#8891a4'};
+      var chip=document.createElement('button'); chip.type='button';
+      chip.className='mood-filter-chip'+(moodDiaryFilter===m?' active':'');
+      if(moodDiaryFilter===m) chip.style.background=info.color; else chip.style.background='';
+      chip.textContent=info.emoji+' '+m;
+      (function(mood){ chip.addEventListener('click',function(){ moodDiaryFilter=mood; renderMoodDiaryOverlay(); }); })(m);
+      filterRow.appendChild(chip);
+    });
+    // --- Entry list ---
+    var filtered = moodDiaryFilter ? monthEntries.filter(function(j){ return j.mood===moodDiaryFilter; }) : monthEntries;
+    var list=$('moodDiaryList'); list.innerHTML='';
+    if(!filtered.length){
+      list.innerHTML='<div class="mood-diary-empty">'+(monthEntries.length?'這個心情標籤本月沒有日記':'這個月還沒有日記<br>在聊天室點「📓 今日日記」來生成')+'</div>';
+      return;
+    }
+    filtered.forEach(function(j){
+      var info=j.mood?(MOODS[j.mood]||{emoji:'📝',color:'#8891a4'}):{emoji:'📝',color:'#8891a4'};
+      var item=document.createElement('div'); item.className='mood-diary-item';
+      item.innerHTML=
+        '<div class="mood-diary-item-head">'+
+          '<span class="mood-diary-item-date">'+escHtml(j.date||'')+'</span>'+
+          (j.mood?'<span class="mood-diary-item-mood" style="background:'+info.color+'">'+info.emoji+' '+escHtml(j.mood)+'</span>':'')+
+        '</div>'+
+        '<div class="mood-diary-item-text">'+escHtml(j.content||'')+'</div>';
+      var del=document.createElement('button'); del.type='button'; del.className='mood-diary-del'; del.title='刪除'; del.textContent='✕';
+      (function(jid){ del.addEventListener('click',function(e){
+        e.stopPropagation();
+        if(!confirm('刪除這篇日記？')) return;
+        journal=journal.filter(function(x){ return x.id!==jid; });
+        save(KEYS.journal, journal); renderJournal(); renderMoodDiaryOverlay();
+      }); })(j.id);
+      item.appendChild(del);
+      list.appendChild(item);
+    });
+  }
+  function openMoodDiaryOverlay(){
+    moodDiaryYear=new Date().getFullYear(); moodDiaryMonth=new Date().getMonth();
+    moodDiaryFilter='';
+    renderMoodDiaryOverlay();
+    $('moodDiaryOverlay').classList.remove('hidden');
+  }
+  $('homeDiaryBtn').addEventListener('click', openMoodDiaryOverlay);
+  $('chatDiaryBtn').addEventListener('click', generateDiaryToChat);
+  ['homeStarBtn','homeSocialBtn','homeAudioBtn'].forEach(function(id){
+    $(id).addEventListener('click', function(){ flashSaved('功能即將開放 ✦'); });
+  });
+  $('moodDiaryClose').addEventListener('click',function(){ $('moodDiaryOverlay').classList.add('hidden'); });
+  $('moodDiaryOverlay').addEventListener('click',function(e){ if(e.target===$('moodDiaryOverlay')) $('moodDiaryOverlay').classList.add('hidden'); });
+  $('moodDiaryPrev').addEventListener('click',function(){ moodDiaryMonth--; if(moodDiaryMonth<0){moodDiaryMonth=11;moodDiaryYear--;} moodDiaryFilter=''; renderMoodDiaryOverlay(); });
+  $('moodDiaryNext').addEventListener('click',function(){ moodDiaryMonth++; if(moodDiaryMonth>11){moodDiaryMonth=0;moodDiaryYear++;} moodDiaryFilter=''; renderMoodDiaryOverlay(); });
+
+  /* ============ Image Upload ============ */
+  function clearPendingImg(){
+    pendingImg=null;
+    $('imgPendingWrap').classList.add('hidden');
+    $('imgPendingThumb').src='';
+  }
+  $('imgUploadBtn').addEventListener('click',function(){ $('imgFileInput').click(); });
+  $('imgFileInput').addEventListener('change',function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f) return;
+    compressImage(f,function(dataUrl){
+      pendingImg=dataUrl;
+      $('imgPendingThumb').src=dataUrl;
+      $('imgPendingWrap').classList.remove('hidden');
+    });
+    e.target.value='';
+  });
+  $('imgPendingClear').addEventListener('click', clearPendingImg);
+
+  /* ============ Init ============ */
+  syncHeader();
+  syncAvatar();
+  fillSettings();
+  fillPersona();
+  renderKnowledge();
+  renderMemories();
+  renderJournal();
+  renderThread();
+  updateCheckinBtn();
+  updateCountdown();
+  applyWallpaper();
+})();
+</script>
+</body>
+</html>
