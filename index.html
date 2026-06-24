@@ -604,7 +604,7 @@ textarea.mid{ min-height:90px; }
 #starView{ position:relative; overflow:hidden; background:var(--bg); }
 .star-header{ padding:14px 16px 12px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
 .star-title{ font-size:16px; font-weight:700; color:var(--ink); flex:1; text-align:center; }
-.star-room{ flex:1; position:relative; overflow:hidden; background:linear-gradient(180deg,#FDF8F0 0%,#EDE4D8 65%,#D5C5B0 100%); min-height:180px; }
+.star-room{ flex:1; position:relative; overflow:hidden; background:url('ster/background.png') center/cover no-repeat; min-height:180px; }
 /* ---- Star sub-modals ---- */
 .star-modal{ position:absolute; left:0; right:0; bottom:0; background:var(--surface); border-radius:20px 20px 0 0; padding:0 0 20px; box-shadow:0 -4px 28px rgba(50,58,80,0.18); transform:translateY(100%); transition:transform .28s cubic-bezier(.4,0,.2,1); z-index:20; }
 .star-modal.show{ transform:translateY(0); }
@@ -631,7 +631,7 @@ textarea.mid{ min-height:90px; }
 .star-plant::before{ content:''; display:block; width:18px; height:20px; background:#C8A878; border-radius:3px 3px 0 0; margin:0 auto; }
 .star-plant::after{ content:''; display:block; width:28px; height:28px; border-radius:50%; background:#7AC870; margin:-18px auto 0; }
 .star-room::after{ content:''; position:absolute; bottom:0; left:0; right:0; height:28px; background:#C8B8A4; border-top:2px solid #B8A894; }
-.star-char-wrap{ position:absolute; bottom:30px; left:50%; transform:translateX(-50%); }
+.star-char-wrap{ position:absolute; bottom:35px; left:50%; transform:translateX(-50%); }
 .star-char{ width:96px; height:96px; border-radius:50%; background:#F8F4F0; border:3px solid #E0D4C8; position:relative; box-shadow:0 4px 16px rgba(100,80,60,0.12); }
 .star-char.bounce{ animation:starBounce .38s ease; }
 @keyframes starBounce{ 0%,100%{ transform:translateY(0) scale(1); } 35%{ transform:translateY(-14px) scale(0.96); } 70%{ transform:translateY(-6px) scale(1.02); } }
@@ -1082,12 +1082,7 @@ textarea.mid{ min-height:90px; }
         <div class="star-window"></div>
         <div class="star-plant"></div>
         <div class="star-char-wrap">
-          <div class="star-char" id="starChar">
-            <div class="star-eye left"></div>
-            <div class="star-eye right"></div>
-            <div class="star-mouth"></div>
-            <div class="star-outfit" id="starOutfit"></div>
-          </div>
+          <img id="starChar" src="ster/from-PixAI-202650214271546781802.gif" alt="cat" style="width:120px;height:auto;">
         </div>
         <div class="star-bubble hidden" id="starBubble"></div>
       </div>
