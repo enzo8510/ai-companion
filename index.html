@@ -698,6 +698,11 @@ textarea.mid{ min-height:90px; }
 /* Green theme bubble colors */
 :root[data-theme="green"] .bubble.her{ background:#FFFFFF; color:#1E3A2A; }
 :root[data-theme="green"] .bubble.me{ background:#C4E8D0; color:#1E3A2A; }
+/* ---- With Me view ---- */
+#withMeBody{ background:#f5f5f5; }
+#withMeBody #withMeBgImage{ opacity:0.6; filter:brightness(1.1); }
+#withMeBody .toolbar-btn{ font-weight:600; transition:all .15s; }
+#withMeBody .toolbar-btn:active{ transform:scale(0.95); }
 /* ---- Star view (full screen) ---- */
 #starView{ position:relative; overflow:hidden; background:var(--bg); }
 .star-header{ padding:14px 16px 12px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
@@ -1306,11 +1311,39 @@ textarea.mid{ min-height:90px; }
         <span class="social-hdr-title">💕 with me</span>
         <div style="width:36px;"></div>
       </div>
-      <div class="social-body" id="withMeBody" style="display:flex;align-items:center;justify-content:center;text-align:center;">
-        <div style="padding:var(--space-3xl) var(--space-2xl);">
-          <div style="font-size:48px;margin-bottom:var(--space-2xl);">💕</div>
-          <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:var(--space-lg);">with me</div>
-          <div style="font-size:13px;color:var(--ink-soft);line-height:1.8;">這個頁面待更新<br>敬請期待</div>
+      <div class="social-body" id="withMeBody" style="position:relative;overflow:hidden;">
+        <!-- Background image -->
+        <div id="withMeBgImage" style="position:absolute;inset:0;background-size:cover;background-position:center;background-image:url('read/read.png');"></div>
+
+        <!-- Overlay controls -->
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.5) 100%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:20px;gap:16px;">
+
+          <!-- Timer -->
+          <div style="background:rgba(255,255,255,0.95);border-radius:16px;padding:20px 24px;text-align:center;width:90%;max-width:280px;">
+            <div style="font-size:12px;color:#999;margin-bottom:8px;font-weight:500;">專注時間</div>
+            <div id="withMeTimer" style="font-size:48px;font-weight:700;color:#32384A;font-family:monospace;margin-bottom:12px;">00:00:00</div>
+            <div style="display:flex;gap:8px;">
+              <button id="withMeStartBtn" class="toolbar-btn primary" style="flex:1;padding:10px;font-size:13px;border-radius:10px;">▶ 開始</button>
+              <button id="withMePauseBtn" class="toolbar-btn ghost" style="flex:1;padding:10px;font-size:13px;border-radius:10px;display:none;">⏸ 暫停</button>
+              <button id="withMeResetBtn" class="toolbar-btn ghost" style="flex:1;padding:10px;font-size:13px;border-radius:10px;">↺ 重置</button>
+            </div>
+          </div>
+
+          <!-- Music controls -->
+          <div style="background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;width:90%;max-width:280px;">
+            <div style="font-size:12px;color:#999;margin-bottom:10px;font-weight:500;">🎵 背景音樂</div>
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+              <button id="withMeMusicPlayBtn" class="toolbar-btn primary" style="flex:1;padding:10px;font-size:13px;border-radius:10px;">▶ 播放</button>
+              <button id="withMeMusicStopBtn" class="toolbar-btn ghost" style="flex:1;padding:10px;font-size:13px;border-radius:10px;display:none;">⏹ 停止</button>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#666;cursor:pointer;">
+              <span>📤 上傳音樂</span>
+              <input type="file" id="withMeMusicInput" accept="audio/*" style="display:none;">
+            </label>
+            <div id="withMeMusicName" style="font-size:11px;color:#999;margin-top:8px;text-align:center;word-break:break-all;"></div>
+            <audio id="withMeAudio" style="display:none;"></audio>
+          </div>
+
         </div>
       </div>
     </div>
@@ -3854,6 +3887,104 @@ textarea.mid{ min-height:90px; }
   $('homeSocialBtn').addEventListener('click', showSocial);
   $('homeWithMeBtn').addEventListener('click', showWithMe);
   $('withMeBackBtn').addEventListener('click', showHome);
+
+  /* ============ With Me (Study/Work) Timer ============ */
+  var WITHME_KEYS = { timer:'companion:withMe_timer', music:'companion:withMe_music' };
+  var withMeTimerState = { running:false, seconds:0, intervalId:null };
+  var withMeMusicUrl = localStorage.getItem(WITHME_KEYS.music) || '';
+
+  function updateWithMeTimerDisplay(){
+    var h = Math.floor(withMeTimerState.seconds / 3600);
+    var m = Math.floor((withMeTimerState.seconds % 3600) / 60);
+    var s = withMeTimerState.seconds % 60;
+    var hStr = h.toString().padStart(2,'0');
+    var mStr = m.toString().padStart(2,'0');
+    var sStr = s.toString().padStart(2,'0');
+    $('withMeTimer').textContent = hStr + ':' + mStr + ':' + sStr;
+  }
+
+  function startWithMeTimer(){
+    if(withMeTimerState.running) return;
+    withMeTimerState.running = true;
+    $('withMeStartBtn').style.display = 'none';
+    $('withMePauseBtn').style.display = 'flex';
+    withMeTimerState.intervalId = setInterval(function(){
+      withMeTimerState.seconds++;
+      updateWithMeTimerDisplay();
+      localStorage.setItem(WITHME_KEYS.timer, JSON.stringify(withMeTimerState));
+    }, 1000);
+  }
+
+  function pauseWithMeTimer(){
+    if(!withMeTimerState.running) return;
+    withMeTimerState.running = false;
+    clearInterval(withMeTimerState.intervalId);
+    $('withMeStartBtn').style.display = 'flex';
+    $('withMePauseBtn').style.display = 'none';
+    localStorage.setItem(WITHME_KEYS.timer, JSON.stringify(withMeTimerState));
+  }
+
+  function resetWithMeTimer(){
+    pauseWithMeTimer();
+    withMeTimerState.seconds = 0;
+    updateWithMeTimerDisplay();
+    localStorage.setItem(WITHME_KEYS.timer, JSON.stringify(withMeTimerState));
+  }
+
+  function loadWithMeMusic(){
+    if(!withMeMusicUrl) return;
+    $('withMeAudio').src = withMeMusicUrl;
+    var parts = withMeMusicUrl.split('/');
+    var name = parts[parts.length-1];
+    $('withMeMusicName').textContent = '正在播放：' + name;
+  }
+
+  function playWithMeMusic(){
+    var audio = $('withMeAudio');
+    if(!audio.src) return;
+    audio.play();
+    $('withMeMusicPlayBtn').style.display = 'none';
+    $('withMeMusicStopBtn').style.display = 'flex';
+  }
+
+  function stopWithMeMusic(){
+    var audio = $('withMeAudio');
+    audio.pause();
+    audio.currentTime = 0;
+    $('withMeMusicPlayBtn').style.display = 'flex';
+    $('withMeMusicStopBtn').style.display = 'none';
+  }
+
+  // Load saved timer state
+  var savedTimerState = localStorage.getItem(WITHME_KEYS.timer);
+  if(savedTimerState){
+    withMeTimerState = JSON.parse(savedTimerState);
+    updateWithMeTimerDisplay();
+  }
+
+  // Load saved music
+  if(withMeMusicUrl) loadWithMeMusic();
+
+  // Event listeners
+  $('withMeStartBtn').addEventListener('click', startWithMeTimer);
+  $('withMePauseBtn').addEventListener('click', pauseWithMeTimer);
+  $('withMeResetBtn').addEventListener('click', resetWithMeTimer);
+  $('withMeMusicPlayBtn').addEventListener('click', playWithMeMusic);
+  $('withMeMusicStopBtn').addEventListener('click', stopWithMeMusic);
+
+  $('withMeMusicInput').addEventListener('change', function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      withMeMusicUrl = ev.target.result;
+      localStorage.setItem(WITHME_KEYS.music, withMeMusicUrl);
+      loadWithMeMusic();
+      flashSaved('音樂已保存 ✓');
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
   $('socialComposeBtn').addEventListener('click', function(){
     var inp = $('socialComposeInput');
     var t = (inp.value||'').trim(); if(!t) return;
