@@ -580,6 +580,18 @@ textarea.mid{ min-height:90px; }
 .chat-right-panel-body{ flex:1; overflow-y:auto; padding:16px; color:var(--ink-soft); font-size:13px; }
 .chat-right-scrim{ position:absolute; inset:0; background:rgba(50,58,80,0.28); z-index:59; pointer-events:none; opacity:0; transition:opacity .26s; }
 .chat-right-scrim.show{ opacity:1; pointer-events:all; }
+/* ---- Chat left slide panel ---- */
+.chat-left-panel{ position:absolute; top:0; left:0; bottom:0; width:76%; max-width:280px; background:var(--surface); border-right:1.5px solid var(--line); box-shadow:2px 0 18px rgba(50,58,80,0.10); transform:translateX(-100%); transition:transform .26s cubic-bezier(.4,0,.2,1); z-index:60; display:flex; flex-direction:column; }
+.chat-left-panel.open{ transform:translateX(0); }
+.chat-left-scrim{ position:absolute; inset:0; background:rgba(50,58,80,0.28); z-index:59; pointer-events:none; opacity:0; transition:opacity .26s; }
+.chat-left-scrim.show{ opacity:1; pointer-events:all; }
+.chat-left-panel-head{ padding:14px 16px 10px; border-bottom:1.5px solid var(--line); display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.chat-left-panel-title{ font-size:15px; font-weight:700; color:var(--ink); flex:1; }
+.chat-left-panel-body{ flex:1; overflow-y:auto; padding:8px 0; }
+.lp-item{ display:flex; align-items:center; gap:12px; padding:13px 20px; cursor:pointer; background:none; border:none; width:100%; font-family:inherit; font-size:13.5px; color:var(--ink); transition:background .12s; text-align:left; }
+.lp-item:hover{ background:var(--chat-bg); }
+.lp-item-icon{ font-size:18px; flex:0 0 auto; width:24px; text-align:center; }
+.lp-divider{ border:none; border-top:1px solid var(--line); margin:6px 12px; }
 /* ---- Settings QR overlay ---- */
 .qr-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
 .qr-overlay.hidden{ display:none; }
@@ -717,15 +729,17 @@ textarea.mid{ min-height:90px; }
     <!-- ============ FRONT (CHAT) ============ -->
     <div class="view hidden" id="frontView">
       <div class="chat-header">
+        <button class="icon-btn" id="chatLeftToggle" aria-label="選單" title="選單" style="font-size:20px;">≡</button>
         <button class="icon-btn" id="chatHomeBtn" aria-label="主畫面" title="主畫面">⌂</button>
         <div class="avatar-orb" aria-hidden="true"></div>
         <div class="header-text">
           <div class="companion-name" id="hdrName">卄珩</div>
           <div class="companion-status"><span class="dot" aria-hidden="true"></span><span id="hdrStatus">在線・記得你說過的每一句話</span></div>
         </div>
-        <button class="icon-btn" id="dlChatBtn" aria-label="下載對話" title="下載對話" style="font-size:16px;">📥</button>
-        <button class="icon-btn" id="openAdminBtn" aria-label="後台管理" title="後台管理">⚙</button>
         <button class="icon-btn" id="chatRightToggle" aria-label="選單" title="選單">☰</button>
+        <!-- hidden triggers kept for JS compatibility -->
+        <button id="dlChatBtn" style="display:none;" aria-hidden="true">📥</button>
+        <button id="openAdminBtn" style="display:none;" aria-hidden="true">⚙</button>
       </div>
 
       <div class="chat-thread" id="thread"></div>
@@ -746,6 +760,34 @@ textarea.mid{ min-height:90px; }
         <input type="text" id="chatInput" placeholder="跟卄珩說點什麼…" autocomplete="off" aria-label="跟卄珩說話">
         <button class="send-btn" id="sendBtn" aria-label="送出">➤</button>
       </div>
+
+      <!-- Left slide panel -->
+      <div class="chat-left-panel" id="chatLeftPanel">
+        <div class="chat-left-panel-head">
+          <button class="icon-btn" id="chatLeftClose" type="button">✕</button>
+          <span class="chat-left-panel-title">選單</span>
+        </div>
+        <div class="chat-left-panel-body">
+          <button class="lp-item" id="lpChangeAvatar" type="button">
+            <span class="lp-item-icon">👤</span>
+            <span>更改頭像</span>
+          </button>
+          <button class="lp-item" id="lpChangeBg" type="button">
+            <span class="lp-item-icon">🖼</span>
+            <span>更改聊天室背景</span>
+          </button>
+          <hr class="lp-divider">
+          <button class="lp-item" id="lpDownload" type="button">
+            <span class="lp-item-icon">📥</span>
+            <span>下載對話記錄</span>
+          </button>
+          <button class="lp-item" id="lpAdmin" type="button">
+            <span class="lp-item-icon">⚙</span>
+            <span>後台管理</span>
+          </button>
+        </div>
+      </div>
+      <div class="chat-left-scrim" id="chatLeftScrim"></div>
 
       <!-- Right slide panel -->
       <div class="chat-right-panel" id="chatRightPanel">
@@ -809,20 +851,6 @@ textarea.mid{ min-height:90px; }
         <section class="panel" id="panel-persona">
           <h2>人格設定</h2>
           <p class="lead">這裡決定卄珩「是誰、怎麼說話」。下面的設定會在每次對話時提供給 AI，讓他保持人設一致。</p>
-          <div class="field">
-            <label>頭像圖片</label>
-            <div class="avatar-upload-wrap">
-              <div class="avatar-preview" id="avatarPreview"></div>
-              <div style="display:flex;flex-direction:column;gap:8px;">
-                <label class="btn ghost small" style="cursor:pointer;text-align:center;">
-                  ＋ 新增頭像
-                  <input type="file" id="avatarFile" accept="image/*" style="display:none;">
-                </label>
-                <button class="btn danger small" id="avatarClearBtn" type="button">移除頭像</button>
-              </div>
-            </div>
-            <div id="avatarGalleryWrap" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"></div>
-          </div>
           <div class="field">
             <label>名字</label>
             <input type="text" id="perName">
@@ -1059,6 +1087,43 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
+<!-- ============ AVATAR GALLERY OVERLAY ============ -->
+<div class="cnt-sel-overlay hidden" id="avatarGalleryOverlay">
+  <div class="cnt-sel-sheet" style="max-width:340px;">
+    <div class="cnt-sel-head">
+      <div class="cnt-sel-title">👤 更換頭像</div>
+      <button class="icon-btn" id="avatarOverlayClose" type="button">✕</button>
+    </div>
+    <div style="padding:14px 16px 0;display:flex;align-items:center;gap:14px;">
+      <div class="avatar-preview" id="avatarPreview"></div>
+      <button class="btn danger small" id="avatarClearBtn" type="button">移除頭像</button>
+    </div>
+    <div id="avatarGalleryWrap" style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;min-height:60px;"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;">
+      <label class="toolbar-btn primary" style="cursor:pointer;text-align:center;display:block;box-sizing:border-box;">
+        ＋ 新增頭像
+        <input type="file" id="avatarFile" accept="image/*" style="display:none;">
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHAT BACKGROUND OVERLAY ============ -->
+<div class="cnt-sel-overlay hidden" id="chatBgOverlay">
+  <div class="cnt-sel-sheet" style="max-width:380px;">
+    <div class="cnt-sel-head">
+      <div class="cnt-sel-title">🖼 聊天室背景</div>
+      <button class="icon-btn" id="chatBgClose" type="button">✕</button>
+    </div>
+    <div id="chatBgGalleryBody" style="overflow-y:auto;flex:1;min-height:80px;padding:14px 16px;"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;display:flex;gap:8px;">
+      <button class="toolbar-btn primary" id="chatBgUploadBtn" type="button" style="flex:1;justify-content:center;">＋ 新增背景</button>
+      <button class="toolbar-btn" id="chatBgRemoveBtn" type="button" style="flex:0 0 auto;color:var(--ink-soft);">移除背景</button>
+      <input type="file" id="chatBgFileInput" accept="image/*" style="display:none;">
+    </div>
+  </div>
+</div>
+
 <!-- ============ SETTINGS QR OVERLAY ============ -->
 <div class="qr-overlay hidden" id="settingsQrOverlay">
   <div class="qr-sheet">
@@ -1133,7 +1198,8 @@ textarea.mid{ min-height:90px; }
     wallpaper:'companion:wallpaper',
     walGallery:'companion:walGallery', walActive:'companion:walActive',
     avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
-    startDate:'companion:startDate', cntTarget:'companion:cntTarget'
+    startDate:'companion:startDate', cntTarget:'companion:cntTarget',
+    chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -1165,6 +1231,9 @@ textarea.mid{ min-height:90px; }
   var walActive   = localStorage.getItem(KEYS.walActive) || '';
   var avatarGallery = load(KEYS.avatarGallery) || [];
   var avatarActive  = localStorage.getItem(KEYS.avatarActive) || '';
+  var chatBgUrl     = localStorage.getItem(KEYS.chatBg) || '';
+  var chatBgGallery = load(KEYS.chatBgGallery) || [];
+  var chatBgActive  = localStorage.getItem(KEYS.chatBgActive) || '';
   var pendingImg  = null;
   var ciCalYear   = new Date().getFullYear(), ciCalMonth = new Date().getMonth();
   // persist seeds on first run
@@ -2445,6 +2514,70 @@ textarea.mid{ min-height:90px; }
     applyWallpaper();
   });
 
+  /* ============ Chat Background ============ */
+  function applyChatBg(){
+    var thread=$('thread');
+    if(chatBgUrl){
+      thread.style.backgroundImage='url("'+chatBgUrl+'")';
+      thread.style.backgroundSize='cover';
+      thread.style.backgroundPosition='center';
+    } else {
+      thread.style.backgroundImage='';
+      thread.style.backgroundSize='';
+      thread.style.backgroundPosition='';
+    }
+  }
+  function renderChatBgGallery(){
+    var body=$('chatBgGalleryBody'); if(!body) return;
+    body.innerHTML='';
+    if(!chatBgGallery.length){
+      var em=document.createElement('div'); em.style.cssText='padding:32px;text-align:center;color:var(--ink-soft);font-size:13px;';
+      em.textContent='尚未儲存任何背景，點下方「新增背景」上傳。'; body.appendChild(em);
+      $('chatBgUploadBtn').style.display=''; return;
+    }
+    var grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+    chatBgGallery.forEach(function(item){
+      var card=document.createElement('div'); var isA=item.id===chatBgActive;
+      card.style.cssText='position:relative;border-radius:8px;overflow:hidden;aspect-ratio:2/3;cursor:pointer;border:2.5px solid '+(isA?'var(--companion)':'transparent')+';box-sizing:border-box;';
+      var img=document.createElement('img'); img.src=item.dataUrl; img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+      img.addEventListener('click',function(){
+        chatBgActive=item.id; localStorage.setItem(KEYS.chatBgActive,chatBgActive);
+        chatBgUrl=item.dataUrl; localStorage.setItem(KEYS.chatBg,chatBgUrl);
+        applyChatBg(); renderChatBgGallery(); flashSaved();
+      });
+      var del=document.createElement('button'); del.textContent='✕'; del.type='button';
+      del.style.cssText='position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;background:rgba(50,58,80,.7);color:#fff;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;';
+      del.addEventListener('click',function(e){
+        e.stopPropagation();
+        chatBgGallery=chatBgGallery.filter(function(x){return x.id!==item.id;});
+        save(KEYS.chatBgGallery,chatBgGallery);
+        if(chatBgActive===item.id){ chatBgActive=''; localStorage.removeItem(KEYS.chatBgActive); chatBgUrl=''; localStorage.removeItem(KEYS.chatBg); applyChatBg(); }
+        renderChatBgGallery();
+      });
+      card.appendChild(img); card.appendChild(del); grid.appendChild(card);
+    });
+    body.appendChild(grid);
+    $('chatBgUploadBtn').style.display = chatBgGallery.length>=5 ? 'none' : '';
+  }
+  $('chatBgClose').addEventListener('click',function(){ $('chatBgOverlay').classList.add('hidden'); });
+  $('chatBgRemoveBtn').addEventListener('click',function(){
+    chatBgActive=''; chatBgUrl='';
+    localStorage.removeItem(KEYS.chatBgActive); localStorage.removeItem(KEYS.chatBg);
+    applyChatBg(); renderChatBgGallery(); flashSaved();
+  });
+  $('chatBgUploadBtn').addEventListener('click',function(){ $('chatBgFileInput').click(); });
+  $('chatBgFileInput').addEventListener('change',function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f) return;
+    compressWallpaper(f,function(dataUrl){
+      var item={id:uid('cbg'),dataUrl:dataUrl};
+      chatBgGallery.unshift(item); if(chatBgGallery.length>5) chatBgGallery.pop();
+      save(KEYS.chatBgGallery,chatBgGallery);
+      chatBgActive=item.id; localStorage.setItem(KEYS.chatBgActive,chatBgActive);
+      chatBgUrl=dataUrl; localStorage.setItem(KEYS.chatBg,dataUrl);
+      applyChatBg(); renderChatBgGallery(); flashSaved();
+    }); e.target.value='';
+  });
+
   /* ============ Check-in Calendar Overlay ============ */
   var CI_ACHIEVEMENTS = [
     { id:'7',  emoji:'⭐', label:'一週達人',   threshold:7,  type:'streak' },
@@ -2663,6 +2796,31 @@ textarea.mid{ min-height:90px; }
     renderMoodDiaryOverlay();
     $('moodDiaryOverlay').classList.remove('hidden');
   }
+  /* ============ Chat left panel ============ */
+  function closeLeftPanel(){ $('chatLeftPanel').classList.remove('open'); $('chatLeftScrim').classList.remove('show'); }
+  $('chatLeftToggle').addEventListener('click', function(){ $('chatLeftPanel').classList.toggle('open'); $('chatLeftScrim').classList.toggle('show'); });
+  $('chatLeftClose').addEventListener('click', closeLeftPanel);
+  $('chatLeftScrim').addEventListener('click', closeLeftPanel);
+  $('lpChangeAvatar').addEventListener('click', function(){
+    closeLeftPanel();
+    $('avatarGalleryOverlay').classList.remove('hidden');
+    renderAvatarGallery();
+  });
+  $('lpChangeBg').addEventListener('click', function(){
+    closeLeftPanel();
+    $('chatBgOverlay').classList.remove('hidden');
+    renderChatBgGallery();
+  });
+  $('lpDownload').addEventListener('click', function(){
+    closeLeftPanel();
+    $('dlChatBtn').click();
+  });
+  $('lpAdmin').addEventListener('click', function(){
+    closeLeftPanel();
+    showAdmin();
+  });
+  $('avatarOverlayClose').addEventListener('click', function(){ $('avatarGalleryOverlay').classList.add('hidden'); });
+
   /* ============ Chat right panel ============ */
   function closeRightPanel(){ $('chatRightPanel').classList.remove('open'); $('chatRightScrim').classList.remove('show'); }
   $('chatRightToggle').addEventListener('click', function(){ $('chatRightPanel').classList.toggle('open'); $('chatRightScrim').classList.toggle('show'); });
@@ -2710,6 +2868,7 @@ textarea.mid{ min-height:90px; }
   updateCheckinBtn();
   updateCountdown();
   applyWallpaper();
+  applyChatBg();
 })();
 </script>
 </body>
