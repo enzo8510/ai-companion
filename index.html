@@ -970,23 +970,17 @@ textarea.mid{ min-height:90px; }
         <button id="openAdminBtn" style="display:none;" aria-hidden="true">⚙</button>
       </div>
 
-      <!-- Daily Q&A Card (Collapsible) -->
-      <div class="qa-card-wrapper" id="qaCardWrapper" style="flex:0 0 auto;padding:var(--space-md);border-bottom:1px solid var(--line);background:var(--surface);overflow:hidden;transition:all .3s;">
-        <button class="qa-card-header" id="qaCardToggle" style="width:100%;background:none;border:none;padding:var(--space-md);display:flex;justify-content:space-between;align-items:center;cursor:pointer;color:var(--ink);font-weight:600;font-size:13px;">
-          <span>✨ 今日問題</span>
-          <span id="qaCardToggleIcon">▼</span>
-        </button>
-        <div id="qaCardContent" style="display:none;padding:var(--space-md) 0;">
-          <div style="background:var(--chat-bg);border-radius:12px;padding:var(--space-lg);">
-            <div id="qaCardQuestion" style="font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:var(--space-lg);font-weight:500;">選擇一個問題開始對話...</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm);margin-bottom:var(--space-md);">
-              <button class="qa-option-btn" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:var(--space-md);font-size:12px;color:var(--ink);cursor:pointer;transition:all .15s;" type="button">選項 1</button>
-              <button class="qa-option-btn" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:var(--space-md);font-size:12px;color:var(--ink);cursor:pointer;transition:all .15s;" type="button">選項 2</button>
-              <button class="qa-option-btn" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:var(--space-md);font-size:12px;color:var(--ink);cursor:pointer;transition:all .15s;" type="button">選項 3</button>
-              <button class="qa-option-btn" id="qaCardRefreshBtn2" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:var(--space-md);font-size:12px;color:var(--ink);cursor:pointer;transition:all .15s;" type="button">🔄 重新</button>
-            </div>
-            <button id="qaCardSendBtn" style="width:100%;background:var(--companion);border:none;border-radius:10px;padding:var(--space-md);font-size:13px;font-weight:600;color:#fff;cursor:pointer;transition:all .2s;" type="button">確認送出 →</button>
+      <!-- Daily Q&A Card -->
+      <div class="qa-card-wrapper" id="qaCardWrapper" style="flex:0 0 auto;padding:var(--space-lg);border-bottom:1px solid var(--line);background:var(--surface);">
+        <div style="background:var(--chat-bg);border-radius:12px;padding:var(--space-lg);">
+          <div style="font-size:13px;color:var(--ink);font-weight:600;margin-bottom:var(--space-lg);">✨ 今日問題</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm);margin-bottom:var(--space-md);">
+            <button class="qa-option-btn" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:var(--space-md);font-size:12px;color:var(--ink);cursor:pointer;transition:all .15s;" type="button">選項 1</button>
+            <button class="qa-option-btn" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:var(--space-md);font-size:12px;color:var(--ink);cursor:pointer;transition:all .15s;" type="button">選項 2</button>
+            <button class="qa-option-btn" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:var(--space-md);font-size:12px;color:var(--ink);cursor:pointer;transition:all .15s;" type="button">選項 3</button>
+            <button class="qa-option-btn" id="qaCardRefreshBtn2" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:var(--space-md);font-size:12px;color:var(--ink);cursor:pointer;transition:all .15s;" type="button">🔄 重新</button>
           </div>
+          <button id="qaCardSendBtn" style="width:100%;background:var(--companion);border:none;border-radius:10px;padding:var(--space-md);font-size:13px;font-weight:600;color:#fff;cursor:pointer;transition:all .2s;" type="button">確認送出 →</button>
         </div>
       </div>
 
@@ -3872,23 +3866,6 @@ textarea.mid{ min-height:90px; }
   $('homeQaRefreshBtn').addEventListener('click', showQaHistory);
   $('qaHistoryBackBtn').addEventListener('click', showHome);
 
-  /* ============ Random Question Selector ============ */
-  var currentRandomQuestion = '';
-  var QA_LIST = [
-    '如果只能選一種食物吃一輩子，你會選什麼？',
-    '你覺得最浪漫的事是什麼？',
-    '如果有一天你會消失，你最不捨的是什麼？',
-    '你有什麼秘密嗎？',
-    '最想對我說又說不出口的話是什麼？',
-    '你覺得我哪裡最吸引你？',
-    '如果只能和我一起做一件事，你想做什麼？',
-    '你覺得我們之間最特別的是什麼？',
-    '最深刻的回憶是什麼？',
-    '如果可以回到過去，你會改變什麼？',
-    '你覺得未來會怎樣？',
-    '有沒有一刻你特別想念我？',
-    '你對我的期待是什麼？'
-  ];
 
   function pickRandomQuestion(){
     currentRandomQuestion = QA_LIST[Math.floor(Math.random() * QA_LIST.length)];
@@ -3901,20 +3878,6 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ Daily Q&A Card in Chat ============ */
-  // 可折疊卡片功能
-  var qaCardOpen = false;
-  var qaCardToggle = document.getElementById('qaCardToggle');
-  var qaCardContent = document.getElementById('qaCardContent');
-  var qaCardToggleIcon = document.getElementById('qaCardToggleIcon');
-
-  if(qaCardToggle){
-    qaCardToggle.onclick = function(){
-      qaCardOpen = !qaCardOpen;
-      qaCardContent.style.display = qaCardOpen ? 'block' : 'none';
-      qaCardToggleIcon.textContent = qaCardOpen ? '▲' : '▼';
-    };
-  }
-
   var dailyQaOptions = [];
   function generateQaOptions(){
     dailyQaOptions = [];
