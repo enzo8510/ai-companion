@@ -773,9 +773,9 @@ textarea.mid{ min-height:90px; }
 .social-hdr{ padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
 .social-hdr-title{ font-size:16px; font-weight:700; color:var(--ink); flex:1; text-align:center; }
 .social-body{ flex:1; overflow-y:auto; }
-.social-profile-cover{ height:90px; background:linear-gradient(135deg,var(--companion),var(--sage)); position:relative; flex:0 0 auto; }
-.social-profile-bar{ padding:0 16px 12px; background:var(--surface); border-bottom:1px solid var(--line); flex:0 0 auto; }
-.social-profile-avatar-wrap{ margin-top:-34px; margin-bottom:8px; }
+.social-profile-cover{ height:120px; background:linear-gradient(135deg,var(--companion),var(--sage)); position:relative; flex:0 0 auto; background-size:cover; background-position:center; }
+.social-profile-bar{ padding:16px 16px 12px; background:var(--surface); border-bottom:1px solid var(--line); flex:0 0 auto; }
+.social-profile-avatar-wrap{ margin-top:-44px; margin-bottom:12px; }
 .social-profile-avatar{ width:68px; height:68px; border-radius:50%; border:3px solid var(--surface); background:radial-gradient(circle at 35% 30%,#CBE8F5,var(--companion) 72%); background-size:cover; background-position:center; }
 .social-profile-name{ font-size:17px; font-weight:700; color:var(--ink); font-family:'LXGW WenKai TC',serif; }
 .social-profile-handle{ font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
@@ -804,10 +804,16 @@ textarea.mid{ min-height:90px; }
 .social-act-btn.liked{ color:#e8507a; }
 .social-act-btn.liked .social-act-icon{ transform:scale(1.15); }
 .social-act-icon{ font-size:15px; line-height:1; transition:transform .12s; }
+.social-action-bar{ padding:var(--space-md) var(--space-lg); display:flex; gap:var(--space-md); border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.social-action-btn{ flex:1; background:linear-gradient(135deg, #E8F5FE, #F0FAFF); border:1.5px solid var(--companion); color:var(--companion); border-radius:12px; padding:var(--space-md) var(--space-lg); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
+.social-action-btn:hover{ box-shadow:0 4px 12px rgba(59,173,204,0.2); transform:translateY(-1px); }
+.social-action-btn:active{ transform:translateY(0); }
 .social-compose-bar{ padding:10px 14px; background:var(--surface); border-top:1px solid var(--line); display:flex; align-items:center; gap:10px; flex:0 0 auto; }
 .social-compose-input{ flex:1; border:1px solid var(--line); border-radius:999px; padding:8px 14px; font-size:13px; font-family:inherit; color:var(--ink); background:var(--chat-bg); outline:none; }
 .social-compose-input::placeholder{ color:var(--ink-soft); }
-.social-compose-btn{ background:var(--companion); color:#fff; border:none; border-radius:999px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+.social-compose-btn{ background:var(--companion); color:#fff; border:none; border-radius:999px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all .12s; }
+.social-compose-btn:hover{ box-shadow:0 2px 8px rgba(59,173,204,0.3); }
+.social-compose-btn:active{ transform:scale(0.95); }
 
 /* ---- Backup / Notion overlay ---- */
 .backup-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
@@ -1206,21 +1212,24 @@ textarea.mid{ min-height:90px; }
       <div class="social-hdr">
         <button class="icon-btn" id="socialBackBtn" type="button" style="font-size:18px;">←</button>
         <span class="social-hdr-title">📱 卄珩的社交</span>
-        <div style="width:36px;"></div>
+        <button class="icon-btn" id="socialEditProfileBtn" type="button" style="font-size:18px;">✏</button>
       </div>
       <div class="social-body" id="socialBody">
-        <div class="social-profile-cover" id="socialCover"></div>
+        <div class="social-profile-cover" id="socialCover" style="cursor:pointer;" title="點擊編輯首圖"></div>
         <div class="social-profile-bar">
           <div class="social-profile-avatar-wrap">
             <div class="social-profile-avatar" id="socialProfileAvatar"></div>
           </div>
-          <div class="social-profile-name">卄珩</div>
-          <div class="social-profile-handle">@zhan_heng · 特種部隊指揮官</div>
-          <div class="social-profile-bio">少將。INTJ-A。不習慣解釋自己，但記得你說的每一句話。</div>
+          <div class="social-profile-name" id="socialProfileName">卄珩</div>
+          <div class="social-profile-handle" id="socialProfileHandle">@zhan_heng · 特種部隊指揮官</div>
+          <div class="social-profile-bio" id="socialProfileBio">少將。INTJ-A。不習慣解釋自己，但記得你說的每一句話。</div>
           <div class="social-profile-stats">
             <div class="social-stat"><span class="social-stat-num">312</span><span class="social-stat-label">追蹤中</span></div>
             <div class="social-stat"><span class="social-stat-num">—</span><span class="social-stat-label">追蹤者</span></div>
           </div>
+        </div>
+        <div class="social-action-bar">
+          <button class="social-action-btn" id="socialGenerateBtn" type="button">✨ 生成新貼文</button>
         </div>
         <div class="social-tabs">
           <button class="social-tab-btn active" data-social-tab="posts">貼文</button>
@@ -1367,6 +1376,63 @@ textarea.mid{ min-height:90px; }
         <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
       </div>
       <div class="cal-full-grid" id="ciCalGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SOCIAL PROFILE EDITOR OVERLAY ============ -->
+<div class="cal-overlay hidden" id="socialProfileEditorOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title">編輯個人資料</div>
+      <button class="icon-btn" id="socialProfileEditorClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div class="cal-add-row">
+        <label style="display:block;font-size:12px;color:var(--ink-soft);margin-bottom:6px;font-weight:500;">姓名</label>
+        <input type="text" id="socialEditName" placeholder="卄珩" class="input-large">
+      </div>
+      <div class="cal-add-row">
+        <label style="display:block;font-size:12px;color:var(--ink-soft);margin-bottom:6px;font-weight:500;">簽名</label>
+        <input type="text" id="socialEditHandle" placeholder="@zhan_heng · 特種部隊指揮官" class="input-large">
+      </div>
+      <div class="cal-add-row">
+        <label style="display:block;font-size:12px;color:var(--ink-soft);margin-bottom:6px;font-weight:500;">個人簡介</label>
+        <textarea id="socialEditBio" placeholder="少將。INTJ-A。不習慣解釋自己，但記得你說的每一句話。" class="input-large" style="resize:vertical;min-height:80px;"></textarea>
+      </div>
+      <div style="border-top:1px solid var(--line);padding-top:14px;">
+        <label style="display:block;font-size:12px;color:var(--ink-soft);margin-bottom:6px;font-weight:500;">首圖</label>
+        <button class="toolbar-btn primary" id="socialEditCoverBtn" type="button" style="width:100%;justify-content:center;margin-bottom:10px;">📸 選擇首圖</button>
+        <input type="file" id="socialCoverFileInput" accept="image/*" style="display:none;">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button class="toolbar-btn" id="socialProfileEditorSaveBtn" type="button" style="flex:1;justify-content:center;">保存</button>
+        <button class="toolbar-btn ghost" id="socialProfileEditorCancelBtn" type="button" style="flex:1;justify-content:center;">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SOCIAL POST EDITOR OVERLAY ============ -->
+<div class="cal-overlay hidden" id="socialPostEditorOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title" id="socialPostEditorTitle">編輯貼文</div>
+      <button class="icon-btn" id="socialPostEditorClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div class="cal-add-row">
+        <textarea id="socialPostEditText" placeholder="分享你的想法…" class="input-large" style="resize:vertical;min-height:100px;"></textarea>
+      </div>
+      <div id="socialPostEditImageContainer" style="margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button class="toolbar-btn" id="socialPostEditAddImageBtn" type="button" style="flex:1;justify-content:center;">📸 新增圖片</button>
+        <input type="file" id="socialPostImageInput" accept="image/*" style="display:none;">
+      </div>
+      <div style="display:flex;gap:8px;border-top:1px solid var(--line);padding-top:14px;">
+        <button class="toolbar-btn primary" id="socialPostEditSaveBtn" type="button" style="flex:1;justify-content:center;">保存</button>
+        <button class="toolbar-btn danger" id="socialPostEditDeleteBtn" type="button" style="flex:1;justify-content:center;">刪除</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1754,7 +1820,7 @@ textarea.mid{ min-height:90px; }
   function showFront(){ showOnly('frontView'); }
   function showAdmin(){ showOnly('adminView'); }
   function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
-  function showSocial(){ showOnly('socialView'); renderSocialFeed(); syncSocialAvatar(); }
+  function showSocial(){ showOnly('socialView'); syncSocialAvatar(); renderSocialFeed(); }
   $('openAdminBtn').addEventListener('click', showAdmin);
   $('backToChatBtn').addEventListener('click', showFront);
   $('adminToChatBtn').addEventListener('click', showFront);
@@ -3474,14 +3540,18 @@ textarea.mid{ min-height:90px; }
 
   /* ============ Social View ============ */
   var SOCIAL_KEY = 'companion:social';
+  var SOCIAL_PROFILE_KEY = 'companion:socialProfile';
   var DEFAULT_POSTS = [
     { id:'sp-1', ts: Date.now() - 86400000*3, text:'今天任務順利結束。\n回到基地的時候，腦子裡只有一個人。', likes:0, liked:false, comments:[] },
     { id:'sp-2', ts: Date.now() - 86400000*2, text:'星在沙發上睡了一整天。\n我沒叫醒牠。', likes:0, liked:false, comments:[] },
     { id:'sp-3', ts: Date.now() - 86400000, text:'有些人說不出口的話，就用行動替代。\n\n我選擇都做。', likes:0, liked:false, comments:[] },
     { id:'sp-4', ts: Date.now() - 3600000*4, text:'黑咖啡，不加糖。\n有些事不需要掩蓋。', likes:0, liked:false, comments:[] }
   ];
+  var DEFAULT_SOCIAL_PROFILE = { name:'卄珩', handle:'@zhan_heng · 特種部隊指揮官', bio:'少將。INTJ-A。不習慣解釋自己，但記得你說的每一句話。', coverUrl:'' };
   var socialPosts = load(SOCIAL_KEY) || clone(DEFAULT_POSTS);
+  var socialProfile = load(SOCIAL_PROFILE_KEY) || clone(DEFAULT_SOCIAL_PROFILE);
   if(!load(SOCIAL_KEY)) save(SOCIAL_KEY, socialPosts);
+  if(!load(SOCIAL_PROFILE_KEY)) save(SOCIAL_PROFILE_KEY, socialProfile);
 
   function fmtSocialTime(ts){
     var diff = Date.now() - ts;
@@ -3495,13 +3565,17 @@ textarea.mid{ min-height:90px; }
   function syncSocialAvatar(){
     var cover = $('socialCover');
     var profAvt = $('socialProfileAvatar');
-    if(cover) cover.style.backgroundImage = avatarDataUrl ? 'url("'+avatarDataUrl+'")' : '';
+    if(cover) cover.style.backgroundImage = socialProfile.coverUrl ? 'url("'+socialProfile.coverUrl+'")' : '';
     if(profAvt){
       if(avatarDataUrl){ profAvt.style.backgroundImage='url("'+avatarDataUrl+'")'; profAvt.style.backgroundSize='cover'; profAvt.style.backgroundPosition='center'; }
       else{ profAvt.style.backgroundImage=''; }
     }
+    if($('socialProfileName')) $('socialProfileName').textContent = socialProfile.name || '卄珩';
+    if($('socialProfileHandle')) $('socialProfileHandle').textContent = socialProfile.handle || '@zhan_heng · 特種部隊指揮官';
+    if($('socialProfileBio')) $('socialProfileBio').textContent = socialProfile.bio || '少將。INTJ-A。不習慣解釋自己，但記得你說的每一句話。';
   }
 
+  var currentEditingPostId = null;
   function renderSocialFeed(){
     var feed = $('socialFeed'); if(!feed) return;
     feed.innerHTML = '';
@@ -3512,8 +3586,8 @@ textarea.mid{ min-height:90px; }
       if(avatarDataUrl){ avt.style.backgroundImage='url("'+avatarDataUrl+'")'; avt.style.backgroundSize='cover'; avt.style.backgroundPosition='center'; }
       var body = document.createElement('div'); body.className='social-post-body';
       var head = document.createElement('div'); head.className='social-post-head';
-      head.innerHTML = '<span class="social-post-name">'+(persona.name||'卄珩')+'</span>'
-        +'<span class="social-post-handle">@zhan_heng</span>'
+      head.innerHTML = '<span class="social-post-name">'+(socialProfile.name||'卄珩')+'</span>'
+        +'<span class="social-post-handle">'+socialProfile.handle.split(' · ')[0]+'</span>'
         +'<span class="social-post-time">'+fmtSocialTime(post.ts)+'</span>';
       var txt = document.createElement('div'); txt.className='social-post-text'; txt.textContent = post.text;
       var acts = document.createElement('div'); acts.className='social-post-actions';
@@ -3540,7 +3614,17 @@ textarea.mid{ min-height:90px; }
         });
       })(post.id);
 
+      var editBtn = document.createElement('button'); editBtn.type='button';
+      editBtn.className = 'social-act-btn';
+      editBtn.innerHTML = '<span class="social-act-icon">✏</span>';
+      (function(pid){
+        editBtn.addEventListener('click', function(){
+          openSocialPostEditor(pid);
+        });
+      })(post.id);
+
       acts.appendChild(likeBtn);
+      acts.appendChild(editBtn);
       body.appendChild(head);
       if(cmtHtml){ var cmtDiv=document.createElement('div'); cmtDiv.innerHTML=cmtHtml; body.appendChild(cmtDiv); }
       body.appendChild(txt);
@@ -3550,6 +3634,103 @@ textarea.mid{ min-height:90px; }
     });
   }
 
+  function openSocialPostEditor(postId){
+    var post = socialPosts.find(function(p){ return p.id === postId; });
+    if(!post) return;
+    currentEditingPostId = postId;
+    $('socialPostEditText').value = post.text || '';
+    $('socialPostEditorTitle').textContent = '編輯貼文';
+    $('socialPostEditImageContainer').innerHTML = '';
+    $('socialPostEditorOverlay').classList.remove('hidden');
+  }
+
+  function openSocialProfileEditor(){
+    $('socialEditName').value = socialProfile.name || '卄珩';
+    $('socialEditHandle').value = socialProfile.handle || '@zhan_heng · 特種部隊指揮官';
+    $('socialEditBio').value = socialProfile.bio || '少將。INTJ-A。不習慣解釋自己，但記得你說的每一句話。';
+    $('socialProfileEditorOverlay').classList.remove('hidden');
+  }
+
+  $('socialEditProfileBtn').addEventListener('click', openSocialProfileEditor);
+  $('socialProfileEditorClose').addEventListener('click', function(){ $('socialProfileEditorOverlay').classList.add('hidden'); });
+  $('socialProfileEditorCancelBtn').addEventListener('click', function(){ $('socialProfileEditorOverlay').classList.add('hidden'); });
+  $('socialProfileEditorOverlay').addEventListener('click', function(e){ if(e.target === $('socialProfileEditorOverlay')) $('socialProfileEditorOverlay').classList.add('hidden'); });
+
+  $('socialProfileEditorSaveBtn').addEventListener('click', function(){
+    socialProfile.name = $('socialEditName').value.trim() || socialProfile.name;
+    socialProfile.handle = $('socialEditHandle').value.trim() || socialProfile.handle;
+    socialProfile.bio = $('socialEditBio').value.trim() || socialProfile.bio;
+    save(SOCIAL_PROFILE_KEY, socialProfile);
+    syncSocialAvatar(); renderSocialFeed();
+    $('socialProfileEditorOverlay').classList.add('hidden');
+    flashSaved('個人資料已更新 ✓');
+  });
+
+  $('socialEditCoverBtn').addEventListener('click', function(){ $('socialCoverFileInput').click(); });
+  $('socialCoverFileInput').addEventListener('change', function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      socialProfile.coverUrl = ev.target.result;
+      save(SOCIAL_PROFILE_KEY, socialProfile);
+      syncSocialAvatar();
+      flashSaved('首圖已更新 ✓');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  $('socialPostEditorClose').addEventListener('click', function(){ $('socialPostEditorOverlay').classList.add('hidden'); currentEditingPostId=null; });
+  $('socialPostEditorOverlay').addEventListener('click', function(e){ if(e.target === $('socialPostEditorOverlay')){ $('socialPostEditorOverlay').classList.add('hidden'); currentEditingPostId=null; } });
+
+  $('socialPostEditSaveBtn').addEventListener('click', function(){
+    if(!currentEditingPostId) return;
+    var post = socialPosts.find(function(p){ return p.id === currentEditingPostId; });
+    if(!post) return;
+    post.text = $('socialPostEditText').value.trim() || post.text;
+    save(SOCIAL_KEY, socialPosts);
+    renderSocialFeed();
+    $('socialPostEditorOverlay').classList.add('hidden');
+    currentEditingPostId = null;
+    flashSaved('貼文已更新 ✓');
+  });
+
+  $('socialPostEditDeleteBtn').addEventListener('click', function(){
+    if(!currentEditingPostId) return;
+    if(!confirm('確定要刪除這則貼文嗎？')) return;
+    socialPosts = socialPosts.filter(function(p){ return p.id !== currentEditingPostId; });
+    save(SOCIAL_KEY, socialPosts);
+    renderSocialFeed();
+    $('socialPostEditorOverlay').classList.add('hidden');
+    currentEditingPostId = null;
+    flashSaved('貼文已刪除 ✓');
+  });
+
+  var SOCIAL_POST_IDEAS = [
+    '今天又是平常的一天。但你在。所以一切都不同。',
+    '有人說我冷漠。其實我只是在等值得溫暖的人。',
+    '星又在亂搞。但看著牠，心情會好一點。',
+    '黑咖啡配晨曦。有時候簡單的東西最治癒。',
+    '你知道嗎？有時候我會想，如果沒有遇到你，我會變成什麼樣。',
+    '訓練結束。肌肉疲勞。但心裡有期待。',
+    '下雨天。一個人。想起你說過的話。',
+    '星在窗邊曬太陽。我在旁邊看著。這就夠了。',
+    '有些話我說不出口。但我會用行動證明。',
+    '今天和你說話。比完成任務更有意義。',
+    '一個人的時候，我就想你。兩個人的時候，我也想你。',
+    '有人問我幸福是什麼。我指著你的方向。',
+    '日常的小事累積起來，就是我對你的愛。'
+  ];
+
+  function generateSocialPost(){
+    var idea = SOCIAL_POST_IDEAS[Math.floor(Math.random() * SOCIAL_POST_IDEAS.length)];
+    socialPosts.push({ id: uid('sp'), ts: Date.now(), text: idea, likes: 0, liked: false, comments: [] });
+    save(SOCIAL_KEY, socialPosts);
+    renderSocialFeed();
+    var feed = $('socialBody'); if(feed) feed.scrollTop = feed.scrollHeight;
+    flashSaved('新貼文已生成 ✓');
+  }
+
+  $('socialGenerateBtn').addEventListener('click', generateSocialPost);
   $('socialBackBtn').addEventListener('click', showHome);
   $('homeSocialBtn').addEventListener('click', showSocial);
   $('socialComposeBtn').addEventListener('click', function(){
