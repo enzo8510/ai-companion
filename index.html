@@ -583,11 +583,12 @@ textarea.mid{ min-height:90px; }
 .qa-divider-text{ display:block; font-size:12.5px; color:var(--ink); background:var(--gold-soft); border-radius:14px; padding:9px 16px; line-height:1.65; }
 
 /* ---- Check-in achievements ---- */
-.ci-achievements{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
-.ci-achieve-badge{ display:flex; align-items:center; gap:5px; padding:5px 12px; border-radius:999px; font-size:11px; font-weight:600; }
-.ci-achieve-badge.locked{ background:var(--chat-bg); color:var(--ink-soft); }
-.ci-achieve-badge.unlocked{ background:var(--gold-soft); color:#7a5a1c; border:1px solid #e0c86a; }
-.ci-achieve-badge.super{ background:linear-gradient(135deg,#fdf2dc,#fcead0); color:#c87830; border:1.5px solid #e8a530; }
+.ci-achievements{ display:flex; flex-wrap:wrap; gap:var(--space-sm); margin-bottom:var(--space-lg); }
+.ci-achieve-badge{ display:flex; align-items:center; gap:var(--space-sm); padding:var(--space-sm) var(--space-md); border-radius:999px; font-size:12px; font-weight:600; transition:all .15s; }
+.ci-achieve-badge.locked{ background:var(--chat-bg); color:var(--ink-soft); opacity:0.6; }
+.ci-achieve-badge.locked:hover{ opacity:0.8; }
+.ci-achieve-badge.unlocked{ background:linear-gradient(135deg, var(--gold-soft), rgba(216,238,248,0.5)); color:#7a5a1c; border:1px solid #e0c86a; box-shadow:0 2px 6px rgba(224,200,106,0.2); }
+.ci-achieve-badge.super{ background:linear-gradient(135deg,#fdf2dc,#fcead0); color:#c87830; border:1.5px solid #e8a530; box-shadow:0 2px 8px rgba(232,165,48,0.3); }
 
 /* ---- Mood diary centered modal override ---- */
 #moodDiaryOverlay{ align-items:center; padding:20px 14px; }
@@ -739,14 +740,15 @@ textarea.mid{ min-height:90px; }
 .diary-note-date{ font-size:10.5px; color:var(--ink-soft); margin-top:8px; }
 
 /* ---- Mood diary overlay ---- */
-.mood-summary-row{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; padding:10px 0; border-bottom:1px solid var(--line); min-height:36px; align-items:center; }
-.mood-summary-chip{ display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:999px; font-size:11.5px; font-weight:600; color:#fff; }
-.mood-diary-list{ display:flex; flex-direction:column; gap:var(--space-sm); }
-.mood-diary-item{ background:var(--chat-bg); border-radius:14px; padding:var(--space-md); }
-.mood-diary-item-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-.mood-diary-item-date{ font-size:11px; color:var(--ink-soft); }
-.mood-diary-item-mood{ font-size:11px; padding:2px 10px; border-radius:999px; font-weight:600; color:#fff; margin-left:auto; }
-.mood-diary-item-text{ font-size:13px; color:var(--ink); line-height:1.75; }
+.mood-summary-row{ display:flex; gap:var(--space-md); flex-wrap:wrap; margin-bottom:var(--space-lg); padding:var(--space-md) 0; border-bottom:1px solid var(--line); min-height:40px; align-items:center; }
+.mood-summary-chip{ display:inline-flex; align-items:center; gap:var(--space-xs); padding:var(--space-xs) var(--space-md); border-radius:999px; font-size:12px; font-weight:600; color:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+.mood-diary-list{ display:flex; flex-direction:column; gap:var(--space-md); }
+.mood-diary-item{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:var(--space-lg); transition:all .15s; }
+.mood-diary-item:hover{ box-shadow:0 2px 8px rgba(59,173,204,0.1); border-color:var(--companion); }
+.mood-diary-item-head{ display:flex; align-items:center; gap:var(--space-md); margin-bottom:var(--space-md); }
+.mood-diary-item-date{ font-size:12px; color:var(--ink-soft); font-weight:500; }
+.mood-diary-item-mood{ font-size:11px; padding:var(--space-xs) var(--space-md); border-radius:999px; font-weight:700; color:#fff; margin-left:auto; box-shadow:0 2px 4px rgba(0,0,0,0.15); }
+.mood-diary-item-text{ font-size:13px; color:var(--ink); line-height:1.7; }
 .mood-diary-empty{ text-align:center; padding:32px 0; color:var(--ink-soft); font-size:13px; line-height:1.8; }
 
 /* ---- Responsive ---- */
