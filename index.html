@@ -914,7 +914,6 @@ textarea.mid{ min-height:90px; }
           <button class="home-action-btn" id="checkinBtn" type="button">
             <span class="act-icon" id="checkinIcon">🌙</span>
             <span class="act-label">每日打卡</span>
-            <span class="act-streak" id="checkinStreak"></span>
           </button>
           <button class="home-action-btn" id="homeCalBtn" type="button">
             <span class="act-icon">📅</span>
@@ -939,6 +938,10 @@ textarea.mid{ min-height:90px; }
           <button class="home-action-btn" id="homeAudioBtn" type="button">
             <span class="act-icon">🎶</span>
             <span class="act-label">他的音檔</span>
+          </button>
+          <button class="home-action-btn" id="homeWithMeBtn" type="button">
+            <span class="act-icon">💕</span>
+            <span class="act-label">with me</span>
           </button>
         </div>
 
@@ -1249,6 +1252,22 @@ textarea.mid{ min-height:90px; }
       <div class="social-compose-bar">
         <input class="social-compose-input" id="socialComposeInput" placeholder="留言給卄珩…" maxlength="140">
         <button class="social-compose-btn" id="socialComposeBtn" type="button">送出</button>
+      </div>
+    </div>
+
+    <!-- ============ WITH ME VIEW ============ -->
+    <div class="view hidden" id="withMeView">
+      <div class="social-hdr">
+        <button class="icon-btn" id="withMeBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="social-hdr-title">💕 with me</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="social-body" id="withMeBody" style="display:flex;align-items:center;justify-content:center;text-align:center;">
+        <div style="padding:var(--space-3xl) var(--space-2xl);">
+          <div style="font-size:48px;margin-bottom:var(--space-2xl);">💕</div>
+          <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:var(--space-lg);">with me</div>
+          <div style="font-size:13px;color:var(--ink-soft);line-height:1.8;">這個頁面待更新<br>敬請期待</div>
+        </div>
       </div>
     </div>
 
@@ -1821,7 +1840,7 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView'];
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
   }
@@ -1830,6 +1849,7 @@ textarea.mid{ min-height:90px; }
   function showAdmin(){ showOnly('adminView'); }
   function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
   function showSocial(){ showOnly('socialView'); syncSocialAvatar(); renderSocialFeed(); }
+  function showWithMe(){ showOnly('withMeView'); }
   $('openAdminBtn').addEventListener('click', showAdmin);
   $('backToChatBtn').addEventListener('click', showFront);
   $('adminToChatBtn').addEventListener('click', showFront);
@@ -2485,7 +2505,6 @@ textarea.mid{ min-height:90px; }
     var today = todayLabel();
     var done = checkin.lastDate === today;
     $('checkinIcon').textContent = done ? '✅' : '🌙';
-    $('checkinStreak').textContent = checkin.streak > 1 ? checkin.streak + ' 天' : '';
     var btn = $('checkinBtn');
     if(done) btn.classList.add('done'); else btn.classList.remove('done');
   }
@@ -3742,6 +3761,8 @@ textarea.mid{ min-height:90px; }
   $('socialGenerateBtn').addEventListener('click', generateSocialPost);
   $('socialBackBtn').addEventListener('click', showHome);
   $('homeSocialBtn').addEventListener('click', showSocial);
+  $('homeWithMeBtn').addEventListener('click', showWithMe);
+  $('withMeBackBtn').addEventListener('click', showHome);
   $('socialComposeBtn').addEventListener('click', function(){
     var inp = $('socialComposeInput');
     var t = (inp.value||'').trim(); if(!t) return;
