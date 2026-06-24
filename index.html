@@ -655,11 +655,13 @@ textarea.mid{ min-height:90px; }
 .star-modal-handle{ width:40px; height:5px; background:var(--line); border-radius:6px; margin:var(--space-lg) auto; }
 .star-modal-title{ font-size:16px; font-weight:700; color:var(--ink); text-align:center; margin-bottom:var(--space-lg); }
 .star-modal-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-md); padding:0 var(--space-lg); }
-.star-food-item{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); padding:var(--space-md); border:1.5px solid var(--line); border-radius:16px; cursor:pointer; background:linear-gradient(135deg, #fff, var(--chat-bg)); font-family:inherit; transition:all .15s; }
-.star-food-item:hover{ border-color:var(--companion); box-shadow:0 4px 12px rgba(59,173,204,0.2); transform:scale(1.05); }
-.star-food-icon{ font-size:24px; line-height:1; }
-.star-food-name{ font-size:11px; color:var(--ink); font-weight:700; text-align:center; }
-.star-food-stat{ font-size:10px; color:var(--companion); font-weight:600; }
+.star-food-item{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); padding:var(--space-lg); border:2px solid rgba(59,173,204,0.2); border-radius:18px; cursor:pointer; background:linear-gradient(135deg, #ffffff, var(--chat-bg)); font-family:inherit; transition:all .18s cubic-bezier(.4,0,.2,1); position:relative; overflow:hidden; }
+.star-food-item::before{ content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), transparent); pointer-events:none; border-radius:18px; }
+.star-food-item:hover{ border-color:var(--companion); box-shadow:0 8px 20px rgba(59,173,204,0.25), inset 0 1px 0 rgba(255,255,255,0.8); transform:translateY(-3px) scale(1.06); }
+.star-food-icon{ font-size:28px; line-height:1; position:relative; z-index:1; transition:transform .18s; }
+.star-food-item:hover .star-food-icon{ transform:scale(1.2); }
+.star-food-name{ font-size:12px; color:var(--ink); font-weight:700; text-align:center; position:relative; z-index:1; }
+.star-food-stat{ font-size:11px; color:var(--companion); font-weight:600; position:relative; z-index:1; }
 .star-outfit-item{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); padding:var(--space-md); border:1.5px solid var(--line); border-radius:16px; cursor:pointer; background:linear-gradient(135deg, #fff, var(--chat-bg)); font-family:inherit; transition:all .15s; }
 .star-outfit-item:hover{ border-color:var(--companion); box-shadow:0 4px 12px rgba(59,173,204,0.2); }
 .star-outfit-item.active-outfit{ border-color:var(--companion); background:linear-gradient(135deg, var(--companion-soft), #fff); box-shadow:0 4px 12px rgba(59,173,204,0.3); }
@@ -692,18 +694,20 @@ textarea.mid{ min-height:90px; }
 .star-bubble::after{ content:''; position:absolute; bottom:-9px; left:50%; transform:translateX(-50%); width:0; height:0; border:6px solid transparent; border-top-color:#E0D4C8; }
 .star-bubble.hidden{ display:none; }
 .star-stats{ padding:var(--space-md) var(--space-lg); display:flex; flex-direction:column; gap:var(--space-md); flex:0 0 auto; }
-.star-stat-row{ display:flex; align-items:center; gap:var(--space-md); }
-.star-stat-label{ font-size:12px; color:var(--ink); flex:0 0 60px; font-weight:600; }
-.star-bar-track{ flex:1; height:10px; background:var(--chat-bg); border-radius:8px; overflow:hidden; border:1px solid var(--line); box-shadow:inset 0 1px 3px rgba(0,0,0,0.1); }
-.star-bar-fill{ height:100%; border-radius:8px; transition:width .45s cubic-bezier(.4,0,.2,1); position:relative; }
-.star-bar-fill::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.3)); }
-.star-stat-val{ font-size:12px; color:var(--companion); flex:0 0 32px; text-align:right; font-weight:700; }
-.star-actions{ padding:var(--space-md) var(--space-lg) var(--space-lg); display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-md); flex:0 0 auto; }
-.star-act-btn{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); background:linear-gradient(135deg, #fff, var(--chat-bg)); border:1.5px solid var(--line); border-radius:16px; padding:var(--space-lg) var(--space-md) var(--space-md); cursor:pointer; font-family:inherit; transition:all .15s; position:relative; }
-.star-act-btn:hover{ border-color:var(--companion); box-shadow:0 4px 12px rgba(59,173,204,0.2); transform:translateY(-2px); }
-.star-act-btn:active{ transform:translateY(0); box-shadow:0 2px 6px rgba(59,173,204,0.15); }
-.star-act-icon{ font-size:24px; line-height:1; }
-.star-act-label{ font-size:12px; color:var(--ink); font-weight:600; }
+.star-stat-row{ display:flex; align-items:center; gap:var(--space-md); background:rgba(59,173,204,0.05); padding:var(--space-md); border-radius:12px; }
+.star-stat-label{ font-size:12px; color:var(--ink); flex:0 0 60px; font-weight:700; }
+.star-bar-track{ flex:1; height:14px; background:var(--chat-bg); border-radius:10px; overflow:hidden; border:1.5px solid var(--line); box-shadow:inset 0 2px 4px rgba(0,0,0,0.08); }
+.star-bar-fill{ height:100%; border-radius:10px; transition:width .45s cubic-bezier(.4,0,.2,1); position:relative; box-shadow:0 2px 6px rgba(59,173,204,0.4) inset; }
+.star-bar-fill::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4), rgba(255,255,255,0.1)); border-radius:10px; }
+.star-stat-val{ font-size:13px; color:var(--companion); flex:0 0 35px; text-align:right; font-weight:700; }
+.star-actions{ padding:var(--space-lg) var(--space-lg) var(--space-2xl); display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-md); flex:0 0 auto; }
+.star-act-btn{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); background:linear-gradient(135deg, #ffffff 0%, var(--chat-bg) 100%); border:2px solid rgba(59,173,204,0.3); border-radius:20px; padding:var(--space-xl) var(--space-lg) var(--space-lg); cursor:pointer; font-family:inherit; transition:all .18s cubic-bezier(.4,0,.2,1); position:relative; box-shadow:0 4px 12px rgba(59,173,204,0.1); }
+.star-act-btn::before{ content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), transparent); border-radius:20px; pointer-events:none; }
+.star-act-btn:hover{ border-color:var(--companion); box-shadow:0 8px 20px rgba(59,173,204,0.25); transform:translateY(-4px) scale(1.02); }
+.star-act-btn:active{ transform:translateY(-1px) scale(0.98); box-shadow:0 3px 8px rgba(59,173,204,0.15); }
+.star-act-icon{ font-size:28px; line-height:1; position:relative; z-index:1; transition:transform .18s; }
+.star-act-btn:hover .star-act-icon{ transform:scale(1.15); }
+.star-act-label{ font-size:13px; color:var(--ink); font-weight:700; position:relative; z-index:1; }
 /* ---- Settings QR overlay ---- */
 .qr-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
 .qr-overlay.hidden{ display:none; }
@@ -1311,7 +1315,10 @@ textarea.mid{ min-height:90px; }
 
       <!-- 新增事項 -->
       <div class="cal-add-section">
-        <h3>📝 新增事項</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3 style="margin:0;">📝 新增事項</h3>
+          <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:16px;padding:4px 8px;">⚙</button>
+        </div>
         <div class="cal-add-row">
           <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
         </div>
@@ -1319,27 +1326,7 @@ textarea.mid{ min-height:90px; }
           <input type="text" id="calAddDate" placeholder="點擊選擇日期" readonly class="input-date">
         </div>
         <div class="cal-add-row">
-          <select id="calAddType" class="select-category">
-            <optgroup label="📅 生活事項">
-              <option value="event">行程事項</option>
-              <option value="birthday">🎂 生日</option>
-              <option value="anniversary">💝 紀念日</option>
-            </optgroup>
-            <optgroup label="💚 健康狀態">
-              <option value="period">🌸 生理期</option>
-              <option value="health">💪 健身</option>
-            </optgroup>
-            <optgroup label="📚 日記記錄">
-              <option value="diary">📔 日記</option>
-              <option value="journal">📝 日誌</option>
-            </optgroup>
-            <optgroup label="💼 工作">
-              <option value="work">💼 工作事項</option>
-            </optgroup>
-            <optgroup label="💭 回憶">
-              <option value="memory">💭 回憶</option>
-            </optgroup>
-          </select>
+          <select id="calAddType" class="select-category"></select>
         </div>
         <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">✨ 新增事項</button>
       </div>
@@ -1380,6 +1367,26 @@ textarea.mid{ min-height:90px; }
         <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
       </div>
       <div class="cal-full-grid" id="ciCalGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EVENT TYPE MANAGER OVERLAY ============ -->
+<div class="cal-overlay hidden" id="eventTypeManagerOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title">📂 管理事項分類</div>
+      <button class="icon-btn" id="eventTypeManagerClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div id="eventTypeList" style="margin-bottom:16px;"></div>
+      <div style="border-top:1px solid var(--line);padding-top:14px;">
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input type="text" id="eventTypeNameInput" placeholder="分類名稱 (例：交通)" style="flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;font-family:inherit;color:var(--ink);background:var(--chat-bg);outline:none;">
+          <input type="text" id="eventTypeEmojiInput" placeholder="😊" style="width:50px;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:16px;text-align:center;background:var(--chat-bg);outline:none;">
+        </div>
+        <button class="toolbar-btn primary" id="eventTypeAddBtn" type="button" style="width:100%;justify-content:center;">＋ 新增分類</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1609,6 +1616,17 @@ textarea.mid{ min-height:90px; }
 
   var DEFAULT_SETTINGS = { apiKey:'', model:'gpt-4o', baseUrl:'https://api.openai.com/v1' };
   var DEFAULT_PERSONA = { name:'卄珩', statusLine:'在線・少將・記得你說過的每一句話', systemPrompt:DEFAULT_SYSTEM_PROMPT, replyRules:'', backgroundSettings:'' };
+  var DEFAULT_EVENT_TYPES = [
+    { id:'event', label:'行程事項', emoji:'📅', group:'生活事項' },
+    { id:'birthday', label:'生日', emoji:'🎂', group:'生活事項' },
+    { id:'anniversary', label:'紀念日', emoji:'💝', group:'生活事項' },
+    { id:'period', label:'生理期', emoji:'🌸', group:'健康狀態' },
+    { id:'health', label:'健身', emoji:'💪', group:'健康狀態' },
+    { id:'diary', label:'日記', emoji:'📔', group:'日記記錄' },
+    { id:'journal', label:'日誌', emoji:'📝', group:'日記記錄' },
+    { id:'work', label:'工作事項', emoji:'💼', group:'工作' },
+    { id:'memory', label:'回憶', emoji:'💭', group:'回憶' }
+  ];
 
   /* ============ Storage ============ */
   var KEYS = {
@@ -1621,7 +1639,7 @@ textarea.mid{ min-height:90px; }
     avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
     startDate:'companion:startDate', cntTarget:'companion:cntTarget',
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
-    theme:'companion:theme', star:'companion:star'
+    theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -1657,7 +1675,10 @@ textarea.mid{ min-height:90px; }
   var chatBgGallery = load(KEYS.chatBgGallery) || [];
   var chatBgActive  = localStorage.getItem(KEYS.chatBgActive) || '';
   var currentTheme  = localStorage.getItem(KEYS.theme) || '';
-  var starState     = load(KEYS.star) || { hunger:80, mood:80, clothes:0 };
+  var eventTypes    = load(KEYS.eventTypes) || clone(DEFAULT_EVENT_TYPES);
+  var starState     = load(KEYS.star) || { hunger:80, mood:80, clothes:0, lastFedTime: Date.now(), lastPetTime: Date.now() };
+  if(!starState.lastFedTime) starState.lastFedTime = Date.now();
+  if(!starState.lastPetTime) starState.lastPetTime = Date.now();
   var pendingImg  = null;
   var ciCalYear   = new Date().getFullYear(), ciCalMonth = new Date().getMonth();
   // persist seeds on first run
@@ -2537,6 +2558,77 @@ textarea.mid{ min-height:90px; }
   $('calOverlayClose').addEventListener('click',function(){ $('calOverlay').classList.add('hidden'); });
   $('calOverlay').addEventListener('click',function(e){ if(e.target===$('calOverlay')) $('calOverlay').classList.add('hidden'); });
 
+  function renderEventTypeSelect(){
+    var sel = $('calAddType');
+    sel.innerHTML = '';
+    var groups = {};
+    eventTypes.forEach(function(t){
+      if(!groups[t.group]) groups[t.group] = [];
+      groups[t.group].push(t);
+    });
+    Object.keys(groups).forEach(function(group){
+      var og = document.createElement('optgroup');
+      og.label = group;
+      groups[group].forEach(function(t){
+        var opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.emoji + ' ' + t.label;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    });
+  }
+
+  function renderEventTypeManager(){
+    var list = $('eventTypeList');
+    list.innerHTML = '';
+    eventTypes.forEach(function(t, idx){
+      var item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:8px;background:var(--chat-bg);border-radius:10px;';
+      item.innerHTML = '<span style="font-size:16px;">'+t.emoji+'</span><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--ink);">'+t.label+'</div><div style="font-size:11px;color:var(--ink-soft);">'+t.group+'</div></div>';
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'icon-btn';
+      delBtn.textContent = '✕';
+      delBtn.style.cssText = 'font-size:16px;color:var(--ink-soft);';
+      (function(id, idx){
+        delBtn.addEventListener('click', function(){
+          if(eventTypes.length <= 3){ alert('至少需要保留 3 個分類'); return; }
+          eventTypes = eventTypes.filter(function(t){ return t.id !== id; });
+          save(KEYS.eventTypes, eventTypes);
+          renderEventTypeSelect();
+          renderEventTypeManager();
+          flashSaved('分類已刪除 ✓');
+        });
+      })(t.id, idx);
+      item.appendChild(delBtn);
+      list.appendChild(item);
+    });
+  }
+
+  $('eventTypeManagerClose').addEventListener('click', function(){ $('eventTypeManagerOverlay').classList.add('hidden'); });
+  $('eventTypeManagerOverlay').addEventListener('click', function(e){ if(e.target === $('eventTypeManagerOverlay')) $('eventTypeManagerOverlay').classList.add('hidden'); });
+
+  $('eventTypeAddBtn').addEventListener('click', function(){
+    var name = $('eventTypeNameInput').value.trim();
+    var emoji = $('eventTypeEmojiInput').value.trim();
+    if(!name || !emoji){ alert('請輸入分類名稱和表情符號'); return; }
+    if(eventTypes.find(function(t){ return t.label === name; })){ alert('分類已存在'); return; }
+    var newType = { id: uid('evt'), label: name, emoji: emoji, group: '自訂分類' };
+    eventTypes.push(newType);
+    save(KEYS.eventTypes, eventTypes);
+    $('eventTypeNameInput').value = '';
+    $('eventTypeEmojiInput').value = '';
+    renderEventTypeSelect();
+    renderEventTypeManager();
+    flashSaved('分類已新增 ✓');
+  });
+
+  $('calTypeManagerBtn').addEventListener('click', function(){
+    renderEventTypeManager();
+    $('eventTypeManagerOverlay').classList.remove('hidden');
+  });
+
   $('calAddDate').addEventListener('click',function(e){
     e.stopPropagation();
     openCalendar($('calAddDate'), calAddDateVal||todayLabel(), function(str){ calAddDateVal=str; $('calAddDate').value=str; });
@@ -2555,6 +2647,7 @@ textarea.mid{ min-height:90px; }
 
   function openCalOverlay(){
     calOvSelDay=null;
+    renderEventTypeSelect();
     renderCalOvGrid();
     renderDayDetail(null);
     renderAnniSection();
@@ -3273,7 +3366,18 @@ textarea.mid{ min-height:90px; }
     }
     catAnimationTimer = setTimeout(animateCat, 500);
   }
+  function decayStarStats(){
+    var now = Date.now();
+    var hoursSinceFed = (now - (starState.lastFedTime || now)) / 3600000;
+    var hoursSincePet = (now - (starState.lastPetTime || now)) / 3600000;
+    var hungerDecay = Math.floor(hoursSinceFed * 3);
+    var moodDecay = Math.floor(hoursSincePet * 2);
+    starState.hunger = Math.max(0, starState.hunger - hungerDecay);
+    starState.mood = Math.max(0, starState.mood - moodDecay);
+    if(hungerDecay > 0 || moodDecay > 0) save(KEYS.star, starState);
+  }
   function renderStarStats(){
+    decayStarStats();
     $('starHungerFill').style.width = starState.hunger + '%';
     $('starHungerVal').textContent = starState.hunger + '%';
     $('starMoodFill').style.width = starState.mood + '%';
@@ -3339,6 +3443,7 @@ textarea.mid{ min-height:90px; }
       if(starState.hunger >= 100 && h > 0){ showStarBubble('已經吃飽了！🍚'); closeStarModal(); return; }
       starState.hunger = Math.min(100, starState.hunger + h);
       starState.mood   = Math.min(100, starState.mood   + m);
+      starState.lastFedTime = Date.now();
       save(KEYS.star, starState); bounceStarChar();
       var msgs=['好吃！謝謝你！😋','哇，我最喜歡吃東西了！','謝謝～味道不錯耶！','嗯嗯～吃飽了好開心！'];
       showStarBubble(msgs[Math.floor(Math.random()*msgs.length)]);
@@ -3348,6 +3453,7 @@ textarea.mid{ min-height:90px; }
   $('starPetBtn').addEventListener('click', function(){
     if(starState.mood >= 100){ showStarBubble('嗯～已經很開心了！💕'); return; }
     starState.mood = Math.min(100, starState.mood + 20);
+    starState.lastPetTime = Date.now();
     save(KEYS.star, starState); bounceStarChar();
     var m=['呀！好舒服～💕','謝謝你摸我！','嗯嗯～感覺很溫暖','嘿嘿，我喜歡這樣！'];
     showStarBubble(m[Math.floor(Math.random()*m.length)]); renderStarStats();
