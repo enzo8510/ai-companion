@@ -537,6 +537,18 @@ textarea.mid{ min-height:90px; }
 .has-wallpaper .home-name{ text-shadow:0 1px 10px rgba(0,0,0,0.20); }
 .has-wallpaper .home-tagline{ text-shadow:0 1px 6px rgba(0,0,0,0.14); }
 .has-wallpaper .home-enter-btn{ backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+/* Dark wallpaper - light text */
+.has-wallpaper.dark-bg .home-name,
+.has-wallpaper.dark-bg .home-tagline{ color:#ffffff; text-shadow:0 1px 10px rgba(0,0,0,0.50); }
+.has-wallpaper.dark-bg .home-action-btn .act-label,
+.has-wallpaper.dark-bg .home-countdown-strip,
+.has-wallpaper.dark-bg .cnt-label,
+.has-wallpaper.dark-bg .cnt-days,
+.has-wallpaper.dark-bg .cnt-unit,
+.has-wallpaper.dark-bg .cnt-event{ color:#ffffff; }
+/* Dark chat background - light text */
+#thread.has-chatbg.dark-bg .bubble.her,
+#thread.has-chatbg.dark-bg .bubble.me{ color:#ffffff; }
 
 /* ---- Check-in calendar overlay ---- */
 .ci-cal-stats{ display:flex; gap:var(--space-md); justify-content:center; margin-bottom:var(--space-lg); }
@@ -3009,14 +3021,42 @@ textarea.mid{ min-height:90px; }
   });
 
   /* ============ Wallpaper ============ */
+  function detectImageBrightness(dataUrl, callback){
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      var totalBrightness = 0;
+      for(var i = 0; i < imageData.length; i += 4){
+        var r = imageData[i];
+        var g = imageData[i+1];
+        var b = imageData[i+2];
+        totalBrightness += (r * 0.299 + g * 0.587 + b * 0.114);
+      }
+      var avgBrightness = totalBrightness / (imageData.length / 4);
+      callback(avgBrightness < 128);
+    };
+    img.onerror = function(){ callback(false); };
+    img.src = dataUrl;
+  }
+
   function applyWallpaper(){
     var hv = $('homeView');
     if(wallpaperUrl){
       hv.style.backgroundImage = 'url("'+wallpaperUrl+'")';
       hv.classList.add('has-wallpaper');
+      detectImageBrightness(wallpaperUrl, function(isDark){
+        if(isDark) hv.classList.add('dark-bg');
+        else hv.classList.remove('dark-bg');
+      });
     } else {
       hv.style.backgroundImage = '';
       hv.classList.remove('has-wallpaper');
+      hv.classList.remove('dark-bg');
     }
   }
   function compressImage(file, cb){
@@ -3127,11 +3167,16 @@ textarea.mid{ min-height:90px; }
       thread.style.backgroundSize='cover';
       thread.style.backgroundPosition='center';
       thread.classList.add('has-chatbg');
+      detectImageBrightness(chatBgUrl, function(isDark){
+        if(isDark) thread.classList.add('dark-bg');
+        else thread.classList.remove('dark-bg');
+      });
     } else {
       thread.style.backgroundImage='';
       thread.style.backgroundSize='';
       thread.style.backgroundPosition='';
       thread.classList.remove('has-chatbg');
+      thread.classList.remove('dark-bg');
     }
   }
   function renderChatBgGallery(){
