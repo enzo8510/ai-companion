@@ -659,6 +659,9 @@ textarea.mid{ min-height:90px; }
 /* Dark theme bubble colors with opacity */
 :root[data-theme="dark"] .bubble.her{ background:rgba(76,200,234,0.85); color:#ffffff; }
 :root[data-theme="dark"] .bubble.me{ background:rgba(52,56,80,0.90); color:#ffffff; }
+/* Dark theme with chat background override */
+:root[data-theme="dark"] #thread.has-chatbg .bubble.her{ background:rgba(76,200,234,0.85); color:#ffffff; backdrop-filter:none; border:none; }
+:root[data-theme="dark"] #thread.has-chatbg .bubble.me{ background:rgba(52,56,80,0.90); color:#ffffff; backdrop-filter:none; border:none; }
 /* ---- Dark theme text color improvements ---- */
 :root[data-theme="dark"] .home-name,
 :root[data-theme="dark"] .home-tagline,
