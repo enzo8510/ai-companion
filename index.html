@@ -825,9 +825,9 @@ textarea.mid{ min-height:90px; }
 .social-hdr{ padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
 .social-hdr-title{ font-size:16px; font-weight:700; color:var(--ink); flex:1; text-align:center; }
 .social-body{ flex:1; overflow-y:auto; }
-.social-profile-cover{ height:120px; background:linear-gradient(135deg,var(--companion),var(--sage)); position:relative; flex:0 0 auto; background-size:cover; background-position:center; }
-.social-profile-bar{ padding:16px 16px 12px; background:var(--surface); border-bottom:1px solid var(--line); flex:0 0 auto; }
-.social-profile-avatar-wrap{ margin-top:-44px; margin-bottom:12px; }
+.social-profile-cover{ height:100px; background:linear-gradient(135deg,var(--companion),var(--sage)); position:relative; flex:0 0 auto; background-size:cover; background-position:center; cursor:pointer; }
+.social-profile-bar{ padding:12px 16px 16px; background:var(--surface); border-bottom:1px solid var(--line); flex:0 0 auto; position:relative; z-index:1; }
+.social-profile-avatar-wrap{ margin-top:-34px; margin-bottom:12px; }
 .social-profile-avatar{ width:68px; height:68px; border-radius:50%; border:3px solid var(--surface); background:radial-gradient(circle at 35% 30%,#CBE8F5,var(--companion) 72%); background-size:contain; background-position:center; background-repeat:no-repeat; }
 .social-profile-name{ font-size:17px; font-weight:700; color:var(--ink); font-family:'LXGW WenKai TC',serif; }
 .social-profile-handle{ font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
@@ -1271,6 +1271,7 @@ textarea.mid{ min-height:90px; }
       </div>
       <div class="social-body" id="socialBody">
         <div class="social-profile-cover" id="socialCover" style="cursor:pointer;" title="點擊編輯首圖"></div>
+        <input type="file" id="socialCoverInput" accept="image/*" style="display:none;">
         <div class="social-profile-bar">
           <div class="social-profile-avatar-wrap">
             <div class="social-profile-avatar" id="socialProfileAvatar"></div>
@@ -3835,6 +3836,20 @@ textarea.mid{ min-height:90px; }
   }
 
   $('socialGenerateBtn').addEventListener('click', generateSocialPost);
+
+  // Social cover upload
+  $('socialCover').addEventListener('click', function(){ $('socialCoverInput').click(); });
+  $('socialCoverInput').addEventListener('change', function(e){
+    var file = e.target.files[0]; if(!file) return;
+    compressImage(file, function(dataUrl){
+      socialProfile.coverUrl = dataUrl;
+      save(SOCIAL_PROFILE_KEY, socialProfile);
+      syncSocialAvatar();
+      flashSaved('背景圖已更新 ✓');
+    });
+    e.target.value = '';
+  });
+
   $('socialBackBtn').addEventListener('click', showHome);
   $('homeSocialBtn').addEventListener('click', showSocial);
   $('homeWithMeBtn').addEventListener('click', showWithMe);
