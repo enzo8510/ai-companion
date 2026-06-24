@@ -571,6 +571,14 @@ textarea.mid{ min-height:90px; }
 /* ---- Countdown selector overlay ---- */
 .cnt-sel-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
 .cnt-sel-overlay.hidden{ display:none; }
+/* ---- Settings QR overlay ---- */
+.qr-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
+.qr-overlay.hidden{ display:none; }
+.qr-sheet{ background:#fff; border-radius:24px; width:100%; max-width:340px; padding:28px 24px 24px; text-align:center; position:relative; }
+.qr-sheet-title{ font-size:17px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+.qr-sheet-lead{ font-size:12.5px; color:var(--ink-soft); line-height:1.7; margin-bottom:18px; }
+.qr-code-wrap{ display:flex; justify-content:center; margin-bottom:16px; }
+.qr-warn{ background:#fff8ee; border:1px solid #f0d080; border-radius:10px; padding:10px 14px; font-size:11.5px; color:#8a6020; line-height:1.6; }
 .cnt-sel-sheet{ background:#fff; border-radius:24px; width:100%; max-width:440px; max-height:88vh; display:flex; flex-direction:column; overflow:hidden; }
 .cnt-sel-head{ padding:15px 18px 11px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; flex:0 0 auto; }
 .cnt-sel-title{ flex:1; font-family:'LXGW WenKai TC',serif; font-size:16px; font-weight:700; color:var(--ink); }
@@ -770,6 +778,7 @@ textarea.mid{ min-height:90px; }
           </div>
           <div class="btn-row">
             <button class="btn" id="testBtn" type="button">測試連線</button>
+            <button class="btn ghost" id="shareSettingsBtn" type="button">📲 手機掃碼匯入</button>
           </div>
           <div class="test-result" id="testResult"></div>
           <div class="hint" id="corsHint">
@@ -1015,6 +1024,17 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
+<!-- ============ SETTINGS QR OVERLAY ============ -->
+<div class="qr-overlay hidden" id="settingsQrOverlay">
+  <div class="qr-sheet">
+    <button class="icon-btn" id="settingsQrClose" type="button" style="position:absolute;top:14px;right:14px;">✕</button>
+    <div class="qr-sheet-title">📲 手機掃碼匯入設定</div>
+    <p class="qr-sheet-lead">用手機掃描下方 QR Code，API 金鑰與模型設定會自動套用，不需要手動輸入。</p>
+    <div class="qr-code-wrap"><div id="settingsQrCode"></div></div>
+    <div class="qr-warn">⚠ 此 QR Code 包含你的 API 金鑰，請勿截圖分享給他人</div>
+  </div>
+</div>
+
 <!-- ============ CHECKIN TOAST ============ -->
 <div class="checkin-toast" id="checkinToast"></div>
 
@@ -1112,6 +1132,26 @@ textarea.mid{ min-height:90px; }
   if(!load(KEYS.knowledge)) save(KEYS.knowledge, knowledge);
   if(!load(KEYS.memories)) save(KEYS.memories, memories);
   if(!load(KEYS.journal)) save(KEYS.journal, journal);
+
+  // ---- URL settings import (from QR Code scan) ----
+  (function(){
+    var hash = window.location.hash;
+    if(hash.indexOf('#import=') === 0){
+      try{
+        var encoded = hash.slice(8);
+        var json = decodeURIComponent(escape(atob(encoded)));
+        var imp = JSON.parse(json);
+        if(imp && (imp.apiKey || imp.model)){
+          if(imp.apiKey)  settings.apiKey  = imp.apiKey;
+          if(imp.model)   settings.model   = imp.model;
+          if(imp.baseUrl) settings.baseUrl = imp.baseUrl;
+          save(KEYS.settings, settings);
+          history.replaceState(null,'',window.location.pathname+window.location.search);
+          setTimeout(function(){ alert('✅ 設定已成功匯入！你現在可以直接開始聊天了。'); }, 600);
+        }
+      } catch(e){ console.warn('settings import failed', e); }
+    }
+  })();
 
   var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function smooth(){ return prefersReduced ? 'auto' : 'smooth'; }
@@ -1441,6 +1481,33 @@ textarea.mid{ min-height:90px; }
       out.className='test-result err';
       out.textContent='✗ 連線失敗：'+(e&&e.message?e.message:e)+'（若用 file:// 開啟，請參考下方提醒改用本機伺服器）';
     });
+  });
+
+  /* ============ Settings QR Code ============ */
+  function showSettingsQr(){
+    var payload = JSON.stringify({
+      apiKey: settings.apiKey||'',
+      model:  settings.model||'',
+      baseUrl: settings.baseUrl||''
+    });
+    var encoded = btoa(unescape(encodeURIComponent(payload)));
+    var base = window.location.href.split('#')[0];
+    var url = base + '#import=' + encoded;
+    var wrap = $('settingsQrCode');
+    wrap.innerHTML = '';
+    new QRCode(wrap, { text:url, width:200, height:200, colorDark:'#32384A', colorLight:'#FFFFFF' });
+    $('settingsQrOverlay').classList.remove('hidden');
+  }
+  $('shareSettingsBtn').addEventListener('click', function(){
+    if(typeof QRCode === 'undefined'){
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+      s.onload = showSettingsQr;
+      document.head.appendChild(s);
+    } else { showSettingsQr(); }
+  });
+  $('settingsQrClose').addEventListener('click', function(){
+    $('settingsQrOverlay').classList.add('hidden');
   });
 
   /* ============ Persona panel ============ */
