@@ -29,6 +29,15 @@
   --space-xl: 24px;
   --space-2xl: 32px;
   --space-3xl: 48px;
+  /* 事件分類顏色 */
+  --event-color: #3BADCC;
+  --birthday-color: #e08050;
+  --memory-color: #5DAAA4;
+  --diary-color: #1a4080;
+  --journal-color: #82bfd4;
+  --period-color: #E84C78;
+  --health-color: #8DC64C;
+  --work-color: #6A9BB8;
 }
 
 *{ box-sizing:border-box; }
@@ -444,22 +453,30 @@ textarea.mid{ min-height:90px; }
 .cal-full-day.cal-fd-empty{ cursor:default; opacity:0.3; }
 .cal-fd-dot{ position:absolute; bottom:3px; left:50%; transform:translateX(-50%); display:flex; gap:3px; }
 .cal-fd-dot span{ width:5px; height:5px; border-radius:50%; display:block; box-shadow:0 1px 2px rgba(0,0,0,0.1); }
-.cal-fd-dot .d-event{ background:var(--companion); }
-.cal-fd-dot .d-anniversary{ background:#e08050; }
-.cal-fd-dot .d-memory{ background:var(--sage); }
-.cal-fd-dot .d-diary{ background:#1a4080; }
-.cal-fd-dot .d-journal{ background:#82bfd4; }
+.cal-fd-dot .d-event{ background:var(--event-color); }
+.cal-fd-dot .d-anniversary{ background:var(--birthday-color); }
+.cal-fd-dot .d-birthday{ background:var(--birthday-color); }
+.cal-fd-dot .d-memory{ background:var(--memory-color); }
+.cal-fd-dot .d-diary{ background:var(--diary-color); }
+.cal-fd-dot .d-journal{ background:var(--journal-color); }
+.cal-fd-dot .d-period{ background:var(--period-color); }
+.cal-fd-dot .d-health{ background:var(--health-color); }
+.cal-fd-dot .d-work{ background:var(--work-color); }
 .cal-event-list{ margin-bottom:var(--space-lg); min-height:40px; }
 .cal-event-list-title{ font-size:11px; color:var(--ink-soft); font-weight:700; letter-spacing:.05em; margin-bottom:var(--space-md); text-transform:uppercase; }
 .cal-event-item{ display:flex; align-items:flex-start; gap:var(--space-md); padding:var(--space-md) 0; border-bottom:1px solid var(--line); transition:background .15s; }
 .cal-event-item:hover{ background:rgba(59,173,204,0.05); }
 .cal-event-item:last-child{ border-bottom:none; }
 .cal-ev-dot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto; margin-top:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1); }
-.cal-ev-dot.event{ background:var(--companion); }
-.cal-ev-dot.anniversary{ background:#e08050; }
-.cal-ev-dot.memory{ background:var(--sage); }
-.cal-ev-dot.diary{ background:#1a4080; }
-.cal-ev-dot.journal{ background:#82bfd4; }
+.cal-ev-dot.event{ background:var(--event-color); }
+.cal-ev-dot.anniversary{ background:var(--birthday-color); }
+.cal-ev-dot.birthday{ background:var(--birthday-color); }
+.cal-ev-dot.memory{ background:var(--memory-color); }
+.cal-ev-dot.diary{ background:var(--diary-color); }
+.cal-ev-dot.journal{ background:var(--journal-color); }
+.cal-ev-dot.period{ background:var(--period-color); }
+.cal-ev-dot.health{ background:var(--health-color); }
+.cal-ev-dot.work{ background:var(--work-color); }
 .cal-ev-info{ flex:1; min-width:0; }
 .cal-ev-date{ font-size:11px; color:var(--ink-soft); margin-bottom:var(--space-xs); font-weight:500; }
 .cal-ev-title{ font-size:13px; color:var(--ink); line-height:1.6; font-weight:500; }
@@ -472,6 +489,13 @@ textarea.mid{ min-height:90px; }
 .cal-add-row input:focus, .cal-add-row select:focus{ border-color:var(--companion); background:rgba(59,173,204,0.05); box-shadow:0 0 0 3px rgba(59,173,204,0.1); }
 .cal-add-row input[readonly]{ background:var(--chat-bg); color:var(--ink-soft); cursor:pointer; }
 .cal-add-row input[readonly]:focus{ border-color:var(--companion); }
+/* 改進的表單輸入樣式 */
+.input-large{ font-size:14px !important; }
+.input-date{ background:var(--chat-bg) !important; }
+.select-category{ padding:var(--space-sm) var(--space-md) !important; }
+.select-category optgroup{ font-weight:600; color:var(--ink); }
+.select-category option{ color:var(--ink); background:#fff; }
+.toolbar-btn.primary{ margin-top:var(--space-md) !important; font-weight:600; }
 
 /* ---- Download overlay ---- */
 .dl-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:center; justify-content:center; padding:24px; }
@@ -1281,18 +1305,37 @@ textarea.mid{ min-height:90px; }
 
       <!-- 新增事項 -->
       <div class="cal-add-section">
-        <h3>新增事項</h3>
+        <h3>📝 新增事項</h3>
         <div class="cal-add-row">
-          <input type="text" id="calAddTitle" placeholder="標題（行程或紀念日）">
+          <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
         </div>
         <div class="cal-add-row">
-          <input type="text" id="calAddDate" placeholder="日期 YYYY年M月D日" readonly>
-          <select id="calAddType">
-            <option value="event">行程</option>
-            <option value="anniversary">紀念日</option>
+          <input type="text" id="calAddDate" placeholder="點擊選擇日期" readonly class="input-date">
+        </div>
+        <div class="cal-add-row">
+          <select id="calAddType" class="select-category">
+            <optgroup label="📅 生活事項">
+              <option value="event">行程事項</option>
+              <option value="birthday">🎂 生日</option>
+              <option value="anniversary">💝 紀念日</option>
+            </optgroup>
+            <optgroup label="💚 健康狀態">
+              <option value="period">🌸 生理期</option>
+              <option value="health">💪 健身</option>
+            </optgroup>
+            <optgroup label="📚 日記記錄">
+              <option value="diary">📔 日記</option>
+              <option value="journal">📝 日誌</option>
+            </optgroup>
+            <optgroup label="💼 工作">
+              <option value="work">💼 工作事項</option>
+            </optgroup>
+            <optgroup label="💭 回憶">
+              <option value="memory">💭 回憶</option>
+            </optgroup>
           </select>
         </div>
-        <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;margin-top:4px;">＋ 新增</button>
+        <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">✨ 新增事項</button>
       </div>
     </div>
   </div>
