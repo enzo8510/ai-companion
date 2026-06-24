@@ -439,10 +439,10 @@ textarea.mid{ min-height:90px; }
 /* ---- Calendar Overlay ---- */
 .cal-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:flex-end; justify-content:center; }
 .cal-overlay.hidden{ display:none; }
-.cal-sheet{ background:#fff; border-radius:24px 24px 0 0; width:100%; max-width:460px; max-height:88vh; display:flex; flex-direction:column; }
-.cal-sheet-head{ padding:var(--space-lg) var(--space-lg); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:var(--space-md); flex:0 0 auto; }
+.cal-sheet{ background:#fff; border-radius:24px 24px 0 0; width:100%; max-width:460px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 -8px 32px rgba(0,0,0,0.12); }
+.cal-sheet-head{ padding:20px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:var(--space-md); flex:0 0 auto; }
 .cal-sheet-title{ flex:1; font-family:'LXGW WenKai TC',serif; font-size:18px; font-weight:700; color:var(--ink); }
-.cal-sheet-body{ flex:1; overflow-y:auto; padding:var(--space-lg); }
+.cal-sheet-body{ flex:1; overflow-y:auto; padding:20px 18px; }
 .cal-month-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-lg); }
 .cal-month-label{ font-size:15px; font-weight:700; color:var(--ink); }
 .cal-full-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:var(--space-md); gap:var(--space-xs); }
@@ -485,13 +485,28 @@ textarea.mid{ min-height:90px; }
 .cal-ev-del:hover{ color:#e05252; background:rgba(224,82,82,0.1); }
 .cal-add-section{ background:var(--chat-bg); border-radius:14px; padding:var(--space-lg); margin-top:var(--space-md); border:1px solid var(--line); }
 .cal-add-section h3{ font-size:12px; font-weight:700; color:var(--ink); margin:0 0 var(--space-md); letter-spacing:.04em; text-transform:uppercase; }
-.cal-add-row{ display:flex; gap:var(--space-md); margin-bottom:var(--space-md); }
-.cal-add-row input, .cal-add-row select{ flex:1; border:1px solid var(--line); border-radius:10px; padding:var(--space-sm) var(--space-md); font-family:inherit; font-size:13px; color:var(--ink); background:#fff; outline:none; transition:all .15s; }
-.cal-add-row input:focus, .cal-add-row select:focus{ border-color:var(--companion); background:rgba(59,173,204,0.05); box-shadow:0 0 0 3px rgba(59,173,204,0.1); }
+.cal-add-row{ display:flex; gap:var(--space-md); margin-bottom:18px; flex-direction:column; }
+.cal-add-row input, .cal-add-row select, .cal-add-row textarea{ flex:1; border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; font-family:inherit; font-size:14px; color:var(--ink); background:var(--chat-bg); outline:none; transition:all .15s; line-height:1.6; }
+.cal-add-row input:focus, .cal-add-row select:focus, .cal-add-row textarea:focus{ border-color:var(--companion); background:rgba(59,173,204,0.03); box-shadow:0 0 0 3px rgba(59,173,204,0.12); }
 .cal-add-row input[readonly]{ background:var(--chat-bg); color:var(--ink-soft); cursor:pointer; }
 .cal-add-row input[readonly]:focus{ border-color:var(--companion); }
 /* 改進的表單輸入樣式 */
-.input-large{ font-size:14px !important; }
+.input-large{
+  font-size:14px !important;
+  border:1.5px solid var(--line) !important;
+  border-radius:14px !important;
+  padding:14px 16px !important;
+  background:var(--chat-bg) !important;
+  color:var(--ink) !important;
+  line-height:1.6 !important;
+  transition:all .2s !important;
+}
+.input-large:focus{
+  border-color:var(--companion) !important;
+  background:rgba(59,173,204,0.03) !important;
+  box-shadow:0 0 0 3px rgba(59,173,204,0.12) !important;
+  outline:none !important;
+}
 .input-date{ background:var(--chat-bg) !important; }
 .select-category{ padding:var(--space-sm) var(--space-md) !important; }
 .select-category optgroup{ font-weight:600; color:var(--ink); }
