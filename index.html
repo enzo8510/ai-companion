@@ -970,6 +970,24 @@ textarea.mid{ min-height:90px; }
         <button id="openAdminBtn" style="display:none;" aria-hidden="true">⚙</button>
       </div>
 
+      <!-- Daily Q&A Card -->
+      <div class="qa-card-wrapper" id="qaCardWrapper" style="padding:var(--space-lg) var(--space-md);border-bottom:1px solid var(--line);background:var(--surface);">
+        <div class="qa-card" id="dailyQaCard" style="background:linear-gradient(135deg, #FFE8B6 0%, #FFD4A3 100%);border-radius:14px;padding:var(--space-xl);cursor:pointer;transition:all .2s;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-lg);">
+            <div style="font-size:14px;font-weight:600;color:#8B4513;">✨ 今日問題</div>
+            <button class="icon-btn" id="qaCardRefreshBtn" type="button" style="font-size:16px;padding:4px 8px;background:rgba(255,255,255,0.6);">🔄</button>
+          </div>
+          <div id="qaCardQuestion" style="font-size:13px;color:#5D3A1A;line-height:1.6;margin-bottom:var(--space-lg);font-weight:500;">選擇一個問題開始對話...</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm);margin-bottom:var(--space-md);">
+            <button class="qa-option-btn" style="background:rgba(255,255,255,0.8);border:none;border-radius:8px;padding:var(--space-md);font-size:12px;color:#5D3A1A;cursor:pointer;transition:all .15s;" type="button">選項 1</button>
+            <button class="qa-option-btn" style="background:rgba(255,255,255,0.8);border:none;border-radius:8px;padding:var(--space-md);font-size:12px;color:#5D3A1A;cursor:pointer;transition:all .15s;" type="button">選項 2</button>
+            <button class="qa-option-btn" style="background:rgba(255,255,255,0.8);border:none;border-radius:8px;padding:var(--space-md);font-size:12px;color:#5D3A1A;cursor:pointer;transition:all .15s;" type="button">選項 3</button>
+            <button class="qa-option-btn" id="qaCardRefreshBtn2" style="background:rgba(255,255,255,0.8);border:none;border-radius:8px;padding:var(--space-md);font-size:12px;color:#5D3A1A;cursor:pointer;transition:all .15s;" type="button">🔄 重新</button>
+          </div>
+          <button id="qaCardSendBtn" style="width:100%;background:linear-gradient(135deg, #FFB74D 0%, #FFA500 100%);border:none;border-radius:10px;padding:var(--space-md);font-size:13px;font-weight:600;color:#fff;cursor:pointer;transition:all .2s;" type="button">確認送出 →</button>
+        </div>
+      </div>
+
       <div class="chat-thread" id="thread"></div>
 
       <div class="img-pending-wrap hidden" id="imgPendingWrap">
@@ -1262,6 +1280,31 @@ textarea.mid{ min-height:90px; }
           <div style="font-size:48px;margin-bottom:var(--space-2xl);">💕</div>
           <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:var(--space-lg);">with me</div>
           <div style="font-size:13px;color:var(--ink-soft);line-height:1.8;">這個頁面待更新<br>敬請期待</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ QA HISTORY VIEW ============ -->
+    <div class="view hidden" id="qaHistoryView">
+      <div class="social-hdr">
+        <button class="icon-btn" id="qaHistoryBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="social-hdr-title">✦ 問答記錄</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="social-body" id="qaHistoryBody" style="overflow-y:auto;padding:var(--space-lg);">
+        <div style="text-align:center;margin-bottom:var(--space-3xl);">
+          <div id="qaHistoryCount" style="font-size:48px;font-weight:700;color:var(--companion);margin-bottom:var(--space-lg);">0</div>
+          <div style="font-size:13px;color:var(--ink-soft);">完成的問答數量</div>
+        </div>
+
+        <div style="margin-bottom:var(--space-2xl);">
+          <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:var(--space-lg);">📊 情感分布</div>
+          <div id="qaEmotionStats" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-bottom:var(--space-xl);"></div>
+        </div>
+
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:var(--space-lg);">📝 過往問答</div>
+          <div id="qaHistoryList" style="display:flex;flex-direction:column;gap:var(--space-md);"></div>
         </div>
       </div>
     </div>
@@ -1747,7 +1790,8 @@ textarea.mid{ min-height:90px; }
     avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
     startDate:'companion:startDate', cntTarget:'companion:cntTarget',
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
-    theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes'
+    theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
+    qa:'companion:qa'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -1784,6 +1828,7 @@ textarea.mid{ min-height:90px; }
   var chatBgActive  = localStorage.getItem(KEYS.chatBgActive) || '';
   var currentTheme  = localStorage.getItem(KEYS.theme) || '';
   var eventTypes    = load(KEYS.eventTypes) || clone(DEFAULT_EVENT_TYPES);
+  var qa            = load(KEYS.qa) || { list:[], currentQuestion:null, currentAnswer:null };
   var starState     = load(KEYS.star) || { hunger:80, mood:80, clothes:0, lastFedTime: Date.now(), lastPetTime: Date.now() };
   if(!starState.lastFedTime) starState.lastFedTime = Date.now();
   if(!starState.lastPetTime) starState.lastPetTime = Date.now();
@@ -1854,7 +1899,7 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView'];
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView','qaHistoryView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
   }
@@ -1864,6 +1909,50 @@ textarea.mid{ min-height:90px; }
   function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
   function showSocial(){ showOnly('socialView'); syncSocialAvatar(); renderSocialFeed(); }
   function showWithMe(){ showOnly('withMeView'); }
+  function showQaHistory(){
+    showOnly('qaHistoryView');
+    renderQaHistory();
+  }
+  function renderQaHistory(){
+    var qaList = qa.list || [];
+    var count = qaList.length;
+    $('qaHistoryCount').textContent = count;
+
+    // 計算情感統計
+    var emotions = {};
+    qaList.forEach(function(item){
+      var mood = item.mood || 'neutral';
+      emotions[mood] = (emotions[mood] || 0) + 1;
+    });
+
+    var emotionStats = $('qaEmotionStats');
+    emotionStats.innerHTML = '';
+    var emotionMap = {happy:'😊 開心',sad:'😢 難過',calm:'😌 平靜',anxious:'😰 焦慮'};
+    Object.keys(emotions).forEach(function(mood){
+      var pct = Math.round((emotions[mood]/count)*100);
+      var el = document.createElement('div');
+      el.style.cssText = 'background:var(--chat-bg);border-radius:10px;padding:var(--space-md);text-align:center;';
+      el.innerHTML = '<div style="font-size:18px;margin-bottom:4px;">'+emotionMap[mood].split(' ')[0]+'</div><div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;">'+emotionMap[mood].split(' ')[1]+'</div><div style="font-size:14px;font-weight:600;color:var(--companion);">'+pct+'%</div>';
+      emotionStats.appendChild(el);
+    });
+
+    // 列表
+    var listEl = $('qaHistoryList');
+    listEl.innerHTML = '';
+    if(!count){
+      var empty = document.createElement('div');
+      empty.style.cssText = 'padding:var(--space-2xl);text-align:center;color:var(--ink-soft);font-size:13px;';
+      empty.textContent = '還沒有完成任何問答';
+      listEl.appendChild(empty);
+    } else {
+      qaList.forEach(function(item){
+        var card = document.createElement('div');
+        card.style.cssText = 'background:var(--chat-bg);border-radius:10px;padding:var(--space-md);border-left:3px solid var(--companion);';
+        card.innerHTML = '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;">'+item.date+'</div><div style="font-size:13px;color:var(--ink);margin-bottom:var(--space-sm);"><strong>Q:</strong> '+item.q+'</div><div style="font-size:13px;color:var(--ink);margin-bottom:var(--space-sm);"><strong>A:</strong> '+item.a+'</div>';
+        listEl.appendChild(card);
+      });
+    }
+  }
   $('openAdminBtn').addEventListener('click', showAdmin);
   $('backToChatBtn').addEventListener('click', showFront);
   $('adminToChatBtn').addEventListener('click', showFront);
@@ -3778,6 +3867,8 @@ textarea.mid{ min-height:90px; }
   $('homeSocialBtn').addEventListener('click', showSocial);
   $('withMeBackBtn').addEventListener('click', showHome);
   $('homeWithMeBtn').addEventListener('click', showWithMe);
+  $('homeQaRefreshBtn').addEventListener('click', showQaHistory);
+  $('qaHistoryBackBtn').addEventListener('click', showHome);
 
   /* ============ Random Question Selector ============ */
   var currentRandomQuestion = '';
@@ -3807,16 +3898,59 @@ textarea.mid{ min-height:90px; }
     $('qaRandomOverlay').classList.remove('hidden');
   }
 
-  $('qaRandomBtn').addEventListener('click', openQaRandomSelector);
-  $('qaRandomClose').addEventListener('click', function(){ $('qaRandomOverlay').classList.add('hidden'); });
-  $('qaRandomOverlay').addEventListener('click', function(e){ if(e.target === $('qaRandomOverlay')) $('qaRandomOverlay').classList.add('hidden'); });
+  /* ============ Daily Q&A Card in Chat ============ */
+  var dailyQaOptions = [];
+  function generateQaOptions(){
+    dailyQaOptions = [];
+    var indices = [];
+    while(indices.length < 3){
+      var idx = Math.floor(Math.random() * QA_LIST.length);
+      if(indices.indexOf(idx)===-1) indices.push(idx);
+    }
+    dailyQaOptions = indices.map(function(i){ return QA_LIST[i]; });
+    renderQaCard();
+  }
+  function renderQaCard(){
+    var btns = document.querySelectorAll('.qa-option-btn');
+    btns.forEach(function(btn, i){
+      if(dailyQaOptions[i]){
+        btn.textContent = dailyQaOptions[i];
+        btn.onclick = function(){
+          var allBtns = document.querySelectorAll('.qa-option-btn');
+          allBtns.forEach(function(b){ b.style.background = 'rgba(255,255,255,0.8)'; });
+          btn.style.background = 'rgba(255, 193, 7, 0.9)';
+          qa.currentQuestion = dailyQaOptions[i];
+        };
+      }
+    });
+  }
 
-  $('qaRandomNewBtn').addEventListener('click', pickRandomQuestion);
-  $('qaRandomUseBtn').addEventListener('click', function(){
-    chatInput.value = currentRandomQuestion;
-    chatInput.focus();
-    $('qaRandomOverlay').classList.add('hidden');
-  });
+  // 初始化卡片
+  generateQaOptions();
+
+  var qaCardRefreshBtn = document.getElementById('qaCardRefreshBtn');
+  var qaCardRefreshBtn2 = document.getElementById('qaCardRefreshBtn2');
+  var qaCardSendBtn = document.getElementById('qaCardSendBtn');
+
+  if(qaCardRefreshBtn){
+    qaCardRefreshBtn.onclick = generateQaOptions;
+  }
+  if(qaCardRefreshBtn2){
+    qaCardRefreshBtn2.onclick = generateQaOptions;
+  }
+
+  if(qaCardSendBtn){
+    qaCardSendBtn.onclick = function(){
+      if(!qa.currentQuestion){
+        alert('請先選擇一個問題');
+        return;
+      }
+      chatInput.value = qa.currentQuestion;
+      chatInput.focus();
+      sendBtn.click();
+      qa.currentQuestion = null;
+    };
+  };
   $('socialComposeBtn').addEventListener('click', function(){
     var inp = $('socialComposeInput');
     var t = (inp.value||'').trim(); if(!t) return;
