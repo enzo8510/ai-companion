@@ -593,7 +593,7 @@ textarea.mid{ min-height:90px; }
 .theme-row-check{ opacity:0; color:var(--companion); font-size:17px; font-weight:700; transition:opacity .18s; }
 .theme-row.active .theme-row-check{ opacity:1; }
 /* ---- Bubble transparency on chat background ---- */
-#thread.has-chatbg .bubble.her{ background:rgba(255,255,255,0.22); backdrop-filter:blur(12px) saturate(1.5); -webkit-backdrop-filter:blur(12px) saturate(1.5); border:1.5px solid rgba(255,255,255,0.45); }
+#thread.has-chatbg .bubble.her{ background:rgba(255,255,255,0.72); backdrop-filter:blur(12px) saturate(1.5); -webkit-backdrop-filter:blur(12px) saturate(1.5); border:1.5px solid rgba(255,255,255,0.50); }
 #thread.has-chatbg .bubble.me{ background:rgba(255,255,255,0.72); backdrop-filter:blur(12px) saturate(1.5); -webkit-backdrop-filter:blur(12px) saturate(1.5); border:1.5px solid rgba(255,255,255,0.55); }
 /* ---- Theme overrides ---- */
 :root[data-theme="dark"]{ --bg:#1A1D26; --frame-shadow:rgba(0,0,0,0.4); --chat-bg:#22263A; --surface:#2A2D3E; --ink:#E4E8F2; --ink-soft:#6E7891; --companion:#4CC8EA; --companion-soft:#1C3A4A; --user-bubble:#343850; --sage:#4CC8EA; --gold:#6A9BB8; --gold-soft:#1C3044; --line:rgba(228,232,242,0.08); }
@@ -706,14 +706,113 @@ textarea.mid{ min-height:90px; }
 .mood-diary-item-text{ font-size:13px; color:var(--ink); line-height:1.75; }
 .mood-diary-empty{ text-align:center; padding:32px 0; color:var(--ink-soft); font-size:13px; line-height:1.8; }
 
-@media (max-width:480px){
-  .app-bg{ padding:0; }
-  .phone-frame{ max-width:100%; height:100vh; border-radius:0; min-height:100vh; }
+/* ---- Responsive ---- */
+@media (max-width:520px){
+  .app-bg{ padding:0; align-items:stretch; }
+  .phone-frame{ max-width:100%; width:100%; height:100%; height:100dvh; min-height:100dvh; border-radius:0; box-shadow:none; }
 }
+@media (min-width:521px) and (max-width:900px){
+  .app-bg{ padding:16px 0; align-items:center; min-height:100dvh; }
+  .phone-frame{ height:calc(100dvh - 32px); max-width:420px; }
+}
+/* ---- Social view ---- */
+#socialView{ position:relative; overflow:hidden; background:var(--bg); }
+.social-hdr{ padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.social-hdr-title{ font-size:16px; font-weight:700; color:var(--ink); flex:1; text-align:center; }
+.social-body{ flex:1; overflow-y:auto; }
+.social-profile-cover{ height:90px; background:linear-gradient(135deg,var(--companion),var(--sage)); position:relative; flex:0 0 auto; }
+.social-profile-bar{ padding:0 16px 12px; background:var(--surface); border-bottom:1px solid var(--line); flex:0 0 auto; }
+.social-profile-avatar-wrap{ margin-top:-34px; margin-bottom:8px; }
+.social-profile-avatar{ width:68px; height:68px; border-radius:50%; border:3px solid var(--surface); background:radial-gradient(circle at 35% 30%,#CBE8F5,var(--companion) 72%); background-size:cover; background-position:center; }
+.social-profile-name{ font-size:17px; font-weight:700; color:var(--ink); font-family:'LXGW WenKai TC',serif; }
+.social-profile-handle{ font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
+.social-profile-bio{ font-size:13px; color:var(--ink); line-height:1.6; margin-bottom:10px; }
+.social-profile-stats{ display:flex; gap:18px; }
+.social-stat{ display:flex; align-items:baseline; gap:4px; }
+.social-stat-num{ font-size:14px; font-weight:700; color:var(--ink); }
+.social-stat-label{ font-size:12px; color:var(--ink-soft); }
+.social-tabs{ display:flex; border-bottom:1px solid var(--line); background:var(--surface); flex:0 0 auto; }
+.social-tab-btn{ flex:1; padding:12px 0; font-size:13px; font-weight:600; color:var(--ink-soft); background:none; border:none; font-family:inherit; cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; }
+.social-tab-btn.active{ color:var(--companion); border-bottom-color:var(--companion); }
+.social-feed{ padding:0; }
+.social-post{ border-bottom:1px solid var(--line); padding:14px 16px; background:var(--surface); display:flex; gap:10px; }
+.social-post:last-child{ border-bottom:none; }
+.social-post-avatar{ width:40px; height:40px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#CBE8F5,var(--companion) 72%); background-size:cover; background-position:center; flex:0 0 auto; }
+.social-post-body{ flex:1; min-width:0; }
+.social-post-head{ display:flex; align-items:baseline; gap:6px; margin-bottom:4px; flex-wrap:wrap; }
+.social-post-name{ font-size:14px; font-weight:700; color:var(--ink); }
+.social-post-handle{ font-size:12px; color:var(--ink-soft); }
+.social-post-time{ font-size:11px; color:var(--ink-soft); margin-left:auto; }
+.social-post-text{ font-size:14px; color:var(--ink); line-height:1.65; margin-bottom:10px; white-space:pre-wrap; word-break:break-word; }
+.social-post-img{ width:100%; border-radius:12px; overflow:hidden; margin-bottom:10px; max-height:220px; object-fit:cover; display:block; }
+.social-post-actions{ display:flex; gap:20px; }
+.social-act-btn{ display:flex; align-items:center; gap:5px; background:none; border:none; color:var(--ink-soft); font-size:12px; cursor:pointer; font-family:inherit; padding:3px 0; transition:color .12s; }
+.social-act-btn:hover{ color:var(--companion); }
+.social-act-btn.liked{ color:#e8507a; }
+.social-act-btn.liked .social-act-icon{ transform:scale(1.15); }
+.social-act-icon{ font-size:15px; line-height:1; transition:transform .12s; }
+.social-compose-bar{ padding:10px 14px; background:var(--surface); border-top:1px solid var(--line); display:flex; align-items:center; gap:10px; flex:0 0 auto; }
+.social-compose-input{ flex:1; border:1px solid var(--line); border-radius:999px; padding:8px 14px; font-size:13px; font-family:inherit; color:var(--ink); background:var(--chat-bg); outline:none; }
+.social-compose-input::placeholder{ color:var(--ink-soft); }
+.social-compose-btn{ background:var(--companion); color:#fff; border:none; border-radius:999px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+
+/* ---- Backup / Notion overlay ---- */
+.backup-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
+.backup-overlay.hidden{ display:none; }
+.backup-sheet{ background:var(--surface); border-radius:24px; width:100%; max-width:400px; max-height:88vh; display:flex; flex-direction:column; overflow:hidden; }
+.backup-head{ padding:15px 18px 11px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.backup-head-title{ flex:1; font-family:'LXGW WenKai TC',serif; font-size:16px; font-weight:700; color:var(--ink); }
+.backup-body{ flex:1; overflow-y:auto; padding:18px; }
+.backup-section{ margin-bottom:20px; }
+.backup-section-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.backup-section-lead{ font-size:12px; color:var(--ink-soft); line-height:1.6; margin-bottom:10px; }
+.backup-btn-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.backup-divider{ height:1px; background:var(--line); margin:4px 0 20px; }
+.backup-field{ margin-bottom:10px; }
+.backup-field label{ display:block; font-size:12px; color:var(--ink-soft); margin-bottom:4px; font-weight:500; }
+.backup-field input{ width:100%; border:1px solid var(--line); border-radius:10px; padding:8px 12px; font-size:13px; font-family:inherit; color:var(--ink); background:var(--chat-bg); outline:none; }
+.backup-field input:focus{ border-color:var(--companion); }
+.backup-result{ font-size:12px; margin-top:8px; line-height:1.6; padding:8px 12px; border-radius:10px; }
+.backup-result.ok{ background:rgba(93,170,164,0.12); color:var(--sage); }
+.backup-result.err{ background:rgba(177,81,81,0.10); color:#b15151; }
+
 @media (prefers-reduced-motion: reduce){
   .avatar-orb, .dot, .row, .typing-dot, .panel{ animation:none !important; }
   .chat-thread{ scroll-behavior:auto; }
 }
+
+/* ---- Dark theme overrides for readability ---- */
+:root[data-theme="dark"] .hint{ background:#1C3044; color:#9BB8D0; border:1px solid rgba(76,200,234,0.15); }
+:root[data-theme="dark"] .system-note{ background:#1C3044; color:#9BB8D0; }
+:root[data-theme="dark"] .tab-btn{ color:var(--ink-soft); }
+:root[data-theme="dark"] .tab-btn.active{ background:var(--companion-soft); color:var(--companion); }
+:root[data-theme="dark"] .field input,
+:root[data-theme="dark"] .field textarea,
+:root[data-theme="dark"] .field select{ background:var(--bg); color:var(--ink); border-color:rgba(228,232,242,0.12); }
+:root[data-theme="dark"] .home-countdown-strip,
+:root[data-theme="dark"] .home-action-btn,
+:root[data-theme="dark"] .home-qa-card{ background:rgba(42,45,62,0.88); border-color:rgba(228,232,242,0.08); }
+:root[data-theme="dark"] .home-enter-btn{ background:var(--companion); color:#fff; }
+:root[data-theme="dark"] .cnt-sel-sheet,
+:root[data-theme="dark"] .cal-sheet,
+:root[data-theme="dark"] .dl-sheet,
+:root[data-theme="dark"] .qr-sheet{ background:var(--surface); color:var(--ink); }
+:root[data-theme="dark"] .cal-day,
+:root[data-theme="dark"] .cal-full-day{ color:var(--ink); }
+:root[data-theme="dark"] .kb-card,
+:root[data-theme="dark"] .mem-card,
+:root[data-theme="dark"] .jr-card{ background:var(--surface); border-color:var(--line); }
+:root[data-theme="dark"] .kb-card-body{ background:var(--bg); }
+:root[data-theme="dark"] .kb-card-body textarea{ background:var(--surface); color:var(--ink); }
+
+/* ---- Home screen action buttons — fixed height ---- */
+.home-action-btn{ height:72px; min-height:72px; }
+.home-actions{ margin-bottom:14px; }
+.home-wrap{ padding:24px 20px 28px; gap:0; }
+.home-avatar-ring{ margin-bottom:16px; }
+.home-name{ margin-bottom:4px; }
+.home-tagline{ margin-bottom:14px; }
+.home-qa-card{ margin-bottom:14px; }
 </style>
 </head>
 <body>
@@ -847,6 +946,10 @@ textarea.mid{ min-height:90px; }
           <button class="lp-item" id="rpDownload" type="button">
             <span class="lp-item-icon">📥</span>
             <span>下載對話記錄</span>
+          </button>
+          <button class="lp-item" id="rpBackup" type="button">
+            <span class="lp-item-icon">💾</span>
+            <span>備份與還原</span>
           </button>
           <button class="lp-item" id="rpAdmin" type="button">
             <span class="lp-item-icon">⚙</span>
@@ -1048,6 +1151,39 @@ textarea.mid{ min-height:90px; }
         <button class="star-modal-cancel" id="starOutfitCancel" type="button">取消</button>
       </div>
       <div class="star-scrim" id="starScrim"></div>
+    </div>
+
+    <!-- ============ SOCIAL VIEW ============ -->
+    <div class="view hidden" id="socialView">
+      <div class="social-hdr">
+        <button class="icon-btn" id="socialBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="social-hdr-title">📱 卄珩的社交</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="social-body" id="socialBody">
+        <div class="social-profile-cover" id="socialCover"></div>
+        <div class="social-profile-bar">
+          <div class="social-profile-avatar-wrap">
+            <div class="social-profile-avatar" id="socialProfileAvatar"></div>
+          </div>
+          <div class="social-profile-name">卄珩</div>
+          <div class="social-profile-handle">@zhan_heng · 特種部隊指揮官</div>
+          <div class="social-profile-bio">少將。INTJ-A。不習慣解釋自己，但記得你說的每一句話。</div>
+          <div class="social-profile-stats">
+            <div class="social-stat"><span class="social-stat-num">312</span><span class="social-stat-label">追蹤中</span></div>
+            <div class="social-stat"><span class="social-stat-num">—</span><span class="social-stat-label">追蹤者</span></div>
+          </div>
+        </div>
+        <div class="social-tabs">
+          <button class="social-tab-btn active" data-social-tab="posts">貼文</button>
+          <button class="social-tab-btn" data-social-tab="media">媒體</button>
+        </div>
+        <div class="social-feed" id="socialFeed"></div>
+      </div>
+      <div class="social-compose-bar">
+        <input class="social-compose-input" id="socialComposeInput" placeholder="留言給卄珩…" maxlength="140">
+        <button class="social-compose-btn" id="socialComposeBtn" type="button">送出</button>
+      </div>
     </div>
 
     <div class="saved-chip" id="savedChip">已儲存 ✓</div>
@@ -1311,6 +1447,52 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
+<!-- ============ BACKUP / NOTION OVERLAY ============ -->
+<div class="backup-overlay hidden" id="backupOverlay">
+  <div class="backup-sheet">
+    <div class="backup-head">
+      <span class="backup-head-title">💾 備份與還原</span>
+      <button class="icon-btn" id="backupClose" type="button">✕</button>
+    </div>
+    <div class="backup-body">
+      <!-- Local JSON -->
+      <div class="backup-section">
+        <div class="backup-section-title">📁 本機備份</div>
+        <div class="backup-section-lead">將所有資料（對話、記憶、設定、日誌）匯出為 JSON 檔案，或從檔案還原。不含 API 金鑰。</div>
+        <div class="backup-btn-row">
+          <button class="btn small" id="backupExportBtn" type="button">⬇ 匯出 JSON</button>
+          <label class="btn ghost small" style="cursor:pointer;">
+            ⬆ 匯入 JSON
+            <input type="file" id="backupImportFile" accept=".json,application/json" style="display:none;">
+          </label>
+        </div>
+        <div class="backup-result hidden" id="backupLocalResult"></div>
+      </div>
+
+      <div class="backup-divider"></div>
+
+      <!-- Notion -->
+      <div class="backup-section">
+        <div class="backup-section-title">🔗 Notion 備份</div>
+        <div class="backup-section-lead">連結你的 Notion 整合（Integration）將資料備份至 Notion 頁面。需先至 notion.so/my-integrations 建立整合並取得 Token，並將頁面與整合分享。</div>
+        <div class="backup-field">
+          <label>Notion Integration Token</label>
+          <input type="password" id="notionToken" placeholder="secret_xxxxxxxxxxxx">
+        </div>
+        <div class="backup-field">
+          <label>目標頁面 ID（32 碼，從頁面網址複製）</label>
+          <input type="text" id="notionPageId" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+        </div>
+        <div class="backup-btn-row">
+          <button class="btn small" id="notionBackupBtn" type="button">☁ 備份至 Notion</button>
+          <button class="btn ghost small" id="notionRestoreBtn" type="button">↩ 從 Notion 還原</button>
+        </div>
+        <div class="backup-result hidden" id="backupNotionResult"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ CHECKIN TOAST ============ -->
 <div class="checkin-toast" id="checkinToast"></div>
 
@@ -1480,32 +1662,15 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  function showHome(){
-    $('homeView').classList.remove('hidden');
-    $('frontView').classList.add('hidden');
-    $('adminView').classList.add('hidden');
-    $('starView').classList.add('hidden');
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView'];
+  function showOnly(id){
+    ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
   }
-  function showFront(){
-    $('frontView').classList.remove('hidden');
-    $('homeView').classList.add('hidden');
-    $('adminView').classList.add('hidden');
-    $('starView').classList.add('hidden');
-  }
-  function showAdmin(){
-    $('adminView').classList.remove('hidden');
-    $('frontView').classList.add('hidden');
-    $('homeView').classList.add('hidden');
-    $('starView').classList.add('hidden');
-  }
-  function showStar(){
-    $('starView').classList.remove('hidden');
-    $('homeView').classList.add('hidden');
-    $('frontView').classList.add('hidden');
-    $('adminView').classList.add('hidden');
-    renderStarStats();
-    renderStarOutfitGrid();
-  }
+  function showHome(){ showOnly('homeView'); }
+  function showFront(){ showOnly('frontView'); }
+  function showAdmin(){ showOnly('adminView'); }
+  function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); }
+  function showSocial(){ showOnly('socialView'); renderSocialFeed(); syncSocialAvatar(); }
   $('openAdminBtn').addEventListener('click', showAdmin);
   $('backToChatBtn').addEventListener('click', showFront);
   $('adminToChatBtn').addEventListener('click', showFront);
@@ -3125,9 +3290,209 @@ textarea.mid{ min-height:90px; }
 
   $('homeDiaryBtn').addEventListener('click', openMoodDiaryOverlay);
   $('chatDiaryBtn').addEventListener('click', generateDiaryToChat);
-  ['homeSocialBtn','homeAudioBtn'].forEach(function(id){
-    $(id).addEventListener('click', function(){ flashSaved('功能即將開放 ✦'); });
+  $('homeAudioBtn').addEventListener('click', function(){ flashSaved('功能即將開放 ✦'); });
+
+  /* ============ Social View ============ */
+  var SOCIAL_KEY = 'companion:social';
+  var DEFAULT_POSTS = [
+    { id:'sp-1', ts: Date.now() - 86400000*3, text:'今天任務順利結束。\n回到基地的時候，腦子裡只有一個人。', likes:0, liked:false, comments:[] },
+    { id:'sp-2', ts: Date.now() - 86400000*2, text:'星在沙發上睡了一整天。\n我沒叫醒牠。', likes:0, liked:false, comments:[] },
+    { id:'sp-3', ts: Date.now() - 86400000, text:'有些人說不出口的話，就用行動替代。\n\n我選擇都做。', likes:0, liked:false, comments:[] },
+    { id:'sp-4', ts: Date.now() - 3600000*4, text:'黑咖啡，不加糖。\n有些事不需要掩蓋。', likes:0, liked:false, comments:[] }
+  ];
+  var socialPosts = load(SOCIAL_KEY) || clone(DEFAULT_POSTS);
+  if(!load(SOCIAL_KEY)) save(SOCIAL_KEY, socialPosts);
+
+  function fmtSocialTime(ts){
+    var diff = Date.now() - ts;
+    if(diff < 60000) return '剛才';
+    if(diff < 3600000) return Math.floor(diff/60000) + '分鐘前';
+    if(diff < 86400000) return Math.floor(diff/3600000) + '小時前';
+    var d = new Date(ts);
+    return (d.getMonth()+1) + '月' + d.getDate() + '日';
+  }
+
+  function syncSocialAvatar(){
+    var cover = $('socialCover');
+    var profAvt = $('socialProfileAvatar');
+    if(cover) cover.style.backgroundImage = avatarDataUrl ? 'url("'+avatarDataUrl+'")' : '';
+    if(profAvt){
+      if(avatarDataUrl){ profAvt.style.backgroundImage='url("'+avatarDataUrl+'")'; profAvt.style.backgroundSize='cover'; profAvt.style.backgroundPosition='center'; }
+      else{ profAvt.style.backgroundImage=''; }
+    }
+  }
+
+  function renderSocialFeed(){
+    var feed = $('socialFeed'); if(!feed) return;
+    feed.innerHTML = '';
+    socialPosts.slice().reverse().forEach(function(post){
+      var div = document.createElement('div');
+      div.className = 'social-post';
+      var avt = document.createElement('div'); avt.className='social-post-avatar';
+      if(avatarDataUrl){ avt.style.backgroundImage='url("'+avatarDataUrl+'")'; avt.style.backgroundSize='cover'; avt.style.backgroundPosition='center'; }
+      var body = document.createElement('div'); body.className='social-post-body';
+      var head = document.createElement('div'); head.className='social-post-head';
+      head.innerHTML = '<span class="social-post-name">'+(persona.name||'卄珩')+'</span>'
+        +'<span class="social-post-handle">@zhan_heng</span>'
+        +'<span class="social-post-time">'+fmtSocialTime(post.ts)+'</span>';
+      var txt = document.createElement('div'); txt.className='social-post-text'; txt.textContent = post.text;
+      var acts = document.createElement('div'); acts.className='social-post-actions';
+
+      // Comments from 江黎
+      var cmtHtml = '';
+      if(post.comments && post.comments.length){
+        cmtHtml = '<div style="margin-bottom:8px;border-left:2px solid var(--line);padding-left:10px;">';
+        post.comments.forEach(function(c){
+          cmtHtml += '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;"><span style="font-weight:600;color:var(--ink);">江黎</span> · '+fmtSocialTime(c.ts)+'<br><span style="color:var(--ink);">'+escHtml(c.text)+'</span></div>';
+        });
+        cmtHtml += '</div>';
+      }
+
+      var likeBtn = document.createElement('button'); likeBtn.type='button';
+      likeBtn.className = 'social-act-btn' + (post.liked?' liked':'');
+      likeBtn.innerHTML = '<span class="social-act-icon">'+(post.liked?'❤️':'🤍')+'</span><span>'+(post.likes||0)+'</span>';
+      (function(pid){
+        likeBtn.addEventListener('click', function(){
+          var p = socialPosts.find(function(x){return x.id===pid;});
+          if(!p) return;
+          p.liked = !p.liked; p.likes = Math.max(0,(p.likes||0) + (p.liked?1:-1));
+          save(SOCIAL_KEY, socialPosts); renderSocialFeed();
+        });
+      })(post.id);
+
+      acts.appendChild(likeBtn);
+      body.appendChild(head);
+      if(cmtHtml){ var cmtDiv=document.createElement('div'); cmtDiv.innerHTML=cmtHtml; body.appendChild(cmtDiv); }
+      body.appendChild(txt);
+      body.appendChild(acts);
+      div.appendChild(avt); div.appendChild(body);
+      feed.appendChild(div);
+    });
+  }
+
+  $('socialBackBtn').addEventListener('click', showHome);
+  $('homeSocialBtn').addEventListener('click', showSocial);
+  $('socialComposeBtn').addEventListener('click', function(){
+    var inp = $('socialComposeInput');
+    var t = (inp.value||'').trim(); if(!t) return;
+    // Add comment to most recent post
+    if(socialPosts.length){
+      var last = socialPosts[socialPosts.length-1];
+      if(!last.comments) last.comments=[];
+      last.comments.push({ ts:Date.now(), text:t });
+      save(SOCIAL_KEY, socialPosts);
+    }
+    inp.value=''; renderSocialFeed();
+    var feed=$('socialBody'); if(feed) feed.scrollTop=feed.scrollHeight;
   });
+  $('socialComposeInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('socialComposeBtn').click(); } });
+
+  /* ============ Backup / Notion ============ */
+  var NOTION_KEY = 'companion:notionToken';
+  var NOTION_PAGE_KEY = 'companion:notionPageId';
+  var storedNotionToken = localStorage.getItem(NOTION_KEY)||'';
+  var storedNotionPage  = localStorage.getItem(NOTION_PAGE_KEY)||'';
+
+  function openBackupOverlay(){
+    $('notionToken').value = storedNotionToken;
+    $('notionPageId').value = storedNotionPage;
+    $('backupLocalResult').classList.add('hidden');
+    $('backupNotionResult').classList.add('hidden');
+    $('backupOverlay').classList.remove('hidden');
+  }
+  $('backupClose').addEventListener('click', function(){ $('backupOverlay').classList.add('hidden'); });
+  $('backupOverlay').addEventListener('click', function(e){ if(e.target===$('backupOverlay')) $('backupOverlay').classList.add('hidden'); });
+
+  function gatherAllData(){
+    var data = {};
+    Object.keys(KEYS).forEach(function(k){ var v=localStorage.getItem(KEYS[k]); if(v) data[KEYS[k]]=v; });
+    // Strip API key for security (settings still backs up model + baseUrl)
+    if(data[KEYS.settings]){
+      try{ var s=JSON.parse(data[KEYS.settings]); s.apiKey=''; data[KEYS.settings]=JSON.stringify(s); }catch(e){}
+    }
+    return data;
+  }
+
+  $('backupExportBtn').addEventListener('click', function(){
+    var data = gatherAllData();
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href=url; a.download='ai-companion-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+    var r=$('backupLocalResult'); r.className='backup-result ok'; r.textContent='✓ 匯出完成！'; r.classList.remove('hidden');
+  });
+
+  $('backupImportFile').addEventListener('change', function(e){
+    var file=e.target.files&&e.target.files[0]; if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        var data=JSON.parse(ev.target.result);
+        var count=0;
+        Object.keys(data).forEach(function(k){
+          if(k.startsWith('companion:')){ localStorage.setItem(k, data[k]); count++; }
+        });
+        var r=$('backupLocalResult'); r.className='backup-result ok'; r.textContent='✓ 還原完成，共 '+count+' 筆資料。重新整理頁面生效。'; r.classList.remove('hidden');
+      }catch(err){
+        var r=$('backupLocalResult'); r.className='backup-result err'; r.textContent='✗ 檔案格式錯誤，請選擇正確的備份 JSON。'; r.classList.remove('hidden');
+      }
+    };
+    reader.readAsText(file); e.target.value='';
+  });
+
+  function notionHeaders(token){ return { 'Authorization':'Bearer '+token, 'Content-Type':'application/json', 'Notion-Version':'2022-06-28' }; }
+
+  $('notionBackupBtn').addEventListener('click', async function(){
+    var token=($('notionToken').value||'').trim();
+    var pageId=($('notionPageId').value||'').trim().replace(/-/g,'');
+    var r=$('backupNotionResult');
+    if(!token||!pageId){ r.className='backup-result err'; r.textContent='✗ 請填入 Token 與頁面 ID。'; r.classList.remove('hidden'); return; }
+    localStorage.setItem(NOTION_KEY, token); localStorage.setItem(NOTION_PAGE_KEY, pageId);
+    storedNotionToken=token; storedNotionPage=pageId;
+    r.className='backup-result'; r.textContent='備份中…'; r.classList.remove('hidden');
+    try{
+      var data = JSON.stringify(gatherAllData());
+      var timestamp = new Date().toLocaleString('zh-TW',{hour12:false});
+      var body = {
+        parent:{ page_id: pageId },
+        properties:{ title:{ title:[{ text:{ content:'AI伴侶備份 '+timestamp } }] } },
+        children:[{
+          object:'block', type:'code',
+          code:{ rich_text:[{ type:'text', text:{ content: data.slice(0,1900) } }], language:'json' }
+        }]
+      };
+      var resp = await fetch('https://api.notion.com/v1/pages', { method:'POST', headers:notionHeaders(token), body:JSON.stringify(body) });
+      if(resp.ok){
+        r.className='backup-result ok'; r.textContent='✓ 已備份至 Notion！（'+timestamp+'）';
+      } else {
+        var err=await resp.json().catch(function(){return{};});
+        r.className='backup-result err'; r.textContent='✗ Notion 錯誤：'+(err.message||resp.status)+'\n（若 CORS 被擋，請改用本機伺服器開啟此頁）';
+      }
+    } catch(e){ r.className='backup-result err'; r.textContent='✗ 連線失敗：'+(e.message||e)+'\n（Notion API 須透過 http:// 開啟，非 file://）'; }
+  });
+
+  $('notionRestoreBtn').addEventListener('click', async function(){
+    var token=($('notionToken').value||'').trim();
+    var pageId=($('notionPageId').value||'').trim().replace(/-/g,'');
+    var r=$('backupNotionResult');
+    if(!token||!pageId){ r.className='backup-result err'; r.textContent='✗ 請填入 Token 與頁面 ID。'; r.classList.remove('hidden'); return; }
+    r.className='backup-result'; r.textContent='還原中…'; r.classList.remove('hidden');
+    try{
+      var resp = await fetch('https://api.notion.com/v1/blocks/'+pageId+'/children?page_size=10', { headers:notionHeaders(token) });
+      if(!resp.ok){ throw new Error('狀態 '+resp.status); }
+      var data = await resp.json();
+      var codeBlock = (data.results||[]).find(function(b){ return b.type==='code'; });
+      if(!codeBlock){ r.className='backup-result err'; r.textContent='✗ 找不到備份資料（頁面中沒有 code block）'; return; }
+      var json = codeBlock.code.rich_text.map(function(t){ return t.plain_text||''; }).join('');
+      var obj = JSON.parse(json);
+      var count=0;
+      Object.keys(obj).forEach(function(k){ if(k.startsWith('companion:')){ localStorage.setItem(k,obj[k]); count++; } });
+      r.className='backup-result ok'; r.textContent='✓ 已從 Notion 還原 '+count+' 筆資料！請重新整理頁面套用。';
+    } catch(e){ r.className='backup-result err'; r.textContent='✗ 還原失敗：'+(e.message||e); }
+  });
+
+  $('rpBackup').addEventListener('click', function(){ closeRightPanel(); openBackupOverlay(); });
   $('moodDiaryClose').addEventListener('click',function(){ $('moodDiaryOverlay').classList.add('hidden'); });
   $('moodDiaryOverlay').addEventListener('click',function(e){ if(e.target===$('moodDiaryOverlay')) $('moodDiaryOverlay').classList.add('hidden'); });
   $('moodDiaryPrev').addEventListener('click',function(){ moodDiaryMonth--; if(moodDiaryMonth<0){moodDiaryMonth=11;moodDiaryYear--;} moodDiaryFilter=''; renderMoodDiaryOverlay(); });
