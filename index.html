@@ -577,21 +577,61 @@ textarea.mid{ min-height:90px; }
 .chat-right-panel.open{ transform:translateX(0); }
 .chat-right-panel-head{ padding:14px 16px; border-bottom:1.5px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; }
 .chat-right-panel-title{ font-size:15px; font-weight:700; color:var(--ink); }
-.chat-right-panel-body{ flex:1; overflow-y:auto; padding:16px; color:var(--ink-soft); font-size:13px; }
 .chat-right-scrim{ position:absolute; inset:0; background:rgba(50,58,80,0.28); z-index:59; pointer-events:none; opacity:0; transition:opacity .26s; }
 .chat-right-scrim.show{ opacity:1; pointer-events:all; }
-/* ---- Chat left slide panel ---- */
-.chat-left-panel{ position:absolute; top:0; left:0; bottom:0; width:76%; max-width:280px; background:var(--surface); border-right:1.5px solid var(--line); box-shadow:2px 0 18px rgba(50,58,80,0.10); transform:translateX(-100%); transition:transform .26s cubic-bezier(.4,0,.2,1); z-index:60; display:flex; flex-direction:column; }
-.chat-left-panel.open{ transform:translateX(0); }
-.chat-left-scrim{ position:absolute; inset:0; background:rgba(50,58,80,0.28); z-index:59; pointer-events:none; opacity:0; transition:opacity .26s; }
-.chat-left-scrim.show{ opacity:1; pointer-events:all; }
-.chat-left-panel-head{ padding:14px 16px 10px; border-bottom:1.5px solid var(--line); display:flex; align-items:center; gap:8px; flex:0 0 auto; }
-.chat-left-panel-title{ font-size:15px; font-weight:700; color:var(--ink); flex:1; }
-.chat-left-panel-body{ flex:1; overflow-y:auto; padding:8px 0; }
+/* ---- Right panel menu items ---- */
+.chat-right-panel-body{ flex:1; overflow-y:auto; padding:8px 0; color:var(--ink-soft); font-size:13px; }
 .lp-item{ display:flex; align-items:center; gap:12px; padding:13px 20px; cursor:pointer; background:none; border:none; width:100%; font-family:inherit; font-size:13.5px; color:var(--ink); transition:background .12s; text-align:left; }
 .lp-item:hover{ background:var(--chat-bg); }
 .lp-item-icon{ font-size:18px; flex:0 0 auto; width:24px; text-align:center; }
 .lp-divider{ border:none; border-top:1px solid var(--line); margin:6px 12px; }
+/* ---- Color theme swatches ---- */
+.theme-swatch{ border:2.5px solid transparent; border-radius:12px; padding:6px; background:var(--chat-bg); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; color:var(--ink); font-family:inherit; transition:border-color .15s; width:100%; }
+.theme-swatch.active{ border-color:var(--companion); }
+.theme-preview{ width:100%; aspect-ratio:3/2; border-radius:8px; }
+/* ---- Theme overrides ---- */
+:root[data-theme="dark"]{ --bg:#1A1D26; --frame-shadow:rgba(0,0,0,0.4); --chat-bg:#22263A; --surface:#2A2D3E; --ink:#E4E8F2; --ink-soft:#6E7891; --companion:#4CC8EA; --companion-soft:#1C3A4A; --user-bubble:#343850; --sage:#4CC8EA; --gold:#6A9BB8; --gold-soft:#1C3044; --line:rgba(228,232,242,0.08); }
+:root[data-theme="pink"]{ --bg:#FFF0F4; --frame-shadow:rgba(200,80,120,0.10); --chat-bg:#FFF5F8; --surface:#FFFFFF; --ink:#4A2535; --ink-soft:#A0728A; --companion:#D4678A; --companion-soft:#FFD6E5; --user-bubble:#FFFFFF; --sage:#D4678A; --gold:#C08090; --gold-soft:#FFE8EE; --line:rgba(212,103,138,0.12); }
+:root[data-theme="brown"]{ --bg:#F4EDE4; --frame-shadow:rgba(100,60,30,0.12); --chat-bg:#F8F2EC; --surface:#FFFDF8; --ink:#3D2B1A; --ink-soft:#9A7A60; --companion:#A07850; --companion-soft:#EDD8C0; --user-bubble:#FFFDF8; --sage:#A07850; --gold:#B08A60; --gold-soft:#F0DFC8; --line:rgba(100,60,30,0.10); }
+:root[data-theme="green"]{ --bg:#EBF4EE; --frame-shadow:rgba(40,100,60,0.10); --chat-bg:#F0F8F2; --surface:#FFFFFF; --ink:#1E3A2A; --ink-soft:#6A9478; --companion:#4A9A6A; --companion-soft:#C4E8D0; --user-bubble:#FFFFFF; --sage:#4A9A6A; --gold:#5A8A6A; --gold-soft:#CCEAD8; --line:rgba(40,100,60,0.10); }
+/* ---- Star view ---- */
+.star-sheet{ background:var(--surface); border-radius:24px; width:100%; max-width:380px; display:flex; flex-direction:column; overflow:hidden; max-height:88vh; }
+.star-header{ padding:14px 16px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); flex:0 0 auto; }
+.star-title{ font-size:16px; font-weight:700; color:var(--ink); }
+.star-room{ flex:0 0 220px; position:relative; overflow:hidden; background:linear-gradient(180deg,#FDF8F0 0%,#EDE4D8 65%,#D5C5B0 100%); }
+.star-window{ position:absolute; top:18px; right:22px; width:54px; height:48px; background:#D8EEF8; border:3px solid #B8C8D4; border-radius:4px; box-shadow:inset 0 0 10px rgba(200,230,248,0.5); }
+.star-window::before,.star-window::after{ content:''; position:absolute; background:#B8C8D4; }
+.star-window::before{ left:50%; top:0; bottom:0; width:2px; transform:translateX(-50%); }
+.star-window::after{ top:50%; left:0; right:0; height:2px; transform:translateY(-50%); }
+.star-plant{ position:absolute; bottom:30px; left:18px; }
+.star-plant::before{ content:''; display:block; width:18px; height:20px; background:#C8A878; border-radius:3px 3px 0 0; margin:0 auto; }
+.star-plant::after{ content:''; display:block; width:28px; height:28px; border-radius:50%; background:#7AC870; margin:-18px auto 0; }
+.star-room::after{ content:''; position:absolute; bottom:0; left:0; right:0; height:28px; background:#C8B8A4; border-top:2px solid #B8A894; }
+.star-char-wrap{ position:absolute; bottom:22px; left:50%; transform:translateX(-50%); }
+.star-char{ width:96px; height:96px; border-radius:50%; background:#F8F4F0; border:3px solid #E0D4C8; position:relative; box-shadow:0 4px 16px rgba(100,80,60,0.12); }
+.star-char.bounce{ animation:starBounce .38s ease; }
+@keyframes starBounce{ 0%,100%{ transform:translateY(0) scale(1); } 35%{ transform:translateY(-14px) scale(0.96); } 70%{ transform:translateY(-6px) scale(1.02); } }
+.star-eye{ position:absolute; width:10px; height:12px; background:#3A2A1A; border-radius:50%; top:34px; }
+.star-eye.left{ left:24px; }
+.star-eye.right{ right:24px; }
+.star-eye::after{ content:''; position:absolute; width:3px; height:3px; background:#fff; border-radius:50%; top:2px; left:2px; }
+.star-mouth{ position:absolute; width:18px; height:9px; border:2.5px solid #3A2A1A; border-top:none; border-radius:0 0 9px 9px; bottom:27px; left:50%; transform:translateX(-50%); }
+.star-outfit{ position:absolute; bottom:10px; left:50%; transform:translateX(-50%); width:52px; height:18px; border-radius:8px 8px 2px 2px; opacity:0; transition:background .4s,opacity .3s; }
+.star-outfit.show{ opacity:1; }
+.star-bubble{ position:absolute; top:14px; left:50%; transform:translateX(-50%); background:white; border:2px solid #E0D4C8; border-radius:12px; padding:7px 12px; font-size:12px; color:#3D2B1A; max-width:200px; text-align:center; box-shadow:0 2px 8px rgba(100,80,60,0.10); white-space:nowrap; z-index:2; }
+.star-bubble::after{ content:''; position:absolute; bottom:-9px; left:50%; transform:translateX(-50%); width:0; height:0; border:6px solid transparent; border-top-color:#E0D4C8; }
+.star-bubble.hidden{ display:none; }
+.star-stats{ padding:10px 16px 6px; display:flex; flex-direction:column; gap:8px; flex:0 0 auto; }
+.star-stat-row{ display:flex; align-items:center; gap:8px; }
+.star-stat-label{ font-size:11.5px; color:var(--ink-soft); flex:0 0 58px; }
+.star-bar-track{ flex:1; height:7px; background:var(--chat-bg); border-radius:6px; overflow:hidden; border:1px solid var(--line); }
+.star-bar-fill{ height:100%; border-radius:6px; transition:width .45s cubic-bezier(.4,0,.2,1); }
+.star-stat-val{ font-size:11px; color:var(--ink-soft); flex:0 0 28px; text-align:right; }
+.star-actions{ padding:10px 16px 14px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; flex:0 0 auto; }
+.star-act-btn{ display:flex; flex-direction:column; align-items:center; gap:4px; background:var(--chat-bg); border:1.5px solid var(--line); border-radius:14px; padding:10px 6px 8px; cursor:pointer; font-family:inherit; transition:box-shadow .12s,border-color .12s; }
+.star-act-btn:active,.star-act-btn:hover{ border-color:var(--companion); box-shadow:0 0 0 2px var(--companion-soft); }
+.star-act-icon{ font-size:22px; }
+.star-act-label{ font-size:12px; color:var(--ink); }
 /* ---- Settings QR overlay ---- */
 .qr-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
 .qr-overlay.hidden{ display:none; }
@@ -729,7 +769,6 @@ textarea.mid{ min-height:90px; }
     <!-- ============ FRONT (CHAT) ============ -->
     <div class="view hidden" id="frontView">
       <div class="chat-header">
-        <button class="icon-btn" id="chatLeftToggle" aria-label="選單" title="選單" style="font-size:20px;">≡</button>
         <button class="icon-btn" id="chatHomeBtn" aria-label="主畫面" title="主畫面">⌂</button>
         <div class="avatar-orb" aria-hidden="true"></div>
         <div class="header-text">
@@ -761,41 +800,35 @@ textarea.mid{ min-height:90px; }
         <button class="send-btn" id="sendBtn" aria-label="送出">➤</button>
       </div>
 
-      <!-- Left slide panel -->
-      <div class="chat-left-panel" id="chatLeftPanel">
-        <div class="chat-left-panel-head">
-          <button class="icon-btn" id="chatLeftClose" type="button">✕</button>
-          <span class="chat-left-panel-title">選單</span>
-        </div>
-        <div class="chat-left-panel-body">
-          <button class="lp-item" id="lpChangeAvatar" type="button">
-            <span class="lp-item-icon">👤</span>
-            <span>更改頭像</span>
-          </button>
-          <button class="lp-item" id="lpChangeBg" type="button">
-            <span class="lp-item-icon">🖼</span>
-            <span>更改聊天室背景</span>
-          </button>
-          <hr class="lp-divider">
-          <button class="lp-item" id="lpDownload" type="button">
-            <span class="lp-item-icon">📥</span>
-            <span>下載對話記錄</span>
-          </button>
-          <button class="lp-item" id="lpAdmin" type="button">
-            <span class="lp-item-icon">⚙</span>
-            <span>後台管理</span>
-          </button>
-        </div>
-      </div>
-      <div class="chat-left-scrim" id="chatLeftScrim"></div>
-
       <!-- Right slide panel -->
       <div class="chat-right-panel" id="chatRightPanel">
         <div class="chat-right-panel-head">
           <span class="chat-right-panel-title">☰ 選單</span>
           <button class="icon-btn" id="chatRightClose" type="button">✕</button>
         </div>
-        <div class="chat-right-panel-body" id="chatRightBody"></div>
+        <div class="chat-right-panel-body" id="chatRightBody">
+          <button class="lp-item" id="rpChangeAvatar" type="button">
+            <span class="lp-item-icon">👤</span>
+            <span>更改頭像</span>
+          </button>
+          <button class="lp-item" id="rpChangeBg" type="button">
+            <span class="lp-item-icon">🖼</span>
+            <span>更改聊天室背景</span>
+          </button>
+          <button class="lp-item" id="rpColorTheme" type="button">
+            <span class="lp-item-icon">🎨</span>
+            <span>更改介面顏色</span>
+          </button>
+          <hr class="lp-divider">
+          <button class="lp-item" id="rpDownload" type="button">
+            <span class="lp-item-icon">📥</span>
+            <span>下載對話記錄</span>
+          </button>
+          <button class="lp-item" id="rpAdmin" type="button">
+            <span class="lp-item-icon">⚙</span>
+            <span>後台管理</span>
+          </button>
+        </div>
       </div>
       <div class="chat-right-scrim" id="chatRightScrim"></div>
     </div>
@@ -1124,6 +1157,87 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
+<!-- ============ THEME OVERLAY ============ -->
+<div class="cnt-sel-overlay hidden" id="themeOverlay">
+  <div class="cnt-sel-sheet" style="max-width:340px;">
+    <div class="cnt-sel-head">
+      <div class="cnt-sel-title">🎨 介面顏色</div>
+      <button class="icon-btn" id="themeOverlayClose" type="button">✕</button>
+    </div>
+    <div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="theme-swatch" id="themeDefault" data-theme="">
+        <div class="theme-preview" style="background:linear-gradient(135deg,#ECEEF3 50%,#3BADCC 50%);"></div>
+        <span>預設</span>
+      </button>
+      <button class="theme-swatch" id="themeDark" data-theme="dark">
+        <div class="theme-preview" style="background:linear-gradient(135deg,#1A1D26 50%,#4CC8EA 50%);"></div>
+        <span>暗色系</span>
+      </button>
+      <button class="theme-swatch" id="themePink" data-theme="pink">
+        <div class="theme-preview" style="background:linear-gradient(135deg,#FFF0F4 50%,#D4678A 50%);"></div>
+        <span>粉色系</span>
+      </button>
+      <button class="theme-swatch" id="themeBrown" data-theme="brown">
+        <div class="theme-preview" style="background:linear-gradient(135deg,#F4EDE4 50%,#A07850 50%);"></div>
+        <span>棕色系</span>
+      </button>
+      <button class="theme-swatch" id="themeGreen" data-theme="green">
+        <div class="theme-preview" style="background:linear-gradient(135deg,#EBF4EE 50%,#4A9A6A 50%);"></div>
+        <span>綠色系</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STAR VIEW ============ -->
+<div class="cnt-sel-overlay hidden" id="starView">
+  <div class="star-sheet">
+    <div class="star-header">
+      <span class="star-title">🐱 我們的星</span>
+      <button class="icon-btn" id="starClose" type="button">✕</button>
+    </div>
+    <div class="star-room" id="starRoom">
+      <div class="star-window"></div>
+      <div class="star-plant"></div>
+      <div class="star-char-wrap">
+        <div class="star-char" id="starChar">
+          <div class="star-eye left"></div>
+          <div class="star-eye right"></div>
+          <div class="star-mouth"></div>
+          <div class="star-outfit" id="starOutfit"></div>
+        </div>
+      </div>
+      <div class="star-bubble hidden" id="starBubble"></div>
+    </div>
+    <div class="star-stats">
+      <div class="star-stat-row">
+        <span class="star-stat-label">🍚 飽食度</span>
+        <div class="star-bar-track"><div class="star-bar-fill" id="starHungerFill" style="background:var(--companion);width:80%;"></div></div>
+        <span class="star-stat-val" id="starHungerVal">80%</span>
+      </div>
+      <div class="star-stat-row">
+        <span class="star-stat-label">💕 心情</span>
+        <div class="star-bar-track"><div class="star-bar-fill" id="starMoodFill" style="background:#E8A0C0;width:80%;"></div></div>
+        <span class="star-stat-val" id="starMoodVal">80%</span>
+      </div>
+    </div>
+    <div class="star-actions">
+      <button class="star-act-btn" id="starFeedBtn" type="button">
+        <span class="star-act-icon">🍚</span>
+        <span class="star-act-label">餵飼料</span>
+      </button>
+      <button class="star-act-btn" id="starPetBtn" type="button">
+        <span class="star-act-icon">🐾</span>
+        <span class="star-act-label">摸摸他</span>
+      </button>
+      <button class="star-act-btn" id="starClothesBtn" type="button">
+        <span class="star-act-icon">👗</span>
+        <span class="star-act-label">換衣服</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ SETTINGS QR OVERLAY ============ -->
 <div class="qr-overlay hidden" id="settingsQrOverlay">
   <div class="qr-sheet">
@@ -1199,7 +1313,8 @@ textarea.mid{ min-height:90px; }
     walGallery:'companion:walGallery', walActive:'companion:walActive',
     avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
     startDate:'companion:startDate', cntTarget:'companion:cntTarget',
-    chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive'
+    chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
+    theme:'companion:theme', star:'companion:star'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -1234,6 +1349,8 @@ textarea.mid{ min-height:90px; }
   var chatBgUrl     = localStorage.getItem(KEYS.chatBg) || '';
   var chatBgGallery = load(KEYS.chatBgGallery) || [];
   var chatBgActive  = localStorage.getItem(KEYS.chatBgActive) || '';
+  var currentTheme  = localStorage.getItem(KEYS.theme) || '';
+  var starState     = load(KEYS.star) || { hunger:80, mood:80, clothes:0 };
   var pendingImg  = null;
   var ciCalYear   = new Date().getFullYear(), ciCalMonth = new Date().getMonth();
   // persist seeds on first run
@@ -1416,11 +1533,11 @@ textarea.mid{ min-height:90px; }
   /* ============ Build system prompt ============ */
   function buildSystemPrompt(){
     var parts = [ persona.systemPrompt || '' ];
+    if(persona.replyRules && persona.replyRules.trim()){
+      parts.push('\n\n# 【必須遵守的回覆規則】\n以下規則優先級最高，每一次回覆都必須完全遵守，不得違反：\n' + persona.replyRules.trim());
+    }
     if(persona.backgroundSettings && persona.backgroundSettings.trim()){
       parts.push('\n\n# 背景設定\n' + persona.backgroundSettings.trim());
-    }
-    if(persona.replyRules && persona.replyRules.trim()){
-      parts.push('\n\n# 回復規則\n' + persona.replyRules.trim());
     }
     if(knowledge.length){
       parts.push('\n\n# 你的詳細設定資料（請依此保持人設一致）');
@@ -2796,30 +2913,103 @@ textarea.mid{ min-height:90px; }
     renderMoodDiaryOverlay();
     $('moodDiaryOverlay').classList.remove('hidden');
   }
-  /* ============ Chat left panel ============ */
-  function closeLeftPanel(){ $('chatLeftPanel').classList.remove('open'); $('chatLeftScrim').classList.remove('show'); }
-  $('chatLeftToggle').addEventListener('click', function(){ $('chatLeftPanel').classList.toggle('open'); $('chatLeftScrim').classList.toggle('show'); });
-  $('chatLeftClose').addEventListener('click', closeLeftPanel);
-  $('chatLeftScrim').addEventListener('click', closeLeftPanel);
-  $('lpChangeAvatar').addEventListener('click', function(){
-    closeLeftPanel();
+  /* ============ Right panel menu items ============ */
+  $('rpChangeAvatar').addEventListener('click', function(){
+    closeRightPanel();
     $('avatarGalleryOverlay').classList.remove('hidden');
     renderAvatarGallery();
   });
-  $('lpChangeBg').addEventListener('click', function(){
-    closeLeftPanel();
+  $('rpChangeBg').addEventListener('click', function(){
+    closeRightPanel();
     $('chatBgOverlay').classList.remove('hidden');
     renderChatBgGallery();
   });
-  $('lpDownload').addEventListener('click', function(){
-    closeLeftPanel();
+  $('rpColorTheme').addEventListener('click', function(){
+    closeRightPanel();
+    $('themeOverlay').classList.remove('hidden');
+    document.querySelectorAll('.theme-swatch').forEach(function(el){
+      el.classList.toggle('active', el.dataset.theme === currentTheme);
+    });
+  });
+  $('rpDownload').addEventListener('click', function(){
+    closeRightPanel();
     $('dlChatBtn').click();
   });
-  $('lpAdmin').addEventListener('click', function(){
-    closeLeftPanel();
+  $('rpAdmin').addEventListener('click', function(){
+    closeRightPanel();
     showAdmin();
   });
   $('avatarOverlayClose').addEventListener('click', function(){ $('avatarGalleryOverlay').classList.add('hidden'); });
+
+  /* ============ Color theme ============ */
+  function applyTheme(theme){
+    currentTheme = theme;
+    if(theme){ document.documentElement.setAttribute('data-theme', theme); localStorage.setItem(KEYS.theme, theme); }
+    else { document.documentElement.removeAttribute('data-theme'); localStorage.removeItem(KEYS.theme); }
+    document.querySelectorAll('.theme-swatch').forEach(function(el){
+      el.classList.toggle('active', el.dataset.theme === theme);
+    });
+  }
+  $('themeOverlayClose').addEventListener('click', function(){ $('themeOverlay').classList.add('hidden'); });
+  document.querySelectorAll('.theme-swatch').forEach(function(el){
+    el.addEventListener('click', function(){ applyTheme(el.dataset.theme); });
+  });
+
+  /* ============ Star ============ */
+  var OUTFIT_COLORS = ['', '#A8C8E8', '#ECB0C4', '#8EC87A'];
+  var OUTFIT_LABELS = ['', '藍色毛衣', '粉色洋裝', '綠色外套'];
+  var starBubbleTimer = null;
+  function renderStarStats(){
+    $('starHungerFill').style.width = starState.hunger + '%';
+    $('starHungerVal').textContent = starState.hunger + '%';
+    $('starMoodFill').style.width = starState.mood + '%';
+    $('starMoodVal').textContent = starState.mood + '%';
+    var outfit = $('starOutfit');
+    if(starState.clothes > 0){
+      outfit.style.background = OUTFIT_COLORS[starState.clothes];
+      outfit.classList.add('show');
+    } else {
+      outfit.classList.remove('show');
+    }
+  }
+  function showStarBubble(msg){
+    var b = $('starBubble');
+    b.textContent = msg;
+    b.classList.remove('hidden');
+    clearTimeout(starBubbleTimer);
+    starBubbleTimer = setTimeout(function(){ b.classList.add('hidden'); }, 2400);
+  }
+  function bounceStarChar(){
+    var c = $('starChar');
+    c.classList.remove('bounce');
+    void c.offsetWidth;
+    c.classList.add('bounce');
+  }
+  $('starClose').addEventListener('click', function(){ $('starView').classList.add('hidden'); });
+  $('starFeedBtn').addEventListener('click', function(){
+    if(starState.hunger >= 100){ showStarBubble('我吃飽了，謝謝！🍚'); return; }
+    starState.hunger = Math.min(100, starState.hunger + 20);
+    save(KEYS.star, starState); bounceStarChar();
+    var m=['好吃！謝謝你！😋','哇，我最喜歡吃東西了！','謝謝～味道不錯耶！','嗯嗯～吃飽了好開心！'];
+    showStarBubble(m[Math.floor(Math.random()*m.length)]); renderStarStats();
+  });
+  $('starPetBtn').addEventListener('click', function(){
+    if(starState.mood >= 100){ showStarBubble('嗯～已經很開心了！💕'); return; }
+    starState.mood = Math.min(100, starState.mood + 20);
+    save(KEYS.star, starState); bounceStarChar();
+    var m=['呀！好舒服～💕','謝謝你摸我！','嗯嗯～感覺很溫暖','嘿嘿，我喜歡這樣！'];
+    showStarBubble(m[Math.floor(Math.random()*m.length)]); renderStarStats();
+  });
+  $('starClothesBtn').addEventListener('click', function(){
+    starState.clothes = (starState.clothes + 1) % OUTFIT_COLORS.length;
+    save(KEYS.star, starState); bounceStarChar();
+    var label = starState.clothes > 0 ? '換上了' + OUTFIT_LABELS[starState.clothes] + '！✨' : '換回了素裝！';
+    showStarBubble(label); renderStarStats();
+  });
+  $('homeStarBtn').addEventListener('click', function(){
+    $('starView').classList.remove('hidden');
+    renderStarStats();
+  });
 
   /* ============ Chat right panel ============ */
   function closeRightPanel(){ $('chatRightPanel').classList.remove('open'); $('chatRightScrim').classList.remove('show'); }
@@ -2829,7 +3019,7 @@ textarea.mid{ min-height:90px; }
 
   $('homeDiaryBtn').addEventListener('click', openMoodDiaryOverlay);
   $('chatDiaryBtn').addEventListener('click', generateDiaryToChat);
-  ['homeStarBtn','homeSocialBtn','homeAudioBtn'].forEach(function(id){
+  ['homeSocialBtn','homeAudioBtn'].forEach(function(id){
     $(id).addEventListener('click', function(){ flashSaved('功能即將開放 ✦'); });
   });
   $('moodDiaryClose').addEventListener('click',function(){ $('moodDiaryOverlay').classList.add('hidden'); });
@@ -2869,6 +3059,7 @@ textarea.mid{ min-height:90px; }
   updateCountdown();
   applyWallpaper();
   applyChatBg();
+  if(currentTheme) document.documentElement.setAttribute('data-theme', currentTheme);
 })();
 </script>
 </body>
