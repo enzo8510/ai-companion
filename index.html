@@ -395,7 +395,7 @@ textarea.mid{ min-height:90px; }
 .cnt-event{ font-size:12px; color:var(--ink); font-weight:500; }
 .cnt-today{ font-size:13px; color:var(--companion); font-weight:600; }
 .home-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; width:100%; }
-.home-action-btn{ display:flex; flex-direction:column; align-items:center; gap:5px; background:rgba(255,255,255,0.88); border:1.5px solid rgba(50,58,80,0.08); border-radius:16px; padding:12px 6px; cursor:pointer; font-family:inherit; transition:box-shadow .12s, border-color .12s; }
+.home-action-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; background:rgba(255,255,255,0.88); border:1.5px solid rgba(50,58,80,0.08); border-radius:16px; padding:10px 6px; min-height:72px; cursor:pointer; font-family:inherit; transition:box-shadow .12s, border-color .12s; }
 .home-action-btn:hover{ box-shadow:0 3px 14px rgba(59,173,204,0.12); border-color:var(--companion); }
 .home-action-btn.done{ border-color:var(--companion); background:var(--companion-soft); }
 .act-icon{ font-size:22px; line-height:1; }
@@ -571,6 +571,15 @@ textarea.mid{ min-height:90px; }
 /* ---- Countdown selector overlay ---- */
 .cnt-sel-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
 .cnt-sel-overlay.hidden{ display:none; }
+/* ---- Chat right slide panel ---- */
+#frontView{ position:relative; overflow:hidden; }
+.chat-right-panel{ position:absolute; top:0; right:0; bottom:0; width:76%; max-width:280px; background:var(--surface); border-left:1.5px solid var(--line); box-shadow:-2px 0 18px rgba(50,58,80,0.10); transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1); z-index:60; display:flex; flex-direction:column; }
+.chat-right-panel.open{ transform:translateX(0); }
+.chat-right-panel-head{ padding:14px 16px; border-bottom:1.5px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; }
+.chat-right-panel-title{ font-size:15px; font-weight:700; color:var(--ink); }
+.chat-right-panel-body{ flex:1; overflow-y:auto; padding:16px; color:var(--ink-soft); font-size:13px; }
+.chat-right-scrim{ position:absolute; inset:0; background:rgba(50,58,80,0.28); z-index:59; pointer-events:none; opacity:0; transition:opacity .26s; }
+.chat-right-scrim.show{ opacity:1; pointer-events:all; }
 /* ---- Settings QR overlay ---- */
 .qr-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
 .qr-overlay.hidden{ display:none; }
@@ -640,7 +649,6 @@ textarea.mid{ min-height:90px; }
       <button class="home-admin-btn" id="homeAdminBtn" aria-label="後台設定" title="後台設定">⚙</button>
       <button class="home-wal-btn" id="homeWalBtn" aria-label="設定桌布" title="設定桌布">🖼</button>
       <button class="home-wal-remove" id="homeWalRemove" aria-label="移除桌布">✕ 移除桌布</button>
-      <input type="file" id="walFileInput" accept="image/*" style="display:none;">
       <div class="home-wrap">
 
   <!-- Avatar -->
@@ -669,17 +677,17 @@ textarea.mid{ min-height:90px; }
             <span class="act-icon">📅</span>
             <span class="act-label">行事曆</span>
           </button>
-          <button class="home-action-btn" id="homeQaRefreshBtn" type="button">
-            <span class="act-icon">🎲</span>
-            <span class="act-label">換一題</span>
+          <button class="home-action-btn" id="homeStarBtn" type="button">
+            <span class="act-icon">🐱</span>
+            <span class="act-label">我們的星</span>
           </button>
           <button class="home-action-btn" id="homeDiaryBtn" type="button">
             <span class="act-icon">📓</span>
             <span class="act-label">今日日記</span>
           </button>
-          <button class="home-action-btn" id="homeStarBtn" type="button">
-            <span class="act-icon">🐱</span>
-            <span class="act-label">我們的星</span>
+          <button class="home-action-btn" id="homeQaRefreshBtn" type="button">
+            <span class="act-icon">🎲</span>
+            <span class="act-label">今日問題</span>
           </button>
           <button class="home-action-btn" id="homeSocialBtn" type="button">
             <span class="act-icon">📱</span>
@@ -717,6 +725,7 @@ textarea.mid{ min-height:90px; }
         </div>
         <button class="icon-btn" id="dlChatBtn" aria-label="下載對話" title="下載對話" style="font-size:16px;">📥</button>
         <button class="icon-btn" id="openAdminBtn" aria-label="後台管理" title="後台管理">⚙</button>
+        <button class="icon-btn" id="chatRightToggle" aria-label="選單" title="選單">☰</button>
       </div>
 
       <div class="chat-thread" id="thread"></div>
@@ -737,6 +746,16 @@ textarea.mid{ min-height:90px; }
         <input type="text" id="chatInput" placeholder="跟卄珩說點什麼…" autocomplete="off" aria-label="跟卄珩說話">
         <button class="send-btn" id="sendBtn" aria-label="送出">➤</button>
       </div>
+
+      <!-- Right slide panel -->
+      <div class="chat-right-panel" id="chatRightPanel">
+        <div class="chat-right-panel-head">
+          <span class="chat-right-panel-title">☰ 選單</span>
+          <button class="icon-btn" id="chatRightClose" type="button">✕</button>
+        </div>
+        <div class="chat-right-panel-body" id="chatRightBody"></div>
+      </div>
+      <div class="chat-right-scrim" id="chatRightScrim"></div>
     </div>
 
     <!-- ============ ADMIN ============ -->
@@ -796,12 +815,13 @@ textarea.mid{ min-height:90px; }
               <div class="avatar-preview" id="avatarPreview"></div>
               <div style="display:flex;flex-direction:column;gap:8px;">
                 <label class="btn ghost small" style="cursor:pointer;text-align:center;">
-                  選擇圖片
+                  ＋ 新增頭像
                   <input type="file" id="avatarFile" accept="image/*" style="display:none;">
                 </label>
                 <button class="btn danger small" id="avatarClearBtn" type="button">移除頭像</button>
               </div>
             </div>
+            <div id="avatarGalleryWrap" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"></div>
           </div>
           <div class="field">
             <label>名字</label>
@@ -1024,6 +1044,21 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
+<!-- ============ WALLPAPER GALLERY OVERLAY ============ -->
+<div class="cnt-sel-overlay hidden" id="walGalleryOverlay">
+  <div class="cnt-sel-sheet" style="max-width:380px;">
+    <div class="cnt-sel-head">
+      <div class="cnt-sel-title">🖼 桌布庫</div>
+      <button class="icon-btn" id="walGalleryClose" type="button">✕</button>
+    </div>
+    <div id="walGalleryBody" style="overflow-y:auto;flex:1;min-height:80px;padding:14px 16px;"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;">
+      <button class="toolbar-btn primary" id="walGalleryUploadBtn" type="button" style="width:100%;justify-content:center;">＋ 新增桌布</button>
+      <input type="file" id="walGalleryFileInput" accept="image/*" style="display:none;">
+    </div>
+  </div>
+</div>
+
 <!-- ============ SETTINGS QR OVERLAY ============ -->
 <div class="qr-overlay hidden" id="settingsQrOverlay">
   <div class="qr-sheet">
@@ -1096,6 +1131,8 @@ textarea.mid{ min-height:90px; }
     avatar:'companion:avatar',
     checkin:'companion:checkin', events:'companion:events', dailyqa:'companion:dailyqa',
     wallpaper:'companion:wallpaper',
+    walGallery:'companion:walGallery', walActive:'companion:walActive',
+    avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
     startDate:'companion:startDate', cntTarget:'companion:cntTarget'
   };
   function load(key, fallback){
@@ -1124,6 +1161,10 @@ textarea.mid{ min-height:90px; }
   var wallpaperUrl= localStorage.getItem(KEYS.wallpaper) || '';
   var startDate   = localStorage.getItem(KEYS.startDate) || '';
   var cntTarget   = localStorage.getItem(KEYS.cntTarget) || '';
+  var walGallery  = load(KEYS.walGallery)    || [];
+  var walActive   = localStorage.getItem(KEYS.walActive) || '';
+  var avatarGallery = load(KEYS.avatarGallery) || [];
+  var avatarActive  = localStorage.getItem(KEYS.avatarActive) || '';
   var pendingImg  = null;
   var ciCalYear   = new Date().getFullYear(), ciCalMonth = new Date().getMonth();
   // persist seeds on first run
@@ -1132,6 +1173,17 @@ textarea.mid{ min-height:90px; }
   if(!load(KEYS.knowledge)) save(KEYS.knowledge, knowledge);
   if(!load(KEYS.memories)) save(KEYS.memories, memories);
   if(!load(KEYS.journal)) save(KEYS.journal, journal);
+  // Migrate existing wallpaper/avatar into gallery on first run
+  if(wallpaperUrl && walGallery.length===0){
+    var _mw={id:uid('wal'),dataUrl:wallpaperUrl};
+    walGallery=[_mw]; walActive=_mw.id;
+    save(KEYS.walGallery, walGallery); localStorage.setItem(KEYS.walActive, walActive);
+  }
+  if(avatarDataUrl && avatarGallery.length===0){
+    var _ma={id:uid('avt'),dataUrl:avatarDataUrl};
+    avatarGallery=[_ma]; avatarActive=_ma.id;
+    save(KEYS.avatarGallery, avatarGallery); localStorage.setItem(KEYS.avatarActive, avatarActive);
+  }
 
   // ---- URL settings import (from QR Code scan) ----
   (function(){
@@ -1527,14 +1579,43 @@ textarea.mid{ min-height:90px; }
   }
   bindPersona('perName','name'); bindPersona('perStatus','statusLine'); bindPersona('perPrompt','systemPrompt');
   bindPersona('perBackground','backgroundSettings'); bindPersona('perReplyRules','replyRules');
+  function renderAvatarGallery(){
+    var wrap=$('avatarGalleryWrap'); if(!wrap) return; wrap.innerHTML='';
+    avatarGallery.forEach(function(item){
+      var card=document.createElement('div'); var isA=item.id===avatarActive;
+      card.style.cssText='position:relative;width:54px;height:54px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0;';
+      var img=document.createElement('img'); img.src=item.dataUrl;
+      img.style.cssText='width:54px;height:54px;border-radius:50%;object-fit:cover;border:2.5px solid '+(isA?'var(--companion)':'var(--line)')+';box-sizing:border-box;display:block;';
+      img.addEventListener('click',function(){
+        avatarActive=item.id; localStorage.setItem(KEYS.avatarActive,avatarActive);
+        avatarDataUrl=item.dataUrl; localStorage.setItem(KEYS.avatar,item.dataUrl);
+        syncAvatar(); renderAvatarGallery(); flashSaved();
+      });
+      var del=document.createElement('button'); del.style.cssText='position:absolute;top:-2px;right:-2px;background:#e05252;color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2;'; del.textContent='✕';
+      del.addEventListener('click',function(e){ e.stopPropagation(); if(!confirm('刪除此頭像？')) return;
+        avatarGallery=avatarGallery.filter(function(x){return x.id!==item.id;});
+        save(KEYS.avatarGallery,avatarGallery);
+        if(avatarActive===item.id){ avatarActive=''; avatarDataUrl=''; localStorage.removeItem(KEYS.avatarActive); localStorage.removeItem(KEYS.avatar); syncAvatar(); }
+        renderAvatarGallery(); flashSaved();
+      });
+      card.appendChild(img); card.appendChild(del); wrap.appendChild(card);
+    });
+  }
   $('avatarFile').addEventListener('change', function(e){
-    var file = e.target.files && e.target.files[0]; if(!file) return;
-    var reader = new FileReader();
-    reader.onload = function(){ avatarDataUrl = String(reader.result||''); localStorage.setItem(KEYS.avatar, avatarDataUrl); syncAvatar(); flashSaved(); };
-    reader.readAsDataURL(file); e.target.value='';
+    var file=e.target.files&&e.target.files[0]; if(!file) return;
+    compressAvatar(file, function(dataUrl){
+      var item={id:uid('avt'),dataUrl:dataUrl};
+      avatarGallery.unshift(item); if(avatarGallery.length>5) avatarGallery.pop();
+      save(KEYS.avatarGallery,avatarGallery);
+      avatarActive=item.id; localStorage.setItem(KEYS.avatarActive,avatarActive);
+      avatarDataUrl=dataUrl; localStorage.setItem(KEYS.avatar,dataUrl);
+      syncAvatar(); renderAvatarGallery(); flashSaved();
+    }); e.target.value='';
   });
   $('avatarClearBtn').addEventListener('click', function(){
-    avatarDataUrl=''; localStorage.removeItem(KEYS.avatar); syncAvatar(); flashSaved();
+    avatarActive=''; avatarDataUrl='';
+    localStorage.removeItem(KEYS.avatarActive); localStorage.removeItem(KEYS.avatar);
+    syncAvatar(); renderAvatarGallery(); flashSaved();
   });
 
   /* ============ Calendar picker ============ */
@@ -2280,18 +2361,88 @@ textarea.mid{ min-height:90px; }
     };
     reader.readAsDataURL(file);
   }
-  $('homeWalBtn').addEventListener('click', function(){ $('walFileInput').click(); });
-  $('walFileInput').addEventListener('change', function(e){
-    var f = e.target.files && e.target.files[0]; if(!f) return;
-    compressImage(f, function(dataUrl){
-      wallpaperUrl = dataUrl;
-      localStorage.setItem(KEYS.wallpaper, dataUrl);
-      applyWallpaper();
-    });
-    e.target.value='';
+  function compressWallpaper(file, cb){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var maxW=800, maxH=1400, w=img.width, h=img.height;
+        if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+        if(h>maxH){ w=Math.round(w*maxH/h); h=maxH; }
+        var canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        cb(canvas.toDataURL('image/jpeg',0.75));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  function compressAvatar(file, cb){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var s=Math.min(img.width,img.height,400);
+        var canvas=document.createElement('canvas'); canvas.width=s; canvas.height=s;
+        var ctx=canvas.getContext('2d');
+        var sx=(img.width-s)/2, sy=(img.height-s)/2;
+        ctx.drawImage(img,sx,sy,s,s,0,0,s,s);
+        cb(canvas.toDataURL('image/jpeg',0.82));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  function renderWalGallery(){
+    var body=$('walGalleryBody'); body.innerHTML='';
+    if(walGallery.length===0){
+      var em=document.createElement('div'); em.style.cssText='padding:32px;text-align:center;color:var(--ink-soft);font-size:13px;';
+      em.textContent='尚未儲存任何桌布，點下方「新增桌布」上傳。'; body.appendChild(em);
+    } else {
+      var grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(2,1fr);gap:10px;';
+      walGallery.forEach(function(item){
+        var card=document.createElement('div'); var isA=item.id===walActive;
+        card.style.cssText='position:relative;border-radius:12px;overflow:hidden;aspect-ratio:2/3;cursor:pointer;border:2.5px solid '+(isA?'var(--companion)':'transparent')+';box-sizing:border-box;';
+        var img=document.createElement('img'); img.src=item.dataUrl; img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+        img.addEventListener('click',function(){
+          walActive=item.id; localStorage.setItem(KEYS.walActive,walActive);
+          wallpaperUrl=item.dataUrl; localStorage.setItem(KEYS.wallpaper,item.dataUrl);
+          applyWallpaper(); renderWalGallery();
+        });
+        var del=document.createElement('button'); del.style.cssText='position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;'; del.textContent='✕';
+        del.addEventListener('click',function(e){ e.stopPropagation(); if(!confirm('刪除此張桌布？')) return;
+          walGallery=walGallery.filter(function(x){return x.id!==item.id;});
+          save(KEYS.walGallery,walGallery);
+          if(walActive===item.id){ walActive=''; wallpaperUrl=''; localStorage.removeItem(KEYS.walActive); localStorage.removeItem(KEYS.wallpaper); applyWallpaper(); }
+          renderWalGallery();
+        });
+        if(isA){ var badge=document.createElement('div'); badge.style.cssText='position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:var(--companion);color:#fff;font-size:10px;padding:2px 8px;border-radius:999px;white-space:nowrap;'; badge.textContent='使用中'; card.appendChild(badge); }
+        card.appendChild(img); card.appendChild(del); grid.appendChild(card);
+      });
+      body.appendChild(grid);
+    }
+    var ub=$('walGalleryUploadBtn');
+    if(walGallery.length>=5){ ub.disabled=true; ub.textContent='已達上限（5 張）'; }
+    else{ ub.disabled=false; ub.textContent='＋ 新增桌布'; }
+  }
+  $('homeWalBtn').addEventListener('click', function(){ renderWalGallery(); $('walGalleryOverlay').classList.remove('hidden'); });
+  $('walGalleryClose').addEventListener('click', function(){ $('walGalleryOverlay').classList.add('hidden'); });
+  $('walGalleryUploadBtn').addEventListener('click', function(){ $('walGalleryFileInput').click(); });
+  $('walGalleryFileInput').addEventListener('change', function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f) return;
+    compressWallpaper(f, function(dataUrl){
+      var item={id:uid('wal'),dataUrl:dataUrl};
+      walGallery.unshift(item); if(walGallery.length>5) walGallery.pop();
+      save(KEYS.walGallery,walGallery);
+      walActive=item.id; localStorage.setItem(KEYS.walActive,walActive);
+      wallpaperUrl=dataUrl; localStorage.setItem(KEYS.wallpaper,dataUrl);
+      applyWallpaper(); renderWalGallery();
+    }); e.target.value='';
   });
   $('homeWalRemove').addEventListener('click', function(){
-    wallpaperUrl=''; localStorage.removeItem(KEYS.wallpaper); applyWallpaper();
+    walActive=''; wallpaperUrl='';
+    localStorage.removeItem(KEYS.walActive); localStorage.removeItem(KEYS.wallpaper);
+    applyWallpaper();
   });
 
   /* ============ Check-in Calendar Overlay ============ */
@@ -2512,6 +2663,12 @@ textarea.mid{ min-height:90px; }
     renderMoodDiaryOverlay();
     $('moodDiaryOverlay').classList.remove('hidden');
   }
+  /* ============ Chat right panel ============ */
+  function closeRightPanel(){ $('chatRightPanel').classList.remove('open'); $('chatRightScrim').classList.remove('show'); }
+  $('chatRightToggle').addEventListener('click', function(){ $('chatRightPanel').classList.toggle('open'); $('chatRightScrim').classList.toggle('show'); });
+  $('chatRightClose').addEventListener('click', closeRightPanel);
+  $('chatRightScrim').addEventListener('click', closeRightPanel);
+
   $('homeDiaryBtn').addEventListener('click', openMoodDiaryOverlay);
   $('chatDiaryBtn').addEventListener('click', generateDiaryToChat);
   ['homeStarBtn','homeSocialBtn','homeAudioBtn'].forEach(function(id){
@@ -2548,6 +2705,7 @@ textarea.mid{ min-height:90px; }
   renderKnowledge();
   renderMemories();
   renderJournal();
+  renderAvatarGallery();
   renderThread();
   updateCheckinBtn();
   updateCountdown();
