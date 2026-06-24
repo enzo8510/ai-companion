@@ -486,7 +486,7 @@ textarea.mid{ min-height:90px; }
 .cal-add-section{ background:var(--chat-bg); border-radius:14px; padding:var(--space-lg); margin-top:var(--space-md); border:1px solid var(--line); }
 .cal-add-section h3{ font-size:12px; font-weight:700; color:var(--ink); margin:0 0 var(--space-md); letter-spacing:.04em; text-transform:uppercase; }
 .cal-add-row{ display:flex; gap:var(--space-md); margin-bottom:18px; flex-direction:column; }
-.cal-add-row input, .cal-add-row select, .cal-add-row textarea{ flex:1; border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; font-family:inherit; font-size:14px; color:var(--ink); background:var(--chat-bg); outline:none; transition:all .15s; line-height:1.6; }
+.cal-add-row input, .cal-add-row select, .cal-add-row textarea{ width:100%; border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; font-family:inherit; font-size:14px; color:var(--ink); background:var(--chat-bg); outline:none; transition:all .15s; line-height:1.6; box-sizing:border-box; }
 .cal-add-row input:focus, .cal-add-row select:focus, .cal-add-row textarea:focus{ border-color:var(--companion); background:rgba(59,173,204,0.03); box-shadow:0 0 0 3px rgba(59,173,204,0.12); }
 .cal-add-row input[readonly]{ background:var(--chat-bg); color:var(--ink-soft); cursor:pointer; }
 .cal-add-row input[readonly]:focus{ border-color:var(--companion); }
