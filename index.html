@@ -585,20 +585,44 @@ textarea.mid{ min-height:90px; }
 .lp-item:hover{ background:var(--chat-bg); }
 .lp-item-icon{ font-size:18px; flex:0 0 auto; width:24px; text-align:center; }
 .lp-divider{ border:none; border-top:1px solid var(--line); margin:6px 12px; }
-/* ---- Color theme swatches ---- */
-.theme-swatch{ border:2.5px solid transparent; border-radius:12px; padding:6px; background:var(--chat-bg); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; color:var(--ink); font-family:inherit; transition:border-color .15s; width:100%; }
-.theme-swatch.active{ border-color:var(--companion); }
-.theme-preview{ width:100%; aspect-ratio:3/2; border-radius:8px; }
+/* ---- Color theme rows ---- */
+.theme-row{ display:flex; align-items:center; gap:14px; padding:13px 18px; border:none; background:none; width:100%; cursor:pointer; font-family:inherit; transition:background .12s; }
+.theme-row:hover{ background:var(--chat-bg); }
+.theme-row-bar{ width:44px; height:22px; border-radius:8px; flex:0 0 44px; border:1.5px solid rgba(50,58,80,0.10); box-shadow:0 1px 3px rgba(50,58,80,0.08); }
+.theme-row-name{ font-size:14px; color:var(--ink); flex:1; text-align:left; font-weight:500; }
+.theme-row-check{ opacity:0; color:var(--companion); font-size:17px; font-weight:700; transition:opacity .18s; }
+.theme-row.active .theme-row-check{ opacity:1; }
+/* ---- Bubble transparency on chat background ---- */
+#thread.has-chatbg .bubble.her{ background:rgba(255,255,255,0.22); backdrop-filter:blur(12px) saturate(1.5); -webkit-backdrop-filter:blur(12px) saturate(1.5); border:1.5px solid rgba(255,255,255,0.45); }
+#thread.has-chatbg .bubble.me{ background:rgba(255,255,255,0.72); backdrop-filter:blur(12px) saturate(1.5); -webkit-backdrop-filter:blur(12px) saturate(1.5); border:1.5px solid rgba(255,255,255,0.55); }
 /* ---- Theme overrides ---- */
 :root[data-theme="dark"]{ --bg:#1A1D26; --frame-shadow:rgba(0,0,0,0.4); --chat-bg:#22263A; --surface:#2A2D3E; --ink:#E4E8F2; --ink-soft:#6E7891; --companion:#4CC8EA; --companion-soft:#1C3A4A; --user-bubble:#343850; --sage:#4CC8EA; --gold:#6A9BB8; --gold-soft:#1C3044; --line:rgba(228,232,242,0.08); }
 :root[data-theme="pink"]{ --bg:#FFF0F4; --frame-shadow:rgba(200,80,120,0.10); --chat-bg:#FFF5F8; --surface:#FFFFFF; --ink:#4A2535; --ink-soft:#A0728A; --companion:#D4678A; --companion-soft:#FFD6E5; --user-bubble:#FFFFFF; --sage:#D4678A; --gold:#C08090; --gold-soft:#FFE8EE; --line:rgba(212,103,138,0.12); }
 :root[data-theme="brown"]{ --bg:#F4EDE4; --frame-shadow:rgba(100,60,30,0.12); --chat-bg:#F8F2EC; --surface:#FFFDF8; --ink:#3D2B1A; --ink-soft:#9A7A60; --companion:#A07850; --companion-soft:#EDD8C0; --user-bubble:#FFFDF8; --sage:#A07850; --gold:#B08A60; --gold-soft:#F0DFC8; --line:rgba(100,60,30,0.10); }
 :root[data-theme="green"]{ --bg:#EBF4EE; --frame-shadow:rgba(40,100,60,0.10); --chat-bg:#F0F8F2; --surface:#FFFFFF; --ink:#1E3A2A; --ink-soft:#6A9478; --companion:#4A9A6A; --companion-soft:#C4E8D0; --user-bubble:#FFFFFF; --sage:#4A9A6A; --gold:#5A8A6A; --gold-soft:#CCEAD8; --line:rgba(40,100,60,0.10); }
-/* ---- Star view ---- */
-.star-sheet{ background:var(--surface); border-radius:24px; width:100%; max-width:380px; display:flex; flex-direction:column; overflow:hidden; max-height:88vh; }
-.star-header{ padding:14px 16px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); flex:0 0 auto; }
-.star-title{ font-size:16px; font-weight:700; color:var(--ink); }
-.star-room{ flex:0 0 220px; position:relative; overflow:hidden; background:linear-gradient(180deg,#FDF8F0 0%,#EDE4D8 65%,#D5C5B0 100%); }
+/* ---- Star view (full screen) ---- */
+#starView{ position:relative; overflow:hidden; background:var(--bg); }
+.star-header{ padding:14px 16px 12px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.star-title{ font-size:16px; font-weight:700; color:var(--ink); flex:1; text-align:center; }
+.star-room{ flex:1; position:relative; overflow:hidden; background:linear-gradient(180deg,#FDF8F0 0%,#EDE4D8 65%,#D5C5B0 100%); min-height:180px; }
+/* ---- Star sub-modals ---- */
+.star-modal{ position:absolute; left:0; right:0; bottom:0; background:var(--surface); border-radius:20px 20px 0 0; padding:0 0 20px; box-shadow:0 -4px 28px rgba(50,58,80,0.18); transform:translateY(100%); transition:transform .28s cubic-bezier(.4,0,.2,1); z-index:20; }
+.star-modal.show{ transform:translateY(0); }
+.star-modal-handle{ width:36px; height:4px; background:var(--line); border-radius:4px; margin:10px auto 14px; }
+.star-modal-title{ font-size:14px; font-weight:700; color:var(--ink); text-align:center; margin-bottom:14px; }
+.star-modal-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:0 14px; }
+.star-food-item{ display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 4px 8px; border:1.5px solid var(--line); border-radius:14px; cursor:pointer; background:var(--chat-bg); font-family:inherit; transition:border-color .12s,box-shadow .12s; }
+.star-food-item:hover{ border-color:var(--companion); box-shadow:0 0 0 2px var(--companion-soft); }
+.star-food-icon{ font-size:22px; line-height:1; }
+.star-food-name{ font-size:10px; color:var(--ink); font-weight:600; }
+.star-food-stat{ font-size:9px; color:var(--companion); }
+.star-outfit-item{ display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 4px 8px; border:1.5px solid var(--line); border-radius:14px; cursor:pointer; background:var(--chat-bg); font-family:inherit; transition:border-color .12s,box-shadow .12s; }
+.star-outfit-item:hover,.star-outfit-item.active-outfit{ border-color:var(--companion); box-shadow:0 0 0 2px var(--companion-soft); }
+.star-outfit-dot{ width:30px; height:30px; border-radius:50%; border:2px solid rgba(50,58,80,0.12); }
+.star-outfit-label{ font-size:9.5px; color:var(--ink); font-weight:500; }
+.star-modal-cancel{ display:block; margin:12px 14px 0; padding:10px; background:none; border:1.5px solid var(--line); border-radius:12px; font-family:inherit; font-size:13px; color:var(--ink-soft); cursor:pointer; width:calc(100% - 28px); }
+.star-scrim{ position:absolute; inset:0; background:rgba(30,36,52,0.28); z-index:19; opacity:0; pointer-events:none; transition:opacity .24s; }
+.star-scrim.show{ opacity:1; pointer-events:all; }
 .star-window{ position:absolute; top:18px; right:22px; width:54px; height:48px; background:#D8EEF8; border:3px solid #B8C8D4; border-radius:4px; box-shadow:inset 0 0 10px rgba(200,230,248,0.5); }
 .star-window::before,.star-window::after{ content:''; position:absolute; background:#B8C8D4; }
 .star-window::before{ left:50%; top:0; bottom:0; width:2px; transform:translateX(-50%); }
@@ -944,6 +968,88 @@ textarea.mid{ min-height:90px; }
       </div>
     </div>
 
+    <!-- ============ STAR VIEW ============ -->
+    <div class="view hidden" id="starView">
+      <div class="star-header">
+        <button class="icon-btn" id="starBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="star-title">🐱 我們的星</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="star-room" id="starRoom">
+        <div class="star-window"></div>
+        <div class="star-plant"></div>
+        <div class="star-char-wrap">
+          <div class="star-char" id="starChar">
+            <div class="star-eye left"></div>
+            <div class="star-eye right"></div>
+            <div class="star-mouth"></div>
+            <div class="star-outfit" id="starOutfit"></div>
+          </div>
+        </div>
+        <div class="star-bubble hidden" id="starBubble"></div>
+      </div>
+      <div class="star-stats">
+        <div class="star-stat-row">
+          <span class="star-stat-label">🍚 飽食度</span>
+          <div class="star-bar-track"><div class="star-bar-fill" id="starHungerFill" style="background:var(--companion);width:80%;"></div></div>
+          <span class="star-stat-val" id="starHungerVal">80%</span>
+        </div>
+        <div class="star-stat-row">
+          <span class="star-stat-label">💕 心情</span>
+          <div class="star-bar-track"><div class="star-bar-fill" id="starMoodFill" style="background:#E8A0C0;width:80%;"></div></div>
+          <span class="star-stat-val" id="starMoodVal">80%</span>
+        </div>
+      </div>
+      <div class="star-actions">
+        <button class="star-act-btn" id="starFeedBtn" type="button">
+          <span class="star-act-icon">🍚</span>
+          <span class="star-act-label">餵飼料</span>
+        </button>
+        <button class="star-act-btn" id="starPetBtn" type="button">
+          <span class="star-act-icon">🐾</span>
+          <span class="star-act-label">摸摸他</span>
+        </button>
+        <button class="star-act-btn" id="starClothesBtn" type="button">
+          <span class="star-act-icon">👗</span>
+          <span class="star-act-label">換衣服</span>
+        </button>
+      </div>
+      <div class="star-modal" id="starFoodModal">
+        <div class="star-modal-handle"></div>
+        <div class="star-modal-title">選擇食物</div>
+        <div class="star-modal-grid">
+          <button class="star-food-item" data-hunger="20" data-mood="0" type="button">
+            <span class="star-food-icon">🌾</span>
+            <span class="star-food-name">普通飼料</span>
+            <span class="star-food-stat">+20 飽食</span>
+          </button>
+          <button class="star-food-item" data-hunger="40" data-mood="0" type="button">
+            <span class="star-food-icon">🥩</span>
+            <span class="star-food-name">大餐</span>
+            <span class="star-food-stat">+40 飽食</span>
+          </button>
+          <button class="star-food-item" data-hunger="10" data-mood="20" type="button">
+            <span class="star-food-icon">🍩</span>
+            <span class="star-food-name">零食</span>
+            <span class="star-food-stat">+10飽 +20情</span>
+          </button>
+          <button class="star-food-item" data-hunger="30" data-mood="15" type="button">
+            <span class="star-food-icon">🍱</span>
+            <span class="star-food-name">愛心便當</span>
+            <span class="star-food-stat">+30飽 +15情</span>
+          </button>
+        </div>
+        <button class="star-modal-cancel" id="starFoodCancel" type="button">取消</button>
+      </div>
+      <div class="star-modal" id="starOutfitModal">
+        <div class="star-modal-handle"></div>
+        <div class="star-modal-title">選擇裝扮</div>
+        <div class="star-modal-grid" id="starOutfitGrid"></div>
+        <button class="star-modal-cancel" id="starOutfitCancel" type="button">取消</button>
+      </div>
+      <div class="star-scrim" id="starScrim"></div>
+    </div>
+
     <div class="saved-chip" id="savedChip">已儲存 ✓</div>
 
   </div>
@@ -1159,80 +1265,36 @@ textarea.mid{ min-height:90px; }
 
 <!-- ============ THEME OVERLAY ============ -->
 <div class="cnt-sel-overlay hidden" id="themeOverlay">
-  <div class="cnt-sel-sheet" style="max-width:340px;">
+  <div class="cnt-sel-sheet" style="max-width:320px;">
     <div class="cnt-sel-head">
       <div class="cnt-sel-title">🎨 介面顏色</div>
       <button class="icon-btn" id="themeOverlayClose" type="button">✕</button>
     </div>
-    <div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="theme-swatch" id="themeDefault" data-theme="">
-        <div class="theme-preview" style="background:linear-gradient(135deg,#ECEEF3 50%,#3BADCC 50%);"></div>
-        <span>預設</span>
+    <div style="padding:6px 0 10px;">
+      <button class="theme-row active" id="themeDefault" data-theme="">
+        <div class="theme-row-bar" style="background:linear-gradient(90deg,#ECEEF3,#3BADCC);"></div>
+        <span class="theme-row-name">預設</span>
+        <span class="theme-row-check">✓</span>
       </button>
-      <button class="theme-swatch" id="themeDark" data-theme="dark">
-        <div class="theme-preview" style="background:linear-gradient(135deg,#1A1D26 50%,#4CC8EA 50%);"></div>
-        <span>暗色系</span>
+      <button class="theme-row" id="themeDark" data-theme="dark">
+        <div class="theme-row-bar" style="background:linear-gradient(90deg,#1A1D26,#4CC8EA);"></div>
+        <span class="theme-row-name">暗色系</span>
+        <span class="theme-row-check">✓</span>
       </button>
-      <button class="theme-swatch" id="themePink" data-theme="pink">
-        <div class="theme-preview" style="background:linear-gradient(135deg,#FFF0F4 50%,#D4678A 50%);"></div>
-        <span>粉色系</span>
+      <button class="theme-row" id="themePink" data-theme="pink">
+        <div class="theme-row-bar" style="background:linear-gradient(90deg,#FFD6E5,#D4678A);"></div>
+        <span class="theme-row-name">粉色系</span>
+        <span class="theme-row-check">✓</span>
       </button>
-      <button class="theme-swatch" id="themeBrown" data-theme="brown">
-        <div class="theme-preview" style="background:linear-gradient(135deg,#F4EDE4 50%,#A07850 50%);"></div>
-        <span>棕色系</span>
+      <button class="theme-row" id="themeBrown" data-theme="brown">
+        <div class="theme-row-bar" style="background:linear-gradient(90deg,#EDD8C0,#A07850);"></div>
+        <span class="theme-row-name">棕色系</span>
+        <span class="theme-row-check">✓</span>
       </button>
-      <button class="theme-swatch" id="themeGreen" data-theme="green">
-        <div class="theme-preview" style="background:linear-gradient(135deg,#EBF4EE 50%,#4A9A6A 50%);"></div>
-        <span>綠色系</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ============ STAR VIEW ============ -->
-<div class="cnt-sel-overlay hidden" id="starView">
-  <div class="star-sheet">
-    <div class="star-header">
-      <span class="star-title">🐱 我們的星</span>
-      <button class="icon-btn" id="starClose" type="button">✕</button>
-    </div>
-    <div class="star-room" id="starRoom">
-      <div class="star-window"></div>
-      <div class="star-plant"></div>
-      <div class="star-char-wrap">
-        <div class="star-char" id="starChar">
-          <div class="star-eye left"></div>
-          <div class="star-eye right"></div>
-          <div class="star-mouth"></div>
-          <div class="star-outfit" id="starOutfit"></div>
-        </div>
-      </div>
-      <div class="star-bubble hidden" id="starBubble"></div>
-    </div>
-    <div class="star-stats">
-      <div class="star-stat-row">
-        <span class="star-stat-label">🍚 飽食度</span>
-        <div class="star-bar-track"><div class="star-bar-fill" id="starHungerFill" style="background:var(--companion);width:80%;"></div></div>
-        <span class="star-stat-val" id="starHungerVal">80%</span>
-      </div>
-      <div class="star-stat-row">
-        <span class="star-stat-label">💕 心情</span>
-        <div class="star-bar-track"><div class="star-bar-fill" id="starMoodFill" style="background:#E8A0C0;width:80%;"></div></div>
-        <span class="star-stat-val" id="starMoodVal">80%</span>
-      </div>
-    </div>
-    <div class="star-actions">
-      <button class="star-act-btn" id="starFeedBtn" type="button">
-        <span class="star-act-icon">🍚</span>
-        <span class="star-act-label">餵飼料</span>
-      </button>
-      <button class="star-act-btn" id="starPetBtn" type="button">
-        <span class="star-act-icon">🐾</span>
-        <span class="star-act-label">摸摸他</span>
-      </button>
-      <button class="star-act-btn" id="starClothesBtn" type="button">
-        <span class="star-act-icon">👗</span>
-        <span class="star-act-label">換衣服</span>
+      <button class="theme-row" id="themeGreen" data-theme="green">
+        <div class="theme-row-bar" style="background:linear-gradient(90deg,#C4E8D0,#4A9A6A);"></div>
+        <span class="theme-row-name">綠色系</span>
+        <span class="theme-row-check">✓</span>
       </button>
     </div>
   </div>
@@ -1422,16 +1484,27 @@ textarea.mid{ min-height:90px; }
     $('homeView').classList.remove('hidden');
     $('frontView').classList.add('hidden');
     $('adminView').classList.add('hidden');
+    $('starView').classList.add('hidden');
   }
   function showFront(){
     $('frontView').classList.remove('hidden');
     $('homeView').classList.add('hidden');
     $('adminView').classList.add('hidden');
+    $('starView').classList.add('hidden');
   }
   function showAdmin(){
     $('adminView').classList.remove('hidden');
     $('frontView').classList.add('hidden');
     $('homeView').classList.add('hidden');
+    $('starView').classList.add('hidden');
+  }
+  function showStar(){
+    $('starView').classList.remove('hidden');
+    $('homeView').classList.add('hidden');
+    $('frontView').classList.add('hidden');
+    $('adminView').classList.add('hidden');
+    renderStarStats();
+    renderStarOutfitGrid();
   }
   $('openAdminBtn').addEventListener('click', showAdmin);
   $('backToChatBtn').addEventListener('click', showFront);
@@ -2638,10 +2711,12 @@ textarea.mid{ min-height:90px; }
       thread.style.backgroundImage='url("'+chatBgUrl+'")';
       thread.style.backgroundSize='cover';
       thread.style.backgroundPosition='center';
+      thread.classList.add('has-chatbg');
     } else {
       thread.style.backgroundImage='';
       thread.style.backgroundSize='';
       thread.style.backgroundPosition='';
+      thread.classList.remove('has-chatbg');
     }
   }
   function renderChatBgGallery(){
@@ -2927,7 +3002,7 @@ textarea.mid{ min-height:90px; }
   $('rpColorTheme').addEventListener('click', function(){
     closeRightPanel();
     $('themeOverlay').classList.remove('hidden');
-    document.querySelectorAll('.theme-swatch').forEach(function(el){
+    document.querySelectorAll('.theme-row').forEach(function(el){
       el.classList.toggle('active', el.dataset.theme === currentTheme);
     });
   });
@@ -2946,18 +3021,18 @@ textarea.mid{ min-height:90px; }
     currentTheme = theme;
     if(theme){ document.documentElement.setAttribute('data-theme', theme); localStorage.setItem(KEYS.theme, theme); }
     else { document.documentElement.removeAttribute('data-theme'); localStorage.removeItem(KEYS.theme); }
-    document.querySelectorAll('.theme-swatch').forEach(function(el){
+    document.querySelectorAll('.theme-row').forEach(function(el){
       el.classList.toggle('active', el.dataset.theme === theme);
     });
   }
   $('themeOverlayClose').addEventListener('click', function(){ $('themeOverlay').classList.add('hidden'); });
-  document.querySelectorAll('.theme-swatch').forEach(function(el){
+  document.querySelectorAll('.theme-row').forEach(function(el){
     el.addEventListener('click', function(){ applyTheme(el.dataset.theme); });
   });
 
   /* ============ Star ============ */
-  var OUTFIT_COLORS = ['', '#A8C8E8', '#ECB0C4', '#8EC87A'];
-  var OUTFIT_LABELS = ['', '藍色毛衣', '粉色洋裝', '綠色外套'];
+  var OUTFIT_COLORS = ['', '#A8C8E8', '#ECB0C4', '#8EC87A', '#F0C850'];
+  var OUTFIT_LABELS = ['素裝', '藍色毛衣', '粉色洋裝', '綠色外套', '黃色帽子'];
   var starBubbleTimer = null;
   function renderStarStats(){
     $('starHungerFill').style.width = starState.hunger + '%';
@@ -2972,26 +3047,64 @@ textarea.mid{ min-height:90px; }
       outfit.classList.remove('show');
     }
   }
+  function renderStarOutfitGrid(){
+    var grid = $('starOutfitGrid'); grid.innerHTML = '';
+    grid.style.gridTemplateColumns = 'repeat('+OUTFIT_COLORS.length+',1fr)';
+    OUTFIT_COLORS.forEach(function(color, i){
+      var btn = document.createElement('button');
+      btn.className = 'star-outfit-item' + (starState.clothes === i ? ' active-outfit' : '');
+      btn.type = 'button';
+      var dot = document.createElement('div');
+      dot.className = 'star-outfit-dot';
+      dot.style.background = color || '#F8F4F0';
+      if(!color) dot.style.border = '2px dashed rgba(50,58,80,0.18)';
+      var lbl = document.createElement('span');
+      lbl.className = 'star-outfit-label';
+      lbl.textContent = OUTFIT_LABELS[i];
+      btn.appendChild(dot); btn.appendChild(lbl);
+      btn.addEventListener('click', function(){
+        starState.clothes = i;
+        save(KEYS.star, starState); bounceStarChar();
+        showStarBubble(i > 0 ? '換上了' + OUTFIT_LABELS[i] + '！✨' : '換回了素裝！');
+        renderStarStats(); renderStarOutfitGrid(); closeStarModal();
+      });
+      grid.appendChild(btn);
+    });
+  }
   function showStarBubble(msg){
     var b = $('starBubble');
-    b.textContent = msg;
-    b.classList.remove('hidden');
+    b.textContent = msg; b.classList.remove('hidden');
     clearTimeout(starBubbleTimer);
     starBubbleTimer = setTimeout(function(){ b.classList.add('hidden'); }, 2400);
   }
   function bounceStarChar(){
     var c = $('starChar');
-    c.classList.remove('bounce');
-    void c.offsetWidth;
-    c.classList.add('bounce');
+    c.classList.remove('bounce'); void c.offsetWidth; c.classList.add('bounce');
   }
-  $('starClose').addEventListener('click', function(){ $('starView').classList.add('hidden'); });
-  $('starFeedBtn').addEventListener('click', function(){
-    if(starState.hunger >= 100){ showStarBubble('我吃飽了，謝謝！🍚'); return; }
-    starState.hunger = Math.min(100, starState.hunger + 20);
-    save(KEYS.star, starState); bounceStarChar();
-    var m=['好吃！謝謝你！😋','哇，我最喜歡吃東西了！','謝謝～味道不錯耶！','嗯嗯～吃飽了好開心！'];
-    showStarBubble(m[Math.floor(Math.random()*m.length)]); renderStarStats();
+  function openStarModal(id){
+    $('starScrim').classList.add('show');
+    $(id).classList.add('show');
+  }
+  function closeStarModal(){
+    $('starScrim').classList.remove('show');
+    $('starFoodModal').classList.remove('show');
+    $('starOutfitModal').classList.remove('show');
+  }
+  $('starBackBtn').addEventListener('click', showHome);
+  $('starScrim').addEventListener('click', closeStarModal);
+  $('starFeedBtn').addEventListener('click', function(){ openStarModal('starFoodModal'); });
+  $('starFoodCancel').addEventListener('click', closeStarModal);
+  document.querySelectorAll('.star-food-item').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var h = parseInt(btn.dataset.hunger)||0, m = parseInt(btn.dataset.mood)||0;
+      if(starState.hunger >= 100 && h > 0){ showStarBubble('已經吃飽了！🍚'); closeStarModal(); return; }
+      starState.hunger = Math.min(100, starState.hunger + h);
+      starState.mood   = Math.min(100, starState.mood   + m);
+      save(KEYS.star, starState); bounceStarChar();
+      var msgs=['好吃！謝謝你！😋','哇，我最喜歡吃東西了！','謝謝～味道不錯耶！','嗯嗯～吃飽了好開心！'];
+      showStarBubble(msgs[Math.floor(Math.random()*msgs.length)]);
+      renderStarStats(); closeStarModal();
+    });
   });
   $('starPetBtn').addEventListener('click', function(){
     if(starState.mood >= 100){ showStarBubble('嗯～已經很開心了！💕'); return; }
@@ -3000,16 +3113,9 @@ textarea.mid{ min-height:90px; }
     var m=['呀！好舒服～💕','謝謝你摸我！','嗯嗯～感覺很溫暖','嘿嘿，我喜歡這樣！'];
     showStarBubble(m[Math.floor(Math.random()*m.length)]); renderStarStats();
   });
-  $('starClothesBtn').addEventListener('click', function(){
-    starState.clothes = (starState.clothes + 1) % OUTFIT_COLORS.length;
-    save(KEYS.star, starState); bounceStarChar();
-    var label = starState.clothes > 0 ? '換上了' + OUTFIT_LABELS[starState.clothes] + '！✨' : '換回了素裝！';
-    showStarBubble(label); renderStarStats();
-  });
-  $('homeStarBtn').addEventListener('click', function(){
-    $('starView').classList.remove('hidden');
-    renderStarStats();
-  });
+  $('starClothesBtn').addEventListener('click', function(){ renderStarOutfitGrid(); openStarModal('starOutfitModal'); });
+  $('starOutfitCancel').addEventListener('click', closeStarModal);
+  $('homeStarBtn').addEventListener('click', showStar);
 
   /* ============ Chat right panel ============ */
   function closeRightPanel(){ $('chatRightPanel').classList.remove('open'); $('chatRightScrim').classList.remove('show'); }
