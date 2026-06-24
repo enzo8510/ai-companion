@@ -1082,7 +1082,7 @@ textarea.mid{ min-height:90px; }
         <div class="star-window"></div>
         <div class="star-plant"></div>
         <div class="star-char-wrap">
-          <img id="starChar" src="ster/from-PixAI-202650214271546781802.gif" alt="cat" style="width:180px;height:auto;">
+          <img id="starChar" src="ster/001.png" alt="cat" style="width:180px;height:auto;">
         </div>
         <div class="star-bubble hidden" id="starBubble"></div>
       </div>
@@ -1664,7 +1664,7 @@ textarea.mid{ min-height:90px; }
   function showHome(){ showOnly('homeView'); }
   function showFront(){ showOnly('frontView'); }
   function showAdmin(){ showOnly('adminView'); }
-  function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); }
+  function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
   function showSocial(){ showOnly('socialView'); renderSocialFeed(); syncSocialAvatar(); }
   $('openAdminBtn').addEventListener('click', showAdmin);
   $('backToChatBtn').addEventListener('click', showFront);
@@ -3194,6 +3194,17 @@ textarea.mid{ min-height:90px; }
   var OUTFIT_COLORS = ['', '#A8C8E8', '#ECB0C4', '#8EC87A', '#F0C850'];
   var OUTFIT_LABELS = ['素裝', '藍色毛衣', '粉色洋裝', '綠色外套', '黃色帽子'];
   var starBubbleTimer = null;
+  var catAnimationTimer = null;
+  var catFrames = ['ster/001.png', 'ster/002.png'];
+  var catCurrentFrame = 0;
+  function animateCat(){
+    var img = $('starChar');
+    if(img){
+      catCurrentFrame = (catCurrentFrame + 1) % catFrames.length;
+      img.src = catFrames[catCurrentFrame];
+    }
+    catAnimationTimer = setTimeout(animateCat, 500);
+  }
   function renderStarStats(){
     $('starHungerFill').style.width = starState.hunger + '%';
     $('starHungerVal').textContent = starState.hunger + '%';
