@@ -641,6 +641,15 @@ textarea.mid{ min-height:90px; }
 #thread.has-chatbg .bubble.me{ background:rgba(255,255,255,0.72); backdrop-filter:blur(12px) saturate(1.5); -webkit-backdrop-filter:blur(12px) saturate(1.5); border:1.5px solid rgba(255,255,255,0.55); }
 /* ---- Theme overrides ---- */
 :root[data-theme="dark"]{ --bg:#1A1D26; --frame-shadow:rgba(0,0,0,0.4); --chat-bg:#22263A; --surface:#2A2D3E; --ink:#E4E8F2; --ink-soft:#6E7891; --companion:#4CC8EA; --companion-soft:#1C3A4A; --user-bubble:#343850; --sage:#4CC8EA; --gold:#6A9BB8; --gold-soft:#1C3044; --line:rgba(228,232,242,0.08); }
+/* ---- Dark theme text color improvements ---- */
+:root[data-theme="dark"] .home-name,
+:root[data-theme="dark"] .home-tagline,
+:root[data-theme="dark"] .home-action-btn,
+:root[data-theme="dark"] .act-label{ color:var(--ink); }
+:root[data-theme="dark"] .cnt-label,
+:root[data-theme="dark"] .cnt-days,
+:root[data-theme="dark"] .cnt-unit,
+:root[data-theme="dark"] .cnt-event{ color:var(--ink); }
 :root[data-theme="pink"]{ --bg:#FFF0F4; --frame-shadow:rgba(200,80,120,0.10); --chat-bg:#FFF5F8; --surface:#FFFFFF; --ink:#4A2535; --ink-soft:#A0728A; --companion:#D4678A; --companion-soft:#FFD6E5; --user-bubble:#FFFFFF; --sage:#D4678A; --gold:#C08090; --gold-soft:#FFE8EE; --line:rgba(212,103,138,0.12); }
 :root[data-theme="brown"]{ --bg:#F4EDE4; --frame-shadow:rgba(100,60,30,0.12); --chat-bg:#F8F2EC; --surface:#FFFDF8; --ink:#3D2B1A; --ink-soft:#9A7A60; --companion:#A07850; --companion-soft:#EDD8C0; --user-bubble:#FFFDF8; --sage:#A07850; --gold:#B08A60; --gold-soft:#F0DFC8; --line:rgba(100,60,30,0.10); }
 :root[data-theme="green"]{ --bg:#EBF4EE; --frame-shadow:rgba(40,100,60,0.10); --chat-bg:#F0F8F2; --surface:#FFFFFF; --ink:#1E3A2A; --ink-soft:#6A9478; --companion:#4A9A6A; --companion-soft:#C4E8D0; --user-bubble:#FFFFFF; --sage:#4A9A6A; --gold:#5A8A6A; --gold-soft:#CCEAD8; --line:rgba(40,100,60,0.10); }
