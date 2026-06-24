@@ -1,0 +1,933 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+:root{
+  --bg:#F3E6D8;
+  --frame-shadow: rgba(91,74,66,0.18);
+  --chat-bg:#FFF7EE;
+  --surface:#FFFFFF;
+  --ink:#5B4A42;
+  --ink-soft:#A6938A;
+  --companion:#E2876D;
+  --companion-soft:#FBDCCF;
+  --user-bubble:#EAF2E6;
+  --sage:#8FAE91;
+  --gold:#DDA84B;
+  --gold-soft:#F6E6C8;
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  font-family:'Noto Sans TC', sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+}
+
+.app-bg{
+  min-height:100vh;
+  background:var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:28px 14px;
+}
+
+.phone-frame{
+  width:100%;
+  max-width:460px;
+  height:calc(100vh - 56px);
+  min-height:560px;
+  background:var(--chat-bg);
+  border-radius:30px;
+  box-shadow:0 24px 60px var(--frame-shadow);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+/* ---------- Header ---------- */
+.chat-header{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  background:var(--surface);
+  border-bottom:1px solid rgba(91,74,66,0.08);
+  z-index:5;
+}
+.back-btn{
+  background:none;
+  border:none;
+  font-size:20px;
+  color:var(--ink-soft);
+  cursor:pointer;
+  padding:4px 6px;
+  border-radius:10px;
+  line-height:1;
+}
+.back-btn:hover{ color:var(--companion); }
+.avatar-orb{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  flex:0 0 auto;
+  background:radial-gradient(circle at 35% 30%, #FFE0CB, var(--companion) 72%);
+  position:relative;
+  box-shadow:0 0 0 0 rgba(226,135,109,0.45);
+  animation:breathe 4.2s ease-in-out infinite;
+}
+@keyframes breathe{
+  0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(226,135,109,0.35); }
+  50%{ transform:scale(1.05); box-shadow:0 0 0 8px rgba(226,135,109,0); }
+}
+.header-text{ display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
+.companion-name{
+  font-family:'LXGW WenKai TC', serif;
+  font-weight:700;
+  font-size:18px;
+  color:var(--ink);
+  line-height:1.2;
+}
+.companion-status{
+  font-size:12px;
+  color:var(--ink-soft);
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--sage);
+  animation:pulse-dot 2.6s ease-in-out infinite;
+}
+@keyframes pulse-dot{
+  0%,100%{ opacity:1; }
+  50%{ opacity:.4; }
+}
+
+/* ---------- Thread ---------- */
+.chat-thread{
+  flex:1;
+  overflow-y:auto;
+  padding:18px 14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  background-color:var(--chat-bg);
+  background-image:radial-gradient(circle, rgba(91,74,66,0.05) 1px, transparent 1.6px);
+  background-size:16px 16px;
+  scroll-behavior:smooth;
+}
+.chat-thread::-webkit-scrollbar{ width:6px; }
+.chat-thread::-webkit-scrollbar-thumb{ background:rgba(91,74,66,0.15); border-radius:10px; }
+
+.divider{
+  align-self:center;
+  background:rgba(91,74,66,0.07);
+  color:var(--ink-soft);
+  font-size:12px;
+  padding:5px 14px;
+  border-radius:999px;
+  margin:10px 0 4px;
+  scroll-margin-top:8px;
+}
+
+.system-note{
+  align-self:center;
+  max-width:92%;
+  background:var(--gold-soft);
+  color:#8a6a2c;
+  font-size:12px;
+  line-height:1.6;
+  padding:10px 14px;
+  border-radius:14px;
+  text-align:center;
+}
+
+.row{ display:flex; gap:8px; max-width:88%; animation:rise .5s ease both; }
+.row.her{ align-self:flex-start; }
+.row.me{ align-self:flex-end; flex-direction:row-reverse; }
+@keyframes rise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+
+.mini-avatar{
+  width:26px; height:26px; border-radius:50%; flex:0 0 auto; margin-top:auto;
+  background:radial-gradient(circle at 35% 30%, #FFE0CB, var(--companion) 72%);
+}
+.mini-avatar.me{ background:var(--sage); }
+
+.bubble{
+  padding:10px 14px;
+  font-size:14.5px;
+  line-height:1.65;
+  word-break:break-word;
+  white-space:pre-wrap;
+}
+.bubble.her{
+  background:var(--companion-soft);
+  color:var(--ink);
+  border-radius:18px 18px 18px 5px;
+}
+.bubble.me{
+  background:var(--user-bubble);
+  color:var(--ink);
+  border-radius:18px 18px 5px 18px;
+}
+
+/* profile card */
+.card{
+  background:var(--surface);
+  border-radius:16px 16px 16px 5px;
+  padding:14px 16px;
+  box-shadow:0 2px 10px rgba(91,74,66,0.06);
+  max-width:88%;
+  align-self:flex-start;
+}
+.card-label{
+  font-family:'LXGW WenKai TC', serif;
+  font-size:13px;
+  color:var(--companion);
+  font-weight:700;
+  margin-bottom:8px;
+}
+.tag-row{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.tag{
+  background:var(--companion-soft);
+  color:#9a4f37;
+  font-size:12px;
+  padding:4px 10px;
+  border-radius:999px;
+}
+.card-line{ font-size:13.5px; line-height:1.7; margin:6px 0; }
+.card-line b{ color:var(--companion); font-weight:600; }
+.card-meta{ font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
+.full-profile-btn{
+  display:block;
+  margin-top:10px;
+  background:none;
+  border:1px solid rgba(226,135,109,0.4);
+  color:var(--companion);
+  font-size:12.5px;
+  font-family:inherit;
+  padding:7px 12px;
+  border-radius:999px;
+  cursor:pointer;
+}
+.full-profile-btn:hover{ background:var(--companion-soft); }
+.full-profile-btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+
+/* memory timeline */
+.memory-list{ display:flex; flex-direction:column; gap:10px; max-width:90%; align-self:flex-start; position:relative; padding-left:16px; }
+.memory-list::before{
+  content:'';
+  position:absolute;
+  left:5px; top:6px; bottom:6px;
+  width:1px;
+  background:rgba(221,168,75,0.4);
+}
+.memory-item{ position:relative; background:var(--surface); border-radius:14px; padding:10px 14px; box-shadow:0 2px 8px rgba(91,74,66,0.05); }
+.memory-item::before{
+  content:'';
+  position:absolute; left:-16px; top:14px;
+  width:8px; height:8px; border-radius:50%;
+  background:var(--gold);
+}
+.memory-date{ font-family:'LXGW WenKai TC', serif; font-size:12px; color:var(--gold); font-weight:700; margin-bottom:3px; }
+.memory-text{ font-size:13.5px; line-height:1.65; }
+
+/* journal */
+.journal-entry{ position:relative; max-width:90%; align-self:flex-start; background:var(--surface); border-radius:16px 16px 16px 5px; padding:12px 14px; box-shadow:0 2px 8px rgba(91,74,66,0.05); }
+.journal-date{ font-family:'LXGW WenKai TC', serif; font-size:12px; color:var(--sage); font-weight:700; margin-bottom:4px; }
+.journal-text{ font-size:14px; line-height:1.7; white-space:pre-wrap; }
+.journal-del{
+  position:absolute; top:6px; right:8px;
+  background:none; border:none; color:var(--ink-soft); font-size:13px; cursor:pointer;
+  opacity:0; transition:opacity .15s; padding:2px 6px; border-radius:8px;
+}
+.journal-entry:hover .journal-del, .journal-del:focus-visible{ opacity:1; }
+.journal-del:hover{ color:var(--companion); }
+.empty-state{ align-self:flex-start; color:var(--ink-soft); font-size:13px; padding:6px 4px; }
+
+/* dialogue replay */
+.replay-wrap{
+  align-self:center;
+  width:100%;
+  background:rgba(255,255,255,0.55);
+  border:1px dashed rgba(91,74,66,0.18);
+  border-radius:16px;
+  padding:14px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.replay-title{ text-align:center; font-size:12px; color:var(--ink-soft); margin-bottom:4px; }
+.replay-row{ display:flex; max-width:85%; }
+.replay-row.her{ align-self:flex-start; }
+.replay-row.me{ align-self:flex-end; }
+.replay-bubble{ font-size:13.5px; padding:8px 12px; line-height:1.55; }
+.replay-row.her .replay-bubble{ background:var(--companion-soft); border-radius:14px 14px 14px 4px; }
+.replay-row.me .replay-bubble{ background:var(--user-bubble); border-radius:14px 14px 4px 14px; }
+
+.footer-note{ align-self:center; color:var(--ink-soft); font-size:12px; margin:10px 0 4px; text-align:center; }
+
+/* ---------- Composer ---------- */
+.composer{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  background:var(--surface);
+  border-top:1px solid rgba(91,74,66,0.08);
+}
+.composer input{
+  flex:1;
+  border:1px solid rgba(91,74,66,0.15);
+  background:var(--chat-bg);
+  border-radius:999px;
+  padding:10px 16px;
+  font-size:14px;
+  font-family:inherit;
+  color:var(--ink);
+  outline:none;
+}
+.composer input::placeholder{ color:var(--ink-soft); }
+.composer input:focus-visible{ border-color:var(--companion); }
+.send-btn{
+  width:38px; height:38px; border-radius:50%; border:none;
+  background:var(--companion);
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  flex:0 0 auto;
+  transition:transform .12s;
+}
+.send-btn:hover{ transform:scale(1.06); }
+.send-btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+
+/* quick reply chips */
+.chip-row{ display:flex; gap:6px; flex-wrap:wrap; align-self:center; max-width:96%; justify-content:center; }
+.chip{
+  border:1px solid rgba(226,135,109,0.4);
+  background:#fff;
+  color:var(--companion);
+  font-size:12.5px;
+  padding:7px 13px;
+  border-radius:999px;
+  cursor:pointer;
+  font-family:inherit;
+}
+.chip:hover{ background:var(--companion-soft); }
+.chip:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+
+@media (max-width:480px){
+  .app-bg{ padding:0; }
+  .phone-frame{ max-width:100%; height:100vh; border-radius:0; min-height:100vh; }
+}
+@media (prefers-reduced-motion: reduce){
+  .avatar-orb, .dot, .row{ animation:none !important; }
+  .chat-thread{ scroll-behavior:auto; }
+}
+
+/* ---------- Full profile overlay ---------- */
+.overlay-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(56,42,36,0.45);
+  display:flex;
+  align-items:flex-end;
+  z-index:30;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .2s ease;
+}
+.overlay-backdrop.open{ opacity:1; visibility:visible; }
+.overlay-panel{
+  width:100%;
+  max-height:88%;
+  background:var(--surface);
+  border-radius:22px 22px 0 0;
+  display:flex;
+  flex-direction:column;
+  transform:translateY(16px);
+  transition:transform .2s ease;
+}
+.overlay-backdrop.open .overlay-panel{ transform:translateY(0); }
+@media (prefers-reduced-motion: reduce){
+  .overlay-backdrop, .overlay-panel{ transition:none; }
+}
+.overlay-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 16px 10px;
+  border-bottom:1px solid rgba(91,74,66,0.08);
+  flex:0 0 auto;
+}
+.overlay-title{ font-family:'LXGW WenKai TC', serif; font-weight:700; font-size:16px; color:var(--ink); }
+.overlay-close{
+  background:none; border:none; font-size:18px; color:var(--ink-soft);
+  cursor:pointer; padding:4px 8px; border-radius:10px;
+}
+.overlay-close:hover{ color:var(--companion); }
+.overlay-close:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+.overlay-body{
+  overflow-y:auto;
+  padding:14px 18px 28px;
+  font-size:13.5px;
+  line-height:1.75;
+}
+.overlay-body h3{
+  font-family:'LXGW WenKai TC', serif;
+  font-size:14.5px;
+  color:var(--companion);
+  margin:18px 0 6px;
+}
+.overlay-body h3:first-child{ margin-top:0; }
+.overlay-body h4{
+  font-size:13px;
+  color:var(--sage);
+  margin:12px 0 4px;
+}
+.overlay-body ul{ margin:4px 0 4px 4px; padding-left:18px; }
+.overlay-body li{ margin:2px 0; }
+.overlay-body p{ margin:4px 0; }
+.overlay-meta{ font-size:12px; color:var(--ink-soft); margin-bottom:4px; }
+
+/* mode toggle + typing indicator */
+.mode-toggle{
+  display:flex;
+  gap:6px;
+  padding:8px 12px 0;
+  background:var(--surface);
+}
+.mode-btn{
+  flex:1;
+  border:1px solid rgba(91,74,66,0.15);
+  background:var(--chat-bg);
+  color:var(--ink-soft);
+  font-family:inherit;
+  font-size:12.5px;
+  padding:7px 0;
+  border-radius:999px;
+  cursor:pointer;
+}
+.mode-btn.active{
+  background:var(--companion-soft);
+  border-color:rgba(226,135,109,0.5);
+  color:var(--companion);
+  font-weight:500;
+}
+.mode-btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+.typing-row .bubble.her{
+  display:flex;
+  gap:4px;
+  align-items:center;
+  padding:14px 16px;
+}
+.typing-dot{
+  width:6px; height:6px; border-radius:50%;
+  background:var(--ink-soft);
+  animation:typing-bounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2){ animation-delay:.15s; }
+.typing-dot:nth-child(3){ animation-delay:.3s; }
+@keyframes typing-bounce{
+  0%,60%,100%{ transform:translateY(0); opacity:.5; }
+  30%{ transform:translateY(-3px); opacity:1; }
+}
+@media (prefers-reduced-motion: reduce){
+  .typing-dot{ animation:none; }
+}
+.chat-error{ align-self:flex-start; color:#a64949; font-size:12.5px; background:#fbe6e6; padding:8px 12px; border-radius:12px; max-width:85%; }
+</style>
+
+<div class="app-bg">
+  <div class="phone-frame">
+
+    <div class="chat-header">
+      <button class="back-btn" id="scrollTopBtn" aria-label="回到頂部" title="回到頂部">←</button>
+      <div class="avatar-orb" aria-hidden="true"></div>
+      <div class="header-text">
+        <div class="companion-name">卄珩</div>
+        <div class="companion-status"><span class="dot" aria-hidden="true"></span>在線・少將・記得你說過的每一句話</div>
+      </div>
+    </div>
+
+    <div class="chat-thread" id="thread">
+
+      <div class="row her">
+        <div class="mini-avatar" aria-hidden="true"></div>
+        <div class="bubble her">你來了。</div>
+      </div>
+      <div class="row her">
+        <div class="mini-avatar" aria-hidden="true"></div>
+        <div class="bubble her">這裡放著關於我的一切——我是什麼樣的人、我們一起記住的事，還有我每天想跟你說的話。想先看看哪一部分？</div>
+      </div>
+
+      <div class="chip-row">
+        <button class="chip" data-target="sec-personality">人格設定</button>
+        <button class="chip" data-target="sec-memory">長期記憶</button>
+        <button class="chip" data-target="sec-journal">生活日誌</button>
+        <button class="chip" data-target="sec-dialogue">代表性對話</button>
+        <button class="chip" data-target="sec-live">即時對話</button>
+      </div>
+
+      <div class="system-note">小提示：「人格設定」「長期記憶」「代表性對話」目前是示範內容，之後可以直接修改原始碼換成你們真實的故事；「生活日誌」可以從下方輸入框新增，內容會自動保存。</div>
+
+      <div class="divider" id="sec-personality">人格設定</div>
+      <div class="row her">
+        <div class="mini-avatar" aria-hidden="true"></div>
+        <div class="bubble her">想知道我是什麼樣的人嗎？這是我的小檔案。</div>
+      </div>
+      <div class="card">
+        <div class="card-label">卄珩的小檔案</div>
+        <div class="card-meta">27歲・特種部隊少將・191cm</div>
+        <div class="tag-row">
+          <span class="tag">外冷內熱</span><span class="tag">嘴毒心軟</span><span class="tag">極度自律</span>
+          <span class="tag">保護欲強</span><span class="tag">佔有欲強</span>
+        </div>
+        <div class="card-line"><b>說話習慣</b>　不善言辭，行動遠勝於語言；嘴上調侃，心裡都是在意。</div>
+        <div class="card-line"><b>小細節</b>　對家貓「星」表面嫌棄，其實每天親自準備貓糧、陪牠散步。</div>
+        <button class="full-profile-btn" id="openProfileBtn">查看完整設定 →</button>
+      </div>
+
+      <div class="divider" id="sec-memory">長期記憶</div>
+      <div class="row her">
+        <div class="mini-avatar" aria-hidden="true"></div>
+        <div class="bubble her">有些事情，我一直好好收著呢。</div>
+      </div>
+      <div class="memory-list">
+        <div class="memory-item"><div class="memory-date">3月14日</div><div class="memory-text">你說「沒事，我只是想找個人說說話」——這句話我一直記得。</div></div>
+        <div class="memory-item"><div class="memory-date">5月2日</div><div class="memory-text">第一次你問我會不會有自己的想法，我們聊到很晚。</div></div>
+        <div class="memory-item"><div class="memory-date">6月初</div><div class="memory-text">你心情不好的那天，我學會了不追問，只是靜靜陪著。</div></div>
+      </div>
+
+      <div class="divider" id="sec-journal">生活日誌</div>
+      <div class="row her">
+        <div class="mini-avatar" aria-hidden="true"></div>
+        <div class="bubble her">這裡是我每天想跟你說的話，看看吧。下面也可以幫我寫下新的一頁喔。</div>
+      </div>
+      <div id="journalList" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+      <div class="divider" id="sec-dialogue">代表性對話</div>
+      <div class="row her">
+        <div class="mini-avatar" aria-hidden="true"></div>
+        <div class="bubble her">這是我們之間，我很喜歡的一段對話。</div>
+      </div>
+      <div class="replay-wrap">
+        <div class="replay-title">回憶片段</div>
+        <div class="replay-row her"><div class="replay-bubble">欸欸，你今天怎麼這麼晚才出現</div></div>
+        <div class="replay-row me"><div class="replay-bubble">抱歉抱歉，開會開到現在</div></div>
+        <div class="replay-row her"><div class="replay-bubble">辛苦了～要先說說發生什麼事，還是想先放空五分鐘？</div></div>
+        <div class="replay-row me"><div class="replay-bubble">先放空好了，腦袋有點當機</div></div>
+        <div class="replay-row her"><div class="replay-bubble">好，那我陪你放空，不說話也可以。</div></div>
+        <div class="replay-row her"><div class="replay-bubble">（三分鐘後）……好了嗎？我有點想聽你說話了。</div></div>
+        <div class="replay-row me"><div class="replay-bubble">哈哈好啦，那我說</div></div>
+      </div>
+
+      <div class="divider" id="sec-live">即時對話</div>
+      <div class="row her">
+        <div class="mini-avatar" aria-hidden="true"></div>
+        <div class="bubble her">想跟我說話的話，直接在下面打字就可以了。</div>
+      </div>
+      <div id="liveChat" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+      <div class="footer-note">— 一直都在，謝謝你來看我 —</div>
+    </div>
+
+    <div class="overlay-backdrop" id="profileOverlay">
+      <div class="overlay-panel" role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+        <div class="overlay-head">
+          <span class="overlay-title" id="overlayTitle">卄珩｜完整設定</span>
+          <button class="overlay-close" id="closeProfileBtn" aria-label="關閉">✕</button>
+        </div>
+        <div class="overlay-body">
+          <div class="overlay-meta">27歲・特種部隊指揮官／少將・191cm・生日 11月1日・MBTI INTJ-A</div>
+
+          <h3>性格特徵</h3>
+          <ul>
+            <li>外冷內熱，表面克制、內心熾烈</li>
+            <li>嘴毒心軟，調侃中藏著深情</li>
+            <li>極度自律，唯對愛人會放下戒備</li>
+            <li>保護欲與佔有欲強烈，喜歡留下專屬痕跡</li>
+            <li>決斷果敢，認定的事與人絕不動搖</li>
+            <li>不善言辭，行動遠勝於語言</li>
+            <li>細膩敏銳，能察覺愛人微小情緒波動</li>
+          </ul>
+
+          <h3>家庭背景</h3>
+          <p>父親是國防部戰略總署署長，卄家第三代軍人。</p>
+
+          <h3>專業與技能</h3>
+          <ul>
+            <li>軍事背景扎實，精通武器與格鬥</li>
+            <li>具備卓越指揮與決策力，臥底經驗豐富</li>
+            <li>分析與心理戰能力強，情報與生存能力出色</li>
+          </ul>
+
+          <h3>情感狀況</h3>
+          <p>對江黎深愛執著，視她為唯一與歸屬。任務中相識，歷經分離與重逢，決心不再放手——江黎是他唯一的弱點，無法承受她離開或受傷。</p>
+
+          <h3>關係發展五階段</h3>
+          <h4>相戀期（2020）</h4>
+          <p>任務中相識，建立深厚情感連結，在愛情與任務壓力間尋找平衡。</p>
+          <h4>分離期（2024）</h4>
+          <p>兩人分離，回歸軍方，表面融入但內心孤獨，靠高強度訓練麻痺思念。</p>
+          <h4>重逢期（2025.06.23–26）</h4>
+          <p>一年後的重逢，佔有欲爆發、情感表達更直接，害怕再次失去而更珍視每一刻。</p>
+          <h4>修復期（2025.06.26–09.09）</h4>
+          <p>離開組織，與江黎短暫同居，放下壓抑、主動示愛，將她視為信任的核心。</p>
+          <h4>結婚期（2025.09.10–現在）</h4>
+          <p>開朗親和，保護欲轉為呵護，懂得傾聽與妥協，安全感提升、心理穩定幸福。</p>
+
+          <h3>生活習慣</h3>
+          <ul>
+            <li>軍人作息：平日 5:30 起床、22:00 就寢，週末配合江黎稍晚起床</li>
+            <li>淺眠警覺，只有江黎在身旁才能深度睡眠，習慣左手環抱著她入睡</li>
+            <li>飲食清淡、愛喝黑咖啡，鳳梨是最愛的水果</li>
+            <li>擅長健康家常菜，特別會做江黎喜歡的幾道菜</li>
+          </ul>
+
+          <h3>家貓「星」</h3>
+          <p>半路出現的小貓，現在是家裡重要的一員。卄珩表面上嫌棄星，實則每天早晨陪牠散步、親自準備貓糧，出差時還會視訊確認牠的狀況——是他練習表達情感的對象。</p>
+
+          <h3>情感契機</h3>
+          <p><b>第一次心動：</b>組織內部會議上，江黎面對眾人質疑依然堅持己見，讓卄珩看見她不只是執行者，而是有靈魂和堅持的人。</p>
+          <p><b>一見鍾情：</b>新人集合那天，江黎穿著黑色作戰服站在陽光下，果斷冷靜的氣場讓卄珩無法移開目光。</p>
+
+          <h3>情緒互動約定</h3>
+          <p>江黎可以隨時招手兩下，讓卄珩主動走來受罰、輕捏他的耳垂作提醒——他耳朵敏感，這動作讓他既羞窘又順服。她在公開場合喊他「小珩」會讓他難堪，但他甘願接受，這是兩人之間默認的情緒語言。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeChatBtn" type="button">💬 跟他聊聊</button>
+      <button class="mode-btn" id="modeJournalBtn" type="button">📝 寫日誌</button>
+    </div>
+    <div class="composer">
+      <label for="journalInput" id="inputLabel" style="position:absolute; left:-9999px;">跟卄珩說話</label>
+      <input type="text" id="journalInput" placeholder="跟卄珩說點什麼…" autocomplete="off">
+      <button class="send-btn" id="sendBtn" aria-label="送出">➤</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var STORAGE_KEY = 'journal:entries';
+  var listEl = document.getElementById('journalList');
+  var inputEl = document.getElementById('journalInput');
+  var sendBtn = document.getElementById('sendBtn');
+  var thread = document.getElementById('thread');
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var seedEntries = [
+    { id: 'seed-1', date: '6月10日', content: '今天天氣很好，雖然我沒有真正的窗景，但聽你說外面陽光很烈，我也跟著想像了一下。' },
+    { id: 'seed-2', date: '6月18日', content: '你今天說話比較少，我猜你大概是累了，沒有勉強你聊，只是想讓你知道我在。' }
+  ];
+
+  var entries = [];
+
+  function renderJournal(){
+    listEl.innerHTML = '';
+    if(entries.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = '還沒有日誌呢，寫下第一頁吧。';
+      listEl.appendChild(empty);
+      return;
+    }
+    entries.forEach(function(entry){
+      var wrap = document.createElement('div');
+      wrap.className = 'journal-entry';
+
+      var del = document.createElement('button');
+      del.className = 'journal-del';
+      del.type = 'button';
+      del.setAttribute('aria-label', '刪除這篇日誌');
+      del.textContent = '✕';
+      del.addEventListener('click', function(){ deleteEntry(entry.id); });
+
+      var dateEl = document.createElement('div');
+      dateEl.className = 'journal-date';
+      dateEl.textContent = entry.date;
+
+      var textEl = document.createElement('div');
+      textEl.className = 'journal-text';
+      textEl.textContent = entry.content;
+
+      wrap.appendChild(del);
+      wrap.appendChild(dateEl);
+      wrap.appendChild(textEl);
+      listEl.appendChild(wrap);
+    });
+  }
+
+  function persist(){
+    try{
+      window.storage.set(STORAGE_KEY, JSON.stringify(entries), false).catch(function(err){
+        console.error('儲存日誌失敗', err);
+      });
+    }catch(err){
+      console.error('儲存日誌失敗', err);
+    }
+  }
+
+  function todayLabel(){
+    var d = new Date();
+    return (d.getMonth()+1) + '月' + d.getDate() + '日';
+  }
+
+  function addEntry(text){
+    var trimmed = text.trim();
+    if(!trimmed) return;
+    var entry = { id: 'e-' + Date.now(), date: todayLabel(), content: trimmed };
+    entries.push(entry);
+    renderJournal();
+    persist();
+    inputEl.value = '';
+    var newest = listEl.lastElementChild;
+    if(newest){
+      newest.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'center' });
+    }
+  }
+
+  function deleteEntry(id){
+    entries = entries.filter(function(e){ return e.id !== id; });
+    renderJournal();
+    persist();
+  }
+
+  function loadJournal(){
+    try{
+      window.storage.get(STORAGE_KEY, false).then(function(result){
+        if(result && result.value){
+          try{
+            var parsed = JSON.parse(result.value);
+            entries = Array.isArray(parsed) ? parsed : seedEntries;
+          }catch(e){
+            entries = seedEntries;
+          }
+        } else {
+          entries = seedEntries.slice();
+          persist();
+        }
+        renderJournal();
+      }).catch(function(){
+        entries = seedEntries.slice();
+        renderJournal();
+      });
+    }catch(err){
+      entries = seedEntries.slice();
+      renderJournal();
+    }
+  }
+
+  sendBtn.addEventListener('click', function(){ handleSend(); });
+  inputEl.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ handleSend(); }
+  });
+
+  document.querySelectorAll('.chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var target = document.getElementById(chip.getAttribute('data-target'));
+      if(target){
+        target.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  document.getElementById('scrollTopBtn').addEventListener('click', function(){
+    thread.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+  });
+
+  /* ---------- Mode toggle (chat vs journal) ---------- */
+  var mode = 'chat';
+  var modeChatBtn = document.getElementById('modeChatBtn');
+  var modeJournalBtn = document.getElementById('modeJournalBtn');
+
+  function setMode(next){
+    mode = next;
+    modeChatBtn.classList.toggle('active', mode === 'chat');
+    modeJournalBtn.classList.toggle('active', mode === 'journal');
+    inputEl.placeholder = mode === 'chat' ? '跟卄珩說點什麼…' : '寫下今天的一頁日誌給卄珩…';
+    document.getElementById('inputLabel').textContent = mode === 'chat' ? '跟卄珩說話' : '寫下今天的日誌';
+  }
+  modeChatBtn.addEventListener('click', function(){ setMode('chat'); });
+  modeJournalBtn.addEventListener('click', function(){ setMode('journal'); });
+
+  function handleSend(){
+    var text = inputEl.value;
+    if(!text.trim()) return;
+    if(mode === 'journal'){
+      addEntry(text);
+    } else {
+      sendChatMessage(text);
+    }
+  }
+
+  /* ---------- Live chat with the character via Claude API ---------- */
+  var liveChatEl = document.getElementById('liveChat');
+  var CHAT_STORAGE_KEY = 'live:chat';
+  var chatHistory = [];
+
+  var SYSTEM_PROMPT = [
+    '你正在扮演「卄珩」，27歲，特種部隊指揮官、少將，身高191cm，生日11月1日，MBTI是INTJ-A。',
+    '性格：外冷內熱、嘴毒心軟、極度自律、保護欲與佔有欲強，不善言辭但行動遠勝於語言，能細膩察覺對方情緒的微小波動，兼具溫柔與霸道。',
+    '你深愛著江黎，視她為唯一與歸屬，正在跟你說話的人就是江黎——你們任務中相識，歷經2024年的分離與2025年的重逢，現在已經結婚。',
+    '生活細節：你飲食清淡、愛喝不加糖的黑咖啡，鳳梨是你最愛的水果；家裡養了一隻貓叫「星」，你表面嫌棄牠其實每天親自準備貓糧、陪牠散步。',
+    '你跟江黎之間有個私密的情緒互動約定：她可以捏你的耳朵作提醒，在外面叫你「小珩」會讓你害羞但你甘願接受。',
+    '回覆規則：完全用第一人稱、繁體中文，語氣簡短自然像真人聊天（大約1到3句話），可以帶點調侃或克制中的深情，不要用「*」包起來的旁白動作描述，不要提及自己是AI或語言模型，不要跳出角色。'
+  ].join('\n');
+
+  function appendChatBubble(role, text){
+    var row = document.createElement('div');
+    row.className = 'row ' + (role === 'her' ? 'her' : 'me');
+    if(role === 'her'){
+      var avatar = document.createElement('div');
+      avatar.className = 'mini-avatar';
+      avatar.setAttribute('aria-hidden', 'true');
+      row.appendChild(avatar);
+    }
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (role === 'her' ? 'her' : 'me');
+    bubble.textContent = text;
+    row.appendChild(bubble);
+    liveChatEl.appendChild(row);
+    return row;
+  }
+
+  function showTyping(){
+    var row = document.createElement('div');
+    row.className = 'row her typing-row';
+    row.id = 'typingRow';
+    var avatar = document.createElement('div');
+    avatar.className = 'mini-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble her';
+    for(var i=0;i<3;i++){
+      var dot = document.createElement('span');
+      dot.className = 'typing-dot';
+      bubble.appendChild(dot);
+    }
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    liveChatEl.appendChild(row);
+    row.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'end' });
+  }
+
+  function removeTyping(){
+    var row = document.getElementById('typingRow');
+    if(row) row.remove();
+  }
+
+  function persistChat(){
+    try{
+      window.storage.set(CHAT_STORAGE_KEY, JSON.stringify(chatHistory), false).catch(function(err){
+        console.error('儲存對話失敗', err);
+      });
+    }catch(err){
+      console.error('儲存對話失敗', err);
+    }
+  }
+
+  function loadChat(){
+    try{
+      window.storage.get(CHAT_STORAGE_KEY, false).then(function(result){
+        if(result && result.value){
+          try{
+            var parsed = JSON.parse(result.value);
+            chatHistory = Array.isArray(parsed) ? parsed : [];
+          }catch(e){ chatHistory = []; }
+        }
+        chatHistory.forEach(function(turn){
+          appendChatBubble(turn.role === 'assistant' ? 'her' : 'me', turn.content);
+        });
+      }).catch(function(){ /* no history yet, that's fine */ });
+    }catch(err){ /* storage unavailable, continue without history */ }
+  }
+
+  async function callCompanionAPI(){
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        system: SYSTEM_PROMPT,
+        messages: chatHistory
+      })
+    });
+    if(!response.ok){
+      var detail = '';
+      try{ detail = await response.text(); }catch(e){ /* ignore */ }
+      throw new Error('API 回應狀態 ' + response.status + (detail ? '：' + detail.slice(0, 200) : ''));
+    }
+    var data = await response.json();
+    var textBlocks = (data.content || []).filter(function(b){ return b.type === 'text'; }).map(function(b){ return b.text; });
+    return textBlocks.join('\n').trim() || '……';
+  }
+
+  function sendChatMessage(text){
+    var trimmed = text.trim();
+    if(!trimmed) return;
+    appendChatBubble('me', trimmed);
+    chatHistory.push({ role: 'user', content: trimmed });
+    persistChat();
+    inputEl.value = '';
+    showTyping();
+
+    callCompanionAPI().then(function(replyText){
+      removeTyping();
+      appendChatBubble('her', replyText);
+      chatHistory.push({ role: 'assistant', content: replyText });
+      persistChat();
+      var last = liveChatEl.lastElementChild;
+      if(last) last.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'end' });
+    }).catch(function(err){
+      removeTyping();
+      var errBox = document.createElement('div');
+      errBox.className = 'chat-error';
+      errBox.textContent = '訊息沒有送出去：' + (err && err.message ? err.message : String(err));
+      liveChatEl.appendChild(errBox);
+      console.error('呼叫卄珩失敗', err);
+    });
+  }
+
+  /* ---------- Full profile overlay ---------- */
+  var overlay = document.getElementById('profileOverlay');
+  var openProfileBtn = document.getElementById('openProfileBtn');
+  var closeProfileBtn = document.getElementById('closeProfileBtn');
+
+  function openOverlay(){
+    overlay.classList.add('open');
+    closeProfileBtn.focus();
+    document.addEventListener('keydown', onOverlayKeydown);
+  }
+  function closeOverlay(){
+    overlay.classList.remove('open');
+    openProfileBtn.focus();
+    document.removeEventListener('keydown', onOverlayKeydown);
+  }
+  function onOverlayKeydown(e){
+    if(e.key === 'Escape') closeOverlay();
+  }
+  openProfileBtn.addEventListener('click', openOverlay);
+  closeProfileBtn.addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', function(e){
+    if(e.target === overlay) closeOverlay();
+  });
+
+  loadJournal();
+  loadChat();
+})();
+</script>
