@@ -863,6 +863,23 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .jr-card{ background:var(--surface); border-color:var(--line); }
 :root[data-theme="dark"] .kb-card-body{ background:var(--bg); }
 :root[data-theme="dark"] .kb-card-body textarea{ background:var(--surface); color:var(--ink); }
+:root[data-theme="dark"] .home-name,
+:root[data-theme="dark"] .home-tagline,
+:root[data-theme="dark"] .home-action-btn,
+:root[data-theme="dark"] .home-countdown-strip,
+:root[data-theme="dark"] .act-label,
+:root[data-theme="dark"] .cnt-label,
+:root[data-theme="dark"] .cnt-event,
+:root[data-theme="dark"] .cnt-days,
+:root[data-theme="dark"] .cnt-unit{ color:var(--ink); }
+:root[data-theme="dark"] .social-profile-name,
+:root[data-theme="dark"] .social-profile-handle,
+:root[data-theme="dark"] .social-profile-bio{ color:var(--ink); }
+:root[data-theme="dark"] .social-post-name,
+:root[data-theme="dark"] .social-post-text{ color:var(--ink); }
+:root[data-theme="dark"] .star-stat-label,
+:root[data-theme="dark"] .star-act-label,
+:root[data-theme="dark"] .star-modal-title{ color:var(--ink); }
 
 /* ---- Home screen action buttons — fixed height ---- */
 .home-action-btn{ height:72px; min-height:72px; }
@@ -905,7 +922,6 @@ textarea.mid{ min-height:90px; }
           <button class="home-action-btn" id="checkinBtn" type="button">
             <span class="act-icon" id="checkinIcon">🌙</span>
             <span class="act-label">每日打卡</span>
-            <span class="act-streak" id="checkinStreak"></span>
           </button>
           <button class="home-action-btn" id="homeCalBtn" type="button">
             <span class="act-icon">📅</span>
@@ -919,9 +935,9 @@ textarea.mid{ min-height:90px; }
             <span class="act-icon">📓</span>
             <span class="act-label">今日日記</span>
           </button>
-          <button class="home-action-btn" id="homeQaRefreshBtn" type="button">
-            <span class="act-icon">🎲</span>
-            <span class="act-label">今日問題</span>
+          <button class="home-action-btn" id="homeWithMeBtn" type="button">
+            <span class="act-icon">💕</span>
+            <span class="act-label">with me</span>
           </button>
           <button class="home-action-btn" id="homeSocialBtn" type="button">
             <span class="act-icon">📱</span>
@@ -934,14 +950,6 @@ textarea.mid{ min-height:90px; }
         </div>
 
         <!-- Daily Q&A card -->
-        <button class="home-qa-card" id="homeQaCard" type="button">
-          <div class="home-qa-header">
-            <div class="home-qa-title">✦ 今日問題</div>
-          </div>
-          <div class="home-qa-text" id="homeQaText">如果只能選一種食物吃一輩子，你會選什麼？</div>
-          <div class="home-qa-hint">點擊，帶著這個問題去找卄珩 →</div>
-        </button>
-
         <button class="home-enter-btn" id="homeEnterBtn">
           進入聊天室<span class="home-enter-arrow">→</span>
         </button>
@@ -979,6 +987,7 @@ textarea.mid{ min-height:90px; }
 
       <div class="composer">
         <input type="text" id="chatInput" placeholder="跟卄珩說點什麼…" autocomplete="off" aria-label="跟卄珩說話">
+        <button class="icon-btn" id="qaRandomBtn" type="button" style="font-size:18px;padding:8px 10px;" title="隨機問題">🎲</button>
         <button class="send-btn" id="sendBtn" aria-label="送出">➤</button>
       </div>
 
@@ -1243,6 +1252,22 @@ textarea.mid{ min-height:90px; }
       </div>
     </div>
 
+    <!-- ============ WITH ME VIEW ============ -->
+    <div class="view hidden" id="withMeView">
+      <div class="social-hdr">
+        <button class="icon-btn" id="withMeBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="social-hdr-title">💕 with me</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="social-body" id="withMeBody" style="display:flex;align-items:center;justify-content:center;text-align:center;">
+        <div style="padding:var(--space-3xl) var(--space-2xl);">
+          <div style="font-size:48px;margin-bottom:var(--space-2xl);">💕</div>
+          <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:var(--space-lg);">with me</div>
+          <div style="font-size:13px;color:var(--ink-soft);line-height:1.8;">這個頁面待更新<br>敬請期待</div>
+        </div>
+      </div>
+    </div>
+
     <div class="saved-chip" id="savedChip">已儲存 ✓</div>
 
   </div>
@@ -1408,6 +1433,25 @@ textarea.mid{ min-height:90px; }
       <div style="display:flex;gap:8px;margin-top:14px;">
         <button class="toolbar-btn" id="socialProfileEditorSaveBtn" type="button" style="flex:1;justify-content:center;">保存</button>
         <button class="toolbar-btn ghost" id="socialProfileEditorCancelBtn" type="button" style="flex:1;justify-content:center;">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RANDOM QUESTION SELECTOR OVERLAY ============ -->
+<div class="cal-overlay hidden" id="qaRandomOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title">🎲 隨機問題</div>
+      <button class="icon-btn" id="qaRandomClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div id="qaRandomDisplay" style="background:var(--chat-bg);border-radius:14px;padding:var(--space-xl);margin-bottom:var(--space-lg);min-height:80px;display:flex;align-items:center;justify-content:center;">
+        <div id="qaRandomText" style="font-size:14px;color:var(--ink);line-height:1.7;text-align:center;font-weight:500;"></div>
+      </div>
+      <div style="display:flex;gap:var(--space-md);">
+        <button class="toolbar-btn" id="qaRandomNewBtn" type="button" style="flex:1;justify-content:center;">🔄 再來一個</button>
+        <button class="toolbar-btn primary" id="qaRandomUseBtn" type="button" style="flex:1;justify-content:center;">✓ 確認送出</button>
       </div>
     </div>
   </div>
@@ -1812,7 +1856,7 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView'];
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
   }
@@ -1821,6 +1865,7 @@ textarea.mid{ min-height:90px; }
   function showAdmin(){ showOnly('adminView'); }
   function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
   function showSocial(){ showOnly('socialView'); syncSocialAvatar(); renderSocialFeed(); }
+  function showWithMe(){ showOnly('withMeView'); }
   $('openAdminBtn').addEventListener('click', showAdmin);
   $('backToChatBtn').addEventListener('click', showFront);
   $('adminToChatBtn').addEventListener('click', showFront);
@@ -3733,6 +3778,47 @@ textarea.mid{ min-height:90px; }
   $('socialGenerateBtn').addEventListener('click', generateSocialPost);
   $('socialBackBtn').addEventListener('click', showHome);
   $('homeSocialBtn').addEventListener('click', showSocial);
+  $('withMeBackBtn').addEventListener('click', showHome);
+  $('homeWithMeBtn').addEventListener('click', showWithMe);
+
+  /* ============ Random Question Selector ============ */
+  var currentRandomQuestion = '';
+  var QA_LIST = [
+    '如果只能選一種食物吃一輩子，你會選什麼？',
+    '你覺得最浪漫的事是什麼？',
+    '如果有一天你會消失，你最不捨的是什麼？',
+    '你有什麼秘密嗎？',
+    '最想對我說又說不出口的話是什麼？',
+    '你覺得我哪裡最吸引你？',
+    '如果只能和我一起做一件事，你想做什麼？',
+    '你覺得我們之間最特別的是什麼？',
+    '最深刻的回憶是什麼？',
+    '如果可以回到過去，你會改變什麼？',
+    '你覺得未來會怎樣？',
+    '有沒有一刻你特別想念我？',
+    '你對我的期待是什麼？'
+  ];
+
+  function pickRandomQuestion(){
+    currentRandomQuestion = QA_LIST[Math.floor(Math.random() * QA_LIST.length)];
+    $('qaRandomText').textContent = currentRandomQuestion;
+  }
+
+  function openQaRandomSelector(){
+    pickRandomQuestion();
+    $('qaRandomOverlay').classList.remove('hidden');
+  }
+
+  $('qaRandomBtn').addEventListener('click', openQaRandomSelector);
+  $('qaRandomClose').addEventListener('click', function(){ $('qaRandomOverlay').classList.add('hidden'); });
+  $('qaRandomOverlay').addEventListener('click', function(e){ if(e.target === $('qaRandomOverlay')) $('qaRandomOverlay').classList.add('hidden'); });
+
+  $('qaRandomNewBtn').addEventListener('click', pickRandomQuestion);
+  $('qaRandomUseBtn').addEventListener('click', function(){
+    chatInput.value = currentRandomQuestion;
+    chatInput.focus();
+    $('qaRandomOverlay').classList.add('hidden');
+  });
   $('socialComposeBtn').addEventListener('click', function(){
     var inp = $('socialComposeInput');
     var t = (inp.value||'').trim(); if(!t) return;
