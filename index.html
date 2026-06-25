@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>卄珩 ・ AI 伴侶</title>
-<!-- Firebase SDK with error handling -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js" onerror="console.error('Firebase App SDK 加載失敗')"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js" onerror="console.error('Firebase Database SDK 加載失敗')"></script>
+<!-- Firebase SDK (Compat version - most stable) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
 
@@ -1832,8 +1832,27 @@ textarea.mid{ min-height:90px; }
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
     catch(e){ return null; }
   }
+  /* ============ Firebase 即時上傳工具（在 Firebase 初始化前定義）============ */
+  var pendingUploads = {}; // Firebase 連接前暫存的上傳佇列
+
+  function pushKeyToFirebase(localKey, value){
+    // 跳過超大型 base64 數據（超過 500KB，避免超過 Firebase 1MB 節點限制）
+    if(value && value.length > 500000) return;
+    if(!isFirebaseReady || !database){
+      pendingUploads[localKey] = value; // 排隊等 Firebase 連接
+      return;
+    }
+    database.ref('userdata/' + localKey).set(value).catch(function(e){
+      console.warn('Firebase 上傳失敗:', localKey, e.message);
+    });
+  }
+
   function save(key, val){
-    try{ localStorage.setItem(key, JSON.stringify(val)); }
+    try{
+      var strVal = JSON.stringify(val);
+      localStorage.setItem(key, strVal);
+      pushKeyToFirebase(key, strVal); // 立即上傳到 Firebase
+    }
     catch(e){ console.error('儲存失敗', key, e); }
   }
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -1864,10 +1883,10 @@ textarea.mid{ min-height:90px; }
 
       var firebaseConfig = {
         apiKey: "AIzaSyDHMFC23fkqXs0dJ-8sPVh6VI8hVHaD4o",
-        authDomain: "ai-companion-0bb44.firebaseapp.com",
-        databaseURL: "https://ai-companion-0bb44-default-rtdb.firebaseio.com",
-        projectId: "ai-companion-0bb44",
-        storageBucket: "ai-companion-0bb44.appspot.com",
+        authDomain: "ai-companion-6bb46.firebaseapp.com",
+        databaseURL: "https://ai-companion-6bb46-default-rtdb.firebaseio.com",
+        projectId: "ai-companion-6bb46",
+        storageBucket: "ai-companion-6bb46.appspot.com",
         messagingSenderId: "521523243972",
         appId: "1:521523243972:web:2928db3c3fa9249ca3bd291"
       };
@@ -1883,6 +1902,8 @@ textarea.mid{ min-height:90px; }
         isFirebaseReady = snap.val() === true;
         if(isFirebaseReady){
           console.log('✓ Firebase 已連接（' + new Date().toLocaleTimeString('zh-TW') + '）');
+          // Firebase 連接成功後，開始同步數據
+          setupAutoSync();
         } else {
           console.warn('⚠ Firebase 連接中斷');
         }
@@ -1910,6 +1931,179 @@ textarea.mid{ min-height:90px; }
       initializeFirebase();
     }
   });
+
+  /* ============ 即時雲同步 ============ */
+  var syncEnabled = false;
+  var isListening = false;
+  var lastSeenRemote = {}; // 記錄上次看到的遠端值，避免自己的上傳觸發重複載入
+
+  function flushPendingUploads(){
+    var keys = Object.keys(pendingUploads);
+    if(keys.length === 0) return;
+    console.log('📤 上傳 ' + keys.length + ' 筆排隊中的數據...');
+    keys.forEach(function(k){
+      var v = pendingUploads[k];
+      if(v && v.length < 500000){
+        database.ref('userdata/' + k).set(v).catch(function(){});
+      }
+    });
+    pendingUploads = {};
+  }
+
+  function uploadAllLocalData(){
+    if(!isFirebaseReady || !database) return;
+    Object.keys(KEYS).forEach(function(keyName){
+      var localKey = KEYS[keyName];
+      var v = localStorage.getItem(localKey);
+      if(v && v.length < 500000){
+        database.ref('userdata/' + localKey).set(v).catch(function(){});
+      }
+    });
+  }
+
+  function setupRealtimeListener(){
+    if(isListening || !database) return;
+    isListening = true;
+
+    // 即時監聽 Firebase，當任何設備修改數據時立刻收到通知（1-2秒內）
+    database.ref('userdata').on('value', function(snapshot){
+      var remoteData = snapshot.val() || {};
+      var changed = [];
+
+      Object.keys(remoteData).forEach(function(key){
+        if(key.indexOf('companion:') !== 0) return; // 只處理我們的 key
+        var remoteValue = remoteData[key];
+        if(!remoteValue || remoteValue.length > 500000) return;
+        if(lastSeenRemote[key] === remoteValue) return; // 跟上次一樣，跳過
+        lastSeenRemote[key] = remoteValue;
+        var localValue = localStorage.getItem(key);
+        if(remoteValue !== localValue){
+          localStorage.setItem(key, remoteValue);
+          // 個別 try/catch：單一 key 載入失敗不會中斷其他 key 的同步
+          try { reloadDataFromLocalStorage(key); } catch(e){ console.warn('載入 '+key+' 失敗:', e.message); }
+          changed.push(key);
+        }
+      });
+
+      if(changed.length > 0){
+        console.log('📡 即時收到更新：' + changed.length + ' 項');
+        // 重新渲染需要完整刷新的 UI（包在 try/catch 中，避免渲染錯誤中斷監聽）
+        try {
+          if(typeof renderMemories === 'function') renderMemories();
+          if(typeof renderJournal === 'function') renderJournal();
+          if(typeof renderThread === 'function' && changed.indexOf(KEYS.chat) >= 0) renderThread();
+          if(typeof renderStarStats === 'function' && changed.indexOf(KEYS.star) >= 0) renderStarStats();
+          if(typeof syncAvatar === 'function') syncAvatar();
+        } catch(e){ console.warn('UI 刷新部分失敗:', e.message); }
+      }
+    }, function(err){
+      console.warn('⚠ Firebase 即時監聽錯誤:', err.message);
+    });
+
+    console.log('✓ Firebase 即時監聽已啟用');
+  }
+
+  function setupAutoSync(){
+    if(syncEnabled || !isFirebaseReady || !database) return;
+    syncEnabled = true;
+    console.log('🔄 啟動即時雲同步...');
+
+    // 1. 先上傳所有本地數據（初次全量同步）
+    uploadAllLocalData();
+
+    // 2. 沖刷在 Firebase 連接前已排隊的數據
+    flushPendingUploads();
+
+    // 3. 啟動即時監聽（其他設備的修改 1-2 秒內到達）
+    setupRealtimeListener();
+
+    // 4. 每 10 秒備用掃描（補捉直接寫 localStorage.setItem 的數據）
+    setInterval(uploadAllLocalData, 10000);
+
+    console.log('✓ 即時雲同步已啟用（其他設備的更改 1-2 秒內同步）');
+  }
+
+  // 根據 key 類型重新載入數據到內存並刷新 UI
+  function reloadDataFromLocalStorage(key){
+    try {
+      if(key === KEYS.settings) settings = load(KEYS.settings) || settings;
+      if(key === KEYS.persona) persona = load(KEYS.persona) || persona;
+      if(key === KEYS.knowledge) knowledge = load(KEYS.knowledge) || knowledge;
+      if(key === KEYS.memories) memories = load(KEYS.memories) || memories;
+      if(key === KEYS.journal) journal = load(KEYS.journal) || journal;
+      if(key === KEYS.chat){
+        chatHistory = load(KEYS.chat) || chatHistory;
+        // renderThread 會在外層統一呼叫
+      }
+      if(key === KEYS.avatar) avatarDataUrl = localStorage.getItem(KEYS.avatar) || '';
+      if(key === KEYS.theme){
+        currentTheme = localStorage.getItem(KEYS.theme) || '';
+        if(typeof applyTheme === 'function') applyTheme(currentTheme);
+      }
+      if(key === KEYS.wallpaper){
+        wallpaperUrl = localStorage.getItem(KEYS.wallpaper) || '';
+        if(typeof applyWallpaper === 'function') applyWallpaper();
+      }
+      if(key === KEYS.chatBg){
+        chatBgUrl = localStorage.getItem(KEYS.chatBg) || '';
+        if(typeof applyWallpaper === 'function') applyWallpaper();
+      }
+      if(key === KEYS.star){
+        starState = load(KEYS.star) || starState;
+        if(typeof renderStarStats === 'function') renderStarStats();
+      }
+    } catch(e) {
+      console.error('重新載入數據失敗:', key, e.message);
+    }
+  }
+
+  /* ============ Firebase 啟動恢復 ============ */
+  // 應用啟動時，從 Firebase 恢復最新的數據（覆蓋本地舊數據）
+  function restoreFromFirebaseOnStartup(){
+    if(!isFirebaseReady || !database) return;
+    console.log('📥 從 Firebase 恢復啟動數據...');
+
+    database.ref('userdata').once('value', function(snapshot){
+      var remoteData = snapshot.val() || {};
+      var restored = 0;
+
+      Object.keys(remoteData).forEach(function(key){
+        if(key.indexOf('companion:') !== 0) return;
+        var remoteValue = remoteData[key];
+        if(!remoteValue || remoteValue.length > 500000) return;
+        lastSeenRemote[key] = remoteValue; // 標記已看過，避免即時監聽重複處理
+        localStorage.setItem(key, remoteValue);
+        reloadDataFromLocalStorage(key);
+        restored++;
+      });
+
+      console.log('✓ 從 Firebase 恢復了 ' + restored + ' 項數據');
+
+      // 重新渲染所有需要刷新的 UI
+      if(typeof renderMemories === 'function') renderMemories();
+      if(typeof renderJournal === 'function') renderJournal();
+      if(typeof renderThread === 'function') renderThread();
+      if(typeof renderStarStats === 'function') renderStarStats();
+      syncAvatar();
+    });
+  }
+
+  // 檢查 Firebase 連接並恢復（最多重試 10 次）
+  var restoreAttempts = 0;
+  function tryRestoreFromFirebase(){
+    if(isFirebaseReady && database){
+      restoreFromFirebaseOnStartup();
+    } else if(restoreAttempts < 10){
+      restoreAttempts++;
+      console.log('⏳ 等待 Firebase 連接... (' + restoreAttempts + '/10)');
+      setTimeout(tryRestoreFromFirebase, 1000);
+    } else {
+      console.warn('⚠ Firebase 連接超時，使用本地數據');
+    }
+  }
+
+  // 應用啟動後立即嘗試恢復
+  setTimeout(tryRestoreFromFirebase, 500);
 
   /* ============ State ============ */
   var settings  = load(KEYS.settings)  || clone(DEFAULT_SETTINGS);
@@ -3232,12 +3426,26 @@ textarea.mid{ min-height:90px; }
     reader.onload = function(e){
       var img = new Image();
       img.onload = function(){
-        var maxW=800, maxH=1400, w=img.width, h=img.height;
+        // 第一步：縮放到最大 720x1280（手機螢幕夠用，體積小）
+        var maxW=720, maxH=1280, w=img.width, h=img.height;
         if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
         if(h>maxH){ w=Math.round(w*maxH/h); h=maxH; }
         var canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        cb(canvas.toDataURL('image/jpeg',0.75));
+
+        // 第二步：智慧品質循環，確保 base64 < 450KB（Firebase 安全範圍）
+        var targetBytes = 450 * 1024; // 450KB
+        var qualities = [0.80, 0.70, 0.58, 0.45, 0.32];
+        var result = '';
+        for(var qi=0; qi<qualities.length; qi++){
+          result = canvas.toDataURL('image/jpeg', qualities[qi]);
+          // base64 字串長度 × 0.75 ≈ 實際 bytes
+          if(result.length * 0.75 <= targetBytes) break;
+        }
+
+        var kb = Math.round(result.length * 0.75 / 1024);
+        console.log('🖼 桌布壓縮完成：' + w + '×' + h + ' ' + kb + 'KB');
+        cb(result);
       };
       img.src = e.target.result;
     };
@@ -3302,6 +3510,7 @@ textarea.mid{ min-height:90px; }
       save(KEYS.walGallery,walGallery);
       walActive=item.id; localStorage.setItem(KEYS.walActive,walActive);
       wallpaperUrl=dataUrl; localStorage.setItem(KEYS.wallpaper,dataUrl);
+      pushKeyToFirebase(KEYS.wallpaper, dataUrl); // 即時上傳桌布
       applyWallpaper(); renderWalGallery();
     }); e.target.value='';
   });
@@ -3378,6 +3587,7 @@ textarea.mid{ min-height:90px; }
       save(KEYS.chatBgGallery,chatBgGallery);
       chatBgActive=item.id; localStorage.setItem(KEYS.chatBgActive,chatBgActive);
       chatBgUrl=dataUrl; localStorage.setItem(KEYS.chatBg,dataUrl);
+      pushKeyToFirebase(KEYS.chatBg, dataUrl); // 即時上傳聊天背景
       applyChatBg(); renderChatBgGallery(); flashSaved();
     }); e.target.value='';
   });
@@ -3631,8 +3841,15 @@ textarea.mid{ min-height:90px; }
   /* ============ Color theme ============ */
   function applyTheme(theme){
     currentTheme = theme;
-    if(theme){ document.documentElement.setAttribute('data-theme', theme); localStorage.setItem(KEYS.theme, theme); }
-    else { document.documentElement.removeAttribute('data-theme'); localStorage.removeItem(KEYS.theme); }
+    if(theme){
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem(KEYS.theme, theme);
+      pushKeyToFirebase(KEYS.theme, theme); // 即時同步主題
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.removeItem(KEYS.theme);
+      pushKeyToFirebase(KEYS.theme, '');
+    }
     document.querySelectorAll('.theme-row').forEach(function(el){
       el.classList.toggle('active', el.dataset.theme === theme);
     });
@@ -3669,11 +3886,12 @@ textarea.mid{ min-height:90px; }
   }
   function renderStarStats(){
     decayStarStats();
-    $('starHungerFill').style.width = starState.hunger + '%';
-    $('starHungerVal').textContent = starState.hunger + '%';
-    $('starMoodFill').style.width = starState.mood + '%';
-    $('starMoodVal').textContent = starState.mood + '%';
-    var outfit = $('starOutfit');
+    var hf=$('starHungerFill'), hv=$('starHungerVal'), mf=$('starMoodFill'), mv=$('starMoodVal'), outfit=$('starOutfit');
+    if(!hf || !hv || !mf || !mv || !outfit) return; // 星星畫面元素尚未渲染，跳過避免崩潰
+    hf.style.width = starState.hunger + '%';
+    hv.textContent = starState.hunger + '%';
+    mf.style.width = starState.mood + '%';
+    mv.textContent = starState.mood + '%';
     if(starState.clothes > 0){
       outfit.style.background = OUTFIT_COLORS[starState.clothes];
       outfit.classList.add('show');
@@ -4141,8 +4359,9 @@ textarea.mid{ min-height:90px; }
     reader.readAsText(file); e.target.value='';
   });
 
+  var CORS_PROXY = 'https://api.allorigins.win/raw?url=';
   function notionUrl(path){
-    return 'https://api.notion.com/v1' + path;
+    return CORS_PROXY + encodeURIComponent('https://api.notion.com/v1' + path);
   }
   function notionHeaders(token){
     return { 'Authorization':'Bearer '+token, 'Content-Type':'application/json', 'Notion-Version':'2022-06-28' };
