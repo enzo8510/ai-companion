@@ -6167,7 +6167,22 @@ textarea.mid{ min-height:90px; }
       moves:chessGame.moves, captured:chessGame.captured, difficulty:chessGame.difficulty, status:chessGame.status, winner:chessGame.winner });
   }
   function chessLoad(){ var g=load(KEYS.chess);
-    if(g&&g.board){ g.sel=null; g.legalForSel=[]; if(!g.captured) g.captured={w:[],b:[]}; chessGame=g; return true; }
+    if(g&&g.board){
+      g.sel=null; g.legalForSel=[];
+      if(!g.status) g.status='playing';
+      if(g.winner===undefined) g.winner=null;
+      if(!g.turn) g.turn='w';
+      if(!g.difficulty) g.difficulty=2;
+      if(!g.castling) g.castling={wK:true,wQ:true,bK:true,bQ:true};
+      if(!g.moves) g.moves=[];
+      var validPieces=['wK','wQ','wR','wB','wN','wP','bK','bQ','bR','bB','bN','bP'];
+      if(!g.captured) g.captured={w:[],b:[]};
+      else {
+        g.captured.w=(g.captured.w||[]).filter(function(p){ return validPieces.indexOf(p)>=0; });
+        g.captured.b=(g.captured.b||[]).filter(function(p){ return validPieces.indexOf(p)>=0; });
+      }
+      chessGame=g; return true;
+    }
     return false;
   }
   function chessApplyToGame(mv){
@@ -6332,7 +6347,12 @@ textarea.mid{ min-height:90px; }
     if(replay) replay.classList.add('hidden');
     if(!chessGame){ if(!chessLoad()) chessNewGame(); }
     else if(chessGame){ chessUpdateDiffButtons(); chessRender(); }
-    setTimeout(function(){ if(chessGame&&$('chessBoard')){ chessUpdateDiffButtons(); chessRender(); } }, 50);
+    setTimeout(function(){
+      if(chessGame&&$('chessBoard')){
+        chessUpdateDiffButtons(); chessRender();
+        if(chessGame.status==='playing'&&chessGame.turn==='b') chessAITurn();
+      }
+    }, 80);
   }
 
   /* ---- 事件綁定 ---- */
@@ -6378,6 +6398,7 @@ textarea.mid{ min-height:90px; }
   });
   (function(){
     var bg=load('chessBoardBg')||'rect/rect-8x8_02.png';
+    if(bg==='1'||bg==='2'||bg.indexOf('rect-8x8/')===0) bg='rect/rect-8x8_02.png';
     var el=document.querySelector('.chess-bg-thumb[data-bg="'+bg+'"]');
     if(el) el.click(); else document.documentElement.style.setProperty('--chess-board-bg',"url('"+bg+"')");
   })();
