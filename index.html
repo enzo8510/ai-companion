@@ -893,6 +893,38 @@ textarea.mid{ min-height:90px; }
   font-size:11px; color:rgba(255,255,255,0.72); text-align:center; word-break:break-all;
   min-height:14px; text-shadow:0 1px 5px rgba(0,0,0,0.5);
 }
+/* 計時模式選擇器 */
+.wm-mode-selector{
+  position:relative; z-index:1; display:flex; gap:8px; justify-content:center; margin-top:24px;
+}
+.wm-mode-btn{
+  padding:6px 14px; border-radius:999px; border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.72);
+  font-size:13px; font-family:inherit; cursor:pointer;
+  transition:background .18s, border-color .18s, color .18s;
+}
+.wm-mode-btn:hover{ background:rgba(255,255,255,0.14); }
+.wm-mode-btn.active{
+  background:rgba(255,255,255,0.92); color:#3a2f5a; border-color:#fff;
+  font-weight:600;
+}
+/* 倒計時時間選擇器 */
+.wm-countdown-selector{
+  position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  max-width:240px; margin:12px auto;
+}
+.wm-countdown-selector.hidden{ display:none; }
+.wm-time-btn{
+  padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.10); color:rgba(255,255,255,0.85);
+  font-size:12px; font-family:inherit; cursor:pointer;
+  transition:background .18s, border-color .18s;
+}
+.wm-time-btn:hover{ background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.4); }
+.wm-time-btn.selected{
+  background:rgba(255,255,255,0.92); color:#3a2f5a; border-color:#fff;
+  font-weight:600;
+}
 /* ---- Chess view ---- */
 #chessView{ position:relative; }
 #chessView > .social-hdr{ z-index:10; }
@@ -1724,11 +1756,25 @@ textarea.mid{ min-height:90px; }
         <!-- 沉浸式專注畫面 -->
         <div class="wm-overlay">
 
+          <!-- 計時模式選擇器 -->
+          <div class="wm-mode-selector">
+            <button class="wm-mode-btn active" data-mode="timer" type="button">⏱ 正計時</button>
+            <button class="wm-mode-btn" data-mode="countdown" type="button">⏳ 倒計時</button>
+          </div>
+
           <!-- 大白字時間 + 後方暈染光暈 -->
           <div class="wm-clock-zone">
             <div class="wm-clock-glow"></div>
-            <div class="wm-clock-label">專注時間</div>
+            <div class="wm-clock-label" id="withMeClockLabel">專注時間</div>
             <div id="withMeTimer" class="wm-clock">00:00:00</div>
+          </div>
+
+          <!-- 倒計時時間選擇（初始隱藏） -->
+          <div class="wm-countdown-selector hidden" id="withMeCountdownSelector">
+            <button class="wm-time-btn" data-minutes="15" type="button">15 分鐘</button>
+            <button class="wm-time-btn" data-minutes="30" type="button">30 分鐘</button>
+            <button class="wm-time-btn" data-minutes="60" type="button">1 小時</button>
+            <button class="wm-time-btn" data-minutes="custom" type="button">🔧 自訂</button>
           </div>
 
           <!-- 柔和控制區 -->
@@ -5287,21 +5333,63 @@ textarea.mid{ min-height:90px; }
 
   /* ============ With Me (Study/Work) Timer ============ */
   var WITHME_KEYS = { timer:'companion:withMe_timer', music:'companion:withMe_music' };
-  var withMeTimerState = { running:false, seconds:0, intervalId:null };
+  var withMeTimerState = { running:false, seconds:0, intervalId:null, mode:'timer', countdownTotal:0 };
   var withMeMusicUrl = localStorage.getItem(WITHME_KEYS.music) || '';
 
   function updateWithMeTimerDisplay(){
-    var h = Math.floor(withMeTimerState.seconds / 3600);
-    var m = Math.floor((withMeTimerState.seconds % 3600) / 60);
-    var s = withMeTimerState.seconds % 60;
+    var displaySeconds;
+    if(withMeTimerState.mode === 'countdown'){
+      displaySeconds = Math.max(0, withMeTimerState.countdownTotal - withMeTimerState.seconds);
+      if(displaySeconds === 0 && withMeTimerState.running){
+        pauseWithMeTimer();
+        alert('倒計時完成！');
+      }
+    } else {
+      displaySeconds = withMeTimerState.seconds;
+    }
+    var h = Math.floor(displaySeconds / 3600);
+    var m = Math.floor((displaySeconds % 3600) / 60);
+    var s = displaySeconds % 60;
     var hStr = h.toString().padStart(2,'0');
     var mStr = m.toString().padStart(2,'0');
     var sStr = s.toString().padStart(2,'0');
     $('withMeTimer').textContent = hStr + ':' + mStr + ':' + sStr;
   }
 
+  function setWithMeMode(mode){
+    if(withMeTimerState.running) pauseWithMeTimer();
+    withMeTimerState.mode = mode;
+    var timerLabel = mode === 'countdown' ? '倒計時' : '專注時間';
+    $('withMeClockLabel').textContent = timerLabel;
+    $('withMeCountdownSelector').classList.toggle('hidden', mode !== 'countdown');
+    document.querySelectorAll('.wm-mode-btn').forEach(function(btn){
+      btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    if(mode === 'countdown'){
+      document.querySelectorAll('.wm-time-btn').forEach(function(btn){
+        btn.classList.remove('selected');
+      });
+    }
+    localStorage.setItem(WITHME_KEYS.timer, JSON.stringify(withMeTimerState));
+  }
+
+  function setCountdownTime(minutes){
+    pauseWithMeTimer();
+    withMeTimerState.seconds = 0;
+    withMeTimerState.countdownTotal = minutes * 60;
+    updateWithMeTimerDisplay();
+    document.querySelectorAll('.wm-time-btn').forEach(function(btn){
+      btn.classList.toggle('selected', parseInt(btn.dataset.minutes) === minutes || btn.dataset.minutes === 'custom');
+    });
+    localStorage.setItem(WITHME_KEYS.timer, JSON.stringify(withMeTimerState));
+  }
+
   function startWithMeTimer(){
     if(withMeTimerState.running) return;
+    if(withMeTimerState.mode === 'countdown' && withMeTimerState.countdownTotal === 0){
+      alert('請先選擇倒計時時間');
+      return;
+    }
     withMeTimerState.running = true;
     $('withMeStartBtn').style.display = 'none';
     $('withMePauseBtn').style.display = 'flex';
@@ -5324,6 +5412,12 @@ textarea.mid{ min-height:90px; }
   function resetWithMeTimer(){
     pauseWithMeTimer();
     withMeTimerState.seconds = 0;
+    if(withMeTimerState.mode === 'countdown'){
+      withMeTimerState.countdownTotal = 0;
+      document.querySelectorAll('.wm-time-btn').forEach(function(btn){
+        btn.classList.remove('selected');
+      });
+    }
     updateWithMeTimerDisplay();
     localStorage.setItem(WITHME_KEYS.timer, JSON.stringify(withMeTimerState));
   }
@@ -5368,6 +5462,28 @@ textarea.mid{ min-height:90px; }
   $('withMeResetBtn').addEventListener('click', resetWithMeTimer);
   $('withMeMusicPlayBtn').addEventListener('click', playWithMeMusic);
   $('withMeMusicStopBtn').addEventListener('click', stopWithMeMusic);
+
+  // Mode selector buttons
+  document.querySelectorAll('.wm-mode-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      setWithMeMode(this.dataset.mode);
+    });
+  });
+
+  // Countdown time buttons
+  document.querySelectorAll('.wm-time-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var minutes = this.dataset.minutes;
+      if(minutes === 'custom'){
+        var input = prompt('輸入倒計時分鐘數：', '25');
+        if(input && !isNaN(input) && parseInt(input) > 0){
+          setCountdownTime(parseInt(input));
+        }
+      } else {
+        setCountdownTime(parseInt(minutes));
+      }
+    });
+  });
 
   $('withMeMusicInput').addEventListener('change', function(e){
     var file = e.target.files[0]; if(!file) return;
