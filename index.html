@@ -445,6 +445,14 @@ textarea.mid{ min-height:90px; }
 .home-qa-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .home-qa-title{ font-size:11px; color:var(--qa-title-color); font-weight:600; letter-spacing:.04em; }
 .home-qa-refresh{ font-size:13px; color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:0; line-height:1; }
+.home-qa-dice{
+  background:none; border:none; cursor:pointer; padding:4px;
+  color:var(--ink-soft); border-radius:8px; line-height:0;
+  transition:color .15s, background .15s, transform .15s;
+  flex:0 0 auto;
+}
+.home-qa-dice:hover{ color:var(--companion); background:var(--companion-soft); transform:rotate(30deg); }
+.home-qa-dice:active{ transform:rotate(90deg) scale(0.92); }
 .home-qa-text{ font-size:13.5px; color:var(--ink); line-height:1.65; }
 .home-qa-hint{ font-size:11px; color:var(--qa-hint-color); margin-top:8px; }
 
@@ -1443,9 +1451,9 @@ textarea.mid{ min-height:90px; }
             <span class="act-icon">📓</span>
             <span class="act-label">今日日記</span>
           </button>
-          <button class="home-action-btn" id="homeQaRefreshBtn" type="button">
+          <button class="home-action-btn" id="homeQaHistoryBtn" type="button">
             <span class="act-icon">🎲</span>
-            <span class="act-label">今日問題</span>
+            <span class="act-label">每日問題</span>
           </button>
           <button class="home-action-btn" id="homeSocialBtn" type="button">
             <span class="act-icon">📱</span>
@@ -1466,13 +1474,23 @@ textarea.mid{ min-height:90px; }
         </div>
 
         <!-- Daily Q&A card -->
-        <button class="home-qa-card" id="homeQaCard" type="button">
+        <div class="home-qa-card" id="homeQaCard">
           <div class="home-qa-header">
             <div class="home-qa-title">✦ 今日問題</div>
+            <button class="home-qa-dice" id="homeQaDiceBtn" type="button" title="換一題">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="20" height="20" rx="4" stroke="currentColor" stroke-width="1.8" fill="none"/>
+                <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/>
+                <circle cx="16.5" cy="7.5" r="1.5" fill="currentColor"/>
+                <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                <circle cx="7.5" cy="16.5" r="1.5" fill="currentColor"/>
+                <circle cx="16.5" cy="16.5" r="1.5" fill="currentColor"/>
+              </svg>
+            </button>
           </div>
-          <div class="home-qa-text" id="homeQaText">如果只能選一種食物吃一輩子，你會選什麼？</div>
-          <div class="home-qa-hint">點擊，帶著這個問題去找卄珩 →</div>
-        </button>
+          <div class="home-qa-text" id="homeQaText" style="cursor:pointer;">如果只能選一種食物吃一輩子，你會選什麼？</div>
+          <div class="home-qa-hint">點擊問題，帶著它去找卄珩 →</div>
+        </div>
 
         <button class="home-enter-btn" id="homeEnterBtn">
           進入聊天室<span class="home-enter-arrow">→</span>
@@ -4491,63 +4509,24 @@ textarea.mid{ min-height:90px; }
   function renderQaCard(){
     $('homeQaText').textContent = QA_LIST[dailyQa.qIndex % QA_LIST.length];
   }
-  $('homeQaRefreshBtn').addEventListener('click', function(){
+  // 骰子按鈕：換一題
+  $('homeQaDiceBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    var btn = this;
+    btn.style.transform = 'rotate(360deg)';
+    btn.style.transition = 'transform .4s ease';
+    setTimeout(function(){ btn.style.transform = ''; btn.style.transition = ''; }, 400);
     dailyQa.qIndex = (dailyQa.qIndex + 1) % QA_LIST.length;
     save(KEYS.dailyqa, dailyQa);
     renderQaCard();
   });
-  function showTodayQa(){
-    showOnly('todayQaView');
-    renderTodayQaView();
-  }
 
-  function renderTodayQaView(){
+  // 點擊問題文字 → 帶問題進聊天室
+  function sendQaToChat(){
     var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
-    $('qaTodayText').textContent = q;
-    renderQaHistoryList();
-  }
-
-  function renderQaHistoryList(){
-    var list = $('qaHistoryList');
-    list.innerHTML = '';
-    if(qaHistory.length === 0){
-      list.innerHTML = '<div style="padding:var(--space-lg); text-align:center; color:var(--ink-soft); font-size:13px;">還沒有提過問題喔，去問卄珩吧！</div>';
-      return;
-    }
-    qaHistory.forEach(function(h, idx){
-      var item = document.createElement('div');
-      item.className = 'qa-history-item';
-      var dateEl = document.createElement('div');
-      dateEl.className = 'qa-history-item-date';
-      dateEl.textContent = h.date;
-      var qEl = document.createElement('div');
-      qEl.className = 'qa-history-item-q';
-      qEl.textContent = 'Q: ' + h.question;
-      item.appendChild(dateEl);
-      item.appendChild(qEl);
-      if(h.answer){
-        var aEl = document.createElement('div');
-        aEl.className = 'qa-history-item-a';
-        aEl.textContent = 'A: ' + h.answer;
-        item.appendChild(aEl);
-      }
-      list.appendChild(item);
-    });
-  }
-
-  $('homeQaCard').addEventListener('click', showTodayQa);
-  $('qaBackBtn').addEventListener('click', showHome);
-  $('qaTodayRefreshBtn').addEventListener('click', function(){
-    dailyQa.qIndex = (dailyQa.qIndex + 1) % QA_LIST.length;
-    save(KEYS.dailyqa, dailyQa);
-    renderTodayQaView();
-  });
-  $('qaAskBtn').addEventListener('click', function(){
     showFront();
-    var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
     if(!settings.apiKey){ chatInput.value = q; chatInput.focus(); return; }
     if(sending) return;
-    // Add to QA history
     if(!qaHistory.find(function(h){ return h.question === q && h.date === todayLabel(); })){
       qaHistory.unshift({ question:q, date:todayLabel() });
       save(KEYS.qaHistory, qaHistory);
@@ -4568,7 +4547,63 @@ textarea.mid{ min-height:90px; }
       box.textContent='訊息沒送出去：'+(err&&err.message?err.message:String(err));
       thread.appendChild(box); scrollThread(); setSending(false);
     });
+  }
+  $('homeQaText').addEventListener('click', sendQaToChat);
+  $('homeQaCard').addEventListener('click', function(e){
+    if(e.target.closest('#homeQaDiceBtn')) return;
+    if(e.target === $('homeQaText') || $('homeQaText').contains(e.target)) return;
+    // 點卡片其他區域也進聊天
+    sendQaToChat();
   });
+
+  // 「每日問題」網格按鈕 → 打開歷史紀錄頁
+  function showTodayQa(){
+    showOnly('todayQaView');
+    renderTodayQaView();
+  }
+  $('homeQaHistoryBtn').addEventListener('click', showTodayQa);
+
+  function renderTodayQaView(){
+    var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
+    $('qaTodayText').textContent = q;
+    renderQaHistoryList();
+  }
+
+  function renderQaHistoryList(){
+    var list = $('qaHistoryList');
+    list.innerHTML = '';
+    if(qaHistory.length === 0){
+      list.innerHTML = '<div style="padding:var(--space-lg); text-align:center; color:var(--ink-soft); font-size:13px;">還沒有提過問題喔，去問卄珩吧！</div>';
+      return;
+    }
+    qaHistory.forEach(function(h){
+      var item = document.createElement('div');
+      item.className = 'qa-history-item';
+      var dateEl = document.createElement('div');
+      dateEl.className = 'qa-history-item-date';
+      dateEl.textContent = h.date;
+      var qEl = document.createElement('div');
+      qEl.className = 'qa-history-item-q';
+      qEl.textContent = 'Q: ' + h.question;
+      item.appendChild(dateEl);
+      item.appendChild(qEl);
+      if(h.answer){
+        var aEl = document.createElement('div');
+        aEl.className = 'qa-history-item-a';
+        aEl.textContent = 'A: ' + h.answer;
+        item.appendChild(aEl);
+      }
+      list.appendChild(item);
+    });
+  }
+
+  $('qaBackBtn').addEventListener('click', showHome);
+  $('qaTodayRefreshBtn').addEventListener('click', function(){
+    dailyQa.qIndex = (dailyQa.qIndex + 1) % QA_LIST.length;
+    save(KEYS.dailyqa, dailyQa);
+    renderTodayQaView();
+  });
+  $('qaAskBtn').addEventListener('click', sendQaToChat);
 
   /* ============ Download Chat ============ */
   var dlMode = 'all';
