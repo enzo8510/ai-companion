@@ -404,7 +404,7 @@ textarea.mid{ min-height:90px; }
 .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:var(--space-sm); gap:var(--space-xs); }
 .cal-weekdays span{ font-size:11px; color:var(--ink-soft); padding:var(--space-sm) 0; font-weight:500; }
 .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:var(--space-xs); }
-.cal-day{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:13px; border-radius:8px; cursor:pointer; color:var(--ink); border:1px solid transparent; background:none; padding:0; transition:all .15s; font-weight:500; }
+.cal-day{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:13px; border-radius:50%; cursor:pointer; color:var(--ink); border:1px solid transparent; background:none; padding:0; transition:all .15s; font-weight:500; }
 .cal-day:hover:not(.cal-empty){ background:var(--companion-soft); color:var(--companion); border-color:var(--companion); }
 .cal-day.cal-selected{ background:var(--companion); color:#fff; border-color:var(--companion); font-weight:700; box-shadow:0 2px 8px rgba(59,173,204,0.3); }
 .cal-day.cal-today{ font-weight:700; color:var(--companion); border-color:var(--companion); background:rgba(59,173,204,0.1); }
@@ -451,7 +451,7 @@ textarea.mid{ min-height:90px; }
 .cal-full-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:var(--space-md); gap:var(--space-xs); }
 .cal-full-weekdays span{ font-size:12px; color:var(--ink-soft); padding:var(--space-sm) 0; font-weight:600; }
 .cal-full-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:var(--space-xs); margin-bottom:var(--space-lg); }
-.cal-full-day{ aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:13px; border-radius:8px; cursor:pointer; color:var(--ink); border:1px solid transparent; background:none; padding:0; position:relative; transition:all .15s; font-weight:500; }
+.cal-full-day{ aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:13px; border-radius:50%; cursor:pointer; color:var(--ink); border:1px solid transparent; background:none; padding:0; position:relative; transition:all .15s; font-weight:500; }
 .cal-full-day:hover:not(.cal-fd-empty){ background:var(--companion-soft); border-color:var(--companion); }
 .cal-full-day.cal-fd-today{ font-weight:700; color:#fff; background:var(--companion); border-color:var(--companion); box-shadow:0 2px 8px rgba(59,173,204,0.3); }
 .cal-full-day.cal-fd-empty{ cursor:default; opacity:0.3; }
@@ -1579,6 +1579,12 @@ textarea.mid{ min-height:90px; }
         </div>
         <button class="toolbar-btn primary" id="eventTypeAddBtn" type="button" style="width:100%;justify-content:center;">＋ 新增分類</button>
       </div>
+      <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:16px;">
+        <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;">🎨 點點顏色</div>
+        <div style="font-size:11px;color:var(--ink-soft);margin-bottom:10px;">月曆上各類記錄的圓點顏色，點色塊即可更換</div>
+        <div id="dotColorList"></div>
+        <button class="toolbar-btn" id="dotColorResetBtn" type="button" style="width:100%;justify-content:center;margin-top:6px;">恢復預設顏色</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1844,7 +1850,8 @@ textarea.mid{ min-height:90px; }
     avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
     startDate:'companion:startDate', cntTarget:'companion:cntTarget',
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
-    theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes'
+    theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
+    dotColors:'companion:dotColors'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -2092,6 +2099,10 @@ textarea.mid{ min-height:90px; }
       if(key === KEYS.star){
         starState = load(KEYS.star) || starState;
         if(typeof renderStarStats === 'function') renderStarStats();
+      }
+      if(key === KEYS.dotColors){
+        if(typeof applyDotColors === 'function') applyDotColors();
+        if(typeof renderDotColorList === 'function') renderDotColorList();
       }
     } catch(e) {
       console.error('重新載入數據失敗:', key, e.message);
@@ -3148,8 +3159,62 @@ textarea.mid{ min-height:90px; }
     flashSaved('分類已新增 ✓');
   });
 
+  /* ============ 月曆點點顏色自訂 ============ */
+  var DOT_COLOR_DEFS = [
+    { varName:'--event-color',    label:'行程',    def:'#3BADCC' },
+    { varName:'--birthday-color', label:'生日/紀念', def:'#e08050' },
+    { varName:'--memory-color',   label:'回憶',    def:'#5DAAA4' },
+    { varName:'--diary-color',    label:'日記',    def:'#1a4080' },
+    { varName:'--journal-color',  label:'心情',    def:'#82bfd4' },
+    { varName:'--period-color',   label:'生理期',   def:'#E84C78' },
+    { varName:'--health-color',   label:'健康',    def:'#8DC64C' },
+    { varName:'--work-color',     label:'工作',    def:'#6A9BB8' }
+  ];
+  function applyDotColors(){
+    var saved = load(KEYS.dotColors) || {};
+    DOT_COLOR_DEFS.forEach(function(d){
+      var c = saved[d.varName] || d.def;
+      document.documentElement.style.setProperty(d.varName, c);
+    });
+  }
+  function renderDotColorList(){
+    var box = $('dotColorList'); if(!box) return;
+    box.innerHTML = '';
+    var saved = load(KEYS.dotColors) || {};
+    DOT_COLOR_DEFS.forEach(function(d){
+      var row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 4px;';
+      var swatch = document.createElement('input');
+      swatch.type = 'color';
+      swatch.value = saved[d.varName] || d.def;
+      swatch.style.cssText = 'width:34px;height:34px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;padding:0;flex:0 0 auto;';
+      var name = document.createElement('span');
+      name.textContent = d.label;
+      name.style.cssText = 'font-size:13px;color:var(--ink);flex:1;';
+      swatch.addEventListener('input', function(){
+        var cur = load(KEYS.dotColors) || {};
+        cur[d.varName] = swatch.value;
+        save(KEYS.dotColors, cur);
+        document.documentElement.style.setProperty(d.varName, swatch.value);
+        if(typeof renderCalOvGrid === 'function') renderCalOvGrid();
+      });
+      row.appendChild(swatch); row.appendChild(name);
+      box.appendChild(row);
+    });
+  }
+  $('dotColorResetBtn').addEventListener('click', function(){
+    localStorage.removeItem(KEYS.dotColors);
+    pushKeyToFirebase(KEYS.dotColors, '{}');
+    applyDotColors();
+    renderDotColorList();
+    if(typeof renderCalOvGrid === 'function') renderCalOvGrid();
+    flashSaved('已恢復預設顏色 ✓');
+  });
+  applyDotColors(); // 載入時套用已存的顏色
+
   $('calTypeManagerBtn').addEventListener('click', function(){
     renderEventTypeManager();
+    renderDotColorList();
     $('eventTypeManagerOverlay').classList.remove('hidden');
   });
 
