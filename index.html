@@ -18,8 +18,8 @@
   --ink:#32384A;
   --ink-soft:#7A8E9F;
   --companion:#3BADCC;
-  --companion-soft:#BDE7F6;
-  --user-bubble:#FFFFFF;
+  --companion-soft:#b09ed4;
+  --user-bubble:#f5f0ff;
   --sage:#5DAAA4;
   --gold:#6A9BB8;
   --gold-soft:#D8EEF8;
@@ -202,8 +202,8 @@ body{
   word-break:break-word;
   white-space:pre-wrap;
 }
-.bubble.her{ background:var(--companion-soft); color:var(--ink); border-radius:18px 18px 18px 5px; }
-.bubble.me{ background:var(--user-bubble); color:var(--ink); border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
+.bubble.her{ background:rgba(176,158,212,0.85); color:var(--ink); border-radius:18px 18px 18px 5px; }
+.bubble.me{ background:rgba(245,240,255,0.92); color:var(--ink); border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
 .bubble.her em{ font-style:italic; opacity:.85; }
 .bubble .action{ color:var(--ink-soft); }
@@ -679,8 +679,8 @@ textarea.mid{ min-height:90px; }
 .theme-row-check{ opacity:0; color:var(--companion); font-size:17px; font-weight:700; transition:opacity .18s; }
 .theme-row.active .theme-row-check{ opacity:1; }
 /* ---- Bubble transparency on chat background ---- */
-#thread.has-chatbg .bubble.her{ background:rgba(255,255,255,0.72); backdrop-filter:blur(12px) saturate(1.5); -webkit-backdrop-filter:blur(12px) saturate(1.5); border:1.5px solid rgba(255,255,255,0.50); }
-#thread.has-chatbg .bubble.me{ background:rgba(255,255,255,0.72); backdrop-filter:blur(12px) saturate(1.5); -webkit-backdrop-filter:blur(12px) saturate(1.5); border:1.5px solid rgba(255,255,255,0.55); }
+#thread.has-chatbg .bubble.her{ background:rgba(176,158,212,0.85); backdrop-filter:none; -webkit-backdrop-filter:none; border:none; }
+#thread.has-chatbg .bubble.me{ background:rgba(245,240,255,0.92); backdrop-filter:none; -webkit-backdrop-filter:none; border:none; }
 /* ---- Theme overrides ---- */
 :root[data-theme="dark"]{ --bg:#1A1D26; --frame-shadow:rgba(0,0,0,0.4); --chat-bg:#22263A; --surface:#2A2D3E; --ink:#E4E8F2; --ink-soft:#6E7891; --companion:#4CC8EA; --companion-soft:#1C3A4A; --user-bubble:#343850; --sage:#4CC8EA; --gold:#6A9BB8; --gold-soft:#1C3044; --line:rgba(228,232,242,0.08); }
 /* Dark theme bubble colors with opacity */
