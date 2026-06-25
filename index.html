@@ -594,7 +594,7 @@ textarea.mid{ min-height:90px; }
 /* ---- Check-in calendar overlay ---- */
 .ci-cal-stats{ display:flex; gap:var(--space-md); justify-content:center; margin-bottom:var(--space-lg); }
 /* ---- Checkin Calendar Styling ---- */
-.ci-cal-grid-styled .cal-full-day{ border-radius:50% !important; background:rgba(200,200,200,0.3) !important; border:none !important; font-weight:700; color:var(--ink-soft); }
+.ci-cal-grid-styled .cal-full-day{ border-radius:50% !important; background:transparent !important; border:none !important; font-weight:500; color:var(--ink); }
 .ci-cal-grid-styled .cal-full-day.cal-fd-today{ background:var(--companion) !important; color:#fff; box-shadow:0 2px 8px var(--companion-shadow,rgba(169,135,216,0.4)); }
 .ci-cal-grid-styled .cal-full-day.ci-done-1{ background:var(--companion) !important; color:#fff; box-shadow:0 2px 6px var(--companion-shadow,rgba(169,135,216,0.35)); }
 .ci-cal-grid-styled .cal-full-day.ci-done-2{ background:var(--health-color) !important; color:#fff; box-shadow:0 2px 6px rgba(141,198,76,0.35); }
@@ -872,7 +872,7 @@ textarea.mid{ min-height:90px; }
 }
 .wm-clock-zone{
   position:relative; display:flex; flex-direction:column; align-items:center;
-  justify-content:center; flex:1;
+  justify-content:center; margin-bottom:var(--space-lg);
 }
 /* 時間後方的白色暈染光暈 */
 .wm-clock-glow{
@@ -934,9 +934,9 @@ textarea.mid{ min-height:90px; }
 }
 /* 倒計時時間選擇器 */
 .wm-countdown-selector{
-  position:absolute; top:50%; left:50%; transform:translate(-50%, 50%);
+  position:relative;
   z-index:2; display:grid; grid-template-columns:1fr; gap:8px;
-  max-width:240px;
+  width:100%; max-width:200px; margin-bottom:var(--space-lg);
 }
 .wm-countdown-selector.hidden{ display:none; }
 .wm-time-btn{
@@ -1451,6 +1451,13 @@ textarea.mid{ min-height:90px; }
   box-shadow:0 2px 8px rgba(169,135,216,0.3);
 }
 .qa-hist-arrow:hover{ opacity:.85; transform:scale(1.08); }
+.qa-hist-answer{
+  margin-top:7px; padding:7px 10px;
+  background:var(--companion-soft); border-left:3px solid var(--companion);
+  border-radius:0 8px 8px 0; font-size:12px; color:var(--ink);
+  line-height:1.6; max-height:80px; overflow:hidden;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+}
 .qa-empty-hint{
   text-align:center; padding:32px 16px; color:var(--ink-soft);
   font-size:13px; line-height:1.8;
@@ -2026,9 +2033,10 @@ textarea.mid{ min-height:90px; }
 
         <!-- 控制按鈕 -->
         <div class="chess-actions">
+          <button class="chess-act-btn" id="chessUndoBtn" type="button">↩ 悔棋</button>
           <button class="chess-act-btn" id="chessNewBtn" type="button">↺ 重新開始</button>
           <button class="chess-act-btn" id="chessResignBtn" type="button">🏳 棄局</button>
-          <button class="chess-act-btn" id="chessReviewBtn" type="button">📜 回顧戰局</button>
+          <button class="chess-act-btn" id="chessReviewBtn" type="button">📜 回顧</button>
         </div>
       </div>
 
@@ -2583,26 +2591,6 @@ textarea.mid{ min-height:90px; }
         <div class="backup-result hidden" id="backupFirebaseResult"></div>
       </div>
 
-      <div class="backup-divider"></div>
-
-      <!-- Notion -->
-      <div class="backup-section">
-        <div class="backup-section-title">🔗 Notion 備份</div>
-        <div class="backup-section-lead">連結你的 Notion 整合（Integration）將資料備份至 Notion 頁面。需先至 notion.so/my-integrations 建立整合並取得 Token，並將頁面與整合分享。</div>
-        <div class="backup-field">
-          <label>Notion Integration Token</label>
-          <input type="password" id="notionToken" placeholder="secret_xxxxxxxxxxxx">
-        </div>
-        <div class="backup-field">
-          <label>目標頁面 ID（32 碼，從頁面網址複製）</label>
-          <input type="text" id="notionPageId" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-        </div>
-        <div class="backup-btn-row">
-          <button class="btn small" id="notionBackupBtn" type="button">☁ 備份至 Notion</button>
-          <button class="btn ghost small" id="notionRestoreBtn" type="button">↩ 從 Notion 還原</button>
-        </div>
-        <div class="backup-result hidden" id="backupNotionResult"></div>
-      </div>
     </div>
   </div>
 </div>
@@ -4656,6 +4644,8 @@ textarea.mid{ min-height:90px; }
       thread.appendChild(bubbleRow('assistant', reply));
       chatHistory.push({ role:'assistant', content:reply, ts:Date.now() });
       save(KEYS.chat, chatHistory);
+      var qaIdx = qaHistory.findIndex(function(h){ return h.question === q && h.date === todayLabel(); });
+      if(qaIdx >= 0){ qaHistory[qaIdx].answer = reply; save(KEYS.qaHistory, qaHistory); }
       scrollThread(); setSending(false); maybeExtractMemory();
     }).catch(function(err){
       hideTyping();
@@ -4737,6 +4727,12 @@ textarea.mid{ min-height:90px; }
       dateEl.textContent = h.date || '';
       content.appendChild(qEl);
       content.appendChild(dateEl);
+      if(h.answer){
+        var ansEl = document.createElement('div');
+        ansEl.className = 'qa-hist-answer';
+        ansEl.textContent = h.answer;
+        content.appendChild(ansEl);
+      }
 
       // Arrow button → re-ask
       var arrow = document.createElement('button');
@@ -6036,7 +6032,7 @@ textarea.mid{ min-height:90px; }
     var san=chessMoveSAN(chessGame,mv);
     chessGame.board=res.board; chessGame.castling=res.castling; chessGame.ep=res.ep;
     chessGame.turn=chessGame.turn==='w'?'b':'w';
-    if(res.captured){ chessGame.captured[colOf(res.captured)].push(PIECE_GLYPH[res.captured]); }
+    if(res.captured){ chessGame.captured[colOf(res.captured)].push(res.captured); }
     chessGame.moves.push({from:mv.from,to:mv.to,promo:mv.promo||null,flags:mv.flags||'',san:san});
   }
   function chessAfterMove(){
@@ -6199,6 +6195,24 @@ textarea.mid{ min-height:90px; }
   /* ---- 事件綁定 ---- */
   $('homeChessBtn').addEventListener('click', showChess);
   $('chessBackBtn').addEventListener('click', showHome);
+  $('chessUndoBtn').addEventListener('click', function(){
+    if(!chessGame||chessGame.status!=='playing'||chessGame.turn!=='w') return;
+    var toRemove = chessGame.moves.length >= 2 ? 2 : chessGame.moves.length;
+    if(!toRemove){ chessUpdateStatus('沒有可悔的棋步'); return; }
+    var newMoves = chessGame.moves.slice(0, chessGame.moves.length - toRemove);
+    var st = { board:chessStartBoard(), castling:{wK:true,wQ:true,bK:true,bQ:true}, ep:null };
+    var cap = {w:[], b:[]};
+    for(var i=0;i<newMoves.length;i++){
+      var res2 = chessApply(st, newMoves[i]);
+      if(res2.captured) cap[colOf(res2.captured)].push(res2.captured);
+      st = {board:res2.board, castling:res2.castling, ep:res2.ep};
+    }
+    chessGame.board=st.board; chessGame.castling=st.castling; chessGame.ep=st.ep;
+    chessGame.moves=newMoves; chessGame.captured=cap;
+    chessGame.turn = newMoves.length%2===0?'w':'b';
+    chessGame.sel=null; chessGame.legalForSel=[];
+    chessSave(); chessRender();
+  });
   $('chessNewBtn').addEventListener('click', function(){ if(confirm('要重新開始一盤新棋嗎？目前進度會結束。')) chessNewGame(); });
   $('chessResignBtn').addEventListener('click', function(){
     if(!chessGame||chessGame.status!=='playing') return;
@@ -6241,17 +6255,9 @@ textarea.mid{ min-height:90px; }
   });
   $('socialComposeInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('socialComposeBtn').click(); } });
 
-  /* ============ Backup / Notion ============ */
-  var NOTION_KEY = 'companion:notionToken';
-  var NOTION_PAGE_KEY = 'companion:notionPageId';
-  var storedNotionToken = localStorage.getItem(NOTION_KEY)||'';
-  var storedNotionPage  = localStorage.getItem(NOTION_PAGE_KEY)||'';
-
+  /* ============ Backup ============ */
   function openBackupOverlay(){
-    $('notionToken').value = storedNotionToken;
-    $('notionPageId').value = storedNotionPage;
     $('backupLocalResult').classList.add('hidden');
-    $('backupNotionResult').classList.add('hidden');
     $('backupOverlay').classList.remove('hidden');
   }
   $('backupClose').addEventListener('click', function(){ $('backupOverlay').classList.add('hidden'); });
@@ -6293,93 +6299,6 @@ textarea.mid{ min-height:90px; }
       }
     };
     reader.readAsText(file); e.target.value='';
-  });
-
-  var CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-  function notionUrl(path){
-    return CORS_PROXY + encodeURIComponent('https://api.notion.com/v1' + path);
-  }
-  function notionHeaders(token){
-    return { 'Authorization':'Bearer '+token, 'Content-Type':'application/json', 'Notion-Version':'2022-06-28' };
-  }
-
-  /* Chunk large JSON into multiple Notion paragraph blocks (2000 char limit per block) */
-  function chunkJson(str, size){
-    var chunks=[]; for(var i=0;i<str.length;i+=size) chunks.push(str.slice(i,i+size));
-    return chunks;
-  }
-
-  $('notionBackupBtn').addEventListener('click', async function(){
-    var token=($('notionToken').value||'').trim();
-    var pageId=($('notionPageId').value||'').trim().replace(/-/g,'');
-    var r=$('backupNotionResult');
-    if(!token||!pageId){ r.className='backup-result err'; r.textContent='✗ 請填入 Token 與頁面 ID。'; r.classList.remove('hidden'); return; }
-    localStorage.setItem(NOTION_KEY, token); localStorage.setItem(NOTION_PAGE_KEY, pageId);
-    storedNotionToken=token; storedNotionPage=pageId;
-    r.className='backup-result'; r.textContent='備份中…'; r.classList.remove('hidden');
-    try{
-      var dataStr = JSON.stringify(gatherAllData());
-      var timestamp = new Date().toLocaleString('zh-TW',{hour12:false});
-      var chunks = chunkJson(dataStr, 1990);
-      var children = chunks.map(function(c,i){
-        return { object:'block', type:'code', code:{ rich_text:[{ type:'text', text:{ content:c } }], language:'json', caption:[{ type:'text', text:{ content: i===0 ? 'AI伴侶備份 '+timestamp : '（續）' } }] } };
-      });
-      var body = {
-        parent:{ page_id: pageId },
-        properties:{ title:{ title:[{ text:{ content:'AI伴侶備份 '+timestamp } }] } },
-        children: children.slice(0,5)
-      };
-      console.log('Notion 備份請求:', { url:notionUrl('/pages'), pageId:pageId, childCount:children.length });
-      var controller = new AbortController();
-      var timeoutId = setTimeout(function(){ controller.abort(); }, 15000);
-      var resp = await fetch(notionUrl('/pages'), { method:'POST', headers:notionHeaders(token), body:JSON.stringify(body), signal:controller.signal });
-      clearTimeout(timeoutId);
-      console.log('Notion 響應狀態:', resp.status);
-      if(resp.ok){
-        r.className='backup-result ok'; r.textContent='✓ 已備份至 Notion！（'+timestamp+'）';
-      } else {
-        var errText = await resp.text().catch(function(){return '';});
-        console.error('Notion 錯誤:', resp.status, errText);
-        var errMsg = errText ? JSON.parse(errText).message || errText : '未知錯誤';
-        r.className='backup-result err';
-        r.textContent='✗ Notion 錯誤（'+resp.status+'）：'+errMsg.slice(0,150);
-      }
-    } catch(e){
-      console.error('備份異常:', e);
-      var msg = e.name==='AbortError' ? '連線超時（15秒）' : (e.message||e);
-      r.className='backup-result err';
-      r.textContent='✗ 連線失敗：'+msg+'\n請檢查：1.Token 格式 2.頁面 ID 3.Integration 權限';
-    }
-  });
-
-  $('notionRestoreBtn').addEventListener('click', async function(){
-    var token=($('notionToken').value||'').trim();
-    var pageId=($('notionPageId').value||'').trim().replace(/-/g,'');
-    var r=$('backupNotionResult');
-    if(!token||!pageId){ r.className='backup-result err'; r.textContent='✗ 請填入 Token 與頁面 ID。'; r.classList.remove('hidden'); return; }
-    r.className='backup-result'; r.textContent='搜尋最新備份中…'; r.classList.remove('hidden');
-    try{
-      /* Search for child pages with backup title */
-      var searchResp = await fetch(notionUrl('/search'), {
-        method:'POST', headers:notionHeaders(token),
-        body:JSON.stringify({ query:'AI伴侶備份', filter:{ value:'page', property:'object' }, sort:{ direction:'descending', timestamp:'last_edited_time' }, page_size:5 })
-      });
-      if(!searchResp.ok) throw new Error('搜尋失敗 '+searchResp.status);
-      var searchData = await searchResp.json();
-      var page = (searchData.results||[])[0];
-      if(!page) throw new Error('找不到備份頁面（請先執行「備份至 Notion」）');
-      /* Get blocks of that page */
-      var blocksResp = await fetch(notionUrl('/blocks/'+page.id+'/children?page_size=20'), { headers:notionHeaders(token) });
-      if(!blocksResp.ok) throw new Error('讀取失敗 '+blocksResp.status);
-      var blocksData = await blocksResp.json();
-      var codeBlocks = (blocksData.results||[]).filter(function(b){ return b.type==='code'; });
-      if(!codeBlocks.length) throw new Error('備份頁面中沒有資料 code block');
-      var fullJson = codeBlocks.map(function(b){ return (b.code.rich_text||[]).map(function(t){ return t.plain_text||''; }).join(''); }).join('');
-      var obj = JSON.parse(fullJson);
-      var count=0;
-      Object.keys(obj).forEach(function(k){ if(k.startsWith('companion:')){ localStorage.setItem(k,obj[k]); count++; } });
-      r.className='backup-result ok'; r.textContent='✓ 已從 Notion 還原 '+count+' 筆資料！請重新整理頁面套用。';
-    } catch(e){ r.className='backup-result err'; r.textContent='✗ 還原失敗：'+(e.message||e); }
   });
 
   /* ============ Firebase 備份（加強版，帶重試機制）============ */
