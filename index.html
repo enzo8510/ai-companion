@@ -594,8 +594,11 @@ textarea.mid{ min-height:90px; }
 .ci-cal-stats{ display:flex; gap:var(--space-md); justify-content:center; margin-bottom:var(--space-lg); }
 /* ---- Checkin Calendar Styling ---- */
 .ci-cal-grid-styled .cal-full-day{ border-radius:50% !important; background:rgba(200,200,200,0.3) !important; border:none !important; font-weight:700; color:var(--ink-soft); }
-.ci-cal-grid-styled .cal-full-day.cal-fd-today{ background:#92b061 !important; color:#fff; box-shadow:0 2px 8px rgba(146,176,97,0.4); }
-.ci-cal-grid-styled .cal-full-day.ci-day-done{ background:#92b061 !important; color:#fff; box-shadow:0 2px 8px rgba(146,176,97,0.35); }
+.ci-cal-grid-styled .cal-full-day.cal-fd-today{ background:var(--companion) !important; color:#fff; box-shadow:0 2px 8px rgba(59,173,204,0.4); }
+.ci-cal-grid-styled .cal-full-day.ci-done-1{ background:var(--companion) !important; color:#fff; box-shadow:0 2px 6px rgba(59,173,204,0.35); }
+.ci-cal-grid-styled .cal-full-day.ci-done-2{ background:var(--health-color) !important; color:#fff; box-shadow:0 2px 6px rgba(141,198,76,0.35); }
+.ci-cal-grid-styled .cal-full-day.ci-done-3{ background:var(--birthday-color) !important; color:#fff; box-shadow:0 2px 6px rgba(224,128,80,0.35); }
+.ci-cal-grid-styled .cal-full-day.ci-done-4{ background:var(--period-color) !important; color:#fff; box-shadow:0 2px 6px rgba(232,76,120,0.35); }
 .ci-cal-grid-styled .cal-full-day.cal-fd-empty{ background:transparent !important; border:none !important; }
 .ci-stat-box{ background:linear-gradient(135deg, var(--companion-soft), rgba(59,173,204,0.08)); border-radius:14px; padding:var(--space-lg) var(--space-xl); text-align:center; border:1px solid rgba(59,173,204,0.2); }
 .ci-stat-num{ font-size:28px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
@@ -687,10 +690,14 @@ textarea.mid{ min-height:90px; }
 .qa-divider-text{ display:block; font-size:12.5px; color:var(--ink); background:var(--gold-soft); border-radius:14px; padding:9px 16px; line-height:1.65; }
 
 /* ---- Check-in achievements ---- */
-.ci-achievements{ display:flex; flex-wrap:wrap; gap:var(--space-sm); margin-bottom:var(--space-lg); }
-.ci-achieve-badge{ display:flex; align-items:center; gap:var(--space-sm); padding:var(--space-sm) var(--space-md); border-radius:999px; font-size:12px; font-weight:600; transition:all .15s; }
-.ci-achieve-badge.locked{ background:var(--chat-bg); color:var(--ink-soft); opacity:0.6; }
-.ci-achieve-badge.locked:hover{ opacity:0.8; }
+.ci-achievements{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm); margin-bottom:var(--space-lg); }
+.ci-achieve-badge{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:var(--space-md) var(--space-sm); border-radius:14px; font-size:12px; font-weight:600; transition:all .15s; border:1.5px solid var(--line); background:var(--surface); min-height:64px; text-align:center; }
+.ci-achieve-badge .ci-badge-emoji{ font-size:22px; line-height:1; }
+.ci-achieve-badge .ci-badge-label{ font-size:11px; line-height:1.3; }
+.ci-achieve-badge.locked{ background:var(--chat-bg); color:var(--ink-soft); border-color:var(--line); opacity:0.65; }
+.ci-achieve-badge.locked:hover{ opacity:0.85; }
+.ci-achieve-badge.unlocked{ background:linear-gradient(135deg,var(--companion-soft),rgba(59,173,204,0.06)); border-color:var(--companion); color:var(--companion); }
+.ci-achieve-badge.super{ background:linear-gradient(135deg,rgba(232,196,98,0.18),rgba(232,196,98,0.06)); border-color:#e8c462; color:#b8922a; }
 .ci-achieve-badge.unlocked{ background:linear-gradient(135deg, var(--gold-soft), rgba(216,238,248,0.5)); color:#7a5a1c; border:1px solid #e0c86a; box-shadow:0 2px 6px rgba(224,200,106,0.2); }
 .ci-achieve-badge.super{ background:linear-gradient(135deg,#fdf2dc,#fcead0); color:#c87830; border:1.5px solid #e8a530; box-shadow:0 2px 8px rgba(232,165,48,0.3); }
 
@@ -3223,66 +3230,20 @@ textarea.mid{ min-height:90px; }
     text.className = 'qa-card-text';
     text.textContent = question;
 
-    var historyContainer = document.createElement('div');
-    historyContainer.className = 'qa-card-history';
-
-    var toggle = document.createElement('button');
-    toggle.className = 'qa-card-toggle';
-    toggle.type = 'button';
-    toggle.textContent = '📚 查看歷史問題';
-    toggle.addEventListener('click', function(e){
-      e.stopPropagation();
-      historyContainer.classList.toggle('show');
-      toggle.textContent = historyContainer.classList.contains('show') ? '📚 隱藏歷史' : '📚 查看歷史問題';
-    });
-
-    if(qaHistory && qaHistory.length > 0){
-      qaHistory.forEach(function(item, histIdx){
-        var histItem = document.createElement('div');
-        histItem.className = 'qa-history-item';
-        histItem.innerHTML = '<strong>Q:</strong> ' + escHtml(item.question) + '<br><small>' + (item.date || '未記錄') + '</small>';
-        histItem.addEventListener('click', function(e){
-          e.stopPropagation();
-          if(e.target.tagName !== 'BUTTON'){
-            text.textContent = item.question;
-            historyContainer.classList.remove('show');
-            toggle.textContent = '📚 查看歷史問題';
-          }
-        });
-        var delHistBtn = document.createElement('button');
-        delHistBtn.className = 'qa-card-delete';
-        delHistBtn.type = 'button';
-        delHistBtn.textContent = '✕';
-        delHistBtn.style.position = 'absolute';
-        delHistBtn.style.right = '8px';
-        delHistBtn.style.top = '50%';
-        delHistBtn.style.transform = 'translateY(-50%)';
-        delHistBtn.addEventListener('click', function(e){
-          e.stopPropagation();
-          qaHistory.splice(histIdx, 1);
-          save(KEYS.qaHistory, qaHistory);
-          histItem.remove();
-          if(qaHistory.length === 0){
-            historyContainer.classList.remove('show');
-            toggle.style.display = 'none';
-          }
-        });
-        histItem.style.position = 'relative';
-        histItem.appendChild(delHistBtn);
-        historyContainer.appendChild(histItem);
-      });
-      if(qaHistory.length === 0) toggle.style.display = 'none';
-    } else {
-      toggle.style.display = 'none';
-    }
-
     var actions = document.createElement('div');
     actions.className = 'qa-card-actions';
-    actions.appendChild(toggle);
+    var toQaBtn = document.createElement('button');
+    toQaBtn.className = 'qa-card-toggle';
+    toQaBtn.type = 'button';
+    toQaBtn.textContent = '🎲 每日問題頁面';
+    toQaBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      showTodayQa();
+    });
+    actions.appendChild(toQaBtn);
 
     card.appendChild(header);
     card.appendChild(text);
-    card.appendChild(historyContainer);
     card.appendChild(actions);
 
     return card;
@@ -4077,7 +4038,7 @@ textarea.mid{ min-height:90px; }
       items.push({ date:e.date, title:e.title, type:'event', id:e.id });
     });
     memories.forEach(function(m){ if(m.date) items.push({ date:m.date, title:m.text.slice(0,40)+(m.text.length>40?'…':''), type:'memory' }); });
-    journal.forEach(function(j){ if(j.date) items.push({ date:j.date, title:j.content.slice(0,40)+(j.content.length>40?'…':''), type: j.mood ? 'diary' : 'journal' }); });
+    journal.forEach(function(j, jIdx){ if(j.date) items.push({ date:j.date, title:j.content.slice(0,40)+(j.content.length>40?'…':''), type: j.mood ? 'diary' : 'journal', jIdx:jIdx }); });
     return items;
   }
 
@@ -4156,6 +4117,14 @@ textarea.mid{ min-height:90px; }
           save(KEYS.events,events); renderCalOvGrid(); renderDayDetail(calOvSelDay); renderAnniSection(); updateCountdown();
         }); })(it.id);
         item.appendChild(del);
+      }
+      if(it.jIdx !== undefined){
+        var delJ=document.createElement('button'); delJ.className='cal-ev-del'; delJ.title='刪除日記'; delJ.textContent='✕';
+        (function(idx){ delJ.addEventListener('click',function(){
+          journal.splice(idx,1);
+          save(KEYS.journal,journal); renderCalOvGrid(); renderDayDetail(calOvSelDay);
+        }); })(it.jIdx);
+        item.appendChild(delJ);
       }
       list.appendChild(item);
     });
@@ -5070,7 +5039,8 @@ textarea.mid{ min-height:90px; }
       var isDone=history.indexOf(dateStr)>=0;
       if(isDone) monthCount++;
       var btn=document.createElement('div');
-      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+(isDone?' ci-day-done':'');
+      var doneClass=isDone?' ci-done-'+Math.min(Math.floor((d-1)/7)+1,4):'';
+      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+doneClass;
       btn.textContent=d;
       grid.appendChild(btn);
     }
@@ -5089,7 +5059,7 @@ textarea.mid{ min-height:90px; }
       var unlocked = a.type==='streak' ? streak>=a.threshold : monthCount===daysInMon;
       var badge = document.createElement('div');
       badge.className='ci-achieve-badge '+(unlocked?(a.id==='month'?'super':'unlocked'):'locked');
-      badge.textContent = (unlocked?a.emoji:'🔒') + ' ' + a.label + (a.type==='streak'?' ('+a.threshold+'天)':'');
+      badge.innerHTML='<span class="ci-badge-emoji">'+(unlocked?a.emoji:'🔒')+'</span><span class="ci-badge-label">'+a.label+(a.type==='streak'?'<br>'+a.threshold+'天':'')+'</span>';
       ach.appendChild(badge);
     });
   }
