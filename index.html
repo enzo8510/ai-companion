@@ -1845,14 +1845,20 @@ textarea.mid{ min-height:90px; }
   var database = null;
   var firebaseInitialized = false;
 
+  var firebaseInitAttempts = 0;
   function initializeFirebase(){
     if(firebaseInitialized) return;
+    firebaseInitAttempts++;
 
     try {
       // 檢查 Firebase SDK 是否已加載
       if(typeof firebase === 'undefined'){
-        console.warn('⚠ Firebase SDK 尚未加載，等待中...');
-        setTimeout(initializeFirebase, 500);
+        if(firebaseInitAttempts <= 20){ // 最多嘗試 20 次（10 秒）
+          console.warn('⚠ Firebase SDK 尚未加載 (' + firebaseInitAttempts + '/20)，等待中...');
+          setTimeout(initializeFirebase, 500);
+        } else {
+          console.error('✗ Firebase SDK 加載失敗，超時');
+        }
         return;
       }
 
@@ -1895,6 +1901,15 @@ textarea.mid{ min-height:90px; }
   } else {
     initializeFirebase();
   }
+
+  // 也在 window.onload 時再試一次
+  window.addEventListener('load', function(){
+    if(!firebaseInitialized){
+      console.log('重新嘗試 Firebase 初始化...');
+      firebaseInitAttempts = 0;
+      initializeFirebase();
+    }
+  });
 
   /* ============ State ============ */
   var settings  = load(KEYS.settings)  || clone(DEFAULT_SETTINGS);
