@@ -824,6 +824,16 @@ textarea.mid{ min-height:90px; }
   .app-bg{ padding:0; align-items:stretch; }
   .phone-frame{ max-width:100%; width:100%; height:100%; height:100dvh; min-height:100dvh; border-radius:0; box-shadow:none; }
 }
+/* 防止 iOS Safari 在點擊輸入框時自動放大畫面：font-size 須 >= 16px */
+@media (pointer: coarse){
+  input, textarea, select,
+  .composer input, .field input, .field textarea, .field select,
+  .kb-card-body textarea, .jr-card-body textarea, .cal-add-row input,
+  .cal-add-row select, .cal-add-row textarea, .backup-field input,
+  .social-compose-input, .mem-date-input, .jr-date-input, .kb-file-name-input{
+    font-size:16px;
+  }
+}
 @media (min-width:521px) and (max-width:900px){
   .app-bg{ padding:16px 0; align-items:center; min-height:100dvh; }
   .phone-frame{ height:calc(100dvh - 32px); max-width:420px; }
@@ -1935,6 +1945,7 @@ textarea.mid{ min-height:90px; }
   /* ============ 即時雲同步 ============ */
   var syncEnabled = false;
   var isListening = false;
+  var initialSnapshotReceived = false; // 是否已完成初次雲端下載（防止本地空值覆蓋雲端）
   var lastSeenRemote = {}; // 記錄上次看到的遠端值，避免自己的上傳觸發重複載入
 
   function flushPendingUploads(){
@@ -1950,8 +1961,21 @@ textarea.mid{ min-height:90px; }
     pendingUploads = {};
   }
 
+  // 合併設定：若雲端的金鑰/網址/模型是空的，保留本地非空值，避免被空值覆蓋
+  function mergeSettingsStr(remoteStr, localStr){
+    try{
+      var r = JSON.parse(remoteStr) || {};
+      var l = localStr ? (JSON.parse(localStr) || {}) : {};
+      if((!r.apiKey  || r.apiKey  === '') && l.apiKey)  r.apiKey  = l.apiKey;
+      if((!r.baseUrl || r.baseUrl === '') && l.baseUrl) r.baseUrl = l.baseUrl;
+      if((!r.model   || r.model   === '') && l.model)   r.model   = l.model;
+      return JSON.stringify(r);
+    }catch(e){ return remoteStr; }
+  }
+
   function uploadAllLocalData(){
     if(!isFirebaseReady || !database) return;
+    if(!initialSnapshotReceived) return; // 尚未拉取雲端前不上傳，避免空值覆蓋
     Object.keys(KEYS).forEach(function(keyName){
       var localKey = KEYS[keyName];
       var v = localStorage.getItem(localKey);
@@ -1969,6 +1993,8 @@ textarea.mid{ min-height:90px; }
     database.ref('userdata').on('value', function(snapshot){
       var remoteData = snapshot.val() || {};
       var changed = [];
+      var firstSnapshot = !initialSnapshotReceived;
+      initialSnapshotReceived = true; // 標記已拉取雲端，之後才允許上傳
 
       Object.keys(remoteData).forEach(function(key){
         if(key.indexOf('companion:') !== 0) return; // 只處理我們的 key
@@ -1977,8 +2003,10 @@ textarea.mid{ min-height:90px; }
         if(lastSeenRemote[key] === remoteValue) return; // 跟上次一樣，跳過
         lastSeenRemote[key] = remoteValue;
         var localValue = localStorage.getItem(key);
-        if(remoteValue !== localValue){
-          localStorage.setItem(key, remoteValue);
+        // 設定類特別處理：保留本地非空金鑰，避免被雲端空值清掉
+        var valueToStore = (key === KEYS.settings) ? mergeSettingsStr(remoteValue, localValue) : remoteValue;
+        if(valueToStore !== localValue){
+          localStorage.setItem(key, valueToStore);
           // 個別 try/catch：單一 key 載入失敗不會中斷其他 key 的同步
           try { reloadDataFromLocalStorage(key); } catch(e){ console.warn('載入 '+key+' 失敗:', e.message); }
           changed.push(key);
@@ -1996,6 +2024,12 @@ textarea.mid{ min-height:90px; }
           if(typeof syncAvatar === 'function') syncAvatar();
         } catch(e){ console.warn('UI 刷新部分失敗:', e.message); }
       }
+
+      // 初次拉取雲端完成後，才上傳本地獨有的 key（例如雲端還沒有的金鑰）
+      if(firstSnapshot){
+        console.log('☁ 初次雲端下載完成，開始上傳本地資料');
+        uploadAllLocalData();
+      }
     }, function(err){
       console.warn('⚠ Firebase 即時監聽錯誤:', err.message);
     });
@@ -2008,16 +2042,15 @@ textarea.mid{ min-height:90px; }
     syncEnabled = true;
     console.log('🔄 啟動即時雲同步...');
 
-    // 1. 先上傳所有本地數據（初次全量同步）
-    uploadAllLocalData();
-
-    // 2. 沖刷在 Firebase 連接前已排隊的數據
-    flushPendingUploads();
-
-    // 3. 啟動即時監聽（其他設備的修改 1-2 秒內到達）
+    // 1. 先啟動即時監聽：會先把雲端資料拉下來，初次拉取完成後才會上傳
+    //    （避免本地空白設定覆蓋掉雲端已有的金鑰等資料）
     setupRealtimeListener();
 
-    // 4. 每 10 秒備用掃描（補捉直接寫 localStorage.setItem 的數據）
+    // 2. 沖刷在 Firebase 連接前由使用者明確修改、排隊中的資料
+    flushPendingUploads();
+
+    // 3. 每 10 秒備用掃描（補捉直接寫 localStorage.setItem 的資料；
+    //    內部會檢查 initialSnapshotReceived，初次下載前不會上傳）
     setInterval(uploadAllLocalData, 10000);
 
     console.log('✓ 即時雲同步已啟用（其他設備的更改 1-2 秒內同步）');
@@ -2071,8 +2104,11 @@ textarea.mid{ min-height:90px; }
         if(key.indexOf('companion:') !== 0) return;
         var remoteValue = remoteData[key];
         if(!remoteValue || remoteValue.length > 500000) return;
+        var localValue = localStorage.getItem(key);
+        // 設定類保留本地非空金鑰，避免被雲端空值清掉
+        var valueToStore = (key === KEYS.settings) ? mergeSettingsStr(remoteValue, localValue) : remoteValue;
         lastSeenRemote[key] = remoteValue; // 標記已看過，避免即時監聽重複處理
-        localStorage.setItem(key, remoteValue);
+        localStorage.setItem(key, valueToStore);
         reloadDataFromLocalStorage(key);
         restored++;
       });
