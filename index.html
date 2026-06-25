@@ -3202,13 +3202,15 @@ textarea.mid{ min-height:90px; }
     labelSpan.className = 'diary-note-label';
     labelSpan.textContent = '📓 今日日記';
 
-    var tagSpan = document.createElement('span');
-    tagSpan.className = 'diary-mood-tag';
-    tagSpan.style.background = info.color;
-    tagSpan.textContent = info.emoji + ' ' + escHtml(mood);
-
     leftDiv.appendChild(labelSpan);
-    leftDiv.appendChild(tagSpan);
+
+    if(mood){
+      var tagSpan = document.createElement('span');
+      tagSpan.className = 'diary-mood-tag';
+      tagSpan.style.background = info.color;
+      tagSpan.textContent = info.emoji + ' ' + escHtml(mood);
+      leftDiv.appendChild(tagSpan);
+    }
 
     var delBtn = document.createElement('button');
     delBtn.className = 'diary-note-delete';
