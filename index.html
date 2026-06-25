@@ -369,14 +369,23 @@ textarea.mid{ min-height:90px; }
 .kb-card.kb-dragging{ opacity:0.45; }
 .kb-card.kb-drag-over{ border-color:var(--companion); background:var(--companion-soft); transform:scale(1.01); }
 .bubble.lp-active{ opacity:0.75; transform:scale(0.97); transition:opacity .15s, transform .15s; }
-/* Full-screen event editor overlay */
-.kb-editor-overlay{ position:fixed; inset:0; z-index:350; background:var(--bg); display:flex; flex-direction:column; }
+/* Event editor — bottom sheet */
+.kb-editor-overlay{ position:fixed; inset:0; z-index:350; background:rgba(0,0,0,0.45); display:flex; flex-direction:column; justify-content:flex-end; }
 .kb-editor-overlay.hidden{ display:none; }
-.kb-editor-header{ display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
-.kb-editor-name{ flex:1; border:none; background:transparent; font-size:15px; font-weight:700; color:var(--ink); font-family:inherit; outline:none; min-width:0; }
-.kb-editor-count{ font-size:11px; color:var(--ink-soft); text-align:right; padding:6px 16px 2px; flex:0 0 auto; }
-.kb-editor-textarea{ flex:1; border:none; background:var(--bg); color:var(--ink); font-family:inherit; font-size:14px; line-height:1.8; padding:14px 16px; resize:none; outline:none; overflow-y:auto; }
-.kb-editor-footer{ padding:12px 16px; border-top:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.kb-editor-sheet{ background:var(--bg); border-radius:20px 20px 0 0; max-height:88vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 -6px 32px rgba(0,0,0,0.14); }
+.kb-editor-header{ display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.kb-editor-back-btn{ font-size:24px; line-height:1; color:var(--ink); background:none; border:none; padding:0 10px 0 0; cursor:pointer; }
+.kb-editor-title{ flex:1; text-align:center; font-size:16px; font-weight:600; color:var(--ink); }
+.kb-editor-save-btn{ font-size:15px; font-weight:600; color:var(--companion); background:none; border:none; cursor:pointer; padding:0; }
+.kb-editor-body{ flex:1; overflow-y:auto; }
+.kb-editor-field{ padding:14px 16px; border-bottom:1px solid var(--line); }
+.kb-editor-field-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+.kb-editor-field-label{ font-size:13px; color:var(--ink-soft); }
+.kb-editor-field-count{ font-size:12px; color:var(--ink-soft); }
+.kb-editor-field input{ width:100%; border:none; background:transparent; font-family:inherit; font-size:15px; color:var(--ink); outline:none; padding:0; }
+.kb-editor-field textarea{ width:100%; border:none; background:transparent; font-family:inherit; font-size:14px; color:var(--ink); outline:none; padding:0; resize:none; min-height:200px; line-height:1.8; }
+.kb-editor-del-row{ padding:16px 16px 24px; }
+.kb-editor-del-btn{ width:100%; padding:11px; border:1px solid #e05252; border-radius:12px; background:none; color:#e05252; font-size:14px; cursor:pointer; font-family:inherit; }
 /* Memory cards — timeline style */
 .mem-card{ display:flex; gap:var(--space-md); background:var(--surface); border:1px solid var(--line); border-radius:14px; margin-bottom:var(--space-sm); padding:var(--space-lg); }
 .mem-left{ display:flex; flex-direction:column; align-items:center; padding-top:3px; flex:0 0 auto; }
@@ -1291,9 +1300,9 @@ textarea.mid{ min-height:90px; }
 @media (pointer: coarse){
   input, textarea, select,
   .composer input, .field input, .field textarea, .field select,
-  .kb-editor-textarea, .jr-card-body textarea, .cal-add-row input,
+  .kb-editor-field input, .kb-editor-field textarea, .jr-card-body textarea, .cal-add-row input,
   .cal-add-row select, .cal-add-row textarea, .backup-field input,
-  .social-compose-input, .mem-date-input, .jr-date-input, .kb-editor-name{
+  .social-compose-input, .mem-date-input, .jr-date-input{
     font-size:16px;
   }
 }
@@ -1531,9 +1540,9 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .kb-card,
 :root[data-theme="dark"] .mem-card,
 :root[data-theme="dark"] .jr-card{ background:var(--surface); border-color:var(--line); }
-:root[data-theme="dark"] .kb-editor-overlay{ background:var(--bg); }
-:root[data-theme="dark"] .kb-editor-textarea{ background:var(--bg); color:var(--ink); }
-:root[data-theme="dark"] .kb-editor-header, :root[data-theme="dark"] .kb-editor-footer{ background:var(--surface); }
+:root[data-theme="dark"] .kb-editor-sheet{ background:var(--bg); }
+:root[data-theme="dark"] .kb-editor-header{ background:var(--surface); }
+:root[data-theme="dark"] .kb-editor-field input, :root[data-theme="dark"] .kb-editor-field textarea{ color:var(--ink); }
 
 /* ---- Home screen action buttons — fixed height ---- */
 .home-action-btn{ height:72px; min-height:72px; }
@@ -2573,15 +2582,31 @@ textarea.mid{ min-height:90px; }
 
 <!-- ============ KNOWLEDGE EVENT EDITOR ============ -->
 <div class="kb-editor-overlay hidden" id="kbEditorOverlay">
-  <div class="kb-editor-header">
-    <button class="icon-btn" id="kbEditorClose" type="button" style="font-size:20px;">←</button>
-    <input type="text" class="kb-editor-name" id="kbEditorName" placeholder="事件名稱" maxlength="100">
-    <button class="icon-btn" id="kbEditorDelete" type="button" style="color:#e05252;font-size:18px;" title="刪除事件">🗑</button>
-  </div>
-  <div class="kb-editor-count" id="kbEditorCharCount">0 / 2000 字</div>
-  <textarea class="kb-editor-textarea" id="kbEditorContent" placeholder="貼上設定內容、角色資料、世界觀…" maxlength="2000"></textarea>
-  <div class="kb-editor-footer">
-    <button class="toolbar-btn primary" id="kbEditorSave" type="button" style="width:100%;justify-content:center;border-radius:12px;padding:12px;">💾 儲存</button>
+  <div class="kb-editor-sheet">
+    <div class="kb-editor-header">
+      <button class="kb-editor-back-btn" id="kbEditorClose" type="button">‹</button>
+      <span class="kb-editor-title">編輯事件</span>
+      <button class="kb-editor-save-btn" id="kbEditorSave" type="button">儲存</button>
+    </div>
+    <div class="kb-editor-body">
+      <div class="kb-editor-field">
+        <div class="kb-editor-field-top">
+          <span class="kb-editor-field-label">標題</span>
+          <span class="kb-editor-field-count" id="kbEditorNameCount">0/100</span>
+        </div>
+        <input type="text" id="kbEditorName" placeholder="事件名稱" maxlength="100">
+      </div>
+      <div class="kb-editor-field">
+        <div class="kb-editor-field-top">
+          <span class="kb-editor-field-label">內容</span>
+          <span class="kb-editor-field-count" id="kbEditorCharCount">0/2000</span>
+        </div>
+        <textarea id="kbEditorContent" placeholder="貼上設定內容、角色資料、世界觀…" maxlength="2000"></textarea>
+      </div>
+      <div class="kb-editor-del-row">
+        <button class="kb-editor-del-btn" id="kbEditorDelete" type="button">刪除此事件</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3929,17 +3954,27 @@ textarea.mid{ min-height:90px; }
   function updateKbEditorCount(){
     var len = ($('kbEditorContent').value||'').length;
     var el = $('kbEditorCharCount');
-    el.textContent = len.toLocaleString() + ' / ' + KB_MAX_CHARS + ' 字';
+    el.textContent = len.toLocaleString() + '/2000';
     el.style.color = len >= KB_MAX_CHARS ? '#e05252' : 'var(--ink-soft)';
+  }
+  function updateKbEditorNameCount(){
+    var len = ($('kbEditorName').value||'').length;
+    var el = $('kbEditorNameCount');
+    el.textContent = len + '/100';
+    el.style.color = len >= 100 ? '#e05252' : 'var(--ink-soft)';
   }
   function openKbEditor(k){
     kbEditingItem = k;
     $('kbEditorName').value = k.filename || '';
     $('kbEditorContent').value = k.content || '';
-    updateKbEditorCount();
+    updateKbEditorCount(); updateKbEditorNameCount();
     $('kbEditorOverlay').classList.remove('hidden');
     setTimeout(function(){ $('kbEditorContent').focus(); }, 120);
   }
+  $('kbEditorName').addEventListener('input', updateKbEditorNameCount);
+  $('kbEditorOverlay').addEventListener('click', function(e){
+    if(e.target === this){ $('kbEditorOverlay').classList.add('hidden'); kbEditingItem = null; }
+  });
   $('kbEditorClose').addEventListener('click', function(){
     $('kbEditorOverlay').classList.add('hidden');
     kbEditingItem = null;
