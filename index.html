@@ -821,7 +821,9 @@ textarea.mid{ min-height:90px; }
 .chess-sq{ position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; -webkit-user-select:none; font-size:clamp(22px,7vw,34px); line-height:1; background:transparent; }
 .chess-sq.light{ background:transparent; }
 .chess-sq.dark{ background:transparent; }
-.chess-sq .pc{ position:relative; z-index:2; }
+.chess-sq .pc{ position:relative; z-index:2; display:flex; align-items:center; justify-content:center; }
+.chess-sq .pc.piece-img{ cursor:grab; }
+.chess-sq .pc.piece-img:active{ cursor:grabbing; }
 .chess-sq .pc.white-pc{ color:#fafafa; text-shadow:0 1px 2px rgba(0,0,0,0.55), 0 0 1px rgba(0,0,0,0.9); }
 .chess-sq .pc.black-pc{ color:#202020; text-shadow:0 1px 1px rgba(255,255,255,0.25); }
 .chess-sq.sel{ box-shadow:inset 0 0 0 3px rgba(59,173,204,0.9); }
@@ -4742,6 +4744,7 @@ textarea.mid{ min-height:90px; }
     [0,2,4,6,6,4,2,0],[0,2,4,4,4,4,2,0],[0,2,2,2,2,2,2,0],[0,0,0,0,0,0,0,0]
   ];
   var PIECE_GLYPH={ wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙', bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟' };
+  var PIECE_IMAGE={ wK:'pieces-png/white-king.png',wQ:'pieces-png/white-queen.png',wR:'pieces-png/white-rook.png',wB:'pieces-png/white-bishop.png',wN:'pieces-png/white-knight.png',wP:'pieces-png/white-pawn.png', bK:'pieces-png/black-king.png',bQ:'pieces-png/black-queen.png',bR:'pieces-png/black-rook.png',bB:'pieces-png/black-bishop.png',bN:'pieces-png/black-knight.png',bP:'pieces-png/black-pawn.png' };
 
   function inB(r,c){ return r>=0&&r<8&&c>=0&&c<8; }
   function colOf(p){ return p?p[0]:''; }
@@ -4947,7 +4950,7 @@ textarea.mid{ min-height:90px; }
       sq.className='chess-sq '+(((r+c)%2===0)?'light':'dark');
       if(lastMv&&((lastMv.from[0]===r&&lastMv.from[1]===c)||(lastMv.to[0]===r&&lastMv.to[1]===c))) sq.classList.add('lastmove');
       var p=board[r][c];
-      if(p){ var span=document.createElement('span'); span.className='pc '+(colOf(p)==='w'?'white-pc':'black-pc'); span.textContent=PIECE_GLYPH[p]; sq.appendChild(span); }
+      if(p){ var img=document.createElement('img'); img.src=PIECE_IMAGE[p]; img.className='pc piece-img'; img.style.width='85%'; img.style.height='85%'; img.style.objectFit='contain'; img.draggable=false; sq.appendChild(img); }
       if(interactive){
         if(chessGame.sel&&chessGame.sel[0]===r&&chessGame.sel[1]===c) sq.classList.add('sel');
         if(chessGame.sel){ var mv=chessFindSelMove(r,c); if(mv){ var mk=document.createElement('div'); mk.className=board[r][c]?'chess-mv-cap':'chess-mv-dot'; sq.appendChild(mk); } }
