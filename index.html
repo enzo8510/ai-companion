@@ -1285,67 +1285,132 @@ textarea.mid{ min-height:90px; }
 .social-compose-btn:hover{ box-shadow:0 2px 8px rgba(59,173,204,0.3); }
 .social-compose-btn:active{ transform:scale(0.95); }
 
-/* ---- Today QA View ---- */
-#todayQaView .social-body{ padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-2xl); }
-.qa-today-section{
-  display:flex; flex-direction:column; gap:var(--space-md);
-  padding:var(--space-lg); background:var(--surface);
-  border-radius:16px; border:1px solid var(--line);
+/* ---- Today QA View (redesigned) ---- */
+#todayQaView{ background:var(--bg); }
+.qa-view-bg{ display:flex; flex-direction:column; height:100%; background:var(--bg); }
+.qa-view-hdr{
+  display:flex; align-items:center; padding:14px 16px;
+  background:var(--surface); border-bottom:1px solid var(--line); flex:0 0 auto;
 }
-.qa-today-title, .qa-history-title{
-  font-size:14px; font-weight:700; color:var(--ink);
-  text-transform:uppercase; letter-spacing:.03em;
+.qa-back-btn{
+  background:none; border:none; font-size:19px; color:var(--ink-soft);
+  cursor:pointer; padding:6px 10px; border-radius:10px;
+  min-width:36px; min-height:36px; display:flex; align-items:center; justify-content:center;
 }
-.qa-today-card{
-  padding:var(--space-lg); background:var(--chat-bg);
-  border-radius:12px; border:1px dashed var(--line);
-  min-height:100px; display:flex; flex-direction:column;
-  justify-content:center; gap:var(--space-md);
+.qa-back-btn:hover{ color:var(--companion); background:var(--companion-soft); }
+.qa-view-title{ flex:1; text-align:center; font-size:16px; font-weight:700; color:var(--ink); }
+
+.qa-view-body{
+  flex:1; overflow-y:auto; padding:16px 16px 32px;
+  display:flex; flex-direction:column; gap:14px;
 }
-.qa-today-text{
-  font-size:15px; line-height:1.6; color:var(--ink);
-  font-weight:500;
+
+/* Hero card */
+.qa-hero-wrap{ display:flex; flex-direction:column; gap:10px; }
+.qa-hero-card{
+  background:var(--surface); border-radius:20px;
+  padding:20px; box-shadow:0 4px 20px rgba(0,0,0,0.06);
+  border:1px solid var(--line);
 }
-.qa-refresh-btn{
-  align-self:flex-end; background:transparent; color:var(--ink-soft);
-  border:none; font-size:12px; cursor:pointer; font-family:inherit;
-  padding:4px 8px; border-radius:6px; transition:all .12s;
+.qa-hero-top{
+  display:flex; align-items:center; gap:12px; margin-bottom:14px;
 }
-.qa-refresh-btn:hover{ color:var(--companion); background:var(--companion-soft); }
-.qa-ask-btn{
-  width:100%; background:linear-gradient(135deg, #E8F5FE, #F0FAFF);
-  border:1.5px solid var(--companion); color:var(--companion);
-  border-radius:12px; padding:var(--space-md) var(--space-lg);
-  font-family:inherit; font-size:14px; font-weight:600;
+.qa-hero-char{
+  width:52px; height:52px; border-radius:16px;
+  background:linear-gradient(135deg,var(--companion-soft),var(--bg));
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; flex:0 0 auto; border:1px solid var(--line);
+}
+.qa-hero-info{ flex:1; }
+.qa-hero-label{ font-size:16px; font-weight:700; color:var(--ink); line-height:1.2; }
+.qa-hero-sub{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+
+.qa-hero-question{
+  font-size:15px; line-height:1.65; color:var(--ink); font-weight:500;
+  padding:14px 16px; background:var(--chat-bg);
+  border-radius:12px; margin-bottom:12px;
+  border:1.5px dashed var(--line);
+}
+.qa-hero-meta{
+  display:flex; align-items:center; gap:8px; margin-bottom:14px;
+}
+.qa-hero-badge{
+  display:inline-flex; align-items:center; gap:4px;
+  background:rgba(169,135,216,0.13); color:var(--companion);
+  border-radius:999px; padding:4px 10px; font-size:11px; font-weight:600;
+}
+.qa-asked-tag{
+  background:rgba(146,176,97,0.15); color:#6a9a3c;
+  border-radius:999px; padding:4px 10px; font-size:11px; font-weight:600;
+}
+.qa-asked-tag.hidden{ display:none; }
+
+.qa-hero-actions{ display:flex; gap:8px; }
+.qa-refresh-pill{
+  flex:0 0 auto; background:var(--chat-bg); color:var(--ink-soft);
+  border:1px solid var(--line); border-radius:999px;
+  padding:8px 14px; font-size:13px; font-family:inherit;
   cursor:pointer; transition:all .15s;
 }
-.qa-ask-btn:hover{ box-shadow:0 4px 12px rgba(59,173,204,0.2); transform:translateY(-1px); }
-.qa-ask-btn:active{ transform:translateY(0); }
+.qa-refresh-pill:hover{ border-color:var(--companion); color:var(--companion); background:var(--companion-soft); }
+.qa-ask-pill{
+  flex:1; background:var(--companion); color:#fff;
+  border:none; border-radius:999px;
+  padding:10px 18px; font-size:13px; font-weight:600; font-family:inherit;
+  cursor:pointer; transition:all .15s;
+  box-shadow:0 4px 12px rgba(169,135,216,0.3);
+}
+.qa-ask-pill:hover{ opacity:.9; transform:translateY(-1px); }
+.qa-ask-pill:active{ transform:translateY(0); }
 
-.qa-history-section{
-  display:flex; flex-direction:column; gap:var(--space-md);
-  padding:var(--space-lg); background:var(--surface);
-  border-radius:16px; border:1px solid var(--line);
+/* Stats strip */
+.qa-stats-row{
+  display:flex; align-items:center; justify-content:space-around;
+  background:var(--surface); border-radius:16px;
+  padding:14px 10px; border:1px solid var(--line);
 }
-.qa-history-list{
-  display:flex; flex-direction:column; gap:var(--space-md);
-  max-height:400px; overflow-y:auto;
+.qa-stat-box{ display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; }
+.qa-stat-num{ font-size:22px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
+.qa-stat-lbl{ font-size:10px; color:var(--ink-soft); font-weight:600; letter-spacing:.02em; }
+.qa-stat-divider{ width:1px; height:32px; background:var(--line); flex:0 0 auto; }
+
+/* History */
+.qa-hist-section{ display:flex; flex-direction:column; gap:10px; }
+.qa-hist-header{ display:flex; align-items:center; justify-content:space-between; padding:0 2px; }
+.qa-hist-title{ font-size:13px; font-weight:700; color:var(--ink); letter-spacing:.02em; }
+.qa-hist-count{ font-size:12px; color:var(--ink-soft); }
+.qa-hist-list{ display:flex; flex-direction:column; gap:8px; }
+.qa-hist-item{
+  display:flex; align-items:flex-start; gap:12px;
+  background:var(--surface); border-radius:14px; padding:14px;
+  border:1px solid var(--line); transition:box-shadow .12s;
 }
-.qa-history-item{
-  padding:var(--space-md); background:var(--chat-bg);
-  border-radius:10px; border-left:3px solid var(--companion);
+.qa-hist-item:hover{ box-shadow:0 3px 12px rgba(0,0,0,0.07); }
+.qa-hist-dot{
+  width:20px; height:20px; border-radius:50%; flex:0 0 auto;
+  background:var(--companion-soft); border:2px solid var(--companion);
+  display:flex; align-items:center; justify-content:center;
+  margin-top:2px;
 }
-.qa-history-item-date{
-  font-size:11px; color:var(--ink-soft); margin-bottom:4px;
-  font-weight:600;
+.qa-hist-dot-inner{ width:8px; height:8px; border-radius:50%; background:var(--companion); }
+.qa-hist-content{ flex:1; min-width:0; }
+.qa-hist-q{ font-size:13px; color:var(--ink); font-weight:500; line-height:1.5; margin-bottom:5px; }
+.qa-hist-date{
+  display:inline-block; font-size:10px; color:var(--ink-soft);
+  background:var(--chat-bg); border-radius:6px; padding:2px 7px;
+  font-weight:600; border:1px solid var(--line);
 }
-.qa-history-item-q{
-  font-size:13px; color:var(--ink); font-weight:500;
-  margin-bottom:6px;
+.qa-hist-arrow{
+  width:32px; height:32px; border-radius:50%; flex:0 0 auto;
+  background:var(--companion); color:#fff; border:none;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; cursor:pointer; transition:all .15s;
+  box-shadow:0 2px 8px rgba(169,135,216,0.3);
 }
-.qa-history-item-a{
-  font-size:12px; color:var(--ink-soft); line-height:1.5;
-  font-style:italic;
+.qa-hist-arrow:hover{ opacity:.85; transform:scale(1.08); }
+.qa-empty-hint{
+  text-align:center; padding:32px 16px; color:var(--ink-soft);
+  font-size:13px; line-height:1.8;
 }
 
 /* ---- Backup / Notion overlay ---- */
@@ -1960,26 +2025,66 @@ textarea.mid{ min-height:90px; }
 
     <!-- ============ TODAY QA VIEW ============ -->
     <div class="view hidden" id="todayQaView">
-      <div class="social-hdr">
-        <button class="icon-btn" id="qaBackBtn" type="button" style="font-size:18px;">←</button>
-        <span class="social-hdr-title">✦ 今日問題</span>
-        <div style="width:36px;"></div>
-      </div>
-      <div class="social-body" id="qaBody">
-        <!-- 今日問題 -->
-        <div class="qa-today-section">
-          <div class="qa-today-title">今天的問題</div>
-          <div class="qa-today-card">
-            <div class="qa-today-text" id="qaTodayText"></div>
-            <button class="qa-refresh-btn" id="qaTodayRefreshBtn" type="button">🔄 換一題</button>
-          </div>
-          <button class="qa-ask-btn" id="qaAskBtn" type="button">✨ 問卄珩</button>
+      <div class="qa-view-bg">
+
+        <!-- Header -->
+        <div class="qa-view-hdr">
+          <button class="qa-back-btn" id="qaBackBtn" type="button">←</button>
+          <span class="qa-view-title">每日問題</span>
+          <div style="width:36px;"></div>
         </div>
 
-        <!-- 歷史問題 -->
-        <div class="qa-history-section">
-          <div class="qa-history-title">🔍 問題歷史</div>
-          <div class="qa-history-list" id="qaHistoryList"></div>
+        <div class="qa-view-body">
+
+          <!-- Hero card (今日問題) -->
+          <div class="qa-hero-wrap">
+            <div class="qa-hero-card">
+              <div class="qa-hero-top">
+                <div class="qa-hero-char">🎲</div>
+                <div class="qa-hero-info">
+                  <div class="qa-hero-label">每日一問</div>
+                  <div class="qa-hero-sub">和卄珩分享你的想法</div>
+                </div>
+              </div>
+              <div class="qa-hero-question" id="qaTodayText">載入中…</div>
+              <div class="qa-hero-meta">
+                <span class="qa-hero-badge" id="qaTodayDateBadge"></span>
+                <span class="qa-asked-tag hidden" id="qaAskedTag">✓ 已提問</span>
+              </div>
+              <div class="qa-hero-actions">
+                <button class="qa-refresh-pill" id="qaTodayRefreshBtn" type="button">🔄 換一題</button>
+                <button class="qa-ask-pill" id="qaAskBtn" type="button">✨ 問卄珩 →</button>
+              </div>
+            </div>
+
+            <!-- Stats strip -->
+            <div class="qa-stats-row">
+              <div class="qa-stat-box">
+                <div class="qa-stat-num" id="qaStatTotal">0</div>
+                <div class="qa-stat-lbl">累計問題</div>
+              </div>
+              <div class="qa-stat-divider"></div>
+              <div class="qa-stat-box">
+                <div class="qa-stat-num" id="qaStatMonth">0</div>
+                <div class="qa-stat-lbl">本月互動</div>
+              </div>
+              <div class="qa-stat-divider"></div>
+              <div class="qa-stat-box">
+                <div class="qa-stat-num" id="qaStatDays">0</div>
+                <div class="qa-stat-lbl">提問天數</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- History list -->
+          <div class="qa-hist-section">
+            <div class="qa-hist-header">
+              <span class="qa-hist-title">問答記錄</span>
+              <span class="qa-hist-count" id="qaHistCount"></span>
+            </div>
+            <div class="qa-hist-list" id="qaHistoryList"></div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -2089,56 +2194,7 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
-<!-- ============ CALENDAR OVERLAY ============ -->
-<div class="cal-overlay hidden" id="calOverlay">
-  <div class="cal-sheet">
-    <div class="cal-sheet-head">
-      <div class="cal-sheet-title">🗓 行事曆</div>
-      <button class="icon-btn" id="calOverlayClose" type="button">✕</button>
-    </div>
-    <div class="cal-sheet-body">
-      <div class="cal-month-nav">
-        <button class="cal-nav" id="calOvPrev" type="button">‹</button>
-        <div class="cal-month-label" id="calOvMonthLabel"></div>
-        <button class="cal-nav" id="calOvNext" type="button">›</button>
-      </div>
-      <div class="cal-full-weekdays">
-        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
-      </div>
-      <div class="cal-full-grid" id="calOvGrid"></div>
-
-      <!-- 選中日期詳情（點日期才顯示）-->
-      <div id="calOvDayDetail" style="display:none;">
-        <div class="cal-section-label" id="calOvDayLabel"></div>
-        <div id="calOvDayList" class="cal-event-list"></div>
-      </div>
-      <div id="calOvNoSel" class="cal-day-empty-hint">點選日期查看當天記錄</div>
-
-      <!-- 紀念日分欄（永遠顯示）-->
-      <div class="cal-section-divider"></div>
-      <div class="cal-section-label">🎂 紀念日</div>
-      <div id="calAnniList" class="cal-event-list"></div>
-
-      <!-- 新增事項 -->
-      <div class="cal-add-section">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <h3 style="margin:0;">📝 新增事項</h3>
-          <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:16px;padding:4px 8px;">⚙</button>
-        </div>
-        <div class="cal-add-row">
-          <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
-        </div>
-        <div class="cal-add-row">
-          <input type="text" id="calAddDate" placeholder="點擊選擇日期" readonly class="input-date">
-        </div>
-        <div class="cal-add-row">
-          <select id="calAddType" class="select-category"></select>
-        </div>
-        <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">✨ 新增事項</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- calOverlay removed: all IDs merged into calendarView full-screen view -->
 
 <!-- ============ PERIOD CALENDAR OVERLAY ============ -->
 <div class="cal-overlay hidden" id="periodCalOverlay">
@@ -4121,8 +4177,7 @@ textarea.mid{ min-height:90px; }
 
   $('calOvPrev').addEventListener('click',function(){ calOvMonth--; if(calOvMonth<0){calOvMonth=11;calOvYear--;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
   $('calOvNext').addEventListener('click',function(){ calOvMonth++; if(calOvMonth>11){calOvMonth=0;calOvYear++;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
-  $('calOverlayClose').addEventListener('click',function(){ $('calOverlay').classList.add('hidden'); });
-  $('calOverlay').addEventListener('click',function(e){ if(e.target===$('calOverlay')) $('calOverlay').classList.add('hidden'); });
+  // calOverlay removed – now using full-screen calendarView
 
   /* ---- Period Calendar Events ---- */
   loadPeriodData(); renderPeriodCalGrid();
@@ -4308,15 +4363,6 @@ textarea.mid{ min-height:90px; }
     $('calAddTitle').value=''; calAddDateVal=''; $('calAddDate').value='';
     renderCalOvGrid(); renderDayDetail(calOvSelDay); renderAnniSection(); updateCountdown(); flashSaved();
   });
-
-  function openCalOverlay(){
-    calOvSelDay=null;
-    renderEventTypeSelect();
-    renderCalOvGrid();
-    renderDayDetail(null);
-    renderAnniSection();
-    $('calOverlay').classList.remove('hidden');
-  }
 
   function showCalendarView(){
     showOnly('calendarView');
@@ -4566,6 +4612,26 @@ textarea.mid{ min-height:90px; }
   function renderTodayQaView(){
     var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
     $('qaTodayText').textContent = q;
+
+    // Date badge
+    var today = todayLabel();
+    $('qaTodayDateBadge').textContent = '📅 ' + today;
+
+    // Asked tag
+    var asked = qaHistory.some(function(h){ return h.date === today; });
+    $('qaAskedTag').classList.toggle('hidden', !asked);
+
+    // Stats
+    var total = qaHistory.length;
+    var thisMonth = qaHistory.filter(function(h){
+      return h.date && h.date.slice(0,7) === today.slice(0,7);
+    }).length;
+    var uniqueDays = new Set(qaHistory.map(function(h){ return h.date; })).size;
+    $('qaStatTotal').textContent = total;
+    $('qaStatMonth').textContent = thisMonth;
+    $('qaStatDays').textContent = uniqueDays;
+    $('qaHistCount').textContent = total > 0 ? total + ' 則記錄' : '';
+
     renderQaHistoryList();
   }
 
@@ -4573,26 +4639,67 @@ textarea.mid{ min-height:90px; }
     var list = $('qaHistoryList');
     list.innerHTML = '';
     if(qaHistory.length === 0){
-      list.innerHTML = '<div style="padding:var(--space-lg); text-align:center; color:var(--ink-soft); font-size:13px;">還沒有提過問題喔，去問卄珩吧！</div>';
+      var empty = document.createElement('div');
+      empty.className = 'qa-empty-hint';
+      empty.innerHTML = '🎲<br>還沒有提問過喔<br>去找卄珩聊聊今天的問題吧！';
+      list.appendChild(empty);
       return;
     }
-    qaHistory.forEach(function(h){
+    qaHistory.forEach(function(h, idx){
       var item = document.createElement('div');
-      item.className = 'qa-history-item';
-      var dateEl = document.createElement('div');
-      dateEl.className = 'qa-history-item-date';
-      dateEl.textContent = h.date;
+      item.className = 'qa-hist-item';
+
+      // Dot indicator
+      var dot = document.createElement('div');
+      dot.className = 'qa-hist-dot';
+      var dotInner = document.createElement('div');
+      dotInner.className = 'qa-hist-dot-inner';
+      dot.appendChild(dotInner);
+
+      // Content
+      var content = document.createElement('div');
+      content.className = 'qa-hist-content';
       var qEl = document.createElement('div');
-      qEl.className = 'qa-history-item-q';
-      qEl.textContent = 'Q: ' + h.question;
-      item.appendChild(dateEl);
-      item.appendChild(qEl);
-      if(h.answer){
-        var aEl = document.createElement('div');
-        aEl.className = 'qa-history-item-a';
-        aEl.textContent = 'A: ' + h.answer;
-        item.appendChild(aEl);
-      }
+      qEl.className = 'qa-hist-q';
+      qEl.textContent = h.question;
+      var dateEl = document.createElement('span');
+      dateEl.className = 'qa-hist-date';
+      dateEl.textContent = h.date || '';
+      content.appendChild(qEl);
+      content.appendChild(dateEl);
+
+      // Arrow button → re-ask
+      var arrow = document.createElement('button');
+      arrow.className = 'qa-hist-arrow';
+      arrow.type = 'button';
+      arrow.textContent = '▶';
+      arrow.title = '再次提問';
+      (function(question){
+        arrow.addEventListener('click', function(){
+          showFront();
+          if(!settings.apiKey){ chatInput.value = question; chatInput.focus(); return; }
+          if(sending) return;
+          chatHistory.push({ role:'user', content:question, ts:Date.now(), isQa:true });
+          save(KEYS.chat, chatHistory);
+          renderThread(); setSending(true); showTyping(); scrollThread();
+          callAI().then(function(reply){
+            hideTyping();
+            thread.appendChild(bubbleRow('assistant', reply));
+            chatHistory.push({ role:'assistant', content:reply, ts:Date.now() });
+            save(KEYS.chat, chatHistory);
+            scrollThread(); setSending(false); maybeExtractMemory();
+          }).catch(function(err){
+            hideTyping();
+            var box=document.createElement('div'); box.className='chat-error';
+            box.textContent='訊息沒送出去：'+(err&&err.message?err.message:String(err));
+            thread.appendChild(box); scrollThread(); setSending(false);
+          });
+        });
+      })(h.question);
+
+      item.appendChild(dot);
+      item.appendChild(content);
+      item.appendChild(arrow);
       list.appendChild(item);
     });
   }
