@@ -11,10 +11,10 @@
 @import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
 @font-face{
   font-family:'辰宇落雁體';
-  src:url('https://cdn.jsdelivr.net/npm/chen-yu-luoyan-ti@latest/ChenYuLuoYanTi.woff2') format('woff2'),
-       url('https://cdn.jsdelivr.net/npm/chen-yu-luoyan-ti@latest/ChenYuLuoYanTi.woff') format('woff');
+  src:url('https://raw.githubusercontent.com/nototype/ChenYuLuoYanTi/main/ChenYuLuoYanTi-Regular.woff2') format('woff2'),
+       url('https://raw.githubusercontent.com/nototype/ChenYuLuoYanTi/main/ChenYuLuoYanTi-Regular.woff') format('woff');
   font-weight:normal;
-  font-display:swap;
+  font-display:fallback;
 }
 
 :root{
@@ -2926,6 +2926,58 @@ textarea.mid{ min-height:90px; }
     return s;
   }
 
+  function createDiaryCard(text, mood, date, msgIndex){
+    var info = MOODS[mood] || { emoji:'📝', color:'#8891a4' };
+    var card = document.createElement('div');
+    card.className = 'diary-note';
+    card.setAttribute('data-msg-index', msgIndex);
+
+    var headDiv = document.createElement('div');
+    headDiv.className = 'diary-note-head';
+
+    var leftDiv = document.createElement('div');
+    leftDiv.className = 'diary-note-left';
+
+    var labelSpan = document.createElement('span');
+    labelSpan.className = 'diary-note-label';
+    labelSpan.textContent = '📓 今日日記';
+
+    var tagSpan = document.createElement('span');
+    tagSpan.className = 'diary-mood-tag';
+    tagSpan.style.background = info.color;
+    tagSpan.textContent = info.emoji + ' ' + escHtml(mood);
+
+    leftDiv.appendChild(labelSpan);
+    leftDiv.appendChild(tagSpan);
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'diary-note-delete';
+    delBtn.type = 'button';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      chatHistory.splice(msgIndex, 1);
+      save(KEYS.chat, chatHistory);
+      renderThread();
+    });
+
+    headDiv.appendChild(leftDiv);
+    headDiv.appendChild(delBtn);
+    card.appendChild(headDiv);
+
+    var textDiv = document.createElement('div');
+    textDiv.className = 'diary-note-text';
+    textDiv.textContent = text;
+    card.appendChild(textDiv);
+
+    var dateDiv = document.createElement('div');
+    dateDiv.className = 'diary-note-date';
+    dateDiv.textContent = date;
+    card.appendChild(dateDiv);
+
+    return card;
+  }
+
   function createQaCard(question, msgIndex){
     var card = document.createElement('div');
     card.className = 'qa-card';
@@ -3064,7 +3116,9 @@ textarea.mid{ min-height:90px; }
     }
 
     chatHistory.forEach(function(t, idx){
-      if(t.isQa && t.role==='user'){
+      if(t.isDiary && t.role==='user'){
+        thread.appendChild(createDiaryCard(t.content, t.mood, t.diaryDate, idx));
+      } else if(t.isQa && t.role==='user'){
         thread.appendChild(createQaCard(t.content, idx));
       } else {
         thread.appendChild(bubbleRow(t.role, t.content, idx));
@@ -4749,7 +4803,10 @@ textarea.mid{ min-height:90px; }
       if(journal.length > 100) journal = journal.slice(0, 100);
       save(KEYS.journal, journal);
       renderJournal();
-      showDiaryNoteInChat(diaryText, mood, today);
+      // Add diary to chat history
+      chatHistory.push({ role:'user', content:diaryText, ts:Date.now(), isDiary:true, mood:mood, diaryDate:today });
+      save(KEYS.chat, chatHistory);
+      renderThread();
       showCheckinToast('今日日記已生成 ✓');
     }).catch(function(){ showCheckinToast('日記生成失敗，請確認連線設定'); });
   }
