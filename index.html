@@ -202,13 +202,13 @@ body{
   word-break:break-word;
   white-space:pre-wrap;
 }
-.bubble.her{ background:rgba(176,158,212,0.85); color:var(--ink); border-radius:18px 18px 18px 5px; }
-.bubble.me{ background:rgba(245,240,255,0.92); color:var(--ink); border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
+.bubble.her{ background:rgba(176,158,212,0.85); color:#a987d8; border-radius:18px 18px 18px 5px; }
+.bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
 .bubble.her em{ font-style:italic; opacity:.85; }
-.bubble .action{ color:var(--ink-soft); }
-.bubble.her .action{ color:#B0B8D1; opacity:.9; }
-.bubble.me .action{ color:var(--ink-soft); opacity:.8; }
+.bubble .action{ color:#1a1a2e; }
+.bubble.her .action{ color:#a987d8; opacity:.85; }
+.bubble.me .action{ color:#1a1a2e; opacity:.85; }
 
 .typing-row .bubble.her{ display:flex; gap:4px; align-items:center; padding:14px 16px; }
 .typing-dot{ width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:typing-bounce 1.2s ease-in-out infinite; }
@@ -739,10 +739,10 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="brown"] #thread.has-chatbg .bubble.her .action{ color:#C8B08A; opacity:.85; }
 :root[data-theme="brown"] #thread.has-chatbg .bubble.me .action{ color:#B8A08A; opacity:.8; }
 /* Default theme with chat background */
-#thread.has-chatbg .bubble.her{ color:#ffffff; }
-#thread.has-chatbg .bubble.me{ color:#ffffff; }
-#thread.has-chatbg .bubble.her .action{ color:#B0B8D1; opacity:.85; }
-#thread.has-chatbg .bubble.me .action{ color:#A0A8C1; opacity:.8; }
+#thread.has-chatbg .bubble.her{ color:#a987d8; }
+#thread.has-chatbg .bubble.me{ color:#1a1a2e; }
+#thread.has-chatbg .bubble.her .action{ color:#a987d8; opacity:.85; }
+#thread.has-chatbg .bubble.me .action{ color:#1a1a2e; opacity:.85; }
 /* ---- With Me view（沉浸式專注頁）---- */
 #withMeBody{ background:#1a1430; }
 #withMeBody #withMeBgImage{ opacity:0.85; filter:brightness(0.78) saturate(1.05); }
