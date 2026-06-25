@@ -11,9 +11,9 @@
 @import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
 
 :root{
-  --bg:#ECEEF3;
+  --bg:#F3EEF8;
   --frame-shadow: rgba(50,58,80,0.14);
-  --chat-bg:#F3F4F8;
+  --chat-bg:#F3EEF8;
   --surface:#FFFFFF;
   --ink:#1a1a2e;
   --ink-soft:#7A8E9F;
@@ -334,7 +334,7 @@ textarea.mid{ min-height:90px; }
 .panel-empty .empty-title{ font-size:14px; color:var(--ink); margin-bottom:5px; font-weight:500; }
 .panel-empty .empty-sub{ font-size:12px; color:var(--ink-soft); line-height:1.7; }
 /* Knowledge cards */
-.kb-card{ background:#fff; border:1px solid var(--line); border-radius:16px; margin-bottom:var(--space-md); overflow:hidden; transition:box-shadow .18s; }
+.kb-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; margin-bottom:var(--space-md); overflow:hidden; transition:box-shadow .18s; }
 .kb-card:hover{ box-shadow:0 3px 14px rgba(50,58,80,0.07); }
 .kb-card-head{ display:flex; align-items:center; gap:10px; padding:13px 14px; cursor:pointer; user-select:none; }
 .kb-file-icon{ font-size:18px; flex:0 0 auto; }
@@ -349,7 +349,7 @@ textarea.mid{ min-height:90px; }
 .kb-card-body textarea{ width:100%; border:1px solid rgba(50,58,80,0.10); background:#fff; border-radius:10px; padding:10px 12px; font-size:13px; font-family:inherit; color:var(--ink); resize:vertical; outline:none; line-height:1.7; min-height:100px; }
 .kb-card-body textarea:focus{ border-color:var(--companion); }
 /* Memory cards — timeline style */
-.mem-card{ display:flex; gap:var(--space-md); background:#fff; border:1px solid var(--line); border-radius:14px; margin-bottom:var(--space-sm); padding:var(--space-lg); }
+.mem-card{ display:flex; gap:var(--space-md); background:var(--surface); border:1px solid var(--line); border-radius:14px; margin-bottom:var(--space-sm); padding:var(--space-lg); }
 .mem-left{ display:flex; flex-direction:column; align-items:center; padding-top:3px; flex:0 0 auto; }
 .mem-dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
 .mem-dot.auto{ background:var(--gold); }
@@ -368,7 +368,7 @@ textarea.mid{ min-height:90px; }
 .entry-char-count.warn{ color:#e07040; }
 .entry-char-count.limit{ color:#e05252; }
 /* Journal cards */
-.jr-card{ background:#fff; border:1px solid var(--line); border-radius:16px; margin-bottom:var(--space-lg); overflow:hidden; }
+.jr-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; margin-bottom:var(--space-lg); overflow:hidden; }
 .jr-card-head{ padding:var(--space-md) var(--space-lg); border-bottom:1px dashed rgba(50,58,80,0.10); display:flex; align-items:center; gap:var(--space-md); }
 .jr-date-icon{ font-size:14px; flex:0 0 auto; color:var(--companion); background:none; border:none; padding:0; cursor:pointer; line-height:1; }
 .jr-date-input{ flex:1; border:none; background:transparent; font-size:14px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC', serif; outline:none; min-width:60px; padding:0; }
@@ -434,7 +434,7 @@ textarea.mid{ min-height:90px; }
 .act-icon{ font-size:22px; line-height:1; }
 .act-label{ font-size:10px; color:var(--ink); font-weight:500; white-space:nowrap; }
 .act-streak{ font-size:10px; color:var(--companion); font-weight:600; }
-.home-qa-card{ width:100%; background:#fff; border:1.5px solid var(--line); border-radius:18px; padding:var(--space-lg); margin-bottom:var(--space-xl); cursor:pointer; transition:box-shadow .12s, border-color .12s; text-align:left; font-family:inherit; }
+.home-qa-card{ width:100%; background:var(--surface); border:1.5px solid var(--line); border-radius:18px; padding:var(--space-lg); margin-bottom:var(--space-xl); cursor:pointer; transition:box-shadow .12s, border-color .12s; text-align:left; font-family:inherit; }
 .home-qa-card:hover{ box-shadow:0 4px 18px rgba(59,173,204,0.12); border-color:var(--companion); }
 .home-qa-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .home-qa-title{ font-size:11px; color:var(--companion); font-weight:600; letter-spacing:.04em; }
