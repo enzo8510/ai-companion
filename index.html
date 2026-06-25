@@ -36,6 +36,7 @@
   --space-3xl: 48px;
   /* 事件分類顏色 */
   --event-color: #a987d8;
+  --chess-board-bg: url('rect-8x8/rect-8x8_02.png');
   --birthday-color: #e08050;
   --memory-color: #5DAAA4;
   --diary-color: #1a4080;
@@ -817,7 +818,7 @@ textarea.mid{ min-height:90px; }
 .chess-diff-btn{ font-size:12px; padding:6px 14px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
 .chess-diff-btn.active{ background:var(--companion); color:#fff; border-color:var(--companion); font-weight:600; }
 .chess-board-wrap{ width:100%; max-width:min(92vw,420px); aspect-ratio:1; }
-.chess-board{ display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); width:100%; height:100%; border-radius:10px; overflow:hidden; box-shadow:0 4px 18px rgba(0,0,0,0.18); border:2px solid #b58863; background-image:url('rect-8x8/rect-8x8_02.png'); background-size:100% 100%; background-repeat:no-repeat; }
+.chess-board{ display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); width:100%; height:100%; border-radius:10px; overflow:hidden; box-shadow:0 4px 18px rgba(0,0,0,0.18); border:2px solid #b58863; background-image:var(--chess-board-bg); background-size:100% 100%; background-repeat:no-repeat; }
 .chess-sq{ position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; -webkit-user-select:none; font-size:clamp(22px,7vw,34px); line-height:1; background:transparent; }
 .chess-sq.light{ background:transparent; }
 .chess-sq.dark{ background:transparent; }
@@ -832,6 +833,10 @@ textarea.mid{ min-height:90px; }
 .chess-mv-dot{ position:absolute; z-index:1; width:30%; height:30%; border-radius:50%; background:rgba(40,40,40,0.28); }
 .chess-mv-cap{ position:absolute; z-index:1; inset:6%; border-radius:50%; border:3px solid rgba(40,40,40,0.28); box-sizing:border-box; }
 .chess-captured{ font-size:18px; min-height:24px; text-align:center; letter-spacing:1px; line-height:1.2; color:var(--ink); word-break:break-all; }
+.chess-board-selector{ display:flex; gap:8px; justify-content:center; width:100%; margin-top:var(--space-md); }
+.chess-bg-btn{ font-size:12px; padding:6px 14px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.chess-bg-btn:hover{ border-color:var(--companion); color:var(--companion); }
+.chess-bg-btn.active{ background:var(--companion); color:#fff; border-color:var(--companion); font-weight:600; }
 .chess-actions, .chess-replay-controls{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; width:100%; }
 .chess-act-btn{ font-size:13px; padding:9px 14px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer; font-family:inherit; transition:all .15s; }
 .chess-act-btn:hover{ border-color:var(--companion); color:var(--companion); }
@@ -1545,6 +1550,12 @@ textarea.mid{ min-height:90px; }
         <!-- 棋盤 -->
         <div class="chess-board-wrap">
           <div class="chess-board" id="chessBoard"></div>
+        </div>
+
+        <!-- 棋盤背景選擇 -->
+        <div class="chess-board-selector">
+          <button class="chess-bg-btn" id="chessBgBtn1" type="button" data-bg="1">棋盤 1</button>
+          <button class="chess-bg-btn active" id="chessBgBtn2" type="button" data-bg="2">棋盤 2</button>
         </div>
 
         <!-- 已吃子 -->
@@ -4950,7 +4961,7 @@ textarea.mid{ min-height:90px; }
       sq.className='chess-sq '+(((r+c)%2===0)?'light':'dark');
       if(lastMv&&((lastMv.from[0]===r&&lastMv.from[1]===c)||(lastMv.to[0]===r&&lastMv.to[1]===c))) sq.classList.add('lastmove');
       var p=board[r][c];
-      if(p){ var img=document.createElement('img'); img.src=PIECE_IMAGE[p]; img.className='pc piece-img'; img.style.width='85%'; img.style.height='85%'; img.style.objectFit='contain'; img.draggable=false; sq.appendChild(img); }
+      if(p){ var pc=document.createElement('div'); pc.className='pc piece-img'; pc.style.backgroundImage='url(\''+PIECE_IMAGE[p]+'\')'; pc.style.width='85%'; pc.style.height='85%'; pc.style.backgroundSize='contain'; pc.style.backgroundRepeat='no-repeat'; pc.style.backgroundPosition='center'; sq.appendChild(pc); }
       if(interactive){
         if(chessGame.sel&&chessGame.sel[0]===r&&chessGame.sel[1]===c) sq.classList.add('sel');
         if(chessGame.sel){ var mv=chessFindSelMove(r,c); if(mv){ var mk=document.createElement('div'); mk.className=board[r][c]?'chess-mv-cap':'chess-mv-dot'; sq.appendChild(mk); } }
@@ -5062,6 +5073,16 @@ textarea.mid{ min-height:90px; }
   Array.prototype.forEach.call(document.querySelectorAll('.chess-diff-btn'),function(b){
     b.addEventListener('click', function(){ if(!chessGame) return; chessGame.difficulty=parseInt(b.dataset.diff,10); chessUpdateDiffButtons(); chessSave(); flashSaved('難度：'+b.textContent); });
   });
+  Array.prototype.forEach.call(document.querySelectorAll('.chess-bg-btn'),function(b){
+    b.addEventListener('click', function(){
+      var bgNum=b.dataset.bg;
+      document.documentElement.style.setProperty('--chess-board-bg', bgNum==='1'?'url(\'rect-8x8/rect-8x8.png\')':'url(\'rect-8x8/rect-8x8_02.png\')');
+      document.querySelectorAll('.chess-bg-btn').forEach(function(btn){ btn.classList.remove('active'); });
+      b.classList.add('active');
+      save('chessBoardBg', bgNum);
+    });
+  });
+  (function(){var bg=load('chessBoardBg')||'2'; $('chessBgBtn'+bg).click();})();
   $('chessReplayFirst').addEventListener('click', function(){ chessReplayState.idx=0; chessRenderReplay(); });
   $('chessReplayPrev').addEventListener('click', function(){ if(chessReplayState.idx>0){ chessReplayState.idx--; chessRenderReplay(); } });
   $('chessReplayNext').addEventListener('click', function(){ if(chessReplayState.idx<chessReplayState.positions.length-1){ chessReplayState.idx++; chessRenderReplay(); } });
