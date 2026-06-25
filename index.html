@@ -4808,7 +4808,8 @@ textarea.mid{ min-height:90px; }
     return null;
   }
   function chessRenderBoardInto(boardEl,board,interactive){
-    if(!boardEl||!board) return;
+    if(!boardEl) return;
+    if(!board){ boardEl.innerHTML='<div style="padding:40px;text-align:center;color:var(--ink-soft);">棋局載入中...</div>'; return; }
     boardEl.innerHTML='';
     var lastMv=(interactive&&chessGame&&chessGame.moves.length)?chessGame.moves[chessGame.moves.length-1]:null;
     for(var r=0;r<8;r++)for(var c=0;c<8;c++){
@@ -4906,9 +4907,12 @@ textarea.mid{ min-height:90px; }
 
   function showChess(){
     showOnly('chessView');
-    $('chessReview').classList.add('hidden'); $('chessReplay').classList.add('hidden');
+    var review=$('chessReview'), replay=$('chessReplay');
+    if(review) review.classList.add('hidden');
+    if(replay) replay.classList.add('hidden');
     if(!chessGame){ if(!chessLoad()) chessNewGame(); }
-    chessUpdateDiffButtons(); chessRender();
+    else if(chessGame){ chessUpdateDiffButtons(); chessRender(); }
+    setTimeout(function(){ if(chessGame&&$('chessBoard')){ chessUpdateDiffButtons(); chessRender(); } }, 50);
   }
 
   /* ---- 事件綁定 ---- */
