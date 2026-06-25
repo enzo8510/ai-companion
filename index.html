@@ -600,6 +600,18 @@ textarea.mid{ min-height:90px; }
 .cal-anni-item:hover{ background:rgba(224,128,80,0.05); }
 .cal-anni-item:last-child{ border-bottom:none; }
 .cal-anni-dot{ width:9px; height:9px; border-radius:50%; background:#e08050; flex:0 0 auto; box-shadow:0 1px 2px rgba(0,0,0,0.1); }
+/* ---- Period Calendar ---- */
+.period-date-range{ background:var(--chat-bg); border-radius:14px; padding:var(--space-lg); border:1px solid var(--line); margin-bottom:var(--space-lg); }
+.period-range-label{ font-size:12px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.period-range-display{ font-size:16px; font-weight:600; color:var(--companion); margin-bottom:12px; text-align:center; padding:12px; background:var(--surface); border-radius:10px; }
+.period-range-inputs{ display:flex; gap:8px; align-items:center; }
+.period-input{ flex:1; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; font-family:inherit; font-size:13px; color:var(--ink); background:var(--surface); outline:none; transition:all .15s; }
+.period-input:focus{ border-color:var(--companion); box-shadow:0 0 0 3px rgba(169,135,216,0.1); }
+.period-range-sep{ color:var(--ink-soft); font-weight:600; }
+.period-cal-month-nav{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-md); margin-bottom:var(--space-md); }
+.cal-full-grid .period-day-in-range{ background:var(--period-color); color:#fff; }
+.cal-full-grid .period-day-start,
+.cal-full-grid .period-day-end{ background:var(--period-color); color:#fff; font-weight:700; }
 .cal-anni-info{ flex:1; }
 .cal-anni-title{ font-size:13px; color:var(--ink); font-weight:500; }
 .cal-anni-countdown{ font-size:12px; color:#e08050; margin-top:var(--space-xs); font-weight:500; }
@@ -1163,6 +1175,10 @@ textarea.mid{ min-height:90px; }
             <span class="act-icon">♟️</span>
             <span class="act-label">西洋棋</span>
           </button>
+          <button class="home-action-btn" id="homePeriodBtn" type="button">
+            <span class="act-icon">🌸</span>
+            <span class="act-label">生理期</span>
+          </button>
         </div>
 
         <!-- Daily Q&A card -->
@@ -1699,6 +1715,42 @@ textarea.mid{ min-height:90px; }
         </div>
         <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">✨ 新增事項</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PERIOD CALENDAR OVERLAY ============ -->
+<div class="cal-overlay hidden" id="periodCalOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title">🌸 生理期追蹤</div>
+      <button class="icon-btn" id="periodCalClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <!-- 日期範圍選擇 -->
+      <div class="period-date-range">
+        <div class="period-range-label">選擇日期範圍</div>
+        <div class="period-range-display" id="periodRangeDisplay">未設定</div>
+        <div class="period-range-inputs">
+          <input type="date" id="periodStartDate" class="period-input">
+          <span class="period-range-sep">～</span>
+          <input type="date" id="periodEndDate" class="period-input">
+        </div>
+        <button class="toolbar-btn primary" id="periodSaveBtn" type="button" style="width:100%;justify-content:center;margin-top:12px;">💾 保存</button>
+      </div>
+
+      <div class="cal-section-divider"></div>
+
+      <!-- 日曆視圖 -->
+      <div class="period-cal-month-nav">
+        <button class="cal-nav" id="periodCalPrev" type="button">‹</button>
+        <div class="cal-month-label" id="periodCalMonthLabel"></div>
+        <button class="cal-nav" id="periodCalNext" type="button">›</button>
+      </div>
+      <div class="cal-full-weekdays">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div class="cal-full-grid" id="periodCalGrid"></div>
     </div>
   </div>
 </div>
@@ -3258,6 +3310,62 @@ textarea.mid{ min-height:90px; }
   var calOvSelDay = null;
   var calAddDateVal = '';
 
+  /* ---- Period Calendar ---- */
+  var periodCalYear = new Date().getFullYear(), periodCalMonth = new Date().getMonth();
+  var periodStartDate = null, periodEndDate = null;
+
+  function loadPeriodData(){
+    var data = load('periodDates');
+    if(data && data.start && data.end){
+      periodStartDate = new Date(data.start);
+      periodEndDate = new Date(data.end);
+      updatePeriodDisplay();
+    }
+  }
+
+  function updatePeriodDisplay(){
+    var displayEl = $('periodRangeDisplay');
+    if(periodStartDate && periodEndDate){
+      var start = periodStartDate.getFullYear() + '.' + (periodStartDate.getMonth()+1) + '.' + periodStartDate.getDate();
+      var end = periodEndDate.getFullYear() + '.' + (periodEndDate.getMonth()+1) + '.' + periodEndDate.getDate();
+      displayEl.textContent = start + ' ~ ' + end;
+      $('periodStartDate').value = periodStartDate.toISOString().split('T')[0];
+      $('periodEndDate').value = periodEndDate.toISOString().split('T')[0];
+    }
+  }
+
+  function renderPeriodCalGrid(){
+    $('periodCalMonthLabel').textContent = periodCalYear + '年 ' + (periodCalMonth+1) + '月';
+    var grid = $('periodCalGrid'); grid.innerHTML = '';
+    var firstDow = new Date(periodCalYear, periodCalMonth, 1).getDay();
+    var daysInMon = new Date(periodCalYear, periodCalMonth+1, 0).getDate();
+    for(var i=0;i<firstDow;i++){
+      var emp=document.createElement('div'); emp.className='cal-full-day cal-fd-empty'; grid.appendChild(emp);
+    }
+    for(var d=1;d<=daysInMon;d++){
+      var btn=document.createElement('button'); btn.type='button';
+      var date = new Date(periodCalYear, periodCalMonth, d);
+      var isToday=d===new Date().getDate()&&periodCalMonth===new Date().getMonth()&&periodCalYear===new Date().getFullYear();
+      btn.className='cal-full-day'+(isToday?' cal-fd-today':'');
+      var isInRange = false;
+      if(periodStartDate && periodEndDate && date >= periodStartDate && date <= periodEndDate){
+        isInRange = true;
+        btn.classList.add('period-day-in-range');
+        if(date.getTime() === periodStartDate.getTime()) btn.classList.add('period-day-start');
+        if(date.getTime() === periodEndDate.getTime()) btn.classList.add('period-day-end');
+      }
+      btn.textContent=d;
+      grid.appendChild(btn);
+    }
+  }
+
+  function openPeriodCal(){
+    periodCalYear = new Date().getFullYear();
+    periodCalMonth = new Date().getMonth();
+    renderPeriodCalGrid();
+    $('periodCalOverlay').classList.remove('hidden');
+  }
+
   function getAllCalDotItems(){
     var items = [];
     events.forEach(function(e){ items.push({ date:e.date, type:e.type }); });
@@ -3380,6 +3488,22 @@ textarea.mid{ min-height:90px; }
   $('calOvNext').addEventListener('click',function(){ calOvMonth++; if(calOvMonth>11){calOvMonth=0;calOvYear++;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
   $('calOverlayClose').addEventListener('click',function(){ $('calOverlay').classList.add('hidden'); });
   $('calOverlay').addEventListener('click',function(e){ if(e.target===$('calOverlay')) $('calOverlay').classList.add('hidden'); });
+
+  /* ---- Period Calendar Events ---- */
+  loadPeriodData(); renderPeriodCalGrid();
+  $('periodCalPrev').addEventListener('click',function(){ periodCalMonth--; if(periodCalMonth<0){periodCalMonth=11;periodCalYear--;} renderPeriodCalGrid(); });
+  $('periodCalNext').addEventListener('click',function(){ periodCalMonth++; if(periodCalMonth>11){periodCalMonth=0;periodCalYear++;} renderPeriodCalGrid(); });
+  $('periodCalClose').addEventListener('click',function(){ $('periodCalOverlay').classList.add('hidden'); });
+  $('periodCalOverlay').addEventListener('click',function(e){ if(e.target===$('periodCalOverlay')) $('periodCalOverlay').classList.add('hidden'); });
+  $('periodStartDate').addEventListener('change',function(){ if(this.value) periodStartDate=new Date(this.value); updatePeriodDisplay(); renderPeriodCalGrid(); });
+  $('periodEndDate').addEventListener('change',function(){ if(this.value) periodEndDate=new Date(this.value); updatePeriodDisplay(); renderPeriodCalGrid(); });
+  $('periodSaveBtn').addEventListener('click',function(){
+    if(!periodStartDate || !periodEndDate){ alert('請選擇完整的日期範圍'); return; }
+    if(periodStartDate > periodEndDate){ alert('開始日期不能晚於結束日期'); return; }
+    save('periodDates', { start:periodStartDate.toISOString(), end:periodEndDate.toISOString() });
+    flashSaved('生理期已保存');
+    renderPeriodCalGrid();
+  });
 
   function renderEventTypeSelect(){
     var sel = $('calAddType');
@@ -5061,6 +5185,7 @@ textarea.mid{ min-height:90px; }
 
   /* ---- 事件綁定 ---- */
   $('homeChessBtn').addEventListener('click', showChess);
+  $('homePeriodBtn').addEventListener('click', openPeriodCal);
   $('chessBackBtn').addEventListener('click', showHome);
   $('chessNewBtn').addEventListener('click', function(){ if(confirm('要重新開始一盤新棋嗎？目前進度會結束。')) chessNewGame(); });
   $('chessResignBtn').addEventListener('click', function(){
