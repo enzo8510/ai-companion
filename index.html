@@ -4291,14 +4291,14 @@ textarea.mid{ min-height:90px; }
 
   /* ============ 月曆點點顏色自訂 ============ */
   var DOT_COLOR_DEFS = [
-    { varName:'--event-color',    label:'行程',    def:'#3BADCC' },
-    { varName:'--birthday-color', label:'生日/紀念', def:'#e08050' },
-    { varName:'--memory-color',   label:'回憶',    def:'#5DAAA4' },
-    { varName:'--diary-color',    label:'日記',    def:'#1a4080' },
-    { varName:'--journal-color',  label:'心情',    def:'#82bfd4' },
-    { varName:'--period-color',   label:'生理期',   def:'#E84C78' },
-    { varName:'--health-color',   label:'健康',    def:'#8DC64C' },
-    { varName:'--work-color',     label:'工作',    def:'#6A9BB8' }
+    { varName:'--event-color',    label:'行程',    def:'#3BADCC', emoji:'📅' },
+    { varName:'--birthday-color', label:'生日/紀念', def:'#e08050', emoji:'🎂' },
+    { varName:'--memory-color',   label:'回憶',    def:'#5DAAA4', emoji:'✨' },
+    { varName:'--diary-color',    label:'日記',    def:'#1a4080', emoji:'📓' },
+    { varName:'--journal-color',  label:'心情',    def:'#82bfd4', emoji:'💭' },
+    { varName:'--period-color',   label:'生理期',   def:'#E84C78', emoji:'🌸' },
+    { varName:'--health-color',   label:'健康',    def:'#8DC64C', emoji:'🍀' },
+    { varName:'--work-color',     label:'工作',    def:'#6A9BB8', emoji:'💼' }
   ];
   function applyDotColors(){
     var saved = load(KEYS.dotColors) || {};
@@ -4311,26 +4311,57 @@ textarea.mid{ min-height:90px; }
     var box = $('dotColorList'); if(!box) return;
     box.innerHTML = '';
     var saved = load(KEYS.dotColors) || {};
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:10px;';
     DOT_COLOR_DEFS.forEach(function(d){
-      var row = document.createElement('label');
-      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 4px;';
-      var swatch = document.createElement('input');
-      swatch.type = 'color';
-      swatch.value = saved[d.varName] || d.def;
-      swatch.style.cssText = 'width:34px;height:34px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;padding:0;flex:0 0 auto;';
-      var name = document.createElement('span');
-      name.textContent = d.label;
-      name.style.cssText = 'font-size:13px;color:var(--ink);flex:1;';
-      swatch.addEventListener('input', function(){
+      var color = saved[d.varName] || d.def;
+      var card = document.createElement('label');
+      card.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;';
+      card.title = '點擊更換顏色';
+
+      // Hidden color input
+      var inp = document.createElement('input');
+      inp.type = 'color';
+      inp.value = color;
+      inp.style.cssText = 'position:absolute;opacity:0;width:0;height:0;pointer-events:none;';
+
+      // Circle swatch
+      var circle = document.createElement('div');
+      circle.style.cssText = [
+        'width:52px;height:52px;border-radius:50%;',
+        'background:'+color+';',
+        'display:flex;align-items:center;justify-content:center;',
+        'font-size:20px;',
+        'box-shadow:0 3px 10px rgba(0,0,0,0.15);',
+        'transition:transform .15s,box-shadow .15s;',
+        'position:relative;'
+      ].join('');
+      circle.textContent = d.emoji || '●';
+
+      // Hover effect via mouseenter/leave
+      card.addEventListener('mouseenter', function(){ circle.style.transform='scale(1.1)'; circle.style.boxShadow='0 6px 16px rgba(0,0,0,0.22)'; });
+      card.addEventListener('mouseleave', function(){ circle.style.transform=''; circle.style.boxShadow='0 3px 10px rgba(0,0,0,0.15)'; });
+
+      // Label
+      var lbl = document.createElement('span');
+      lbl.textContent = d.label;
+      lbl.style.cssText = 'font-size:10px;color:var(--ink-soft);font-weight:600;text-align:center;white-space:nowrap;';
+
+      inp.addEventListener('input', function(){
         var cur = load(KEYS.dotColors) || {};
-        cur[d.varName] = swatch.value;
+        cur[d.varName] = inp.value;
         save(KEYS.dotColors, cur);
-        document.documentElement.style.setProperty(d.varName, swatch.value);
+        circle.style.background = inp.value;
+        document.documentElement.style.setProperty(d.varName, inp.value);
         if(typeof renderCalOvGrid === 'function') renderCalOvGrid();
       });
-      row.appendChild(swatch); row.appendChild(name);
-      box.appendChild(row);
+
+      card.appendChild(inp);
+      card.appendChild(circle);
+      card.appendChild(lbl);
+      grid.appendChild(card);
     });
+    box.appendChild(grid);
   }
   $('dotColorResetBtn').addEventListener('click', function(){
     localStorage.removeItem(KEYS.dotColors);
