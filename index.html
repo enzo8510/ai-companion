@@ -776,6 +776,8 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .diary-note-label{ color:#a8c5dd; }
 :root[data-theme="dark"] .diary-note-text{ color:#E4E8F2; }
 :root[data-theme="dark"] .diary-note-date{ color:#7a8fa8; }
+:root[data-theme="dark"] .diary-note-delete{ color:#a8c5dd; }
+:root[data-theme="dark"] .diary-note-delete:hover{ color:#ff6b6b; }
 :root[data-theme="pink"]{ --bg:#FFF0F4; --frame-shadow:rgba(200,80,120,0.10); --chat-bg:#FFF5F8; --surface:#FFFFFF; --ink:#4A2535; --ink-soft:#A0728A; --companion:#D4678A; --companion-soft:#FFD6E5; --user-bubble:#FFFFFF; --sage:#D4678A; --gold:#C08090; --gold-soft:#FFE8EE; --line:rgba(212,103,138,0.12); --qa-title-color:#9D3D5C; --qa-hint-color:#ffffff; }
 /* Pink theme bubble colors */
 :root[data-theme="pink"] .bubble.her{ background:rgba(202,96,142,0.85); color:#ffffff; }
@@ -785,6 +787,8 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="pink"] .diary-note-label{ color:#9D3D5C; }
 :root[data-theme="pink"] .diary-note-text{ color:#4A2535; }
 :root[data-theme="pink"] .diary-note-date{ color:#A0728A; }
+:root[data-theme="pink"] .diary-note-delete{ color:#A0728A; }
+:root[data-theme="pink"] .diary-note-delete:hover{ color:#e05252; }
 :root[data-theme="pink"] .bubble.me{ background:rgba(255,255,255,0.92); color:#4A2535; }
 :root[data-theme="pink"] .bubble.her .action{ color:#3A1525; opacity:.85; }
 :root[data-theme="pink"] .bubble.me .action{ color:#4A2535; opacity:.8; }
@@ -800,6 +804,8 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="brown"] .diary-note-label{ color:#6D5640; }
 :root[data-theme="brown"] .diary-note-text{ color:#3D2B1A; }
 :root[data-theme="brown"] .diary-note-date{ color:#9A7A60; }
+:root[data-theme="brown"] .diary-note-delete{ color:#9A7A60; }
+:root[data-theme="brown"] .diary-note-delete:hover{ color:#e05252; }
 :root[data-theme="green"]{ --bg:#EBF4EE; --frame-shadow:rgba(40,100,60,0.10); --chat-bg:#F0F8F2; --surface:#FFFFFF; --ink:#1E3A2A; --ink-soft:#6A9478; --companion:#92B061; --companion-soft:#C4E8D0; --user-bubble:#FFFFFF; --sage:#92B061; --gold:#92B061; --gold-soft:#CCEAD8; --line:rgba(40,100,60,0.10); --event-color:#92B061; --qa-title-color:#6A8240; --qa-hint-color:#ffffff; }
 /* Green theme bubble colors */
 :root[data-theme="green"] .bubble.her{ background:rgba(146,176,97,0.85); color:#ffffff; }
@@ -809,6 +815,8 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="green"] .diary-note-label{ color:#6A8240; }
 :root[data-theme="green"] .diary-note-text{ color:#1E3A2A; }
 :root[data-theme="green"] .diary-note-date{ color:#6A9478; }
+:root[data-theme="green"] .diary-note-delete{ color:#6A9478; }
+:root[data-theme="green"] .diary-note-delete:hover{ color:#e05252; }
 :root[data-theme="green"] .bubble.me{ background:rgba(217,225,214,0.88); color:#1E3A2A; }
 :root[data-theme="green"] .bubble.her .action{ color:#ffffff; opacity:.85; }
 :root[data-theme="green"] .bubble.me .action{ color:#2A5A3A; opacity:.85; }
@@ -1087,12 +1095,19 @@ textarea.mid{ min-height:90px; }
 }
 .diary-note-head{
   display:flex;
-  align-items:flex-start;
+  align-items:center;
   justify-content:space-between;
   gap:12px;
   margin-bottom:var(--space-md);
   position:relative;
   z-index:1;
+}
+.diary-note-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:1;
+  min-width:0;
 }
 .diary-note-label{
   font-size:12px;
@@ -1100,6 +1115,8 @@ textarea.mid{ min-height:90px; }
   font-weight:600;
   letter-spacing:.06em;
   font-family:'LXGW WenKai TC', serif;
+  white-space:nowrap;
+  flex:0 0 auto;
 }
 .diary-mood-tag{
   font-size:12px;
@@ -1107,8 +1124,30 @@ textarea.mid{ min-height:90px; }
   border-radius:999px;
   color:#fff;
   font-weight:700;
-  margin-left:auto;
   box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  flex:0 0 auto;
+  white-space:nowrap;
+}
+.diary-note-delete{
+  background:none;
+  border:none;
+  color:var(--ink-soft);
+  font-size:20px;
+  cursor:pointer;
+  padding:0;
+  line-height:1;
+  opacity:.6;
+  transition:opacity .2s, color .2s;
+  flex:0 0 auto;
+  width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.diary-note-delete:hover{
+  opacity:1;
+  color:#e05252;
 }
 .diary-note-text{
   font-size:15px;
@@ -4719,13 +4758,45 @@ textarea.mid{ min-height:90px; }
     var info = MOODS[mood] || { emoji:'📝', color:'#8891a4' };
     var note = document.createElement('div');
     note.className = 'diary-note';
-    note.innerHTML =
-      '<div class="diary-note-head">' +
-        '<span class="diary-note-label">📓 今日日記</span>' +
-        '<span class="diary-mood-tag" style="background:'+info.color+'">'+info.emoji+' '+escHtml(mood)+'</span>' +
-      '</div>' +
-      '<div class="diary-note-text">'+escHtml(text)+'</div>' +
-      '<div class="diary-note-date">'+escHtml(date)+'</div>';
+
+    var headDiv = document.createElement('div');
+    headDiv.className = 'diary-note-head';
+
+    var leftDiv = document.createElement('div');
+    leftDiv.className = 'diary-note-left';
+    leftDiv.innerHTML =
+      '<span class="diary-note-label">📓 今日日記</span>' +
+      '<span class="diary-mood-tag" style="background:'+info.color+'">'+info.emoji+' '+escHtml(mood)+'</span>';
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'diary-note-delete';
+    delBtn.type = 'button';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var idx = chatHistory.findIndex(function(m){ return m.content === text && m.ts; });
+      if(idx >= 0){
+        chatHistory.splice(idx, 1);
+        save(KEYS.chat, chatHistory);
+        renderThread();
+      }
+    });
+
+    headDiv.appendChild(leftDiv);
+    headDiv.appendChild(delBtn);
+
+    note.appendChild(headDiv);
+
+    var textDiv = document.createElement('div');
+    textDiv.className = 'diary-note-text';
+    textDiv.textContent = text;
+    note.appendChild(textDiv);
+
+    var dateDiv = document.createElement('div');
+    dateDiv.className = 'diary-note-date';
+    dateDiv.textContent = date;
+    note.appendChild(dateDiv);
+
     thread.appendChild(note);
     scrollThread();
   }
