@@ -340,8 +340,8 @@ textarea.mid{ min-height:90px; }
 .test-result.err{ color:#b15151; }
 
 /* Panel toolbar */
-.panel-toolbar{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-.toolbar-btn{ border:1px solid var(--line); background:var(--chat-bg); color:var(--ink); font-family:inherit; font-size:12.5px; padding:7px 15px; border-radius:999px; cursor:pointer; white-space:nowrap; transition:all .15s; }
+.panel-toolbar{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.toolbar-btn{ border:1px solid var(--line); background:var(--chat-bg); color:var(--ink); font-family:inherit; font-size:12.5px; padding:7px 15px; border-radius:999px; cursor:pointer; white-space:nowrap; transition:all .15s; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; line-height:1; }
 .toolbar-btn:hover{ background:var(--companion-soft); border-color:var(--companion); color:var(--companion); }
 .toolbar-btn.primary{ background:var(--companion); color:#fff; border-color:var(--companion); }
 .toolbar-btn.primary:hover{ opacity:.88; }
@@ -355,20 +355,23 @@ textarea.mid{ min-height:90px; }
 .panel-empty .empty-title{ font-size:14px; color:var(--ink); margin-bottom:5px; font-weight:500; }
 .panel-empty .empty-sub{ font-size:12px; color:var(--ink-soft); line-height:1.7; }
 /* Knowledge cards */
-.kb-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; margin-bottom:var(--space-md); overflow:hidden; transition:box-shadow .18s; }
-.kb-card:hover{ box-shadow:0 3px 14px rgba(50,58,80,0.07); }
-.kb-card-head{ display:flex; align-items:center; gap:10px; padding:13px 14px; cursor:pointer; user-select:none; }
+.kb-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; margin-bottom:var(--space-md); overflow:hidden; transition:box-shadow .18s, border-color .15s; cursor:pointer; }
+.kb-card:hover{ box-shadow:0 3px 14px rgba(50,58,80,0.10); border-color:var(--companion); }
+.kb-card-head{ display:flex; align-items:center; gap:10px; padding:13px 14px; user-select:none; }
 .kb-file-icon{ font-size:18px; flex:0 0 auto; }
 .kb-file-name-wrap{ flex:1; min-width:0; }
-.kb-file-name-input{ width:100%; border:none; background:transparent; font-size:13.5px; font-weight:600; color:var(--ink); font-family:inherit; outline:none; padding:0; }
-.kb-file-name-input::placeholder{ color:var(--ink-soft); font-weight:400; }
+.kb-file-name-text{ font-size:13.5px; font-weight:600; color:var(--ink); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.kb-file-preview{ font-size:11px; color:var(--ink-soft); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:1px; }
 .kb-char-count{ font-size:11px; color:var(--ink-soft); white-space:nowrap; flex:0 0 auto; }
-.kb-chevron{ font-size:11px; color:var(--ink-soft); transition:transform .22s; flex:0 0 auto; }
-.kb-card.open .kb-chevron{ transform:rotate(180deg); }
-.kb-card-body{ border-top:1px solid var(--line); background:var(--chat-bg); padding:12px 14px; display:none; }
-.kb-card.open .kb-card-body{ display:block; }
-.kb-card-body textarea{ width:100%; border:1px solid rgba(50,58,80,0.10); background:#fff; border-radius:10px; padding:10px 12px; font-size:13px; font-family:inherit; color:var(--ink); resize:vertical; outline:none; line-height:1.7; min-height:100px; }
-.kb-card-body textarea:focus{ border-color:var(--companion); }
+.kb-card-arrow{ color:var(--ink-soft); font-size:18px; flex:0 0 auto; }
+/* Full-screen event editor overlay */
+.kb-editor-overlay{ position:fixed; inset:0; z-index:350; background:var(--bg); display:flex; flex-direction:column; }
+.kb-editor-overlay.hidden{ display:none; }
+.kb-editor-header{ display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.kb-editor-name{ flex:1; border:none; background:transparent; font-size:15px; font-weight:700; color:var(--ink); font-family:inherit; outline:none; min-width:0; }
+.kb-editor-count{ font-size:11px; color:var(--ink-soft); text-align:right; padding:6px 16px 2px; flex:0 0 auto; }
+.kb-editor-textarea{ flex:1; border:none; background:var(--bg); color:var(--ink); font-family:inherit; font-size:14px; line-height:1.8; padding:14px 16px; resize:none; outline:none; overflow-y:auto; }
+.kb-editor-footer{ padding:12px 16px; border-top:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
 /* Memory cards — timeline style */
 .mem-card{ display:flex; gap:var(--space-md); background:var(--surface); border:1px solid var(--line); border-radius:14px; margin-bottom:var(--space-sm); padding:var(--space-lg); }
 .mem-left{ display:flex; flex-direction:column; align-items:center; padding-top:3px; flex:0 0 auto; }
@@ -1283,9 +1286,9 @@ textarea.mid{ min-height:90px; }
 @media (pointer: coarse){
   input, textarea, select,
   .composer input, .field input, .field textarea, .field select,
-  .kb-card-body textarea, .jr-card-body textarea, .cal-add-row input,
+  .kb-editor-textarea, .jr-card-body textarea, .cal-add-row input,
   .cal-add-row select, .cal-add-row textarea, .backup-field input,
-  .social-compose-input, .mem-date-input, .jr-date-input, .kb-file-name-input{
+  .social-compose-input, .mem-date-input, .jr-date-input, .kb-editor-name{
     font-size:16px;
   }
 }
@@ -1523,8 +1526,9 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .kb-card,
 :root[data-theme="dark"] .mem-card,
 :root[data-theme="dark"] .jr-card{ background:var(--surface); border-color:var(--line); }
-:root[data-theme="dark"] .kb-card-body{ background:var(--bg); }
-:root[data-theme="dark"] .kb-card-body textarea{ background:var(--surface); color:var(--ink); }
+:root[data-theme="dark"] .kb-editor-overlay{ background:var(--bg); }
+:root[data-theme="dark"] .kb-editor-textarea{ background:var(--bg); color:var(--ink); }
+:root[data-theme="dark"] .kb-editor-header, :root[data-theme="dark"] .kb-editor-footer{ background:var(--surface); }
 
 /* ---- Home screen action buttons — fixed height ---- */
 .home-action-btn{ height:72px; min-height:72px; }
@@ -2559,6 +2563,20 @@ textarea.mid{ min-height:90px; }
       <button class="toolbar-btn" id="chatBgRemoveBtn" type="button" style="flex:0 0 auto;color:var(--ink-soft);">移除背景</button>
       <input type="file" id="chatBgFileInput" accept="image/*" style="display:none;">
     </div>
+  </div>
+</div>
+
+<!-- ============ KNOWLEDGE EVENT EDITOR ============ -->
+<div class="kb-editor-overlay hidden" id="kbEditorOverlay">
+  <div class="kb-editor-header">
+    <button class="icon-btn" id="kbEditorClose" type="button" style="font-size:20px;">←</button>
+    <input type="text" class="kb-editor-name" id="kbEditorName" placeholder="事件名稱" maxlength="100">
+    <button class="icon-btn" id="kbEditorDelete" type="button" style="color:#e05252;font-size:18px;" title="刪除事件">🗑</button>
+  </div>
+  <div class="kb-editor-count" id="kbEditorCharCount">0 / 2000 字</div>
+  <textarea class="kb-editor-textarea" id="kbEditorContent" placeholder="貼上設定內容、角色資料、世界觀…" maxlength="2000"></textarea>
+  <div class="kb-editor-footer">
+    <button class="toolbar-btn primary" id="kbEditorSave" type="button" style="width:100%;justify-content:center;border-radius:12px;padding:12px;">💾 儲存</button>
   </div>
 </div>
 
@@ -3880,6 +3898,42 @@ textarea.mid{ min-height:90px; }
   /* ============ Knowledge panel ============ */
   var kbList = $('kbList');
   var KB_MAX_ITEMS = 30, KB_MAX_CHARS = 2000;
+  var kbEditingItem = null;
+
+  function updateKbEditorCount(){
+    var len = ($('kbEditorContent').value||'').length;
+    var el = $('kbEditorCharCount');
+    el.textContent = len.toLocaleString() + ' / ' + KB_MAX_CHARS + ' 字';
+    el.style.color = len >= KB_MAX_CHARS ? '#e05252' : 'var(--ink-soft)';
+  }
+  function openKbEditor(k){
+    kbEditingItem = k;
+    $('kbEditorName').value = k.filename || '';
+    $('kbEditorContent').value = k.content || '';
+    updateKbEditorCount();
+    $('kbEditorOverlay').classList.remove('hidden');
+    setTimeout(function(){ $('kbEditorContent').focus(); }, 120);
+  }
+  $('kbEditorClose').addEventListener('click', function(){
+    $('kbEditorOverlay').classList.add('hidden');
+    kbEditingItem = null;
+  });
+  $('kbEditorSave').addEventListener('click', function(){
+    if(!kbEditingItem) return;
+    kbEditingItem.filename = ($('kbEditorName').value||'').trim() || '未命名事件';
+    kbEditingItem.content = $('kbEditorContent').value;
+    save(KEYS.knowledge, knowledge); renderKnowledge(); flashSaved();
+    $('kbEditorOverlay').classList.add('hidden'); kbEditingItem = null;
+  });
+  $('kbEditorDelete').addEventListener('click', function(){
+    if(!kbEditingItem) return;
+    if(!confirm('刪除「'+(kbEditingItem.filename||'這筆')+'」？')) return;
+    knowledge = knowledge.filter(function(x){ return x.id !== kbEditingItem.id; });
+    save(KEYS.knowledge, knowledge); renderKnowledge(); flashSaved();
+    $('kbEditorOverlay').classList.add('hidden'); kbEditingItem = null;
+  });
+  $('kbEditorContent').addEventListener('input', updateKbEditorCount);
+
   function renderKnowledge(){
     kbList.innerHTML = '';
     var kbCountEl = $('kbCount');
@@ -3888,25 +3942,25 @@ textarea.mid{ min-height:90px; }
       kbList.innerHTML = '<div class="panel-empty"><div class="empty-icon">📂</div><div class="empty-title">還沒有任何事件</div><div class="empty-sub">上傳 .md 或 .txt 檔案，或點「新增事件」<br>開始建立卄珩的角色設定與世界觀</div></div>';
       return;
     }
-    knowledge.forEach(function(k, idx){
+    knowledge.forEach(function(k){
       var ext = (k.filename||'').split('.').pop().toLowerCase();
       var icon = ext==='md' ? '📝' : ext==='txt' ? '📄' : '📋';
       var charCount = (k.content||'').length;
       var countLabel = charCount > 0 ? charCount.toLocaleString() + ' / ' + KB_MAX_CHARS + ' 字' : '0 / ' + KB_MAX_CHARS + ' 字';
+      var preview = (k.content||'').replace(/\s+/g,' ').trim().slice(0,50);
 
-      var card = document.createElement('div');
-      card.className = 'kb-card' + (idx===0 ? ' open' : '');
-
+      var card = document.createElement('div'); card.className='kb-card';
       var head = document.createElement('div'); head.className='kb-card-head';
+
       var fileIco = document.createElement('span'); fileIco.className='kb-file-icon'; fileIco.textContent=icon;
       var nameWrap = document.createElement('div'); nameWrap.className='kb-file-name-wrap';
-      var nameInput = document.createElement('input'); nameInput.type='text'; nameInput.className='kb-file-name-input';
-      nameInput.value=k.filename||''; nameInput.placeholder='事件名稱';
-      nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
-      nameInput.addEventListener('change', function(){ k.filename=nameInput.value; save(KEYS.knowledge, knowledge); flashSaved(); });
-      nameWrap.appendChild(nameInput);
+      var nameSpan = document.createElement('span'); nameSpan.className='kb-file-name-text'; nameSpan.textContent=k.filename||'未命名';
+      var prevSpan = document.createElement('span'); prevSpan.className='kb-file-preview'; prevSpan.textContent=preview||'（空白）';
+      nameWrap.appendChild(nameSpan); nameWrap.appendChild(prevSpan);
+
       var countEl = document.createElement('span'); countEl.className='kb-char-count'; countEl.textContent=countLabel;
       if(charCount >= KB_MAX_CHARS) countEl.style.color='#e05252';
+
       var delBtn = document.createElement('button'); delBtn.className='icon-action del'; delBtn.title='刪除'; delBtn.textContent='✕';
       delBtn.addEventListener('click', function(e){
         e.stopPropagation();
@@ -3914,24 +3968,11 @@ textarea.mid{ min-height:90px; }
         knowledge = knowledge.filter(function(x){ return x.id!==k.id; });
         save(KEYS.knowledge, knowledge); renderKnowledge(); flashSaved();
       });
-      var chev = document.createElement('span'); chev.className='kb-chevron'; chev.textContent='▾';
-      head.appendChild(fileIco); head.appendChild(nameWrap); head.appendChild(countEl);
-      head.appendChild(delBtn); head.appendChild(chev);
-      head.addEventListener('click', function(){ card.classList.toggle('open'); });
 
-      var body = document.createElement('div'); body.className='kb-card-body';
-      var ta = document.createElement('textarea'); ta.value=k.content||''; ta.placeholder='貼上設定內容、角色資料、世界觀…';
-      ta.maxLength = KB_MAX_CHARS;
-      ta.addEventListener('input', function(){
-        var len = ta.value.length;
-        countEl.textContent = len.toLocaleString() + ' / ' + KB_MAX_CHARS + ' 字';
-        countEl.style.color = len >= KB_MAX_CHARS ? '#e05252' : '';
-      });
-      ta.addEventListener('change', function(){
-        k.content=ta.value;
-        save(KEYS.knowledge, knowledge); flashSaved();
-      });
-      body.appendChild(ta); card.appendChild(head); card.appendChild(body);
+      var arrow = document.createElement('span'); arrow.className='kb-card-arrow'; arrow.textContent='›';
+      head.appendChild(fileIco); head.appendChild(nameWrap); head.appendChild(countEl); head.appendChild(delBtn); head.appendChild(arrow);
+      card.appendChild(head);
+      card.addEventListener('click', function(){ openKbEditor(k); });
       kbList.appendChild(card);
     });
   }
