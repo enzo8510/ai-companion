@@ -37,7 +37,7 @@
   --space-3xl: 48px;
   /* 事件分類顏色 */
   --event-color: #a987d8;
-  --chess-board-bg: url('rect-8x8/rect-8x8_02.png');
+  --chess-board-bg: url('rect/rect-8x8_02.png');
   --birthday-color: #e08050;
   --memory-color: #5DAAA4;
   --diary-color: #1a4080;
@@ -991,10 +991,10 @@ textarea.mid{ min-height:90px; }
 .chess-mv-cap{ position:absolute; z-index:1; inset:10%; border-radius:50%; border:2px solid rgba(220,100,100,0.4); box-sizing:border-box; }
 .chess-captured{ font-size:0; min-height:52px; text-align:center; letter-spacing:0; line-height:1.2; color:var(--ink); word-break:break-all; display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; width:100%; max-width:360px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:var(--space-md); }
 .chess-captured img{ width:36px; height:36px; object-fit:contain; }
-.chess-board-selector{ display:flex; gap:8px; justify-content:center; width:100%; max-width:360px; }
-.chess-bg-btn{ font-size:12px; padding:var(--space-sm) var(--space-md); border-radius:10px; border:1.5px solid var(--line); background:var(--chat-bg); color:var(--ink-soft); cursor:pointer; font-family:inherit; font-weight:500; transition:all .15s; flex:1; }
-.chess-bg-btn:hover{ border-color:var(--companion); color:var(--companion); background:var(--companion-soft); }
-.chess-bg-btn.active{ background:var(--companion); color:#fff; border-color:var(--companion); font-weight:700; }
+.chess-board-selector{ display:flex; gap:7px; justify-content:center; width:100%; max-width:360px; }
+.chess-bg-thumb{ width:52px; height:52px; border-radius:8px; object-fit:cover; cursor:pointer; border:2.5px solid var(--line); transition:border-color .15s, transform .15s; flex:0 0 auto; }
+.chess-bg-thumb:hover{ border-color:var(--companion); transform:scale(1.08); }
+.chess-bg-thumb.active{ border-color:var(--companion); box-shadow:0 0 0 3px var(--companion-shadow); }
 .chess-actions, .chess-replay-controls{ display:flex; gap:var(--space-sm); flex-wrap:wrap; justify-content:center; width:100%; max-width:360px; }
 .chess-act-btn{ font-size:13px; padding:var(--space-md) var(--space-lg); border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer; font-family:inherit; font-weight:600; transition:all .15s; flex:1; min-width:80px; }
 .chess-act-btn:hover{ border-color:var(--companion); color:var(--companion); background:var(--companion-soft); }
@@ -2038,8 +2038,11 @@ textarea.mid{ min-height:90px; }
 
         <!-- 棋盤背景選擇 -->
         <div class="chess-board-selector">
-          <button class="chess-bg-btn" id="chessBgBtn1" type="button" data-bg="1">棋盤 1</button>
-          <button class="chess-bg-btn active" id="chessBgBtn2" type="button" data-bg="2">棋盤 2</button>
+          <img class="chess-bg-thumb" src="rect/rect-8x8_01.png" data-bg="rect/rect-8x8_01.png" alt="棋盤1">
+          <img class="chess-bg-thumb active" src="rect/rect-8x8_02.png" data-bg="rect/rect-8x8_02.png" alt="棋盤2">
+          <img class="chess-bg-thumb" src="rect/rect-8x8_03.png" data-bg="rect/rect-8x8_03.png" alt="棋盤3">
+          <img class="chess-bg-thumb" src="rect/rect-8x8_05.png" data-bg="rect/rect-8x8_05.png" alt="棋盤4">
+          <img class="chess-bg-thumb" src="rect/rect-8x8_06.png" data-bg="rect/rect-8x8_06.png" alt="棋盤5">
         </div>
 
         <!-- 已吃子 -->
@@ -6364,16 +6367,20 @@ textarea.mid{ min-height:90px; }
   Array.prototype.forEach.call(document.querySelectorAll('.chess-diff-btn'),function(b){
     b.addEventListener('click', function(){ if(!chessGame) return; chessGame.difficulty=parseInt(b.dataset.diff,10); chessUpdateDiffButtons(); chessSave(); flashSaved('難度：'+b.textContent); });
   });
-  Array.prototype.forEach.call(document.querySelectorAll('.chess-bg-btn'),function(b){
+  Array.prototype.forEach.call(document.querySelectorAll('.chess-bg-thumb'),function(b){
     b.addEventListener('click', function(){
-      var bgNum=b.dataset.bg;
-      document.documentElement.style.setProperty('--chess-board-bg', bgNum==='1'?'url(\'rect-8x8/rect-8x8.png\')':'url(\'rect-8x8/rect-8x8_02.png\')');
-      document.querySelectorAll('.chess-bg-btn').forEach(function(btn){ btn.classList.remove('active'); });
+      var bgPath=b.dataset.bg;
+      document.documentElement.style.setProperty('--chess-board-bg', "url('"+bgPath+"')");
+      document.querySelectorAll('.chess-bg-thumb').forEach(function(btn){ btn.classList.remove('active'); });
       b.classList.add('active');
-      save('chessBoardBg', bgNum);
+      save('chessBoardBg', bgPath);
     });
   });
-  (function(){var bg=load('chessBoardBg')||'2'; $('chessBgBtn'+bg).click();})();
+  (function(){
+    var bg=load('chessBoardBg')||'rect/rect-8x8_02.png';
+    var el=document.querySelector('.chess-bg-thumb[data-bg="'+bg+'"]');
+    if(el) el.click(); else document.documentElement.style.setProperty('--chess-board-bg',"url('"+bg+"')");
+  })();
   $('chessReplayFirst').addEventListener('click', function(){ chessReplayState.idx=0; chessRenderReplay(); });
   $('chessReplayPrev').addEventListener('click', function(){ if(chessReplayState.idx>0){ chessReplayState.idx--; chessRenderReplay(); } });
   $('chessReplayNext').addEventListener('click', function(){ if(chessReplayState.idx<chessReplayState.positions.length-1){ chessReplayState.idx++; chessRenderReplay(); } });
