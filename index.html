@@ -684,14 +684,14 @@ textarea.mid{ min-height:90px; }
 /* ---- Theme overrides ---- */
 :root[data-theme="dark"]{ --bg:#1A1D26; --frame-shadow:rgba(0,0,0,0.4); --chat-bg:#22263A; --surface:#2A2D3E; --ink:#E4E8F2; --ink-soft:#6E7891; --companion:#4CC8EA; --companion-soft:#1C3A4A; --user-bubble:#343850; --sage:#4CC8EA; --gold:#6A9BB8; --gold-soft:#1C3044; --line:rgba(228,232,242,0.08); }
 /* Dark theme bubble colors with opacity */
-:root[data-theme="dark"] .bubble.her{ background:#465672; color:#ffffff; }
-:root[data-theme="dark"] .bubble.me{ background:#d6dae1; color:#1A1D26; }
+:root[data-theme="dark"] .bubble.her{ background:rgba(70,86,114,0.85); color:#ffffff; }
+:root[data-theme="dark"] .bubble.me{ background:rgba(214,218,225,0.88); color:#1A1D26; }
 :root[data-theme="dark"] .bubble .action{ color:#2A2D3E; }
 :root[data-theme="dark"] .bubble.her .action{ color:#1A1D26; opacity:.85; }
 :root[data-theme="dark"] .bubble.me .action{ color:#2A2D3E; opacity:.8; }
 /* Dark theme with chat background override */
-:root[data-theme="dark"] #thread.has-chatbg .bubble.her{ background:#465672; color:#ffffff; backdrop-filter:none; border:none; }
-:root[data-theme="dark"] #thread.has-chatbg .bubble.me{ background:#d6dae1; color:#1A1D26; backdrop-filter:none; border:none; }
+:root[data-theme="dark"] #thread.has-chatbg .bubble.her{ background:rgba(70,86,114,0.85); color:#ffffff; backdrop-filter:none; border:none; }
+:root[data-theme="dark"] #thread.has-chatbg .bubble.me{ background:rgba(214,218,225,0.88); color:#1A1D26; backdrop-filter:none; border:none; }
 :root[data-theme="dark"] #thread.has-chatbg .bubble.her .action{ color:#1A1D26; opacity:.85; }
 :root[data-theme="dark"] #thread.has-chatbg .bubble.me .action{ color:#2A2D3E; opacity:.8; }
 /* ---- Dark theme text color improvements ---- */
@@ -705,31 +705,31 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .cnt-event{ color:var(--ink); }
 :root[data-theme="pink"]{ --bg:#FFF0F4; --frame-shadow:rgba(200,80,120,0.10); --chat-bg:#FFF5F8; --surface:#FFFFFF; --ink:#4A2535; --ink-soft:#A0728A; --companion:#D4678A; --companion-soft:#FFD6E5; --user-bubble:#FFFFFF; --sage:#D4678A; --gold:#C08090; --gold-soft:#FFE8EE; --line:rgba(212,103,138,0.12); }
 /* Pink theme bubble colors */
-:root[data-theme="pink"] .bubble.her{ background:#CA608E; color:#ffffff; }
-:root[data-theme="pink"] .bubble.me{ background:#FFFFFF; color:#4A2535; }
+:root[data-theme="pink"] .bubble.her{ background:rgba(202,96,142,0.85); color:#ffffff; }
+:root[data-theme="pink"] .bubble.me{ background:rgba(255,255,255,0.92); color:#4A2535; }
 :root[data-theme="pink"] .bubble.her .action{ color:#3A1525; opacity:.85; }
 :root[data-theme="pink"] .bubble.me .action{ color:#4A2535; opacity:.8; }
 :root[data-theme="brown"]{ --bg:#F4EDE4; --frame-shadow:rgba(100,60,30,0.12); --chat-bg:#F8F2EC; --surface:#FFFDF8; --ink:#3D2B1A; --ink-soft:#9A7A60; --companion:#A07850; --companion-soft:#EDD8C0; --user-bubble:#FFFDF8; --sage:#A07850; --gold:#B08A60; --gold-soft:#F0DFC8; --line:rgba(100,60,30,0.10); }
 /* Brown theme bubble colors */
-:root[data-theme="brown"] .bubble.her{ background:#a97b47; color:#ffffff; }
-:root[data-theme="brown"] .bubble.me{ background:#ffeccc; color:#3D2B1A; }
+:root[data-theme="brown"] .bubble.her{ background:rgba(169,123,71,0.85); color:#ffffff; }
+:root[data-theme="brown"] .bubble.me{ background:rgba(255,236,204,0.92); color:#3D2B1A; }
 :root[data-theme="brown"] .bubble.her .action{ color:#C0A880; opacity:.85; }
 :root[data-theme="brown"] .bubble.me .action{ color:#8B7A6A; opacity:.8; }
 :root[data-theme="green"]{ --bg:#EBF4EE; --frame-shadow:rgba(40,100,60,0.10); --chat-bg:#F0F8F2; --surface:#FFFFFF; --ink:#1E3A2A; --ink-soft:#6A9478; --companion:#4A9A6A; --companion-soft:#C4E8D0; --user-bubble:#FFFFFF; --sage:#4A9A6A; --gold:#5A8A6A; --gold-soft:#CCEAD8; --line:rgba(40,100,60,0.10); }
 /* Green theme bubble colors */
-:root[data-theme="green"] .bubble.her{ background:#92b061; color:#ffffff; }
-:root[data-theme="green"] .bubble.me{ background:#d9e1d6; color:#1E3A2A; }
+:root[data-theme="green"] .bubble.her{ background:rgba(146,176,97,0.85); color:#ffffff; }
+:root[data-theme="green"] .bubble.me{ background:rgba(217,225,214,0.88); color:#1E3A2A; }
 :root[data-theme="green"] .bubble.her .action{ color:#7A9A80; opacity:.8; }
 :root[data-theme="green"] .bubble.me .action{ color:#6A8A72; opacity:.8; }
 /* Pink theme with chat background */
-:root[data-theme="pink"] #thread.has-chatbg .bubble.her{ background:#CA608E; color:#ffffff; backdrop-filter:none; border:none; }
-:root[data-theme="pink"] #thread.has-chatbg .bubble.me{ background:#FFFFFF; color:#4A2535; backdrop-filter:none; border:none; }
+:root[data-theme="pink"] #thread.has-chatbg .bubble.her{ background:rgba(202,96,142,0.85); color:#ffffff; backdrop-filter:none; border:none; }
+:root[data-theme="pink"] #thread.has-chatbg .bubble.me{ background:rgba(255,255,255,0.92); color:#4A2535; backdrop-filter:none; border:none; }
 /* Brown theme with chat background */
-:root[data-theme="brown"] #thread.has-chatbg .bubble.her{ background:#a97b47; color:#ffffff; backdrop-filter:none; border:none; }
-:root[data-theme="brown"] #thread.has-chatbg .bubble.me{ background:#ffeccc; color:#3D2B1A; backdrop-filter:none; border:none; }
+:root[data-theme="brown"] #thread.has-chatbg .bubble.her{ background:rgba(169,123,71,0.85); color:#ffffff; backdrop-filter:none; border:none; }
+:root[data-theme="brown"] #thread.has-chatbg .bubble.me{ background:rgba(255,236,204,0.92); color:#3D2B1A; backdrop-filter:none; border:none; }
 /* Green theme with chat background */
-:root[data-theme="green"] #thread.has-chatbg .bubble.her{ background:#92b061; color:#ffffff; backdrop-filter:none; border:none; }
-:root[data-theme="green"] #thread.has-chatbg .bubble.me{ background:#d9e1d6; color:#1E3A2A; backdrop-filter:none; border:none; }
+:root[data-theme="green"] #thread.has-chatbg .bubble.her{ background:rgba(146,176,97,0.85); color:#ffffff; backdrop-filter:none; border:none; }
+:root[data-theme="green"] #thread.has-chatbg .bubble.me{ background:rgba(217,225,214,0.88); color:#1E3A2A; backdrop-filter:none; border:none; }
 :root[data-theme="green"] #thread.has-chatbg .bubble.her .action{ color:#A8C0B0; opacity:.85; }
 :root[data-theme="green"] #thread.has-chatbg .bubble.me .action{ color:#98B0A8; opacity:.8; }
 /* Pink theme action text with chat background */
