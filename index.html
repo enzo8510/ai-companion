@@ -196,6 +196,13 @@ body{
   background-size:contain; background-position:center; background-repeat:no-repeat;
 }
 .avatar-upload-wrap{ display:flex; align-items:center; gap:16px; }
+.avatar-preset-section{ padding:12px 16px 4px; }
+.avatar-preset-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.05em; margin-bottom:8px; text-transform:uppercase; }
+.avatar-preset-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.avatar-preset-item{ width:54px; height:54px; border-radius:50%; cursor:pointer; object-fit:cover; border:2.5px solid var(--line); transition:border-color .15s, transform .15s; }
+.avatar-preset-item:hover{ border-color:var(--companion); transform:scale(1.08); }
+.avatar-preset-item.active{ border-color:var(--companion); box-shadow:0 0 0 3px var(--companion-shadow); }
+.avatar-custom-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.05em; margin-bottom:8px; text-transform:uppercase; padding:8px 16px 0; }
 .avatar-preview{
   width:68px; height:68px; border-radius:50%; flex:0 0 auto;
   background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%);
@@ -2482,7 +2489,20 @@ textarea.mid{ min-height:90px; }
       <div class="avatar-preview" id="avatarPreview"></div>
       <button class="btn danger small" id="avatarClearBtn" type="button">移除頭像</button>
     </div>
-    <div id="avatarGalleryWrap" style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;min-height:60px;"></div>
+    <!-- 預設頭像 -->
+    <div class="avatar-preset-section">
+      <div class="avatar-preset-label">預設頭像</div>
+      <div class="avatar-preset-row" id="avatarPresetRow">
+        <img class="avatar-preset-item" src="head portrait/頭像01.jpg" alt="預設1" data-preset="head portrait/頭像01.jpg">
+        <img class="avatar-preset-item" src="head portrait/頭像02.png" alt="預設2" data-preset="head portrait/頭像02.png">
+        <img class="avatar-preset-item" src="head portrait/頭像03.png" alt="預設3" data-preset="head portrait/頭像03.png">
+        <img class="avatar-preset-item" src="head portrait/頭像04.png" alt="預設4" data-preset="head portrait/頭像04.png">
+        <img class="avatar-preset-item" src="head portrait/頭像05.png" alt="預設5" data-preset="head portrait/頭像05.png">
+      </div>
+    </div>
+    <!-- 已上傳頭像 -->
+    <div class="avatar-custom-label">已上傳頭像</div>
+    <div id="avatarGalleryWrap" style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 8px;min-height:40px;"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;">
       <label class="toolbar-btn primary" style="cursor:pointer;text-align:center;display:block;box-sizing:border-box;">
         ＋ 新增頭像
@@ -3663,8 +3683,46 @@ textarea.mid{ min-height:90px; }
   }
   bindPersona('perName','name'); bindPersona('perStatus','statusLine'); bindPersona('perPrompt','systemPrompt');
   bindPersona('perBackground','backgroundSettings'); bindPersona('perReplyRules','replyRules');
+  var PRESET_AVATARS = [
+    'head portrait/頭像01.jpg',
+    'head portrait/頭像02.png',
+    'head portrait/頭像03.png',
+    'head portrait/頭像04.png',
+    'head portrait/頭像05.png'
+  ];
+  function imgToDataUrl(src, cb){
+    var img = new Image(); img.crossOrigin='anonymous';
+    img.onload = function(){
+      var c = document.createElement('canvas'); c.width=img.naturalWidth; c.height=img.naturalHeight;
+      c.getContext('2d').drawImage(img,0,0); cb(c.toDataURL('image/jpeg',0.88));
+    };
+    img.onerror = function(){ cb(src); };
+    img.src = src + '?_=' + Date.now();
+  }
+  function renderAvatarPresets(){
+    var items = document.querySelectorAll('.avatar-preset-item');
+    items.forEach(function(el){
+      el.classList.toggle('active', el.dataset.preset === avatarActive);
+      el.onclick = function(){
+        var src = el.dataset.preset;
+        imgToDataUrl(src, function(dataUrl){
+          avatarActive = src;
+          localStorage.setItem(KEYS.avatarActive, avatarActive);
+          avatarDataUrl = dataUrl;
+          localStorage.setItem(KEYS.avatar, dataUrl);
+          syncAvatar();
+          document.querySelectorAll('.avatar-preset-item').forEach(function(x){
+            x.classList.toggle('active', x.dataset.preset === src);
+          });
+          renderAvatarGallery();
+          flashSaved();
+        });
+      };
+    });
+  }
   function renderAvatarGallery(){
     var wrap=$('avatarGalleryWrap'); if(!wrap) return; wrap.innerHTML='';
+    renderAvatarPresets();
     avatarGallery.forEach(function(item){
       var card=document.createElement('div'); var isA=item.id===avatarActive;
       card.style.cssText='position:relative;width:54px;height:54px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0;';
