@@ -109,15 +109,17 @@ body{
 .icon-btn:hover{ color:var(--companion); background:var(--companion-soft); }
 .icon-btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
 .avatar-orb{
-  width:42px;
-  height:42px;
+  width:40px;
+  height:40px;
   border-radius:50%;
   flex:0 0 auto;
   background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%);
   position:relative;
-  background-size:contain;
+  background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
+  border:none;
+  box-shadow:none;
 }
 .header-text{ display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
 .companion-name{
@@ -581,6 +583,11 @@ textarea.mid{ min-height:90px; }
 
 /* ---- Check-in calendar overlay ---- */
 .ci-cal-stats{ display:flex; gap:var(--space-md); justify-content:center; margin-bottom:var(--space-lg); }
+/* ---- Checkin Calendar Styling ---- */
+.ci-cal-grid-styled .cal-full-day{ border-radius:50% !important; background:rgba(200,200,200,0.3) !important; border:none !important; font-weight:700; color:var(--ink-soft); }
+.ci-cal-grid-styled .cal-full-day.cal-fd-today{ background:#92b061 !important; color:#fff; box-shadow:0 2px 8px rgba(146,176,97,0.4); }
+.ci-cal-grid-styled .cal-full-day.ci-day-done{ background:#92b061 !important; color:#fff; box-shadow:0 2px 8px rgba(146,176,97,0.35); }
+.ci-cal-grid-styled .cal-full-day.cal-fd-empty{ background:transparent !important; border:none !important; }
 .ci-stat-box{ background:linear-gradient(135deg, var(--companion-soft), rgba(59,173,204,0.08)); border-radius:14px; padding:var(--space-lg) var(--space-xl); text-align:center; border:1px solid rgba(59,173,204,0.2); }
 .ci-stat-num{ font-size:28px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
 .ci-stat-label{ font-size:11px; color:var(--ink-soft); margin-top:var(--space-sm); font-weight:600; }
@@ -780,7 +787,7 @@ textarea.mid{ min-height:90px; }
 }
 .wm-clock-zone{
   position:relative; display:flex; flex-direction:column; align-items:center;
-  margin-top:clamp(16px,9vh,72px);
+  margin-top:auto;
 }
 /* 時間後方的白色暈染光暈 */
 .wm-clock-glow{
@@ -1858,7 +1865,19 @@ textarea.mid{ min-height:90px; }
       <div class="cal-sheet-title">🌙 打卡記錄</div>
       <button class="icon-btn" id="ciCalClose" type="button">✕</button>
     </div>
-    <div class="cal-sheet-body">
+    <div class="cal-sheet-body" style="display:flex;flex-direction:column;">
+      <div class="cal-month-nav">
+        <button class="cal-nav" id="ciCalPrev" type="button">‹</button>
+        <div class="cal-month-label" id="ciCalMonthLabel"></div>
+        <button class="cal-nav" id="ciCalNext" type="button">›</button>
+      </div>
+      <div class="cal-full-weekdays">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div class="cal-full-grid ci-cal-grid-styled" id="ciCalGrid"></div>
+
+      <!-- 獎勵和統計放在下方 -->
+      <div class="ci-achievements" id="ciAchievements" style="margin-bottom:var(--space-lg);"></div>
       <div class="ci-cal-stats">
         <div class="ci-stat-box">
           <div class="ci-stat-num" id="ciStreakNum">0</div>
@@ -1873,17 +1892,7 @@ textarea.mid{ min-height:90px; }
           <div class="ci-stat-label">累計打卡</div>
         </div>
       </div>
-      <button class="btn" id="ciCheckinBtn" type="button" style="width:100%;margin-bottom:14px;text-align:center;">🌙 今日打卡</button>
-      <div class="ci-achievements" id="ciAchievements"></div>
-      <div class="cal-month-nav">
-        <button class="cal-nav" id="ciCalPrev" type="button">‹</button>
-        <div class="cal-month-label" id="ciCalMonthLabel"></div>
-        <button class="cal-nav" id="ciCalNext" type="button">›</button>
-      </div>
-      <div class="cal-full-weekdays">
-        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
-      </div>
-      <div class="cal-full-grid" id="ciCalGrid"></div>
+      <button class="btn primary" id="ciCheckinBtn" type="button" style="width:100%;text-align:center;">🌙 今日打卡</button>
     </div>
   </div>
 </div>
@@ -4365,7 +4374,7 @@ textarea.mid{ min-height:90px; }
       var isDone=history.indexOf(dateStr)>=0;
       if(isDone) monthCount++;
       var btn=document.createElement('div');
-      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+(isDone?' ci-done':'');
+      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+(isDone?' ci-day-done':'');
       btn.textContent=d;
       grid.appendChild(btn);
     }
