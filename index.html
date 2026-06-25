@@ -429,7 +429,7 @@ textarea.mid{ min-height:90px; }
 .home-action-btn:hover{ box-shadow:0 3px 14px rgba(59,173,204,0.12); border-color:var(--companion); }
 .home-action-btn.done{ border-color:var(--companion); background:var(--companion-soft); }
 .act-icon{ font-size:22px; line-height:1; }
-.act-label{ font-size:10px; color:var(--ink-soft); white-space:nowrap; }
+.act-label{ font-size:10px; color:var(--ink); font-weight:500; white-space:nowrap; }
 .act-streak{ font-size:10px; color:var(--companion); font-weight:600; }
 .home-qa-card{ width:100%; background:#fff; border:1.5px solid var(--line); border-radius:18px; padding:var(--space-lg); margin-bottom:var(--space-xl); cursor:pointer; transition:box-shadow .12s, border-color .12s; text-align:left; font-family:inherit; }
 .home-qa-card:hover{ box-shadow:0 4px 18px rgba(59,173,204,0.12); border-color:var(--companion); }
@@ -826,8 +826,11 @@ textarea.mid{ min-height:90px; }
 
 /* ---- Responsive ---- */
 @media (max-width:520px){
-  .app-bg{ padding:0; align-items:stretch; }
-  .phone-frame{ max-width:100%; width:100%; height:100%; height:100dvh; min-height:100dvh; border-radius:0; box-shadow:none; }
+  /* 鎖定整頁高度為實際可視高度（dvh 排除手機網址列），避免整頁可上下拖動；
+     內部區塊（聊天、主頁等）各自仍能正常捲動 */
+  html,body{ height:100dvh; overflow:hidden; }
+  .app-bg{ padding:0; align-items:stretch; min-height:100dvh; height:100dvh; overflow:hidden; }
+  .phone-frame{ max-width:100%; width:100%; height:100dvh; min-height:0; border-radius:0; box-shadow:none; }
 }
 /* 防止 iOS Safari 在點擊輸入框時自動放大畫面：font-size 須 >= 16px */
 @media (pointer: coarse){
@@ -3078,7 +3081,35 @@ textarea.mid{ min-height:90px; }
     eventTypes.forEach(function(t, idx){
       var item = document.createElement('div');
       item.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:8px;background:var(--chat-bg);border-radius:10px;';
-      item.innerHTML = '<span style="font-size:16px;">'+t.emoji+'</span><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--ink);">'+t.label+'</div><div style="font-size:11px;color:var(--ink-soft);">'+t.group+'</div></div>';
+
+      // 可點擊修改的 emoji 按鈕
+      var emojiBtn = document.createElement('button');
+      emojiBtn.type = 'button';
+      emojiBtn.textContent = t.emoji;
+      emojiBtn.title = '點擊修改圖案';
+      emojiBtn.style.cssText = 'font-size:18px;background:#fff;border:1px solid var(--line);border-radius:8px;width:38px;height:38px;cursor:pointer;flex:0 0 auto;line-height:1;padding:0;';
+      (function(id){
+        emojiBtn.addEventListener('click', function(){
+          var cur = eventTypes.find(function(x){ return x.id === id; });
+          if(!cur) return;
+          var ne = prompt('輸入新的表情符號：', cur.emoji);
+          if(ne === null) return;
+          ne = ne.trim();
+          if(!ne){ alert('請輸入一個表情符號'); return; }
+          cur.emoji = ne;
+          save(KEYS.eventTypes, eventTypes);
+          renderEventTypeSelect();
+          renderEventTypeManager();
+          flashSaved('圖案已更新 ✓');
+        });
+      })(t.id);
+      item.appendChild(emojiBtn);
+
+      var info = document.createElement('div');
+      info.style.cssText = 'flex:1;';
+      info.innerHTML = '<div style="font-size:13px;font-weight:600;color:var(--ink);">'+escHtml(t.label)+'</div><div style="font-size:11px;color:var(--ink-soft);">'+escHtml(t.group||'')+'</div>';
+      item.appendChild(info);
+
       var delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'icon-btn';
