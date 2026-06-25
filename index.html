@@ -2534,7 +2534,10 @@ textarea.mid{ min-height:90px; }
     else{ b.textContent = text; }
     row.appendChild(b);
     if(msgIndex!==undefined){
-      row.addEventListener('contextmenu', function(e){ e.preventDefault(); showChatContextMenu(e, msgIndex); });
+      (function(idx){
+        b.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); showChatContextMenu(e, idx); });
+        row.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); showChatContextMenu(e, idx); });
+      })(msgIndex);
     }
     return row;
   }
@@ -2627,8 +2630,12 @@ textarea.mid{ min-height:90px; }
     hideChatContextMenu();
   });
 
-  document.addEventListener('click', hideChatContextMenu);
-  document.addEventListener('contextmenu', hideChatContextMenu);
+  document.addEventListener('click', function(e){
+    if(!contextMenu.contains(e.target)) hideChatContextMenu();
+  });
+  document.addEventListener('contextmenu', function(e){
+    if(!contextMenu.contains(e.target) && !thread.contains(e.target)) hideChatContextMenu();
+  });
 
   function selectTab(tab){
     var btn = tabbar.querySelector('.tab-btn[data-tab="'+tab+'"]');
