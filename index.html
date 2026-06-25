@@ -605,6 +605,12 @@ textarea.mid{ min-height:90px; }
 .chat-toolbar{ flex:0 0 auto; display:flex; align-items:center; gap:var(--space-sm); padding:var(--space-sm) var(--space-md); background:var(--surface); border-top:1px solid var(--line); }
 .chat-tool-btn{ display:flex; align-items:center; gap:4px; background:var(--chat-bg); border:1px solid var(--line); border-radius:999px; padding:5px 11px; font-family:inherit; font-size:12px; color:var(--ink-soft); cursor:pointer; white-space:nowrap; transition:border-color .1s, color .1s; }
 .chat-tool-btn:hover{ border-color:var(--companion); color:var(--companion); }
+.chat-context-menu{ position:fixed; z-index:1000; background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); overflow:hidden; min-width:140px; }
+.chat-context-menu.hidden{ display:none; }
+.context-menu-item{ display:block; width:100%; padding:10px 16px; border:none; background:none; color:var(--ink); font-size:13px; text-align:left; cursor:pointer; font-family:inherit; transition:background-color .1s; }
+.context-menu-item:hover{ background-color:var(--companion-soft); color:var(--companion); }
+.context-menu-item.delete{ color:#D4678A; }
+.context-menu-item.delete:hover{ background-color:rgba(212,103,138,0.15); color:#D4678A; }
 .img-pending-wrap{ flex:0 0 auto; display:flex; align-items:center; gap:var(--space-md); padding:var(--space-sm) var(--space-md) 0; background:var(--surface); }
 .img-pending-wrap.hidden{ display:none; }
 .img-pending-thumb{ height:48px; width:48px; object-fit:cover; border-radius:8px; border:1px solid var(--line); }
@@ -1171,6 +1177,13 @@ textarea.mid{ min-height:90px; }
       </div>
 
       <div class="chat-thread" id="thread"></div>
+
+      <!-- Chat message context menu -->
+      <div class="chat-context-menu hidden" id="chatContextMenu">
+        <button class="context-menu-item" id="msgCopyBtn" type="button">📋 複製</button>
+        <button class="context-menu-item" id="msgEditBtn" type="button">✏️ 編輯</button>
+        <button class="context-menu-item delete" id="msgDeleteBtn" type="button">🗑️ 刪除</button>
+      </div>
 
       <div class="img-pending-wrap hidden" id="imgPendingWrap">
         <img id="imgPendingThumb" src="" class="img-pending-thumb" alt="待發送圖片">
@@ -2502,9 +2515,10 @@ textarea.mid{ min-height:90px; }
     return s;
   }
 
-  function bubbleRow(role, text){
+  function bubbleRow(role, text, msgIndex){
     var row = document.createElement('div');
     row.className = 'row ' + (role==='assistant' ? 'her' : 'me');
+    if(msgIndex!==undefined) row.setAttribute('data-msg-index', msgIndex);
     if(role==='assistant'){
       var av = document.createElement('div'); av.className='mini-avatar'; av.setAttribute('aria-hidden','true');
       applyAvatarToEl(av);
@@ -2515,6 +2529,9 @@ textarea.mid{ min-height:90px; }
     if(role==='assistant'){ b.innerHTML = parseMarkdown(text); }
     else{ b.textContent = text; }
     row.appendChild(b);
+    if(msgIndex!==undefined){
+      row.addEventListener('contextmenu', function(e){ e.preventDefault(); showChatContextMenu(e, msgIndex); });
+    }
     return row;
   }
   function scrollThread(){ var last = thread.lastElementChild; if(last) last.scrollIntoView({ behavior:smooth(), block:'end' }); }
@@ -2535,17 +2552,79 @@ textarea.mid{ min-height:90px; }
       thread.appendChild(note);
     }
 
-    chatHistory.forEach(function(t){
+    chatHistory.forEach(function(t, idx){
       if(t.isQa && t.role==='user'){
         var qdiv = document.createElement('div'); qdiv.className='qa-divider';
         qdiv.innerHTML='<span class="qa-divider-label">✦ 今日問題</span><span class="qa-divider-text">'+escHtml(t.content)+'</span>';
         thread.appendChild(qdiv);
       } else {
-        thread.appendChild(bubbleRow(t.role, t.content));
+        thread.appendChild(bubbleRow(t.role, t.content, idx));
       }
     });
     scrollThread();
   }
+
+  /* ============ Chat context menu ============ */
+  var contextMenu = $('chatContextMenu');
+  var currentMsgIndex = -1;
+
+  function showChatContextMenu(e, msgIndex){
+    currentMsgIndex = msgIndex;
+    contextMenu.style.left = e.pageX + 'px';
+    contextMenu.style.top = e.pageY + 'px';
+    contextMenu.classList.remove('hidden');
+  }
+
+  function hideChatContextMenu(){
+    contextMenu.classList.add('hidden');
+    currentMsgIndex = -1;
+  }
+
+  $('msgCopyBtn').addEventListener('click', function(){
+    if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
+      var msg = chatHistory[currentMsgIndex];
+      var text = msg.content;
+      if(navigator.clipboard){
+        navigator.clipboard.writeText(text).then(function(){
+          flashSaved('已複製 ✓');
+        }).catch(function(){ console.error('複製失敗'); });
+      }
+    }
+    hideChatContextMenu();
+  });
+
+  $('msgEditBtn').addEventListener('click', function(){
+    if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
+      var msg = chatHistory[currentMsgIndex];
+      if(msg.role==='user'){
+        var newText = prompt('編輯訊息：', msg.content);
+        if(newText!==null && newText!==msg.content){
+          msg.content = newText;
+          save(KEYS.chat, chatHistory);
+          renderThread();
+          flashSaved('已編輯 ✓');
+        }
+      } else {
+        alert('只能編輯自己的訊息');
+      }
+    }
+    hideChatContextMenu();
+  });
+
+  $('msgDeleteBtn').addEventListener('click', function(){
+    if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
+      if(confirm('確定要刪除這條訊息嗎？')){
+        chatHistory.splice(currentMsgIndex, 1);
+        save(KEYS.chat, chatHistory);
+        renderThread();
+        flashSaved('已刪除 ✓');
+      }
+    }
+    hideChatContextMenu();
+  });
+
+  document.addEventListener('click', hideChatContextMenu);
+  document.addEventListener('contextmenu', hideChatContextMenu);
 
   function selectTab(tab){
     var btn = tabbar.querySelector('.tab-btn[data-tab="'+tab+'"]');
