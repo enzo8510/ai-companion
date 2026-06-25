@@ -3032,7 +3032,7 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView','chessView'];
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView','chessView','calendarView','todayQaView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
   }
