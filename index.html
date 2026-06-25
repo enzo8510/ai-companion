@@ -4809,6 +4809,7 @@ textarea.mid{ min-height:90px; }
     return null;
   }
   function chessRenderBoardInto(boardEl,board,interactive){
+    if(!boardEl||!board) return;
     boardEl.innerHTML='';
     var lastMv=(interactive&&chessGame&&chessGame.moves.length)?chessGame.moves[chessGame.moves.length-1]:null;
     for(var r=0;r<8;r++)for(var c=0;c<8;c++){
@@ -4874,6 +4875,7 @@ textarea.mid{ min-height:90px; }
   }
   var chessReplayState={positions:[],idx:0,moves:[]};
   function chessRenderReplay(){
+    if(!chessReplayState.positions||!chessReplayState.positions.length){ $('chessReplayStatus').textContent='無遊戲數據'; return; }
     var pos=chessReplayState.positions[chessReplayState.idx];
     chessRenderBoardInto($('chessReplayBoard'),pos,false);
     var total=chessReplayState.moves.length,label;
