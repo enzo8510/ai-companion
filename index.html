@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>卄珩 ・ AI 伴侶</title>
-<!-- Firebase SDK - temporarily disabled for debugging -->
-<!-- <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script> -->
+<!-- Firebase SDK with error handling -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js" onerror="console.error('Firebase App SDK 加載失敗')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js" onerror="console.error('Firebase Database SDK 加載失敗')"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
 
@@ -1840,30 +1840,61 @@ textarea.mid{ min-height:90px; }
   function uid(p){ return (p||'id') + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6); }
   function todayLabel(){ var d = new Date(); return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'; }
 
-  /* ============ Firebase 初始化 - 暫時禁用 ============ */
+  /* ============ Firebase 初始化（加強版，帶錯誤處理）============ */
   var isFirebaseReady = false;
   var database = null;
-  /*
-  var firebaseConfig = {
-    apiKey: "AIzaSyDHMFC23fkqXs0dJ-8sPVh6VI8hVHaD4o",
-    authDomain: "ai-companion-0bb44.firebaseapp.com",
-    databaseURL: "https://ai-companion-0bb44-default-rtdb.firebaseio.com",
-    projectId: "ai-companion-0bb44",
-    storageBucket: "ai-companion-0bb44.appspot.com",
-    messagingSenderId: "521523243972",
-    appId: "1:521523243972:web:2928db3c3fa9249ca3bd291"
-  };
+  var firebaseInitialized = false;
 
-  firebase.initializeApp(firebaseConfig);
-  var database = firebase.database();
-  var isFirebaseReady = false;
+  function initializeFirebase(){
+    if(firebaseInitialized) return;
 
-  // 檢查 Firebase 連接
-  database.ref('.info/connected').on('value', function(snap) {
-    isFirebaseReady = snap.val() === true;
-    if(isFirebaseReady) console.log('✓ Firebase 已連接');
-  });
-  */
+    try {
+      // 檢查 Firebase SDK 是否已加載
+      if(typeof firebase === 'undefined'){
+        console.warn('⚠ Firebase SDK 尚未加載，等待中...');
+        setTimeout(initializeFirebase, 500);
+        return;
+      }
+
+      var firebaseConfig = {
+        apiKey: "AIzaSyDHMFC23fkqXs0dJ-8sPVh6VI8hVHaD4o",
+        authDomain: "ai-companion-0bb44.firebaseapp.com",
+        databaseURL: "https://ai-companion-0bb44-default-rtdb.firebaseio.com",
+        projectId: "ai-companion-0bb44",
+        storageBucket: "ai-companion-0bb44.appspot.com",
+        messagingSenderId: "521523243972",
+        appId: "1:521523243972:web:2928db3c3fa9249ca3bd291"
+      };
+
+      // 初始化 Firebase
+      firebase.initializeApp(firebaseConfig);
+      database = firebase.database();
+      firebaseInitialized = true;
+      console.log('✓ Firebase 已初始化');
+
+      // 檢查連接狀態
+      database.ref('.info/connected').on('value', function(snap){
+        isFirebaseReady = snap.val() === true;
+        if(isFirebaseReady){
+          console.log('✓ Firebase 已連接（' + new Date().toLocaleTimeString('zh-TW') + '）');
+        } else {
+          console.warn('⚠ Firebase 連接中斷');
+        }
+      });
+
+    } catch(err){
+      console.error('✗ Firebase 初始化失敗:', err.message);
+      firebaseInitialized = false;
+      setTimeout(initializeFirebase, 2000); // 2秒後重試
+    }
+  }
+
+  // 延遲初始化（等待 DOM 準備好）
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initializeFirebase);
+  } else {
+    initializeFirebase();
+  }
 
   /* ============ State ============ */
   var settings  = load(KEYS.settings)  || clone(DEFAULT_SETTINGS);
@@ -4174,89 +4205,131 @@ textarea.mid{ min-height:90px; }
     } catch(e){ r.className='backup-result err'; r.textContent='✗ 還原失敗：'+(e.message||e); }
   });
 
-  /* ============ Firebase 備份 ============ */
+  /* ============ Firebase 備份（加強版，帶重試機制）============ */
   $('firebaseBackupBtn').addEventListener('click', function(){
-    if(!isFirebaseReady){
-      var r=$('backupFirebaseResult'); r.className='backup-result err'; r.textContent='✗ Firebase 未連接'; r.classList.remove('hidden');
+    var r=$('backupFirebaseResult');
+
+    if(!firebaseInitialized){
+      r.className='backup-result err';
+      r.textContent='✗ Firebase 初始化中...請稍待';
+      r.classList.remove('hidden');
       return;
     }
-    var r=$('backupFirebaseResult');
+
+    if(!isFirebaseReady){
+      r.className='backup-result err';
+      r.textContent='✗ Firebase 未連接。請檢查網路連接';
+      r.classList.remove('hidden');
+      return;
+    }
+
     r.className='backup-result'; r.textContent='備份中…'; r.classList.remove('hidden');
 
-    var data = gatherAllData();
-    var timestamp = new Date().toISOString();
-    var backupObj = {
-      data: data,
-      timestamp: timestamp,
-      version: '1.0'
-    };
+    try {
+      var data = gatherAllData();
+      var timestamp = new Date().toISOString();
+      var backupObj = {
+        data: data,
+        timestamp: timestamp,
+        version: '1.0'
+      };
 
-    database.ref('backups/latest').set(backupObj).then(function(){
-      r.className='backup-result ok';
-      r.textContent='✓ 已備份至 Firebase！(' + new Date().toLocaleString('zh-TW', {hour12:false}) + ')';
-      console.log('✓ Firebase 備份完成');
-    }).catch(function(err){
+      database.ref('backups/latest').set(backupObj, function(err){
+        if(err){
+          r.className='backup-result err';
+          r.textContent='✗ Firebase 錯誤：' + (err.message || err);
+          console.error('Firebase 備份失敗', err);
+        } else {
+          r.className='backup-result ok';
+          r.textContent='✓ 已備份至 Firebase！(' + new Date().toLocaleString('zh-TW', {hour12:false}) + ')';
+          console.log('✓ Firebase 備份完成');
+        }
+      });
+    } catch(err){
       r.className='backup-result err';
-      r.textContent='✗ Firebase 錯誤：' + (err.message || err);
-      console.error('Firebase 備份失敗', err);
-    });
+      r.textContent='✗ 錯誤：' + (err.message || err);
+      console.error('備份異常', err);
+    }
   });
 
   $('firebaseRestoreBtn').addEventListener('click', function(){
-    if(!isFirebaseReady){
-      var r=$('backupFirebaseResult'); r.className='backup-result err'; r.textContent='✗ Firebase 未連接'; r.classList.remove('hidden');
+    var r=$('backupFirebaseResult');
+
+    if(!firebaseInitialized){
+      r.className='backup-result err';
+      r.textContent='✗ Firebase 初始化中...請稍待';
+      r.classList.remove('hidden');
       return;
     }
-    var r=$('backupFirebaseResult');
+
+    if(!isFirebaseReady){
+      r.className='backup-result err';
+      r.textContent='✗ Firebase 未連接。請檢查網路連接';
+      r.classList.remove('hidden');
+      return;
+    }
+
     r.className='backup-result'; r.textContent='正在讀取…'; r.classList.remove('hidden');
 
-    database.ref('backups/latest').once('value', function(snapshot){
-      if(!snapshot.exists()){
+    try {
+      database.ref('backups/latest').once('value', function(snapshot){
+        if(!snapshot.exists()){
+          r.className='backup-result err';
+          r.textContent='✗ Firebase 中沒有備份數據。請先執行「備份至 Firebase」。';
+          return;
+        }
+
+        try{
+          var backupObj = snapshot.val();
+          var data = backupObj.data;
+          var count = 0;
+
+          Object.keys(data).forEach(function(k){
+            if(k.startsWith('companion:')){
+              localStorage.setItem(k, data[k]);
+              count++;
+            }
+          });
+
+          r.className='backup-result ok';
+          r.textContent='✓ 已從 Firebase 還原 ' + count + ' 筆資料！請重新整理頁面套用。';
+          console.log('✓ Firebase 還原完成');
+        } catch(err){
+          r.className='backup-result err';
+          r.textContent='✗ 還原失敗：' + (err.message || err);
+          console.error('Firebase 還原失敗', err);
+        }
+      }, function(err){
         r.className='backup-result err';
-        r.textContent='✗ Firebase 中沒有備份數據。請先執行「備份至 Firebase」。';
-        return;
-      }
-
-      try{
-        var backupObj = snapshot.val();
-        var data = backupObj.data;
-        var count = 0;
-
-        Object.keys(data).forEach(function(k){
-          if(k.startsWith('companion:')){
-            localStorage.setItem(k, data[k]);
-            count++;
-          }
-        });
-
-        r.className='backup-result ok';
-        r.textContent='✓ 已從 Firebase 還原 ' + count + ' 筆資料！請重新整理頁面套用。';
-        console.log('✓ Firebase 還原完成');
-      } catch(err){
-        r.className='backup-result err';
-        r.textContent='✗ 還原失敗：' + (err.message || err);
-        console.error('Firebase 還原失敗', err);
-      }
-    }).catch(function(err){
+        r.textContent='✗ 讀取失敗：' + (err.message || err);
+        console.error('Firebase 讀取失敗', err);
+      });
+    } catch(err){
       r.className='backup-result err';
-      r.textContent='✗ 讀取失敗：' + (err.message || err);
-      console.error('Firebase 讀取失敗', err);
-    });
+      r.textContent='✗ 錯誤：' + (err.message || err);
+      console.error('還原異常', err);
+    }
   });
 
-  // 自動每小時備份一次
+  // 自動每小時備份一次（有檢查機制）
   setInterval(function(){
-    if(isFirebaseReady){
-      var data = gatherAllData();
-      var timestamp = new Date().toISOString();
-      database.ref('backups/auto/' + timestamp).set({
-        data: data,
-        timestamp: timestamp
-      }).then(function(){
-        console.log('✓ 自動 Firebase 備份完成 - ' + new Date().toLocaleTimeString('zh-TW'));
-      }).catch(function(err){
-        console.error('自動備份失敗', err);
-      });
+    if(firebaseInitialized && isFirebaseReady && database){
+      try {
+        var data = gatherAllData();
+        var timestamp = new Date().toISOString();
+        database.ref('backups/auto/' + timestamp).set({
+          data: data,
+          timestamp: timestamp
+        }, function(err){
+          if(err){
+            console.error('✗ 自動備份失敗:', err);
+          } else {
+            console.log('✓ 自動 Firebase 備份完成 - ' + new Date().toLocaleTimeString('zh-TW'));
+          }
+        });
+      } catch(err){
+        console.error('自動備份異常', err);
+      }
     }
   }, 3600000); // 每小時一次
 
