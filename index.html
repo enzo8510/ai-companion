@@ -842,14 +842,13 @@ textarea.mid{ min-height:90px; }
 /* 暈染漸層遮罩 + 內容排版 */
 .wm-overlay{
   position:absolute; inset:0; z-index:1;
-  display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
   padding:clamp(48px,13vh,96px) 24px clamp(34px,7vh,60px);
   background:linear-gradient(180deg, rgba(16,12,34,0.30) 0%, rgba(16,12,34,0.28) 45%, rgba(16,12,34,0.62) 100%);
 }
 .wm-clock-zone{
   position:relative; display:flex; flex-direction:column; align-items:center;
-  margin-top:auto;
-  margin-bottom:clamp(60px, 15vh, 100px);
+  justify-content:center; flex:1;
 }
 /* 時間後方的白色暈染光暈 */
 .wm-clock-glow{
@@ -895,7 +894,8 @@ textarea.mid{ min-height:90px; }
 }
 /* 計時模式選擇器 */
 .wm-mode-selector{
-  position:relative; z-index:1; display:flex; gap:8px; justify-content:center; margin-top:24px;
+  position:absolute; top:24px; left:50%; transform:translateX(-50%);
+  z-index:2; display:flex; gap:8px; justify-content:center;
 }
 .wm-mode-btn{
   padding:6px 14px; border-radius:999px; border:1px solid rgba(255,255,255,0.3);
@@ -910,8 +910,9 @@ textarea.mid{ min-height:90px; }
 }
 /* 倒計時時間選擇器 */
 .wm-countdown-selector{
-  position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:8px;
-  max-width:240px; margin:12px auto;
+  position:absolute; top:72px; left:50%; transform:translateX(-50%);
+  z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  max-width:240px;
 }
 .wm-countdown-selector.hidden{ display:none; }
 .wm-time-btn{
@@ -1275,6 +1276,69 @@ textarea.mid{ min-height:90px; }
 .social-compose-btn{ background:var(--companion); color:#fff; border:none; border-radius:999px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all .12s; }
 .social-compose-btn:hover{ box-shadow:0 2px 8px rgba(59,173,204,0.3); }
 .social-compose-btn:active{ transform:scale(0.95); }
+
+/* ---- Today QA View ---- */
+#todayQaView .social-body{ padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-2xl); }
+.qa-today-section{
+  display:flex; flex-direction:column; gap:var(--space-md);
+  padding:var(--space-lg); background:var(--surface);
+  border-radius:16px; border:1px solid var(--line);
+}
+.qa-today-title, .qa-history-title{
+  font-size:14px; font-weight:700; color:var(--ink);
+  text-transform:uppercase; letter-spacing:.03em;
+}
+.qa-today-card{
+  padding:var(--space-lg); background:var(--chat-bg);
+  border-radius:12px; border:1px dashed var(--line);
+  min-height:100px; display:flex; flex-direction:column;
+  justify-content:center; gap:var(--space-md);
+}
+.qa-today-text{
+  font-size:15px; line-height:1.6; color:var(--ink);
+  font-weight:500;
+}
+.qa-refresh-btn{
+  align-self:flex-end; background:transparent; color:var(--ink-soft);
+  border:none; font-size:12px; cursor:pointer; font-family:inherit;
+  padding:4px 8px; border-radius:6px; transition:all .12s;
+}
+.qa-refresh-btn:hover{ color:var(--companion); background:var(--companion-soft); }
+.qa-ask-btn{
+  width:100%; background:linear-gradient(135deg, #E8F5FE, #F0FAFF);
+  border:1.5px solid var(--companion); color:var(--companion);
+  border-radius:12px; padding:var(--space-md) var(--space-lg);
+  font-family:inherit; font-size:14px; font-weight:600;
+  cursor:pointer; transition:all .15s;
+}
+.qa-ask-btn:hover{ box-shadow:0 4px 12px rgba(59,173,204,0.2); transform:translateY(-1px); }
+.qa-ask-btn:active{ transform:translateY(0); }
+
+.qa-history-section{
+  display:flex; flex-direction:column; gap:var(--space-md);
+  padding:var(--space-lg); background:var(--surface);
+  border-radius:16px; border:1px solid var(--line);
+}
+.qa-history-list{
+  display:flex; flex-direction:column; gap:var(--space-md);
+  max-height:400px; overflow-y:auto;
+}
+.qa-history-item{
+  padding:var(--space-md); background:var(--chat-bg);
+  border-radius:10px; border-left:3px solid var(--companion);
+}
+.qa-history-item-date{
+  font-size:11px; color:var(--ink-soft); margin-bottom:4px;
+  font-weight:600;
+}
+.qa-history-item-q{
+  font-size:13px; color:var(--ink); font-weight:500;
+  margin-bottom:6px;
+}
+.qa-history-item-a{
+  font-size:12px; color:var(--ink-soft); line-height:1.5;
+  font-style:italic;
+}
 
 /* ---- Backup / Notion overlay ---- */
 .backup-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
@@ -1872,6 +1936,32 @@ textarea.mid{ min-height:90px; }
             <button class="chess-act-btn" id="chessReplayNext" type="button">下一步 ▶</button>
             <button class="chess-act-btn" id="chessReplayLast" type="button">最後 ⏭</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TODAY QA VIEW ============ -->
+    <div class="view hidden" id="todayQaView">
+      <div class="social-hdr">
+        <button class="icon-btn" id="qaBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="social-hdr-title">✦ 今日問題</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="social-body" id="qaBody">
+        <!-- 今日問題 -->
+        <div class="qa-today-section">
+          <div class="qa-today-title">今天的問題</div>
+          <div class="qa-today-card">
+            <div class="qa-today-text" id="qaTodayText"></div>
+            <button class="qa-refresh-btn" id="qaTodayRefreshBtn" type="button">🔄 換一題</button>
+          </div>
+          <button class="qa-ask-btn" id="qaAskBtn" type="button">✨ 問卄珩</button>
+        </div>
+
+        <!-- 歷史問題 -->
+        <div class="qa-history-section">
+          <div class="qa-history-title">🔍 問題歷史</div>
+          <div class="qa-history-list" id="qaHistoryList"></div>
         </div>
       </div>
     </div>
@@ -4406,13 +4496,59 @@ textarea.mid{ min-height:90px; }
     save(KEYS.dailyqa, dailyQa);
     renderQaCard();
   });
-  $('homeQaCard').addEventListener('click', function(){
+  function showTodayQa(){
+    showOnly('todayQaView');
+    renderTodayQaView();
+  }
+
+  function renderTodayQaView(){
+    var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
+    $('qaTodayText').textContent = q;
+    renderQaHistoryList();
+  }
+
+  function renderQaHistoryList(){
+    var list = $('qaHistoryList');
+    list.innerHTML = '';
+    if(qaHistory.length === 0){
+      list.innerHTML = '<div style="padding:var(--space-lg); text-align:center; color:var(--ink-soft); font-size:13px;">還沒有提過問題喔，去問卄珩吧！</div>';
+      return;
+    }
+    qaHistory.forEach(function(h, idx){
+      var item = document.createElement('div');
+      item.className = 'qa-history-item';
+      var dateEl = document.createElement('div');
+      dateEl.className = 'qa-history-item-date';
+      dateEl.textContent = h.date;
+      var qEl = document.createElement('div');
+      qEl.className = 'qa-history-item-q';
+      qEl.textContent = 'Q: ' + h.question;
+      item.appendChild(dateEl);
+      item.appendChild(qEl);
+      if(h.answer){
+        var aEl = document.createElement('div');
+        aEl.className = 'qa-history-item-a';
+        aEl.textContent = 'A: ' + h.answer;
+        item.appendChild(aEl);
+      }
+      list.appendChild(item);
+    });
+  }
+
+  $('homeQaCard').addEventListener('click', showTodayQa);
+  $('qaBackBtn').addEventListener('click', showHome);
+  $('qaTodayRefreshBtn').addEventListener('click', function(){
+    dailyQa.qIndex = (dailyQa.qIndex + 1) % QA_LIST.length;
+    save(KEYS.dailyqa, dailyQa);
+    renderTodayQaView();
+  });
+  $('qaAskBtn').addEventListener('click', function(){
     showFront();
     var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
     if(!settings.apiKey){ chatInput.value = q; chatInput.focus(); return; }
     if(sending) return;
     // Add to QA history
-    if(!qaHistory.find(function(h){ return h.question === q; })){
+    if(!qaHistory.find(function(h){ return h.question === q && h.date === todayLabel(); })){
       qaHistory.unshift({ question:q, date:todayLabel() });
       save(KEYS.qaHistory, qaHistory);
     }
