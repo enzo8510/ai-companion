@@ -364,6 +364,11 @@ textarea.mid{ min-height:90px; }
 .kb-file-preview{ font-size:11px; color:var(--ink-soft); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:1px; }
 .kb-char-count{ font-size:11px; color:var(--ink-soft); white-space:nowrap; flex:0 0 auto; }
 .kb-card-arrow{ color:var(--ink-soft); font-size:18px; flex:0 0 auto; }
+.kb-drag-handle{ color:var(--ink-soft); font-size:17px; cursor:grab; flex:0 0 auto; padding:0 2px; touch-action:none; user-select:none; -webkit-user-select:none; line-height:1; }
+.kb-drag-handle:active{ cursor:grabbing; }
+.kb-card.kb-dragging{ opacity:0.45; }
+.kb-card.kb-drag-over{ border-color:var(--companion); background:var(--companion-soft); transform:scale(1.01); }
+.bubble.lp-active{ opacity:0.75; transform:scale(0.97); transition:opacity .15s, transform .15s; }
 /* Full-screen event editor overlay */
 .kb-editor-overlay{ position:fixed; inset:0; z-index:350; background:var(--bg); display:flex; flex-direction:column; }
 .kb-editor-overlay.hidden{ display:none; }
@@ -3382,6 +3387,22 @@ textarea.mid{ min-height:90px; }
       (function(idx){
         b.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); showChatContextMenu(e, idx); });
         row.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); showChatContextMenu(e, idx); });
+        /* mobile long-press */
+        var lpT=null, lpMoved=false;
+        b.addEventListener('touchstart',function(e){
+          lpMoved=false;
+          var t=e.touches[0];
+          lpT=setTimeout(function(){
+            lpT=null;
+            navigator.vibrate&&navigator.vibrate(30);
+            b.classList.add('lp-active');
+            setTimeout(function(){ b.classList.remove('lp-active'); },300);
+            showChatContextMenu({pageX:t.pageX, pageY:t.pageY}, idx);
+          },500);
+        },{passive:true});
+        b.addEventListener('touchmove',function(){ if(lpT){clearTimeout(lpT);lpT=null;} lpMoved=true; },{passive:true});
+        b.addEventListener('touchend',function(){ if(lpT){clearTimeout(lpT);lpT=null;} },{passive:true});
+        b.addEventListener('touchcancel',function(){ if(lpT){clearTimeout(lpT);lpT=null;} },{passive:true});
       })(msgIndex);
     }
     return row;
@@ -3422,9 +3443,14 @@ textarea.mid{ min-height:90px; }
 
   function showChatContextMenu(e, msgIndex){
     currentMsgIndex = msgIndex;
-    contextMenu.style.left = e.pageX + 'px';
-    contextMenu.style.top = e.pageY + 'px';
     contextMenu.classList.remove('hidden');
+    var mw = contextMenu.offsetWidth || 160;
+    var mh = contextMenu.offsetHeight || 120;
+    var x = e.pageX, y = e.pageY;
+    var maxX = (window.scrollX||0) + window.innerWidth - mw - 8;
+    var maxY = (window.scrollY||0) + window.innerHeight - mh - 8;
+    contextMenu.style.left = Math.max(8, Math.min(x, maxX)) + 'px';
+    contextMenu.style.top  = Math.max(8, Math.min(y, maxY)) + 'px';
   }
 
   function hideChatContextMenu(){
@@ -3934,6 +3960,51 @@ textarea.mid{ min-height:90px; }
   });
   $('kbEditorContent').addEventListener('input', updateKbEditorCount);
 
+  /* ---- KB drag state ---- */
+  var kbDragSrc = null;
+  function startTouchKbDrag(cardEl, srcIdx, startTouch){
+    navigator.vibrate && navigator.vibrate(30);
+    cardEl.classList.add('kb-dragging');
+    var rect = cardEl.getBoundingClientRect();
+    var ghost = cardEl.cloneNode(true);
+    ghost.style.cssText='position:fixed;z-index:500;width:'+rect.width+'px;top:'+rect.top+'px;left:'+rect.left+'px;opacity:0.88;box-shadow:0 8px 32px rgba(0,0,0,0.22);transform:scale(1.025);pointer-events:none;transition:none;margin:0;';
+    document.body.appendChild(ghost);
+    var offsetY = startTouch.clientY - rect.top;
+    function onMove(e){
+      e.preventDefault();
+      var t=e.touches[0];
+      ghost.style.top=(t.clientY-offsetY)+'px';
+      kbList.querySelectorAll('.kb-card').forEach(function(c){ c.classList.remove('kb-drag-over'); });
+      ghost.style.visibility='hidden';
+      var el=document.elementFromPoint(t.clientX,t.clientY);
+      ghost.style.visibility='';
+      var tc=el&&el.closest&&el.closest('.kb-card');
+      if(tc&&tc!==cardEl) tc.classList.add('kb-drag-over');
+    }
+    function onEnd(e){
+      document.removeEventListener('touchmove',onMove);
+      document.removeEventListener('touchend',onEnd);
+      document.removeEventListener('touchcancel',onEnd);
+      cardEl.classList.remove('kb-dragging');
+      ghost.remove();
+      kbList.querySelectorAll('.kb-card').forEach(function(c){ c.classList.remove('kb-drag-over'); });
+      var t=e.changedTouches&&e.changedTouches[0]; if(!t) return;
+      var cards=Array.prototype.slice.call(kbList.querySelectorAll('.kb-card'));
+      var dummy=document.createElement('div'); dummy.style.cssText='position:fixed;width:1px;height:1px;left:'+t.clientX+'px;top:'+t.clientY+'px;pointer-events:none;'; document.body.appendChild(dummy);
+      var el2=document.elementFromPoint(t.clientX,t.clientY); dummy.remove();
+      var tc2=el2&&el2.closest&&el2.closest('.kb-card');
+      var tIdx=tc2?cards.indexOf(tc2):-1;
+      if(tIdx>=0&&tIdx!==srcIdx){
+        var moved=knowledge.splice(srcIdx,1)[0]; knowledge.splice(tIdx,0,moved);
+        save(KEYS.knowledge,knowledge); renderKnowledge();
+      }
+      kbDragSrc=null;
+    }
+    document.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('touchend',onEnd,{passive:true});
+    document.addEventListener('touchcancel',onEnd,{passive:true});
+  }
+
   function renderKnowledge(){
     kbList.innerHTML = '';
     var kbCountEl = $('kbCount');
@@ -3942,7 +4013,7 @@ textarea.mid{ min-height:90px; }
       kbList.innerHTML = '<div class="panel-empty"><div class="empty-icon">📂</div><div class="empty-title">還沒有任何事件</div><div class="empty-sub">上傳 .md 或 .txt 檔案，或點「新增事件」<br>開始建立卄珩的角色設定與世界觀</div></div>';
       return;
     }
-    knowledge.forEach(function(k){
+    knowledge.forEach(function(k, kIdx){
       var ext = (k.filename||'').split('.').pop().toLowerCase();
       var icon = ext==='md' ? '📝' : ext==='txt' ? '📄' : '📋';
       var charCount = (k.content||'').length;
@@ -3951,6 +4022,10 @@ textarea.mid{ min-height:90px; }
 
       var card = document.createElement('div'); card.className='kb-card';
       var head = document.createElement('div'); head.className='kb-card-head';
+
+      /* drag handle */
+      var dh = document.createElement('span'); dh.className='kb-drag-handle'; dh.textContent='⠿'; dh.title='長按拖曳排序';
+      dh.addEventListener('click', function(e){ e.stopPropagation(); });
 
       var fileIco = document.createElement('span'); fileIco.className='kb-file-icon'; fileIco.textContent=icon;
       var nameWrap = document.createElement('div'); nameWrap.className='kb-file-name-wrap';
@@ -3970,9 +4045,44 @@ textarea.mid{ min-height:90px; }
       });
 
       var arrow = document.createElement('span'); arrow.className='kb-card-arrow'; arrow.textContent='›';
-      head.appendChild(fileIco); head.appendChild(nameWrap); head.appendChild(countEl); head.appendChild(delBtn); head.appendChild(arrow);
+      head.appendChild(dh); head.appendChild(fileIco); head.appendChild(nameWrap);
+      head.appendChild(countEl); head.appendChild(delBtn); head.appendChild(arrow);
       card.appendChild(head);
       card.addEventListener('click', function(){ openKbEditor(k); });
+
+      /* ---- Desktop HTML5 drag ---- */
+      (function(idx){
+        card.setAttribute('draggable','true');
+        card.addEventListener('dragstart',function(e){
+          kbDragSrc=idx; e.dataTransfer.effectAllowed='move';
+          setTimeout(function(){ card.classList.add('kb-dragging'); },0);
+        });
+        card.addEventListener('dragend',function(){
+          card.classList.remove('kb-dragging');
+          kbList.querySelectorAll('.kb-card').forEach(function(c){ c.classList.remove('kb-drag-over'); });
+        });
+        card.addEventListener('dragover',function(e){
+          e.preventDefault(); e.dataTransfer.dropEffect='move';
+          kbList.querySelectorAll('.kb-card').forEach(function(c){ c.classList.remove('kb-drag-over'); });
+          card.classList.add('kb-drag-over');
+        });
+        card.addEventListener('drop',function(e){
+          e.preventDefault(); card.classList.remove('kb-drag-over');
+          if(kbDragSrc===null||kbDragSrc===idx) return;
+          var moved=knowledge.splice(kbDragSrc,1)[0]; knowledge.splice(idx,0,moved);
+          kbDragSrc=null; save(KEYS.knowledge,knowledge); renderKnowledge();
+        });
+        /* ---- Mobile touch drag (long-press on handle) ---- */
+        var lpTimer=null, initT=null;
+        dh.addEventListener('touchstart',function(e){
+          e.stopPropagation(); initT=e.touches[0];
+          lpTimer=setTimeout(function(){ lpTimer=null; startTouchKbDrag(card,idx,initT); },350);
+        },{passive:true});
+        dh.addEventListener('touchmove',function(){ if(lpTimer){clearTimeout(lpTimer);lpTimer=null;} },{passive:true});
+        dh.addEventListener('touchend',function(){ if(lpTimer){clearTimeout(lpTimer);lpTimer=null;} },{passive:true});
+        dh.addEventListener('touchcancel',function(){ if(lpTimer){clearTimeout(lpTimer);lpTimer=null;} },{passive:true});
+      })(kIdx);
+
       kbList.appendChild(card);
     });
   }
