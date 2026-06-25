@@ -701,11 +701,62 @@ textarea.mid{ min-height:90px; }
 /* Green theme bubble colors */
 :root[data-theme="green"] .bubble.her{ background:#FFFFFF; color:#1E3A2A; }
 :root[data-theme="green"] .bubble.me{ background:#C4E8D0; color:#1E3A2A; }
-/* ---- With Me view ---- */
-#withMeBody{ background:#f5f5f5; }
-#withMeBody #withMeBgImage{ opacity:0.6; filter:brightness(1.1); }
-#withMeBody .toolbar-btn{ font-weight:600; transition:all .15s; }
-#withMeBody .toolbar-btn:active{ transform:scale(0.95); }
+/* ---- With Me view（沉浸式專注頁）---- */
+#withMeBody{ background:#1a1430; }
+#withMeBody #withMeBgImage{ opacity:0.85; filter:brightness(0.78) saturate(1.05); }
+/* 暈染漸層遮罩 + 內容排版 */
+.wm-overlay{
+  position:absolute; inset:0; z-index:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+  padding:clamp(48px,13vh,96px) 24px clamp(34px,7vh,60px);
+  background:linear-gradient(180deg, rgba(16,12,34,0.30) 0%, rgba(16,12,34,0.28) 45%, rgba(16,12,34,0.62) 100%);
+}
+.wm-clock-zone{
+  position:relative; display:flex; flex-direction:column; align-items:center;
+  margin-top:clamp(16px,9vh,72px);
+}
+/* 時間後方的白色暈染光暈 */
+.wm-clock-glow{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:clamp(220px,68vw,320px); height:clamp(220px,68vw,320px);
+  background:radial-gradient(circle, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.12) 38%, rgba(255,255,255,0) 70%);
+  filter:blur(26px); pointer-events:none; z-index:0;
+}
+.wm-clock-label{
+  position:relative; z-index:1; font-size:13px; letter-spacing:.32em; font-weight:500;
+  color:rgba(255,255,255,0.78); margin-bottom:16px; padding-left:.32em;
+  text-shadow:0 1px 10px rgba(0,0,0,0.45);
+}
+.wm-clock{
+  position:relative; z-index:1;
+  font-size:clamp(50px,15vw,78px); font-weight:300; line-height:1; letter-spacing:.01em;
+  color:#fff; font-family:'Helvetica Neue',Arial,'Noto Sans TC',sans-serif;
+  text-shadow:0 2px 30px rgba(255,255,255,0.40), 0 3px 14px rgba(0,0,0,0.38);
+}
+.wm-controls{
+  position:relative; z-index:1; width:100%; max-width:330px;
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+}
+.wm-btn-row{ display:flex; gap:12px; justify-content:center; width:100%; }
+.wm-btn{
+  flex:1; min-height:48px; display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:0 16px; border-radius:999px; cursor:pointer;
+  font-size:15px; font-family:inherit; color:#fff;
+  background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.30);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  transition:background .18s, transform .12s;
+}
+.wm-btn:hover{ background:rgba(255,255,255,0.22); }
+.wm-btn:active{ transform:scale(0.96); }
+.wm-btn-primary{
+  background:rgba(255,255,255,0.92); color:#3a2f5a; border-color:transparent; font-weight:600;
+}
+.wm-btn-primary:hover{ background:#fff; }
+.wm-upload{ flex:0 0 auto; width:48px; padding:0; font-size:20px; }
+.wm-music-name{
+  font-size:11px; color:rgba(255,255,255,0.72); text-align:center; word-break:break-all;
+  min-height:14px; text-shadow:0 1px 5px rgba(0,0,0,0.5);
+}
 /* ---- Star view (full screen) ---- */
 #starView{ position:relative; overflow:hidden; background:var(--bg); }
 .star-header{ padding:14px 16px 12px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
@@ -1336,32 +1387,32 @@ textarea.mid{ min-height:90px; }
         <!-- Background image -->
         <div id="withMeBgImage" style="position:absolute;inset:0;background-size:cover;background-position:center;background-image:url('read/read.png');"></div>
 
-        <!-- Overlay controls -->
-        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.5) 100%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:20px;gap:16px;">
+        <!-- 沉浸式專注畫面 -->
+        <div class="wm-overlay">
 
-          <!-- Timer -->
-          <div style="background:rgba(255,255,255,0.95);border-radius:16px;padding:20px 24px;text-align:center;width:90%;max-width:280px;">
-            <div style="font-size:12px;color:#999;margin-bottom:8px;font-weight:500;">專注時間</div>
-            <div id="withMeTimer" style="font-size:48px;font-weight:700;color:#32384A;font-family:monospace;margin-bottom:12px;">00:00:00</div>
-            <div style="display:flex;gap:8px;">
-              <button id="withMeStartBtn" class="toolbar-btn primary" style="flex:1;padding:10px;font-size:13px;border-radius:10px;">▶ 開始</button>
-              <button id="withMePauseBtn" class="toolbar-btn ghost" style="flex:1;padding:10px;font-size:13px;border-radius:10px;display:none;">⏸ 暫停</button>
-              <button id="withMeResetBtn" class="toolbar-btn ghost" style="flex:1;padding:10px;font-size:13px;border-radius:10px;">↺ 重置</button>
-            </div>
+          <!-- 大白字時間 + 後方暈染光暈 -->
+          <div class="wm-clock-zone">
+            <div class="wm-clock-glow"></div>
+            <div class="wm-clock-label">專注時間</div>
+            <div id="withMeTimer" class="wm-clock">00:00:00</div>
           </div>
 
-          <!-- Music controls -->
-          <div style="background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;width:90%;max-width:280px;">
-            <div style="font-size:12px;color:#999;margin-bottom:10px;font-weight:500;">🎵 背景音樂</div>
-            <div style="display:flex;gap:8px;margin-bottom:10px;">
-              <button id="withMeMusicPlayBtn" class="toolbar-btn primary" style="flex:1;padding:10px;font-size:13px;border-radius:10px;">▶ 播放</button>
-              <button id="withMeMusicStopBtn" class="toolbar-btn ghost" style="flex:1;padding:10px;font-size:13px;border-radius:10px;display:none;">⏹ 停止</button>
+          <!-- 柔和控制區 -->
+          <div class="wm-controls">
+            <div class="wm-btn-row">
+              <button id="withMeStartBtn" class="wm-btn wm-btn-primary" type="button">▶ 開始</button>
+              <button id="withMePauseBtn" class="wm-btn" type="button" style="display:none;">⏸ 暫停</button>
+              <button id="withMeResetBtn" class="wm-btn" type="button">↺ 重置</button>
             </div>
-            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#666;cursor:pointer;">
-              <span>📤 上傳音樂</span>
-              <input type="file" id="withMeMusicInput" accept="audio/*" style="display:none;">
-            </label>
-            <div id="withMeMusicName" style="font-size:11px;color:#999;margin-top:8px;text-align:center;word-break:break-all;"></div>
+            <div class="wm-btn-row">
+              <button id="withMeMusicPlayBtn" class="wm-btn" type="button">♪ 音樂</button>
+              <button id="withMeMusicStopBtn" class="wm-btn" type="button" style="display:none;">⏹ 停止</button>
+              <label class="wm-btn wm-upload" title="上傳音樂">
+                <span>＋</span>
+                <input type="file" id="withMeMusicInput" accept="audio/*" style="display:none;">
+              </label>
+            </div>
+            <div id="withMeMusicName" class="wm-music-name"></div>
             <audio id="withMeAudio" style="display:none;"></audio>
           </div>
 
