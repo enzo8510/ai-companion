@@ -787,7 +787,8 @@ textarea.mid{ min-height:90px; }
 }
 .wm-clock-zone{
   position:relative; display:flex; flex-direction:column; align-items:center;
-  margin-top:auto;
+  margin-top:clamp(32px,6vh,48px);
+  margin-bottom:auto;
 }
 /* 時間後方的白色暈染光暈 */
 .wm-clock-glow{
@@ -833,6 +834,7 @@ textarea.mid{ min-height:90px; }
 }
 /* ---- Chess view ---- */
 #chessView{ position:relative; }
+#chessView > .social-hdr{ z-index:10; }
 .chess-body{ flex:1; overflow-y:auto; padding:var(--space-md) var(--space-lg) var(--space-2xl); display:flex; flex-direction:column; align-items:center; gap:var(--space-md); }
 .chess-status{ font-size:14px; font-weight:600; color:var(--ink); text-align:center; min-height:20px; }
 .chess-status.check{ color:#d8643c; }
@@ -920,9 +922,9 @@ textarea.mid{ min-height:90px; }
 .star-char.bounce{ animation:starBounce .38s ease; }
 @keyframes starBounce{ 0%,100%{ transform:translateY(0) scale(1); } 35%{ transform:translateY(-14px) scale(0.96); } 70%{ transform:translateY(-6px) scale(1.02); } }
 @keyframes petPat{ 0%{ transform:rotateZ(0deg) scale(1); } 25%{ transform:rotateZ(-8deg) scale(1.02); } 50%{ transform:rotateZ(8deg) scale(1.02); } 75%{ transform:rotateZ(-4deg) scale(1.01); } 100%{ transform:rotateZ(0deg) scale(1); } }
-@keyframes floatHeart{ 0%{ opacity:1; transform:translateY(0) translateX(0) scale(1); } 100%{ opacity:0; transform:translateY(-60px) translateX(var(--tx)) scale(0.5); } }
+@keyframes floatHeart{ 0%{ opacity:1; transform:translate(var(--tx,0), var(--ty,0)) scale(1); } 100%{ opacity:0; transform:translate(var(--tx,0), calc(var(--ty,0) - 60px)) scale(0.5); } }
 .star-cat-img.pet{ animation:petPat .4s ease-in-out; cursor:pointer; }
-.star-heart-float{ position:absolute; font-size:20px; pointer-events:none; animation:floatHeart 1.2s ease-out forwards; }
+.star-heart-float{ position:absolute; font-size:20px; pointer-events:none; animation:floatHeart 1.2s ease-out forwards; margin-left:-12px; margin-top:-12px; }
 /* ---- Feeding Status ---- */
 .star-feeding-status{ background:linear-gradient(135deg, rgba(232,160,200,0.08) 0%, rgba(232,160,200,0.02) 100%); border:1px solid rgba(232,160,200,0.15); border-radius:16px; padding:var(--space-md) var(--space-lg); margin-bottom:var(--space-lg); }
 .feeding-time{ font-size:12px; color:var(--ink-soft); margin-bottom:var(--space-md); font-weight:600; }
@@ -2663,16 +2665,22 @@ textarea.mid{ min-height:90px; }
   function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); updateFeedingStatus(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
 
   function floatHeart(element){
+    var container = element.closest('#starView') || element.parentElement;
     for(var i=0; i<3; i++){
       (function(){
         var heart = document.createElement('div');
         heart.className = 'star-heart-float';
         heart.textContent = '💕';
-        var tx = (Math.random()-0.5)*40;
+        var angle = (i * 120) * Math.PI / 180;
+        var tx = Math.cos(angle) * 35;
+        var ty = Math.sin(angle) * 35;
         heart.style.setProperty('--tx', tx+'px');
-        heart.style.left = (element.offsetLeft + element.offsetWidth/2) + 'px';
-        heart.style.top = element.offsetTop + 'px';
-        element.parentElement.appendChild(heart);
+        heart.style.setProperty('--ty', ty+'px');
+        var rect = element.getBoundingClientRect();
+        var containerRect = container.getBoundingClientRect();
+        heart.style.left = (rect.left - containerRect.left + rect.width/2) + 'px';
+        heart.style.top = (rect.top - containerRect.top + rect.height/2) + 'px';
+        container.appendChild(heart);
         setTimeout(function(){ heart.remove(); }, 1200);
       })();
     }
