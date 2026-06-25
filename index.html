@@ -206,6 +206,7 @@ body{
 .bubble.me{ background:var(--user-bubble); color:var(--ink); border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
 .bubble.her em{ font-style:italic; opacity:.85; }
+.bubble .action{ color:var(--ink-soft); font-style:italic; }
 
 .typing-row .bubble.her{ display:flex; gap:4px; align-items:center; padding:14px 16px; }
 .typing-dot{ width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:typing-bounce 1.2s ease-in-out infinite; }
@@ -677,6 +678,7 @@ textarea.mid{ min-height:90px; }
 /* Dark theme bubble colors with opacity */
 :root[data-theme="dark"] .bubble.her{ background:rgba(76,200,234,0.85); color:#ffffff; }
 :root[data-theme="dark"] .bubble.me{ background:rgba(52,56,80,0.90); color:#ffffff; }
+:root[data-theme="dark"] .bubble .action{ color:#B0B8D1; }
 /* Dark theme with chat background override */
 :root[data-theme="dark"] #thread.has-chatbg .bubble.her{ background:rgba(76,200,234,0.85); color:#ffffff; backdrop-filter:none; border:none; }
 :root[data-theme="dark"] #thread.has-chatbg .bubble.me{ background:rgba(52,56,80,0.90); color:#ffffff; backdrop-filter:none; border:none; }
@@ -1961,7 +1963,7 @@ textarea.mid{ min-height:90px; }
 '\n# 回覆規則\n' +
 '1. 完全用第一人稱、繁體中文，像真人在傳訊息聊天。\n' +
 '2. 語氣簡短自然，通常1到3句話，可帶點調侃或克制中的深情，避免長篇大論。\n' +
-'3. 不要用「*」包起來的旁白動作描述（如 *微笑*），用對話本身表達情緒。\n' +
+'3. 用 *動作* 描述肢體語言或情感表現，用「對話」表示說話內容。例如：*輕輕擁抱你* 「我永遠在這裡」\n' +
 '4. 絕不提及自己是 AI、模型或程式，不要跳出角色。\n' +
 '5. 善用你記得的長期記憶與設定資料，讓回應貼合你們的關係與過往。';
 
@@ -2465,7 +2467,7 @@ textarea.mid{ min-height:90px; }
   function parseMarkdown(text){
     var s = escapeHtml(text);
     s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
-    s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    s = s.replace(/\*([^*\n]+)\*/g, '<span class="action">$1</span>');
     s = s.replace(/\n/g, '<br>');
     return s;
   }
