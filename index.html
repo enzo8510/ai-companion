@@ -600,6 +600,10 @@ textarea.mid{ min-height:90px; }
 .cal-anni-item:hover{ background:rgba(224,128,80,0.05); }
 .cal-anni-item:last-child{ border-bottom:none; }
 .cal-anni-dot{ width:9px; height:9px; border-radius:50%; background:#e08050; flex:0 0 auto; box-shadow:0 1px 2px rgba(0,0,0,0.1); }
+/* ---- Period Info Strip ---- */
+.period-info-strip{ background:linear-gradient(135deg, rgba(232,160,200,0.1) 0%, rgba(232,160,200,0.05) 100%); border-left:4px solid var(--period-color); border-radius:12px; padding:var(--space-md) var(--space-lg); border:1px solid rgba(232,160,200,0.2); border-left:4px solid var(--period-color); }
+.period-info-label{ font-size:12px; font-weight:700; color:var(--period-color); margin-bottom:6px; }
+.period-info-range{ font-size:13px; font-weight:600; color:var(--ink); }
 /* ---- Period Calendar ---- */
 .period-date-range{ background:var(--chat-bg); border-radius:14px; padding:var(--space-lg); border:1px solid var(--line); margin-bottom:var(--space-lg); }
 .period-range-label{ font-size:12px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
@@ -1177,10 +1181,6 @@ textarea.mid{ min-height:90px; }
             <span class="act-icon">♟️</span>
             <span class="act-label">西洋棋</span>
           </button>
-          <button class="home-action-btn" id="homePeriodBtn" type="button">
-            <span class="act-icon">🌸</span>
-            <span class="act-label">生理期</span>
-          </button>
         </div>
 
         <!-- Daily Q&A card -->
@@ -1617,6 +1617,62 @@ textarea.mid{ min-height:90px; }
             <button class="chess-act-btn" id="chessReplayNext" type="button">下一步 ▶</button>
             <button class="chess-act-btn" id="chessReplayLast" type="button">最後 ⏭</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR VIEW -->
+    <div class="view hidden" id="calendarView">
+      <div class="social-hdr">
+        <button class="icon-btn" id="calBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="social-hdr-title">📅 行事曆</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="cal-sheet-body" style="flex:1; overflow-y:auto;">
+        <!-- 生理期顯示 -->
+        <div id="calPeriodStrip" class="period-info-strip" style="display:none; margin-bottom:var(--space-lg);">
+          <div class="period-info-label">🌸 生理期</div>
+          <div class="period-info-range" id="calPeriodRange"></div>
+        </div>
+
+        <div class="cal-month-nav">
+          <button class="cal-nav" id="calOvPrev" type="button">‹</button>
+          <div class="cal-month-label" id="calOvMonthLabel"></div>
+          <button class="cal-nav" id="calOvNext" type="button">›</button>
+        </div>
+        <div class="cal-full-weekdays">
+          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+        </div>
+        <div class="cal-full-grid" id="calOvGrid"></div>
+
+        <!-- 選中日期詳情（點日期才顯示）-->
+        <div id="calOvDayDetail" style="display:none;">
+          <div class="cal-section-label" id="calOvDayLabel"></div>
+          <div id="calOvDayList" class="cal-event-list"></div>
+        </div>
+        <div id="calOvNoSel" class="cal-day-empty-hint">點選日期查看當天記錄</div>
+
+        <!-- 紀念日分欄（永遠顯示）-->
+        <div class="cal-section-divider"></div>
+        <div class="cal-section-label">🎂 紀念日</div>
+        <div id="calAnniList" class="cal-event-list"></div>
+
+        <!-- 新增事項 -->
+        <div class="cal-add-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <h3 style="margin:0;">📝 新增事項</h3>
+            <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:16px;padding:4px 8px;">⚙</button>
+          </div>
+          <div class="cal-add-row">
+            <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
+          </div>
+          <div class="cal-add-row">
+            <input type="text" id="calAddDate" placeholder="點擊選擇日期" readonly class="input-date">
+          </div>
+          <div class="cal-add-row">
+            <select id="calAddType" class="select-category"></select>
+          </div>
+          <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">✨ 新增事項</button>
         </div>
       </div>
     </div>
@@ -3406,7 +3462,10 @@ textarea.mid{ min-height:90px; }
     for(var d=1;d<=daysInMon;d++){
       var btn=document.createElement('button'); btn.type='button';
       var isToday=d===today.getDate()&&calOvMonth===today.getMonth()&&calOvYear===today.getFullYear();
-      btn.className='cal-full-day'+(isToday?' cal-fd-today':'');
+      var date = new Date(calOvYear, calOvMonth, d);
+      var isInPeriod = periodStartDate && periodEndDate && date >= periodStartDate && date <= periodEndDate;
+      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+(isInPeriod?' period-day-in-range':'');
+      if(isInPeriod) btn.style.background = 'rgba(232,160,200,0.4)';
       btn.textContent=d;
       var key2=calOvYear+'-'+(calOvMonth+1)+'-'+d;
       var types=dateMap[key2]||[];
@@ -3684,7 +3743,31 @@ textarea.mid{ min-height:90px; }
     renderAnniSection();
     $('calOverlay').classList.remove('hidden');
   }
-  $('homeCalBtn').addEventListener('click', openCalOverlay);
+
+  function showCalendarView(){
+    showOnly('calendarView');
+    calOvSelDay=null;
+    renderEventTypeSelect();
+    renderCalOvGrid();
+    renderDayDetail(null);
+    renderAnniSection();
+    updatePeriodInfoStrip();
+  }
+
+  function updatePeriodInfoStrip(){
+    var strip = $('calPeriodStrip');
+    if(periodStartDate && periodEndDate){
+      var start = periodStartDate.getFullYear() + '年 ' + (periodStartDate.getMonth()+1) + '月 ' + periodStartDate.getDate() + '日';
+      var end = periodEndDate.getFullYear() + '年 ' + (periodEndDate.getMonth()+1) + '月 ' + periodEndDate.getDate() + '日';
+      $('calPeriodRange').textContent = start + ' ~ ' + end;
+      strip.style.display = 'block';
+    } else {
+      strip.style.display = 'none';
+    }
+  }
+
+  $('homeCalBtn').addEventListener('click', showCalendarView);
+  $('calBackBtn').addEventListener('click', showHome);
 
   /* ============ Countdown ============ */
   var CNT_MILESTONES = [
@@ -5187,7 +5270,6 @@ textarea.mid{ min-height:90px; }
 
   /* ---- 事件綁定 ---- */
   $('homeChessBtn').addEventListener('click', showChess);
-  $('homePeriodBtn').addEventListener('click', openPeriodCal);
   $('chessBackBtn').addEventListener('click', showHome);
   $('chessNewBtn').addEventListener('click', function(){ if(confirm('要重新開始一盤新棋嗎？目前進度會結束。')) chessNewGame(); });
   $('chessResignBtn').addEventListener('click', function(){
