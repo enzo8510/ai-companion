@@ -912,6 +912,21 @@ textarea.mid{ min-height:90px; }
 .star-char{ width:96px; height:96px; border-radius:50%; background:#F8F4F0; border:3px solid #E0D4C8; position:relative; box-shadow:0 4px 16px rgba(100,80,60,0.12); }
 .star-char.bounce{ animation:starBounce .38s ease; }
 @keyframes starBounce{ 0%,100%{ transform:translateY(0) scale(1); } 35%{ transform:translateY(-14px) scale(0.96); } 70%{ transform:translateY(-6px) scale(1.02); } }
+@keyframes petPat{ 0%{ transform:rotateZ(0deg) scale(1); } 25%{ transform:rotateZ(-8deg) scale(1.02); } 50%{ transform:rotateZ(8deg) scale(1.02); } 75%{ transform:rotateZ(-4deg) scale(1.01); } 100%{ transform:rotateZ(0deg) scale(1); } }
+@keyframes floatHeart{ 0%{ opacity:1; transform:translateY(0) translateX(0) scale(1); } 100%{ opacity:0; transform:translateY(-60px) translateX(var(--tx)) scale(0.5); } }
+.star-cat-img.pet{ animation:petPat .4s ease-in-out; cursor:pointer; }
+.star-heart-float{ position:absolute; font-size:20px; pointer-events:none; animation:floatHeart 1.2s ease-out forwards; }
+/* ---- Feeding Status ---- */
+.star-feeding-status{ background:linear-gradient(135deg, rgba(232,160,200,0.08) 0%, rgba(232,160,200,0.02) 100%); border:1px solid rgba(232,160,200,0.15); border-radius:16px; padding:var(--space-md) var(--space-lg); margin-bottom:var(--space-lg); }
+.feeding-time{ font-size:12px; color:var(--ink-soft); margin-bottom:var(--space-md); font-weight:600; }
+.feeding-time span{ color:var(--ink); font-weight:700; }
+.feeding-meals{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-md); }
+.meal-item{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:var(--space-md); background:var(--surface); border-radius:12px; border:1px solid var(--line); }
+.meal-icon{ font-size:18px; line-height:1; }
+.meal-name{ font-size:11px; color:var(--ink); font-weight:600; }
+.meal-status{ font-size:12px; font-weight:700; padding:2px 8px; border-radius:8px; }
+.meal-status.done{ color:#4CAF50; background:rgba(76,175,80,0.1); }
+.meal-status.pending{ color:var(--ink-soft); background:rgba(0,0,0,0.05); }
 .star-eye{ position:absolute; width:10px; height:12px; background:#3A2A1A; border-radius:50%; top:34px; }
 .star-eye.left{ left:24px; }
 .star-eye.right{ right:24px; }
@@ -1402,6 +1417,29 @@ textarea.mid{ min-height:90px; }
         </div>
         <div class="star-bubble hidden" id="starBubble"></div>
       </div>
+
+      <!-- 餵食狀態 -->
+      <div class="star-feeding-status">
+        <div class="feeding-time">⏰ 上次餵食：<span id="starLastFeedTime">未餵食</span></div>
+        <div class="feeding-meals">
+          <div class="meal-item">
+            <span class="meal-icon">🌅</span>
+            <span class="meal-name">早餐</span>
+            <span class="meal-status" id="mealBreakfast">未餵</span>
+          </div>
+          <div class="meal-item">
+            <span class="meal-icon">☀️</span>
+            <span class="meal-name">午餐</span>
+            <span class="meal-status" id="mealLunch">未餵</span>
+          </div>
+          <div class="meal-item">
+            <span class="meal-icon">🌙</span>
+            <span class="meal-name">晚餐</span>
+            <span class="meal-status" id="mealDinner">未餵</span>
+          </div>
+        </div>
+      </div>
+
       <div class="star-stats">
         <div class="star-stat-row">
           <span class="star-stat-label">🍚 飽食度</span>
@@ -2613,7 +2651,56 @@ textarea.mid{ min-height:90px; }
   function showHome(){ showOnly('homeView'); }
   function showFront(){ showOnly('frontView'); }
   function showAdmin(){ showOnly('adminView'); }
-  function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
+  function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); updateFeedingStatus(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
+
+  function floatHeart(element){
+    for(var i=0; i<3; i++){
+      (function(){
+        var heart = document.createElement('div');
+        heart.className = 'star-heart-float';
+        heart.textContent = '💕';
+        var tx = (Math.random()-0.5)*40;
+        heart.style.setProperty('--tx', tx+'px');
+        heart.style.left = (element.offsetLeft + element.offsetWidth/2) + 'px';
+        heart.style.top = element.offsetTop + 'px';
+        element.parentElement.appendChild(heart);
+        setTimeout(function(){ heart.remove(); }, 1200);
+      })();
+    }
+  }
+
+  function updateFeedingStatus(){
+    var now = new Date();
+    var hour = now.getHours();
+    var lastFeed = starState.lastFeedTime ? new Date(starState.lastFeedTime) : null;
+
+    if(lastFeed){
+      var hours = Math.floor((now - lastFeed)/(1000*60*60));
+      var mins = Math.floor(((now - lastFeed)%(1000*60*60))/(1000*60));
+      var timeStr = hours > 0 ? hours + '小時前' : mins + '分鐘前';
+      $('starLastFeedTime').textContent = timeStr;
+    }
+
+    var today = now.toDateString();
+    var todayFeeds = starState.dailyFeeds || {};
+    if(!todayFeeds[today]) todayFeeds[today] = {};
+
+    var breakfastDone = todayFeeds[today].breakfast;
+    var lunchDone = todayFeeds[today].lunch;
+    var dinnerDone = todayFeeds[today].dinner;
+
+    $('mealBreakfast').textContent = breakfastDone ? '✓ 已餵' : '未餵';
+    $('mealBreakfast').classList.toggle('done', breakfastDone);
+    $('mealBreakfast').classList.toggle('pending', !breakfastDone);
+
+    $('mealLunch').textContent = lunchDone ? '✓ 已餵' : '未餵';
+    $('mealLunch').classList.toggle('done', lunchDone);
+    $('mealLunch').classList.toggle('pending', !lunchDone);
+
+    $('mealDinner').textContent = dinnerDone ? '✓ 已餵' : '未餵';
+    $('mealDinner').classList.toggle('done', dinnerDone);
+    $('mealDinner').classList.toggle('pending', !dinnerDone);
+  }
   function showSocial(){ showOnly('socialView'); syncSocialAvatar(); renderSocialFeed(); }
   function showWithMe(){ showOnly('withMeView'); }
   $('openAdminBtn').addEventListener('click', showAdmin);
@@ -4614,21 +4701,40 @@ textarea.mid{ min-height:90px; }
       if(starState.hunger >= 100 && h > 0){ showStarBubble('已經吃飽了！🍚'); closeStarModal(); return; }
       starState.hunger = Math.min(100, starState.hunger + h);
       starState.mood   = Math.min(100, starState.mood   + m);
-      starState.lastFedTime = Date.now();
-      save(KEYS.star, starState); bounceStarChar();
+      starState.lastFeedTime = Date.now();
+
+      // 記錄每日餵食狀態
+      if(!starState.dailyFeeds) starState.dailyFeeds = {};
+      var today = new Date().toDateString();
+      if(!starState.dailyFeeds[today]) starState.dailyFeeds[today] = {};
+      var hour = new Date().getHours();
+      if(hour >= 5 && hour < 11) starState.dailyFeeds[today].breakfast = true;
+      else if(hour >= 11 && hour < 17) starState.dailyFeeds[today].lunch = true;
+      else if(hour >= 17 || hour < 5) starState.dailyFeeds[today].dinner = true;
+
+      save(KEYS.star, starState); bounceStarChar(); floatHeart($('starChar'));
       var msgs=['好吃！謝謝你！😋','哇，我最喜歡吃東西了！','謝謝～味道不錯耶！','嗯嗯～吃飽了好開心！'];
       showStarBubble(msgs[Math.floor(Math.random()*msgs.length)]);
-      renderStarStats(); closeStarModal();
+      renderStarStats(); updateFeedingStatus(); closeStarModal();
     });
   });
-  $('starPetBtn').addEventListener('click', function(){
+  function petTheCat(){
     if(starState.mood >= 100){ showStarBubble('嗯～已經很開心了！💕'); return; }
     starState.mood = Math.min(100, starState.mood + 20);
     starState.lastPetTime = Date.now();
-    save(KEYS.star, starState); bounceStarChar();
+    save(KEYS.star, starState);
+    var catImg = $('starChar');
+    catImg.classList.remove('pet');
+    void catImg.offsetWidth;
+    catImg.classList.add('pet');
+    floatHeart($('star-char-wrap') || $('starView'));
     var m=['呀！好舒服～💕','謝謝你摸我！','嗯嗯～感覺很溫暖','嘿嘿，我喜歡這樣！'];
-    showStarBubble(m[Math.floor(Math.random()*m.length)]); renderStarStats();
-  });
+    showStarBubble(m[Math.floor(Math.random()*m.length)]);
+    renderStarStats();
+  }
+
+  $('starChar').addEventListener('click', petTheCat);
+  $('starPetBtn').addEventListener('click', petTheCat);
   $('starClothesBtn').addEventListener('click', function(){ renderStarOutfitGrid(); openStarModal('starOutfitModal'); });
   $('starOutfitCancel').addEventListener('click', closeStarModal);
   $('homeStarBtn').addEventListener('click', showStar);
