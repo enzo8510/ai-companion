@@ -203,6 +203,13 @@ body{
 .avatar-preset-item:hover{ border-color:var(--companion); transform:scale(1.08); }
 .avatar-preset-item.active{ border-color:var(--companion); box-shadow:0 0 0 3px var(--companion-shadow); }
 .avatar-custom-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.05em; margin-bottom:8px; text-transform:uppercase; padding:8px 16px 0; }
+.wal-preset-section{ padding:12px 16px 4px; }
+.wal-preset-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.05em; margin-bottom:8px; text-transform:uppercase; }
+.wal-preset-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.wal-preset-item{ width:100%; aspect-ratio:9/16; border-radius:8px; cursor:pointer; object-fit:cover; border:2.5px solid var(--line); transition:border-color .15s, transform .15s; display:block; }
+.wal-preset-item:hover{ border-color:var(--companion); transform:scale(1.05); }
+.wal-preset-item.active{ border-color:var(--companion); box-shadow:0 0 0 3px var(--companion-shadow); }
+.wal-custom-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.05em; text-transform:uppercase; padding:6px 16px 4px; }
 .avatar-preview{
   width:68px; height:68px; border-radius:50%; flex:0 0 auto;
   background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%);
@@ -2467,10 +2474,22 @@ textarea.mid{ min-height:90px; }
 <div class="cnt-sel-overlay hidden" id="walGalleryOverlay">
   <div class="cnt-sel-sheet" style="max-width:380px;">
     <div class="cnt-sel-head">
-      <div class="cnt-sel-title">🖼 桌布庫</div>
+      <div class="cnt-sel-title">🖼 主畫面背景</div>
       <button class="icon-btn" id="walGalleryClose" type="button">✕</button>
     </div>
-    <div id="walGalleryBody" style="overflow-y:auto;flex:1;min-height:80px;padding:14px 16px;"></div>
+    <!-- 預設背景 -->
+    <div class="wal-preset-section">
+      <div class="wal-preset-label">預設背景</div>
+      <div class="wal-preset-grid" id="walPresetRow">
+        <img class="wal-preset-item" src="wallpaper/wallpaper01.jpg" alt="預設1" data-preset="wallpaper/wallpaper01.jpg">
+        <img class="wal-preset-item" src="wallpaper/wallpaper02.png" alt="預設2" data-preset="wallpaper/wallpaper02.png">
+        <img class="wal-preset-item" src="wallpaper/wallpaper03.png" alt="預設3" data-preset="wallpaper/wallpaper03.png">
+        <img class="wal-preset-item" src="wallpaper/wallpaper04.png" alt="預設4" data-preset="wallpaper/wallpaper04.png">
+        <img class="wal-preset-item" src="wallpaper/wallpaper05.png" alt="預設5" data-preset="wallpaper/wallpaper05.png">
+      </div>
+    </div>
+    <div class="wal-custom-label">已上傳背景</div>
+    <div id="walGalleryBody" style="overflow-y:auto;flex:1;min-height:40px;padding:4px 16px 14px;"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;">
       <button class="toolbar-btn primary" id="walGalleryUploadBtn" type="button" style="width:100%;justify-content:center;">＋ 新增桌布</button>
       <input type="file" id="walGalleryFileInput" accept="image/*" style="display:none;">
@@ -2519,7 +2538,19 @@ textarea.mid{ min-height:90px; }
       <div class="cnt-sel-title">🖼 聊天室背景</div>
       <button class="icon-btn" id="chatBgClose" type="button">✕</button>
     </div>
-    <div id="chatBgGalleryBody" style="overflow-y:auto;flex:1;min-height:80px;padding:14px 16px;"></div>
+    <!-- 預設背景 -->
+    <div class="wal-preset-section">
+      <div class="wal-preset-label">預設背景</div>
+      <div class="wal-preset-grid" id="chatBgPresetRow">
+        <img class="wal-preset-item" src="wallpaper/wallpaper01.jpg" alt="預設1" data-preset="wallpaper/wallpaper01.jpg">
+        <img class="wal-preset-item" src="wallpaper/wallpaper02.png" alt="預設2" data-preset="wallpaper/wallpaper02.png">
+        <img class="wal-preset-item" src="wallpaper/wallpaper03.png" alt="預設3" data-preset="wallpaper/wallpaper03.png">
+        <img class="wal-preset-item" src="wallpaper/wallpaper04.png" alt="預設4" data-preset="wallpaper/wallpaper04.png">
+        <img class="wal-preset-item" src="wallpaper/wallpaper05.png" alt="預設5" data-preset="wallpaper/wallpaper05.png">
+      </div>
+    </div>
+    <div class="wal-custom-label">已上傳背景</div>
+    <div id="chatBgGalleryBody" style="overflow-y:auto;flex:1;min-height:40px;padding:4px 16px 14px;"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;display:flex;gap:8px;">
       <button class="toolbar-btn primary" id="chatBgUploadBtn" type="button" style="flex:1;justify-content:center;">＋ 新增背景</button>
       <button class="toolbar-btn" id="chatBgRemoveBtn" type="button" style="flex:0 0 auto;color:var(--ink-soft);">移除背景</button>
@@ -4999,7 +5030,55 @@ textarea.mid{ min-height:90px; }
     };
     reader.readAsDataURL(file);
   }
+  var PRESET_WALLPAPERS = [
+    'wallpaper/wallpaper01.jpg','wallpaper/wallpaper02.png','wallpaper/wallpaper03.png',
+    'wallpaper/wallpaper04.png','wallpaper/wallpaper05.png'
+  ];
+  var walPresetActive    = localStorage.getItem('companion:walPresetActive')    || '';
+  var chatBgPresetActive = localStorage.getItem('companion:chatBgPresetActive') || '';
+
+  function renderWalPresets(){
+    document.querySelectorAll('#walPresetRow .wal-preset-item').forEach(function(el){
+      el.classList.toggle('active', el.dataset.preset === walPresetActive);
+      el.onclick = function(){
+        var src = el.dataset.preset;
+        imgToDataUrl(src, function(dataUrl){
+          walPresetActive = src;
+          localStorage.setItem('companion:walPresetActive', walPresetActive);
+          walActive = ''; localStorage.removeItem(KEYS.walActive);
+          wallpaperUrl = dataUrl; localStorage.setItem(KEYS.wallpaper, dataUrl);
+          applyWallpaper();
+          document.querySelectorAll('#walPresetRow .wal-preset-item').forEach(function(x){
+            x.classList.toggle('active', x.dataset.preset === src);
+          });
+          renderWalGallery();
+        });
+      };
+    });
+  }
+
+  function renderChatBgPresets(){
+    document.querySelectorAll('#chatBgPresetRow .wal-preset-item').forEach(function(el){
+      el.classList.toggle('active', el.dataset.preset === chatBgPresetActive);
+      el.onclick = function(){
+        var src = el.dataset.preset;
+        imgToDataUrl(src, function(dataUrl){
+          chatBgPresetActive = src;
+          localStorage.setItem('companion:chatBgPresetActive', chatBgPresetActive);
+          chatBgActive = ''; localStorage.removeItem(KEYS.chatBgActive);
+          chatBgUrl = dataUrl; localStorage.setItem(KEYS.chatBg, dataUrl);
+          applyChatBg();
+          document.querySelectorAll('#chatBgPresetRow .wal-preset-item').forEach(function(x){
+            x.classList.toggle('active', x.dataset.preset === src);
+          });
+          renderChatBgGallery();
+        });
+      };
+    });
+  }
+
   function renderWalGallery(){
+    renderWalPresets();
     var body=$('walGalleryBody'); body.innerHTML='';
     if(walGallery.length===0){
       var em=document.createElement('div'); em.style.cssText='padding:32px;text-align:center;color:var(--ink-soft);font-size:13px;';
@@ -5012,6 +5091,7 @@ textarea.mid{ min-height:90px; }
         var img=document.createElement('img'); img.src=item.dataUrl; img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
         img.addEventListener('click',function(){
           walActive=item.id; localStorage.setItem(KEYS.walActive,walActive);
+          walPresetActive=''; localStorage.removeItem('companion:walPresetActive');
           wallpaperUrl=item.dataUrl; localStorage.setItem(KEYS.wallpaper,item.dataUrl);
           applyWallpaper(); renderWalGallery();
         });
@@ -5073,6 +5153,7 @@ textarea.mid{ min-height:90px; }
     }
   }
   function renderChatBgGallery(){
+    renderChatBgPresets();
     var body=$('chatBgGalleryBody'); if(!body) return;
     body.innerHTML='';
     if(!chatBgGallery.length){
@@ -5087,6 +5168,7 @@ textarea.mid{ min-height:90px; }
       var img=document.createElement('img'); img.src=item.dataUrl; img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
       img.addEventListener('click',function(){
         chatBgActive=item.id; localStorage.setItem(KEYS.chatBgActive,chatBgActive);
+        chatBgPresetActive=''; localStorage.removeItem('companion:chatBgPresetActive');
         chatBgUrl=item.dataUrl; localStorage.setItem(KEYS.chatBg,chatBgUrl);
         applyChatBg(); renderChatBgGallery(); flashSaved();
       });
