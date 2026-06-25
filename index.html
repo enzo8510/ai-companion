@@ -629,9 +629,17 @@ textarea.mid{ min-height:90px; }
 .period-input:focus{ border-color:var(--companion); box-shadow:0 0 0 3px rgba(169,135,216,0.1); }
 .period-range-sep{ color:var(--ink-soft); font-weight:600; }
 .period-cal-month-nav{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-md); margin-bottom:var(--space-md); }
-.cal-full-grid .period-day-in-range{ background:var(--period-color); color:#fff; }
-.cal-full-grid .period-day-start,
-.cal-full-grid .period-day-end{ background:var(--period-color); color:#fff; font-weight:700; }
+/* --- Period pill/capsule system --- */
+.cal-full-grid .period-in-range{ overflow:visible; background:transparent !important; color:var(--period-color) !important; font-weight:600; }
+.cal-full-grid .period-in-range::before{ content:''; position:absolute; z-index:0; top:14%; bottom:14%; left:-5px; right:-5px; background:rgba(232,76,120,0.22); pointer-events:none; }
+.cal-full-grid .period-in-range.period-range-start::before{ left:50%; }
+.cal-full-grid .period-in-range.period-range-end::before{ right:50%; }
+.cal-full-grid .period-in-range.period-range-start.period-range-end::before{ display:none; }
+.cal-full-grid .period-in-range.period-range-start::after,
+.cal-full-grid .period-in-range.period-range-end::after{ content:''; position:absolute; z-index:0; inset:0; background:var(--period-color); border-radius:50%; }
+.cal-full-grid .period-in-range.period-range-start,
+.cal-full-grid .period-in-range.period-range-end{ color:#fff !important; font-weight:700 !important; }
+.cal-full-grid .period-in-range .pnum{ position:relative; z-index:1; }
 .cal-anni-info{ flex:1; }
 .cal-anni-title{ font-size:13px; color:var(--ink); font-weight:500; }
 .cal-anni-countdown{ font-size:12px; color:#e08050; margin-top:var(--space-xs); font-weight:500; }
@@ -4034,15 +4042,16 @@ textarea.mid{ min-height:90px; }
       var btn=document.createElement('button'); btn.type='button';
       var date = new Date(periodCalYear, periodCalMonth, d);
       var isToday=d===new Date().getDate()&&periodCalMonth===new Date().getMonth()&&periodCalYear===new Date().getFullYear();
-      btn.className='cal-full-day'+(isToday?' cal-fd-today':'');
-      var isInRange = false;
-      if(periodStartDate && periodEndDate && date >= periodStartDate && date <= periodEndDate){
-        isInRange = true;
-        btn.classList.add('period-day-in-range');
-        if(date.getTime() === periodStartDate.getTime()) btn.classList.add('period-day-start');
-        if(date.getTime() === periodEndDate.getTime()) btn.classList.add('period-day-end');
+      var periodCls2='';
+      if(periodStartDate && periodEndDate){
+        var dT=date.getTime(), sT=periodStartDate.getTime(), eT=periodEndDate.getTime();
+        if(dT>=sT && dT<=eT){
+          var dw=date.getDay();
+          periodCls2=' period-in-range'+(dT===sT||dw===0?' period-range-start':'')+(dT===eT||dw===6?' period-range-end':'');
+        }
       }
-      btn.textContent=d;
+      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+periodCls2;
+      var ns2=document.createElement('span'); ns2.className='pnum'; ns2.textContent=d; btn.appendChild(ns2);
       grid.appendChild(btn);
     }
   }
@@ -4093,10 +4102,16 @@ textarea.mid{ min-height:90px; }
       var btn=document.createElement('button'); btn.type='button';
       var isToday=d===today.getDate()&&calOvMonth===today.getMonth()&&calOvYear===today.getFullYear();
       var date = new Date(calOvYear, calOvMonth, d);
-      var isInPeriod = periodStartDate && periodEndDate && date >= periodStartDate && date <= periodEndDate;
-      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+(isInPeriod?' period-day-in-range':'');
-      if(isInPeriod) btn.style.background = 'rgba(232,160,200,0.4)';
-      btn.textContent=d;
+      var periodClasses='';
+      if(periodStartDate && periodEndDate){
+        var dTime=date.getTime(), sTime=periodStartDate.getTime(), eTime=periodEndDate.getTime();
+        if(dTime>=sTime && dTime<=eTime){
+          var dow=date.getDay();
+          periodClasses=' period-in-range'+(dTime===sTime||dow===0?' period-range-start':'')+(dTime===eTime||dow===6?' period-range-end':'');
+        }
+      }
+      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+periodClasses;
+      var numSpan=document.createElement('span'); numSpan.className='pnum'; numSpan.textContent=d; btn.appendChild(numSpan);
       var key2=calOvYear+'-'+(calOvMonth+1)+'-'+d;
       var types=dateMap[key2]||[];
       if(types.length){
