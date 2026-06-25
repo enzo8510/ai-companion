@@ -2823,17 +2823,43 @@ textarea.mid{ min-height:90px; }
     });
 
     if(qaHistory && qaHistory.length > 0){
-      qaHistory.forEach(function(item){
+      qaHistory.forEach(function(item, histIdx){
         var histItem = document.createElement('div');
         histItem.className = 'qa-history-item';
         histItem.innerHTML = '<strong>Q:</strong> ' + escHtml(item.question) + '<br><small>' + (item.date || '未記錄') + '</small>';
         histItem.addEventListener('click', function(e){
           e.stopPropagation();
-          var newCard = createQaCard(item.question, msgIndex);
-          card.replaceWith(newCard);
+          if(e.target.tagName !== 'BUTTON'){
+            text.textContent = item.question;
+            historyContainer.classList.remove('show');
+            toggle.textContent = '📚 查看歷史問題';
+          }
         });
+        var delHistBtn = document.createElement('button');
+        delHistBtn.className = 'qa-card-delete';
+        delHistBtn.type = 'button';
+        delHistBtn.textContent = '✕';
+        delHistBtn.style.position = 'absolute';
+        delHistBtn.style.right = '8px';
+        delHistBtn.style.top = '50%';
+        delHistBtn.style.transform = 'translateY(-50%)';
+        delHistBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          qaHistory.splice(histIdx, 1);
+          save(KEYS.qaHistory, qaHistory);
+          histItem.remove();
+          if(qaHistory.length === 0){
+            historyContainer.classList.remove('show');
+            toggle.style.display = 'none';
+          }
+        });
+        histItem.style.position = 'relative';
+        histItem.appendChild(delHistBtn);
         historyContainer.appendChild(histItem);
       });
+      if(qaHistory.length === 0) toggle.style.display = 'none';
+    } else {
+      toggle.style.display = 'none';
     }
 
     var actions = document.createElement('div');
