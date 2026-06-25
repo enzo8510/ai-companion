@@ -958,8 +958,8 @@ textarea.mid{ min-height:90px; }
 .chess-diff-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center; width:100%; max-width:360px; padding:var(--space-md); background:var(--surface); border-radius:12px; border:1px solid var(--line); }
 .chess-diff-label{ font-size:11px; color:var(--ink-soft); margin-right:0; font-weight:700; text-transform:uppercase; letter-spacing:.05em; flex:0 0 100%; text-align:center; margin-bottom:6px; }
 .chess-diff-btn{ font-size:12px; padding:var(--space-sm) var(--space-md); border-radius:8px; border:1.5px solid var(--line); background:var(--chat-bg); color:var(--ink-soft); cursor:pointer; font-family:inherit; font-weight:500; transition:all .15s; flex:1; min-width:50px; }
-.chess-diff-btn:hover{ border-color:var(--companion); color:var(--companion); background:rgba(59,173,204,0.05); }
-.chess-diff-btn.active{ background:var(--companion); color:#fff; border-color:var(--companion); font-weight:700; }
+.chess-diff-btn:hover{ border-color:var(--companion); color:var(--companion); background:rgba(59,173,204,0.08); }
+.chess-diff-btn.active{ background:var(--companion); color:#fff; border-color:var(--companion); font-weight:700; box-shadow:0 4px 12px rgba(59,173,204,0.3); }
 .chess-board-wrap{ width:100%; max-width:min(92vw,440px); aspect-ratio:1; }
 .chess-board{ display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); width:100%; height:100%; border-radius:14px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.25); border:3px solid #8B7355; background-image:var(--chess-board-bg); background-size:100% 100%; background-repeat:no-repeat; }
 .chess-sq{ position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; -webkit-user-select:none; line-height:1; background:transparent; }
@@ -995,6 +995,16 @@ textarea.mid{ min-height:90px; }
 .chess-rev-del{ background:none; border:none; color:var(--ink-soft); font-size:18px; cursor:pointer; padding:var(--space-sm); border-radius:8px; transition:all .15s; flex:0 0 auto; }
 .chess-rev-del:hover{ color:#e05252; background:rgba(224,82,82,0.08); }
 .chess-rev-empty{ text-align:center; color:var(--ink-soft); font-size:14px; padding:60px 20px; line-height:1.8; font-weight:500; }
+.chess-stats-panel{ background:linear-gradient(135deg, var(--companion-soft), rgba(59,173,204,0.08)); border:1.5px solid rgba(59,173,204,0.25); border-radius:14px; padding:var(--space-lg); margin-bottom:var(--space-lg); }
+.chess-stats-panel.hidden{ display:none; }
+.chess-stats-title{ font-size:13px; font-weight:700; color:var(--companion); text-transform:uppercase; letter-spacing:.05em; margin-bottom:var(--space-md); }
+.chess-stats-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-md); margin-bottom:var(--space-lg); }
+.chess-stat-item{ text-align:center; padding:var(--space-md); background:rgba(59,173,204,0.04); border-radius:10px; }
+.chess-stat-value{ font-size:20px; font-weight:700; color:var(--companion); line-height:1; margin-bottom:4px; }
+.chess-stat-label{ font-size:11px; color:var(--ink-soft); font-weight:600; }
+.chess-winrate-bar{ height:6px; background:rgba(0,0,0,0.08); border-radius:3px; overflow:hidden; margin-bottom:8px; }
+.chess-winrate-fill{ height:100%; background:linear-gradient(90deg, #92b061, #5daaa4); border-radius:3px; width:0%; transition:width .6s cubic-bezier(.4,0,.2,1); }
+.chess-winrate-text{ font-size:12px; color:var(--companion); font-weight:600; text-align:center; }
 :root[data-theme="dark"] .chess-diff-btn, :root[data-theme="dark"] .chess-act-btn{ background:var(--surface); color:var(--ink); }
 /* ---- Star view (full screen) ---- */
 #starView{ position:relative; overflow:hidden; background:var(--bg); }
@@ -2015,6 +2025,31 @@ textarea.mid{ min-height:90px; }
           <div style="width:36px;"></div>
         </div>
         <div class="chess-review-body">
+          <div class="chess-stats-panel hidden" id="chessStatsPanel">
+            <div class="chess-stats-title">戰績統計</div>
+            <div class="chess-stats-grid">
+              <div class="chess-stat-item">
+                <div class="chess-stat-value" id="chessTotalGames">0</div>
+                <div class="chess-stat-label">總對局</div>
+              </div>
+              <div class="chess-stat-item">
+                <div class="chess-stat-value" id="chessWins">0</div>
+                <div class="chess-stat-label">勝利</div>
+              </div>
+              <div class="chess-stat-item">
+                <div class="chess-stat-value" id="chessLosses">0</div>
+                <div class="chess-stat-label">敗北</div>
+              </div>
+              <div class="chess-stat-item">
+                <div class="chess-stat-value" id="chessDraws">0</div>
+                <div class="chess-stat-label">和局</div>
+              </div>
+            </div>
+            <div class="chess-winrate-bar">
+              <div class="chess-winrate-fill" id="chessWinrateFill"></div>
+            </div>
+            <div class="chess-winrate-text" id="chessWinrateText">勝率 0%</div>
+          </div>
           <div id="chessReviewList"></div>
         </div>
       </div>
@@ -6097,18 +6132,40 @@ textarea.mid{ min-height:90px; }
   }
   function chessOpenReview(){
     var hist=load(KEYS.chessHistory)||[], list=$('chessReviewList'); list.innerHTML='';
-    if(!hist.length){ list.innerHTML='<div class="chess-rev-empty">還沒有對局紀錄<br>下完一盤棋後，這裡會出現可回顧的戰局</div>'; }
-    else { hist.forEach(function(g){
-      var item=document.createElement('div'); item.className='chess-rev-item';
-      var diffName=['','簡單','普通','困難'][g.difficulty]||'普通';
-      item.innerHTML='<div class="chess-rev-result">'+(g.resultIcon||'♟')+'</div>'+
-        '<div class="chess-rev-info"><div class="chess-rev-title">'+(g.resultText||'對局')+'</div>'+
-        '<div class="chess-rev-sub">'+chessFmtDate(g.date)+' · '+g.moves.length+' 步 · '+diffName+'</div></div>';
-      var del=document.createElement('button'); del.className='chess-rev-del'; del.type='button'; del.textContent='🗑';
-      (function(id){ del.addEventListener('click',function(e){ e.stopPropagation();
-        var h=load(KEYS.chessHistory)||[]; h=h.filter(function(x){return x.id!==id;}); save(KEYS.chessHistory,h); chessOpenReview(); }); })(g.id);
-      item.appendChild(del); item.addEventListener('click',function(){ chessOpenReplay(g); });
-      list.appendChild(item); }); }
+    var statsPan=$('chessStatsPanel');
+    if(!hist.length){
+      list.innerHTML='<div class="chess-rev-empty">還沒有對局紀錄<br>下完一盤棋後，這裡會出現可回顧的戰局</div>';
+      if(statsPan) statsPan.classList.add('hidden');
+    } else {
+      var wins=0, losses=0, draws=0;
+      hist.forEach(function(g){
+        if(g.result==='checkmate'){ if(g.winner==='w') wins++; else losses++; }
+        else if(g.result==='stalemate'){ draws++; }
+        else if(g.result==='resigned'){ losses++; }
+      });
+      var total=hist.length, winrate=total>0?Math.round(wins*100/total):0;
+      if(statsPan){
+        statsPan.classList.remove('hidden');
+        $('chessTotalGames').textContent=total;
+        $('chessWins').textContent=wins;
+        $('chessLosses').textContent=losses;
+        $('chessDraws').textContent=draws;
+        $('chessWinrateFill').style.width=winrate+'%';
+        $('chessWinrateText').textContent='勝率 '+winrate+'%';
+      }
+      hist.forEach(function(g){
+        var item=document.createElement('div'); item.className='chess-rev-item';
+        var diffName=['','簡單','普通','困難'][g.difficulty]||'普通';
+        item.innerHTML='<div class="chess-rev-result">'+(g.resultIcon||'♟')+'</div>'+
+          '<div class="chess-rev-info"><div class="chess-rev-title">'+(g.resultText||'對局')+'</div>'+
+          '<div class="chess-rev-sub">'+chessFmtDate(g.date)+' · '+g.moves.length+' 步 · '+diffName+'</div></div>';
+        var del=document.createElement('button'); del.className='chess-rev-del'; del.type='button'; del.textContent='🗑';
+        (function(id){ del.addEventListener('click',function(e){ e.stopPropagation();
+          var h=load(KEYS.chessHistory)||[]; h=h.filter(function(x){return x.id!==id;}); save(KEYS.chessHistory,h); chessOpenReview(); }); })(g.id);
+        item.appendChild(del); item.addEventListener('click',function(){ chessOpenReplay(g); });
+        list.appendChild(item);
+      });
+    }
     $('chessReview').classList.remove('hidden');
   }
 
