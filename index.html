@@ -4811,52 +4811,6 @@ textarea.mid{ min-height:90px; }
     }).catch(function(){ showCheckinToast('日記生成失敗，請確認連線設定'); });
   }
 
-  function showDiaryNoteInChat(text, mood, date){
-    var info = MOODS[mood] || { emoji:'📝', color:'#8891a4' };
-    var note = document.createElement('div');
-    note.className = 'diary-note';
-
-    var headDiv = document.createElement('div');
-    headDiv.className = 'diary-note-head';
-
-    var leftDiv = document.createElement('div');
-    leftDiv.className = 'diary-note-left';
-    leftDiv.innerHTML =
-      '<span class="diary-note-label">📓 今日日記</span>' +
-      '<span class="diary-mood-tag" style="background:'+info.color+'">'+info.emoji+' '+escHtml(mood)+'</span>';
-
-    var delBtn = document.createElement('button');
-    delBtn.className = 'diary-note-delete';
-    delBtn.type = 'button';
-    delBtn.textContent = '✕';
-    delBtn.addEventListener('click', function(e){
-      e.stopPropagation();
-      var idx = chatHistory.findIndex(function(m){ return m.content === text && m.ts; });
-      if(idx >= 0){
-        chatHistory.splice(idx, 1);
-        save(KEYS.chat, chatHistory);
-        renderThread();
-      }
-    });
-
-    headDiv.appendChild(leftDiv);
-    headDiv.appendChild(delBtn);
-
-    note.appendChild(headDiv);
-
-    var textDiv = document.createElement('div');
-    textDiv.className = 'diary-note-text';
-    textDiv.textContent = text;
-    note.appendChild(textDiv);
-
-    var dateDiv = document.createElement('div');
-    dateDiv.className = 'diary-note-date';
-    dateDiv.textContent = date;
-    note.appendChild(dateDiv);
-
-    thread.appendChild(note);
-    scrollThread();
-  }
 
   /* ============ Mood Diary Overlay ============ */
   var moodDiaryYear = new Date().getFullYear(), moodDiaryMonth = new Date().getMonth();
