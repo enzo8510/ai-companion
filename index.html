@@ -561,7 +561,9 @@ textarea.mid{ min-height:90px; }
 .has-wallpaper .home-enter-btn{ backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
 /* Dark wallpaper - light text */
 .has-wallpaper.dark-bg .home-name,
-.has-wallpaper.dark-bg .home-tagline{ color:#ffffff; }
+.has-wallpaper.dark-bg .home-tagline,
+.has-wallpaper.dark-bg .home-qa-text,
+.has-wallpaper.dark-bg .home-qa-title{ color:#ffffff; }
 .has-wallpaper.dark-bg .home-action-btn .act-label,
 .has-wallpaper.dark-bg .home-countdown-strip,
 .has-wallpaper.dark-bg .cnt-label,
@@ -813,10 +815,10 @@ textarea.mid{ min-height:90px; }
 .chess-diff-btn{ font-size:12px; padding:6px 14px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
 .chess-diff-btn.active{ background:var(--companion); color:#fff; border-color:var(--companion); font-weight:600; }
 .chess-board-wrap{ width:100%; max-width:min(92vw,420px); aspect-ratio:1; }
-.chess-board{ display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); width:100%; height:100%; border-radius:10px; overflow:hidden; box-shadow:0 4px 18px rgba(0,0,0,0.18); border:2px solid #b58863; }
-.chess-sq{ position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; -webkit-user-select:none; font-size:clamp(22px,7vw,34px); line-height:1; }
-.chess-sq.light{ background:#f0d9b5; }
-.chess-sq.dark{ background:#b58863; }
+.chess-board{ display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); width:100%; height:100%; border-radius:10px; overflow:hidden; box-shadow:0 4px 18px rgba(0,0,0,0.18); border:2px solid #b58863; background-image:url('rect-8x8/rect-8x8_02.png'); background-size:100% 100%; background-repeat:no-repeat; }
+.chess-sq{ position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; -webkit-user-select:none; font-size:clamp(22px,7vw,34px); line-height:1; background:transparent; }
+.chess-sq.light{ background:transparent; }
+.chess-sq.dark{ background:transparent; }
 .chess-sq .pc{ position:relative; z-index:2; }
 .chess-sq .pc.white-pc{ color:#fafafa; text-shadow:0 1px 2px rgba(0,0,0,0.55), 0 0 1px rgba(0,0,0,0.9); }
 .chess-sq .pc.black-pc{ color:#202020; text-shadow:0 1px 1px rgba(255,255,255,0.25); }
