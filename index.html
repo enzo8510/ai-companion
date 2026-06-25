@@ -1222,11 +1222,13 @@ textarea.mid{ min-height:90px; }
 /* ---- Mood diary overlay ---- */
 .mood-summary-row{ display:flex; gap:var(--space-md); flex-wrap:wrap; margin-bottom:var(--space-lg); padding:var(--space-md) 0; border-bottom:1px solid var(--line); min-height:40px; align-items:center; }
 .mood-summary-chip{ display:inline-flex; align-items:center; gap:var(--space-xs); padding:var(--space-xs) var(--space-md); border-radius:999px; font-size:12px; font-weight:600; color:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
-.mood-diary-list{ display:flex; flex-direction:column; gap:var(--space-md); }
+.mood-diary-list{ display:flex; flex-direction:column; gap:var(--space-lg); }
 .mood-diary-item{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:var(--space-lg); transition:all .15s; }
 .mood-diary-item:hover{ box-shadow:0 2px 8px rgba(59,173,204,0.1); border-color:var(--companion); }
 .mood-diary-item-head{ display:flex; align-items:center; gap:var(--space-md); margin-bottom:var(--space-md); }
 .mood-diary-item-date{ font-size:12px; color:var(--ink-soft); font-weight:500; }
+/* diary-note cards inside overlay reset margin */
+.mood-diary-list .diary-note{ margin:0; }
 .mood-diary-item-mood{ font-size:11px; padding:var(--space-xs) var(--space-md); border-radius:999px; font-weight:700; color:#fff; margin-left:auto; box-shadow:0 2px 4px rgba(0,0,0,0.15); }
 .mood-diary-item-text{ font-size:13px; color:var(--ink); line-height:1.7; }
 .mood-diary-empty{ text-align:center; padding:32px 0; color:var(--ink-soft); font-size:13px; line-height:1.8; }
@@ -5199,22 +5201,33 @@ textarea.mid{ min-height:90px; }
     }
     filtered.forEach(function(j){
       var info=j.mood?(MOODS[j.mood]||{emoji:'📝',color:'#8891a4'}):{emoji:'📝',color:'#8891a4'};
-      var item=document.createElement('div'); item.className='mood-diary-item';
-      item.innerHTML=
-        '<div class="mood-diary-item-head">'+
-          '<span class="mood-diary-item-date">'+escHtml(j.date||'')+'</span>'+
-          (j.mood?'<span class="mood-diary-item-mood" style="background:'+info.color+'">'+info.emoji+' '+escHtml(j.mood)+'</span>':'')+
-        '</div>'+
-        '<div class="mood-diary-item-text">'+escHtml(j.content||'')+'</div>';
-      var del=document.createElement('button'); del.type='button'; del.className='mood-diary-del'; del.title='刪除'; del.textContent='✕';
+      var card=document.createElement('div'); card.className='diary-note';
+      card.style.borderLeftColor=info.color;
+
+      var head=document.createElement('div'); head.className='diary-note-head';
+      var left=document.createElement('div'); left.className='diary-note-left';
+      var lbl=document.createElement('span'); lbl.className='diary-note-label'; lbl.textContent='📓 今日日記';
+      left.appendChild(lbl);
+      if(j.mood){
+        var tag=document.createElement('span'); tag.className='diary-mood-tag';
+        tag.style.background=info.color; tag.textContent=info.emoji+' '+escHtml(j.mood);
+        left.appendChild(tag);
+      }
+      var del=document.createElement('button'); del.className='diary-note-delete'; del.type='button'; del.textContent='✕';
       (function(jid){ del.addEventListener('click',function(e){
         e.stopPropagation();
         if(!confirm('刪除這篇日記？')) return;
         journal=journal.filter(function(x){ return x.id!==jid; });
-        save(KEYS.journal, journal); renderJournal(); renderMoodDiaryOverlay();
+        save(KEYS.journal,journal); renderJournal(); renderMoodDiaryOverlay();
       }); })(j.id);
-      item.appendChild(del);
-      list.appendChild(item);
+      head.appendChild(left); head.appendChild(del);
+      card.appendChild(head);
+
+      var txt=document.createElement('div'); txt.className='diary-note-text'; txt.textContent=j.content||'';
+      card.appendChild(txt);
+      var dt=document.createElement('div'); dt.className='diary-note-date'; dt.textContent=j.date||'';
+      card.appendChild(dt);
+      list.appendChild(card);
     });
   }
   function openMoodDiaryOverlay(){
