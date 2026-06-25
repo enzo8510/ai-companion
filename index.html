@@ -647,8 +647,25 @@ textarea.mid{ min-height:90px; }
 .chat-img-row{ display:flex; justify-content:flex-end; padding:2px 0 0; }
 .chat-img-row img{ max-width:65%; border-radius:14px; display:block; border:1px solid var(--line); max-height:200px; object-fit:cover; }
 
-/* ---- Q&A divider in chat ---- */
-.qa-divider{ align-self:center; text-align:center; max-width:90%; margin:4px 0; }
+/* ---- Q&A Card in chat ---- */
+.qa-card{ align-self:center; width:min(88%, 340px); margin:var(--space-md) 0; padding:var(--space-lg); background:var(--surface); border:1.5px solid var(--line); border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.qa-card-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-md); }
+.qa-card-label{ font-size:11px; color:var(--qa-title-color); font-weight:600; letter-spacing:.04em; }
+.qa-card-delete{ background:none; border:none; color:var(--ink-soft); font-size:18px; cursor:pointer; padding:0; line-height:1; opacity:.6; transition:opacity .2s; }
+.qa-card-delete:hover{ opacity:1; color:#e05252; }
+.qa-card-text{ font-size:14px; color:var(--ink); line-height:1.65; margin-bottom:var(--space-md); }
+.qa-card-history{ display:none; max-height:200px; overflow-y:auto; border-top:1px solid var(--line); padding-top:var(--space-md); margin-top:var(--space-md); }
+.qa-card-history.show{ display:block; }
+.qa-history-item{ padding:var(--space-sm) var(--space-md); background:var(--chat-bg); border-radius:10px; font-size:12px; color:var(--ink); margin-bottom:var(--space-sm); line-height:1.6; cursor:pointer; transition:background .15s; }
+.qa-history-item:hover{ background:rgba(59,173,204,0.1); }
+.qa-card-actions{ display:flex; gap:var(--space-sm); }
+.qa-card-btn{ flex:1; padding:var(--space-md); background:var(--companion); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .15s; font-family:inherit; }
+.qa-card-btn:hover{ opacity:.88; }
+.qa-card-toggle{ flex:1; padding:var(--space-md); background:var(--line); color:var(--ink-soft); border:none; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; font-family:inherit; }
+.qa-card-toggle:hover{ background:rgba(59,173,204,0.2); color:var(--companion); }
+
+/* ---- Q&A divider (legacy fallback) ---- */
+.qa-divider{ align-self:center; text-align:center; max-width:90%; margin:4px 0; display:none; }
 .qa-divider-label{ display:block; font-size:10px; color:var(--companion); font-weight:600; letter-spacing:.06em; margin-bottom:5px; }
 .qa-divider-text{ display:block; font-size:12.5px; color:var(--ink); background:var(--gold-soft); border-radius:14px; padding:9px 16px; line-height:1.65; }
 
@@ -2246,7 +2263,8 @@ textarea.mid{ min-height:90px; }
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
     theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
     dotColors:'companion:dotColors',
-    chess:'companion:chess', chessHistory:'companion:chessHistory'
+    chess:'companion:chess', chessHistory:'companion:chessHistory',
+    qaHistory:'companion:qaHistory'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -2478,6 +2496,9 @@ textarea.mid{ min-height:90px; }
         chatHistory = load(KEYS.chat) || chatHistory;
         // renderThread 會在外層統一呼叫
       }
+      if(key === KEYS.qaHistory){
+        qaHistory = load(KEYS.qaHistory) || qaHistory;
+      }
       if(key === KEYS.avatar) avatarDataUrl = localStorage.getItem(KEYS.avatar) || '';
       if(key === KEYS.theme){
         currentTheme = localStorage.getItem(KEYS.theme) || '';
@@ -2570,6 +2591,7 @@ textarea.mid{ min-height:90px; }
   var memories  = load(KEYS.memories)  || clone(DEFAULT_MEMORIES);
   var journal   = load(KEYS.journal)   || clone(DEFAULT_JOURNAL);
   var chatHistory = load(KEYS.chat)    || [];
+  var qaHistory   = load(KEYS.qaHistory) || [];
   var avatarDataUrl = localStorage.getItem(KEYS.avatar) || '';
   var events      = load(KEYS.events)   || [];
   var checkin     = load(KEYS.checkin)  || { lastDate:'', streak:0, history:[] };
@@ -2755,6 +2777,77 @@ textarea.mid{ min-height:90px; }
     return s;
   }
 
+  function createQaCard(question, msgIndex){
+    var card = document.createElement('div');
+    card.className = 'qa-card';
+    card.setAttribute('data-msg-index', msgIndex);
+
+    var header = document.createElement('div');
+    header.className = 'qa-card-header';
+
+    var label = document.createElement('div');
+    label.className = 'qa-card-label';
+    label.textContent = '✦ 今日問題';
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'qa-card-delete';
+    delBtn.type = 'button';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(confirm('要刪除這個問題嗎？')){
+        chatHistory.splice(msgIndex, 1);
+        save(KEYS.chat, chatHistory);
+        renderThread();
+      }
+    });
+
+    header.appendChild(label);
+    header.appendChild(delBtn);
+
+    var text = document.createElement('div');
+    text.className = 'qa-card-text';
+    text.textContent = question;
+
+    var historyContainer = document.createElement('div');
+    historyContainer.className = 'qa-card-history';
+
+    var toggle = document.createElement('button');
+    toggle.className = 'qa-card-toggle';
+    toggle.type = 'button';
+    toggle.textContent = '📚 查看歷史問題';
+    toggle.addEventListener('click', function(e){
+      e.stopPropagation();
+      historyContainer.classList.toggle('show');
+      toggle.textContent = historyContainer.classList.contains('show') ? '📚 隱藏歷史' : '📚 查看歷史問題';
+    });
+
+    if(qaHistory && qaHistory.length > 0){
+      qaHistory.forEach(function(item){
+        var histItem = document.createElement('div');
+        histItem.className = 'qa-history-item';
+        histItem.innerHTML = '<strong>Q:</strong> ' + escHtml(item.question) + '<br><small>' + (item.date || '未記錄') + '</small>';
+        histItem.addEventListener('click', function(e){
+          e.stopPropagation();
+          var newCard = createQaCard(item.question, msgIndex);
+          card.replaceWith(newCard);
+        });
+        historyContainer.appendChild(histItem);
+      });
+    }
+
+    var actions = document.createElement('div');
+    actions.className = 'qa-card-actions';
+    actions.appendChild(toggle);
+
+    card.appendChild(header);
+    card.appendChild(text);
+    card.appendChild(historyContainer);
+    card.appendChild(actions);
+
+    return card;
+  }
+
   function bubbleRow(role, text, msgIndex){
     var row = document.createElement('div');
     row.className = 'row ' + (role==='assistant' ? 'her' : 'me');
@@ -2797,9 +2890,7 @@ textarea.mid{ min-height:90px; }
 
     chatHistory.forEach(function(t, idx){
       if(t.isQa && t.role==='user'){
-        var qdiv = document.createElement('div'); qdiv.className='qa-divider';
-        qdiv.innerHTML='<span class="qa-divider-label">✦ 今日問題</span><span class="qa-divider-text">'+escHtml(t.content)+'</span>';
-        thread.appendChild(qdiv);
+        thread.appendChild(createQaCard(t.content, idx));
       } else {
         thread.appendChild(bubbleRow(t.role, t.content, idx));
       }
@@ -4050,12 +4141,14 @@ textarea.mid{ min-height:90px; }
     var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
     if(!settings.apiKey){ chatInput.value = q; chatInput.focus(); return; }
     if(sending) return;
-    // Show as QA divider (not a user bubble)
-    var qdiv = document.createElement('div'); qdiv.className='qa-divider';
-    qdiv.innerHTML='<span class="qa-divider-label">✦ 今日問題</span><span class="qa-divider-text">'+escHtml(q)+'</span>';
-    thread.appendChild(qdiv);
+    // Add to QA history
+    if(!qaHistory.find(function(h){ return h.question === q; })){
+      qaHistory.unshift({ question:q, date:todayLabel() });
+      save(KEYS.qaHistory, qaHistory);
+    }
     chatHistory.push({ role:'user', content:q, ts:Date.now(), isQa:true });
     save(KEYS.chat, chatHistory);
+    renderThread();
     setSending(true); showTyping(); scrollThread();
     callAI().then(function(reply){
       hideTyping();
