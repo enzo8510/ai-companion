@@ -1552,6 +1552,27 @@ textarea.mid{ min-height:90px; }
 .home-name{ margin-bottom:4px; }
 .home-tagline{ margin-bottom:14px; }
 .home-qa-card{ margin-bottom:14px; }
+/* ---- Check-in recent list ---- */
+.ci-recent-section{ margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+.ci-recent-title{ font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:8px; letter-spacing:.5px; }
+.ci-recent-item{ display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px; color:var(--ink); }
+.ci-recent-item:last-child{ border-bottom:none; }
+.ci-recent-dot{ width:8px; height:8px; border-radius:50%; background:var(--companion); flex:0 0 auto; }
+/* ---- Star feed history overlay ---- */
+.star-feed-hist-overlay{ position:absolute; inset:0; z-index:400; background:rgba(0,0,0,0.4); display:flex; flex-direction:column; justify-content:flex-end; }
+.star-feed-hist-overlay.hidden{ display:none; }
+.star-feed-hist-sheet{ background:var(--bg); border-radius:20px 20px 0 0; max-height:75vh; display:flex; flex-direction:column; overflow:hidden; }
+.star-feed-hist-head{ display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.star-feed-hist-title{ flex:1; text-align:center; font-size:15px; font-weight:700; color:var(--ink); }
+.star-feed-hist-body{ flex:1; overflow-y:auto; padding:12px 16px 20px; }
+.sfh-row{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); }
+.sfh-row:last-child{ border-bottom:none; }
+.sfh-date{ font-size:13px; color:var(--ink); font-weight:600; flex:0 0 100px; }
+.sfh-meals{ display:flex; gap:8px; }
+.sfh-meal{ font-size:12px; padding:3px 8px; border-radius:999px; }
+.sfh-meal.done{ background:var(--companion-soft); color:var(--companion); }
+.sfh-meal.miss{ background:var(--line); color:var(--ink-soft); }
+.sfh-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:24px 0; }
 /* ---- Login screen ---- */
 .login-view{ position:absolute; inset:0; z-index:1000; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 28px; gap:0; }
 .login-view.hidden{ display:none; }
@@ -1924,7 +1945,24 @@ textarea.mid{ min-height:90px; }
           <span class="star-act-icon">👗</span>
           <span class="star-act-label">換衣服</span>
         </button>
+        <button class="star-act-btn" id="starFeedHistBtn" type="button">
+          <span class="star-act-icon">📋</span>
+          <span class="star-act-label">餵食紀錄</span>
+        </button>
       </div>
+
+      <!-- 餵食歷史 overlay（position:absolute，限於 starView 內） -->
+      <div class="star-feed-hist-overlay hidden" id="starFeedHistOverlay">
+        <div class="star-feed-hist-sheet">
+          <div class="star-feed-hist-head">
+            <button class="icon-btn" id="starFeedHistClose" type="button" style="font-size:20px;">←</button>
+            <span class="star-feed-hist-title">🍚 餵食紀錄</span>
+            <div style="width:36px;"></div>
+          </div>
+          <div class="star-feed-hist-body" id="starFeedHistBody"></div>
+        </div>
+      </div>
+
       <div class="star-modal" id="starFoodModal">
         <div class="star-modal-handle"></div>
         <div class="star-modal-title">選擇食物</div>
@@ -2405,6 +2443,10 @@ textarea.mid{ min-height:90px; }
         </div>
       </div>
       <button class="btn primary" id="ciCheckinBtn" type="button" style="width:100%;text-align:center;">🌙 今日打卡</button>
+      <div class="ci-recent-section">
+        <div class="ci-recent-title">最近打卡記錄</div>
+        <div id="ciRecentList"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -5466,6 +5508,41 @@ textarea.mid{ min-height:90px; }
     { id:'21', emoji:'💫', label:'三週毅力',   threshold:21, type:'streak' },
     { id:'month', emoji:'🏆', label:'整月達成', threshold:0,  type:'month' }
   ];
+  function renderCiRecentList(){
+    var el = $('ciRecentList'); if(!el) return;
+    var history = (checkin.history || []).slice().reverse().slice(0, 20);
+    if(!history.length){
+      el.innerHTML = '<div style="color:var(--ink-soft);font-size:13px;padding:8px 0;">還沒有打卡記錄</div>';
+      return;
+    }
+    el.innerHTML = history.map(function(d){
+      return '<div class="ci-recent-item"><div class="ci-recent-dot"></div>' + d + '</div>';
+    }).join('');
+  }
+
+  function renderStarFeedHistory(){
+    var body = $('starFeedHistBody'); if(!body) return;
+    var feeds = starState.dailyFeeds || {};
+    var keys = Object.keys(feeds).sort(function(a,b){ return new Date(b)-new Date(a); });
+    if(!keys.length){
+      body.innerHTML = '<div class="sfh-empty">還沒有餵食記錄</div>'; return;
+    }
+    body.innerHTML = keys.slice(0, 60).map(function(k){
+      var f = feeds[k] || {};
+      var d = new Date(k);
+      var label = (d.getMonth()+1) + '/' + d.getDate() + ' (' + ['日','一','二','三','四','五','六'][d.getDay()] + ')';
+      var meals = [
+        { name:'早', done: !!f.breakfast },
+        { name:'午', done: !!f.lunch },
+        { name:'晚', done: !!f.dinner }
+      ];
+      var mealHtml = meals.map(function(m){
+        return '<span class="sfh-meal '+(m.done?'done':'miss')+'">'+m.name+(m.done?'✓':'—')+'</span>';
+      }).join('');
+      return '<div class="sfh-row"><span class="sfh-date">'+label+'</span><div class="sfh-meals">'+mealHtml+'</div></div>';
+    }).join('');
+  }
+
   function renderCiCalGrid(){
     $('ciCalMonthLabel').textContent = ciCalYear+'年 '+(ciCalMonth+1)+'月';
     var grid=$('ciCalGrid'); grid.innerHTML='';
@@ -5510,10 +5587,21 @@ textarea.mid{ min-height:90px; }
   function openCiCalOverlay(){
     ciCalYear=new Date().getFullYear(); ciCalMonth=new Date().getMonth();
     renderCiCalGrid();
+    renderCiRecentList();
     $('ciCalOverlay').classList.remove('hidden');
   }
   $('ciCalClose').addEventListener('click',function(){ $('ciCalOverlay').classList.add('hidden'); });
   $('ciCalOverlay').addEventListener('click',function(e){ if(e.target===$('ciCalOverlay')) $('ciCalOverlay').classList.add('hidden'); });
+  $('starFeedHistBtn').addEventListener('click', function(){
+    renderStarFeedHistory();
+    $('starFeedHistOverlay').classList.remove('hidden');
+  });
+  $('starFeedHistClose').addEventListener('click', function(){
+    $('starFeedHistOverlay').classList.add('hidden');
+  });
+  $('starFeedHistOverlay').addEventListener('click', function(e){
+    if(e.target === this) $('starFeedHistOverlay').classList.add('hidden');
+  });
   $('ciCalPrev').addEventListener('click',function(){ ciCalMonth--; if(ciCalMonth<0){ciCalMonth=11;ciCalYear--;} renderCiCalGrid(); });
   $('ciCalNext').addEventListener('click',function(){ ciCalMonth++; if(ciCalMonth>11){ciCalMonth=0;ciCalYear++;} renderCiCalGrid(); });
   $('ciCheckinBtn').addEventListener('click', function(){
@@ -5528,6 +5616,7 @@ textarea.mid{ min-height:90px; }
     save(KEYS.checkin, checkin);
     updateCheckinBtn();
     renderCiCalGrid();
+    renderCiRecentList();
     showCheckinToast('打卡成功！✨  連續 '+checkin.streak+' 天');
   });
 
