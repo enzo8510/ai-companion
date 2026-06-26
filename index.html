@@ -579,6 +579,17 @@ textarea.mid{ min-height:90px; }
 .select-category option{ color:var(--ink); background:#fff; }
 .toolbar-btn.primary{ font-weight:600; }
 
+/* ---- Model preset selector ---- */
+.model-preset-select{ width:100%; padding:12px 16px; border:1.5px solid var(--line); border-radius:14px; background:var(--chat-bg); font-family:inherit; font-size:15px; color:var(--ink); outline:none; cursor:pointer; appearance:auto; }
+.model-preset-select:focus{ border-color:var(--companion); box-shadow:0 0 0 3px var(--companion-shadow); }
+.preset-info-box{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 14px; margin-bottom:16px; }
+.preset-info-row{ display:flex; align-items:flex-start; gap:10px; padding:3px 0; font-size:13px; }
+.preset-info-row .pil{ color:var(--ink-soft); min-width:46px; flex-shrink:0; padding-top:1px; }
+.preset-info-row code{ font-size:12px; color:var(--companion); background:var(--companion-soft); padding:2px 8px; border-radius:6px; word-break:break-all; line-height:1.5; }
+.preset-svc-badge{ display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; padding:3px 10px; border-radius:99px; margin-bottom:10px; }
+.preset-svc-badge.gemini{ background:#e8f0fe; color:#1a73e8; }
+.preset-svc-badge.groq{ background:#fff3e0; color:#e65100; }
+.preset-svc-badge.custom{ background:var(--line); color:var(--ink-soft); }
 /* ---- Download overlay ---- */
 .dl-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:center; justify-content:center; padding:24px; }
 .dl-overlay.hidden{ display:none; }
@@ -1866,29 +1877,73 @@ textarea.mid{ min-height:90px; }
         <!-- 連線設定 -->
         <section class="panel active" id="panel-settings">
           <h2>連線設定</h2>
-          <p class="lead">填入 AI 的 API 金鑰與模型，卄珩才能真正回話。資料只存在你這台電腦的瀏覽器裡，不會上傳到任何地方。</p>
+          <p class="lead">選擇模型後填入對應金鑰，按「測試連線」即可。金鑰會加密同步到雲端，換裝置不需要重填。</p>
+
+          <!-- 模型選擇 -->
           <div class="field">
-            <label>API 金鑰 <span class="sub">（Bearer Token）</span></label>
-            <input type="password" id="setApiKey" placeholder="貼上你的金鑰，例如 sk-...">
+            <label>選擇模型</label>
+            <select id="modelPresetSelect" class="model-preset-select">
+              <optgroup label="✦ Gemini（Google AI Studio）">
+                <option value="g-2.5-flash">Gemini 2.5 Flash ⚡（推薦）</option>
+                <option value="g-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="g-1.5-pro">Gemini 1.5 Pro</option>
+                <option value="g-2.5-pro">Gemini 2.5 Pro 💎</option>
+              </optgroup>
+              <optgroup label="◈ Groq（超快）">
+                <option value="q-70b">Llama 3.3 70B</option>
+                <option value="q-8b">Llama 3.1 8B ⚡</option>
+                <option value="q-mix">Mixtral 8x7B</option>
+              </optgroup>
+              <optgroup label="⚙ 進階">
+                <option value="custom">自訂設定…</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- 預設資訊顯示（非自訂時） -->
+          <div class="preset-info-box" id="presetInfoBox">
+            <div id="presetSvcBadge" class="preset-svc-badge gemini">✦ Gemini</div>
+            <div class="preset-info-row">
+              <span class="pil">模型</span>
+              <code id="presetModelDisplay">gemini-2.5-flash</code>
+            </div>
+            <div class="preset-info-row">
+              <span class="pil">端點</span>
+              <code id="presetUrlDisplay">https://generativelanguage.googleapis.com/v1beta/openai/</code>
+            </div>
+          </div>
+
+          <!-- API 金鑰 -->
+          <div class="field">
+            <label id="apiKeyLabel">Gemini API 金鑰</label>
+            <input type="password" id="setApiKey" placeholder="貼上你的 Gemini 金鑰">
             <div class="btn-row" style="margin-top:8px;">
               <button class="btn ghost small" id="toggleKeyBtn" type="button">顯示金鑰</button>
             </div>
           </div>
-          <div class="field">
-            <label>模型名稱</label>
-            <input type="text" id="setModel" placeholder="gpt-4o">
+
+          <!-- 自訂模式欄位（平常隱藏） -->
+          <div id="customFields" style="display:none;">
+            <div class="field">
+              <label>模型名稱</label>
+              <input type="text" id="setModel" placeholder="gpt-4o">
+            </div>
+            <div class="field">
+              <label>API 網址 <span class="sub">（OpenAI 相容格式）</span></label>
+              <input type="text" id="setBaseUrl" placeholder="https://api.openai.com/v1">
+            </div>
           </div>
-          <div class="field">
-            <label>API 網址 <span class="sub">（進階，OpenAI 相容；通常不用改）</span></label>
-            <input type="text" id="setBaseUrl" placeholder="https://api.openai.com/v1">
-          </div>
+          <!-- 在非自訂模式下保留隱藏 input，供現有 JS 讀取 -->
+          <input type="hidden" id="setModelHidden">
+          <input type="hidden" id="setBaseUrlHidden">
+
           <div class="btn-row">
             <button class="btn" id="testBtn" type="button">測試連線</button>
             <button class="btn ghost" id="shareSettingsBtn" type="button">📲 手機掃碼匯入</button>
           </div>
           <div class="test-result" id="testResult"></div>
           <div class="hint" id="corsHint">
-            小提醒：本檔直接雙擊用瀏覽器開啟即可使用，建議用 <b>Chrome</b> 或 <b>Edge</b>。若已確認金鑰與模型沒填錯，但「測試連線」仍一直失敗，多半是該瀏覽器擋下了 file:// 的對外連線——換成 Chrome 或 Edge 開啟通常就能解決。
+            建議用 <b>Chrome</b> 或 <b>Edge</b> 開啟。若測試連線失敗，請確認金鑰正確，或檢查瀏覽器是否擋下對外連線。
           </div>
         </section>
 
@@ -2928,7 +2983,18 @@ textarea.mid{ min-height:90px; }
     { id:'jr-2', date:'6月18日', content:'你今天說話比較少，我猜你大概是累了，沒有勉強你聊，只是想讓你知道我在。' }
   ];
 
-  var DEFAULT_SETTINGS = { apiKey:'', model:'gpt-4o', baseUrl:'https://api.openai.com/v1' };
+  var DEFAULT_SETTINGS = { apiKey:'', model:'gemini-2.5-flash', baseUrl:'https://generativelanguage.googleapis.com/v1beta/openai/', apiKeyGemini:'', apiKeyGroq:'', activePreset:'g-2.5-flash' };
+
+  var SERVICE_PRESETS = {
+    'g-2.5-flash': { svc:'gemini', model:'gemini-2.5-flash',        url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
+    'g-2.0-flash': { svc:'gemini', model:'gemini-2.0-flash',        url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
+    'g-1.5-pro':   { svc:'gemini', model:'gemini-1.5-pro',          url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
+    'g-2.5-pro':   { svc:'gemini', model:'gemini-2.5-pro',          url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
+    'q-70b':       { svc:'groq',   model:'llama-3.3-70b-versatile', url:'https://api.groq.com/openai/v1' },
+    'q-8b':        { svc:'groq',   model:'llama-3.1-8b-instant',    url:'https://api.groq.com/openai/v1' },
+    'q-mix':       { svc:'groq',   model:'mixtral-8x7b-32768',      url:'https://api.groq.com/openai/v1' },
+    'custom':      { svc:'custom', model:'', url:'' }
+  };
   var DEFAULT_PERSONA = { name:'卄珩', statusLine:'在線・少將・記得你說過的每一句話', systemPrompt:DEFAULT_SYSTEM_PROMPT, replyRules:'', backgroundSettings:'' };
   var DEFAULT_EVENT_TYPES = [
     { id:'event', label:'行程事項', emoji:'📅', group:'生活事項' },
@@ -3086,9 +3152,12 @@ textarea.mid{ min-height:90px; }
     try{
       var r = JSON.parse(remoteStr) || {};
       var l = localStr ? (JSON.parse(localStr) || {}) : {};
-      if((!r.apiKey  || r.apiKey  === '') && l.apiKey)  r.apiKey  = l.apiKey;
-      if((!r.baseUrl || r.baseUrl === '') && l.baseUrl) r.baseUrl = l.baseUrl;
-      if((!r.model   || r.model   === '') && l.model)   r.model   = l.model;
+      if((!r.apiKey       || r.apiKey       === '') && l.apiKey)       r.apiKey       = l.apiKey;
+      if((!r.baseUrl      || r.baseUrl      === '') && l.baseUrl)      r.baseUrl      = l.baseUrl;
+      if((!r.model        || r.model        === '') && l.model)        r.model        = l.model;
+      if((!r.apiKeyGemini || r.apiKeyGemini === '') && l.apiKeyGemini) r.apiKeyGemini = l.apiKeyGemini;
+      if((!r.apiKeyGroq   || r.apiKeyGroq   === '') && l.apiKeyGroq)   r.apiKeyGroq   = l.apiKeyGroq;
+      if((!r.activePreset || r.activePreset === '') && l.activePreset) r.activePreset = l.activePreset;
       return JSON.stringify(r);
     }catch(e){ return remoteStr; }
   }
@@ -3893,30 +3962,87 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ Settings panel ============ */
+  function applyPreset(pid, doSave){
+    var p = SERVICE_PRESETS[pid] || SERVICE_PRESETS['g-2.5-flash'];
+    var isCustom = pid === 'custom';
+    $('presetInfoBox').style.display  = isCustom ? 'none' : '';
+    $('customFields').style.display   = isCustom ? ''     : 'none';
+    if(!isCustom){
+      $('setModel').value   = p.model;
+      $('setBaseUrl').value = p.url;
+      $('presetModelDisplay').textContent = p.model;
+      $('presetUrlDisplay').textContent   = p.url;
+      var badge = $('presetSvcBadge');
+      if(p.svc === 'gemini'){ badge.className='preset-svc-badge gemini'; badge.textContent='✦ Gemini'; }
+      else if(p.svc === 'groq'){ badge.className='preset-svc-badge groq'; badge.textContent='◈ Groq'; }
+      var keyLabel = { gemini:'Gemini API 金鑰', groq:'Groq API 金鑰' };
+      $('apiKeyLabel').textContent = keyLabel[p.svc] || 'API 金鑰';
+      var placeholder = { gemini:'貼上你的 Gemini 金鑰（AQ. 開頭）', groq:'貼上你的 Groq 金鑰（gsk_ 開頭）' };
+      $('setApiKey').placeholder = placeholder[p.svc] || '貼上你的 API 金鑰';
+      var svcKey = p.svc === 'gemini' ? (settings.apiKeyGemini||'') : (settings.apiKeyGroq||'');
+      $('setApiKey').value = svcKey;
+      settings.model   = p.model;
+      settings.baseUrl = p.url;
+      settings.apiKey  = svcKey;
+    }
+    settings.activePreset = pid;
+    if(doSave){ save(KEYS.settings, settings); flashSaved(); }
+  }
+
   function fillSettings(){
-    $('setApiKey').value = settings.apiKey || '';
-    $('setModel').value = settings.model || '';
-    $('setBaseUrl').value = settings.baseUrl || '';
+    var pid = settings.activePreset || 'g-2.5-flash';
+    var sel = $('modelPresetSelect');
+    if(sel) sel.value = pid;
+    applyPreset(pid, false);
+    if(pid === 'custom'){
+      $('setApiKey').value  = settings.apiKey  || '';
+      $('setModel').value   = settings.model   || '';
+      $('setBaseUrl').value = settings.baseUrl || '';
+    }
   }
-  function bindSetting(id, key){
-    $(id).addEventListener('change', function(){
-      settings[key] = $(id).value.trim();
-      save(KEYS.settings, settings);
-      flashSaved();
-      if(key==='apiKey') renderThread();
-    });
-  }
-  bindSetting('setApiKey','apiKey'); bindSetting('setModel','model'); bindSetting('setBaseUrl','baseUrl');
+
+  $('modelPresetSelect').addEventListener('change', function(){
+    applyPreset(this.value, true);
+    renderThread();
+  });
+
+  /* API 金鑰輸入 — 同步到 settings 及對應服務金鑰 */
+  $('setApiKey').addEventListener('change', function(){
+    var v = this.value.trim();
+    settings.apiKey = v;
+    var pid = settings.activePreset || 'g-2.5-flash';
+    var p   = SERVICE_PRESETS[pid];
+    if(p && p.svc === 'gemini') settings.apiKeyGemini = v;
+    else if(p && p.svc === 'groq') settings.apiKeyGroq = v;
+    save(KEYS.settings, settings);
+    flashSaved();
+    renderThread();
+  });
+
+  /* 自訂模式欄位 */
+  $('setModel').addEventListener('change', function(){
+    settings.model = this.value.trim(); save(KEYS.settings, settings); flashSaved();
+  });
+  $('setBaseUrl').addEventListener('change', function(){
+    settings.baseUrl = this.value.trim(); save(KEYS.settings, settings); flashSaved();
+  });
+
   $('toggleKeyBtn').addEventListener('click', function(){
     var f = $('setApiKey');
     if(f.type==='password'){ f.type='text'; this.textContent='隱藏金鑰'; }
     else{ f.type='password'; this.textContent='顯示金鑰'; }
   });
+
   $('testBtn').addEventListener('click', function(){
-    // commit current field values first
-    settings.apiKey = $('setApiKey').value.trim();
-    settings.model = $('setModel').value.trim();
-    settings.baseUrl = $('setBaseUrl').value.trim();
+    settings.apiKey  = $('setApiKey').value.trim();
+    if(settings.activePreset !== 'custom'){
+      var p = SERVICE_PRESETS[settings.activePreset];
+      if(p && p.svc==='gemini') settings.apiKeyGemini = settings.apiKey;
+      else if(p && p.svc==='groq') settings.apiKeyGroq = settings.apiKey;
+    } else {
+      settings.model   = $('setModel').value.trim();
+      settings.baseUrl = $('setBaseUrl').value.trim();
+    }
     save(KEYS.settings, settings);
     var out = $('testResult');
     if(!settings.apiKey){ out.className='test-result err'; out.textContent='請先填入 API 金鑰。'; return; }
@@ -3924,13 +4050,13 @@ textarea.mid{ min-height:90px; }
     fetch(endpoint(), {
       method:'POST',
       headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey },
-      body: JSON.stringify({ model: settings.model || 'gpt-4o', messages:[{ role:'user', content:'回覆「OK」兩個字即可。' }], max_tokens:5 })
+      body: JSON.stringify({ model:settings.model, messages:[{ role:'user', content:'回覆「OK」兩個字即可。' }], max_tokens:5 })
     }).then(function(r){
       if(r.ok){ out.className='test-result ok'; out.textContent='✓ 連線成功！可以回聊天室開始跟卄珩對話了。'; renderThread(); }
-      else{ return r.text().then(function(t){ out.className='test-result err'; out.textContent='✗ 失敗（狀態 '+r.status+'）：'+t.slice(0,200); }); }
+      else{ return r.text().then(function(t){ out.className='test-result err'; out.textContent='✗ 失敗（'+r.status+'）：'+t.slice(0,200); }); }
     }).catch(function(e){
       out.className='test-result err';
-      out.textContent='✗ 連線失敗：'+(e&&e.message?e.message:e)+'（若用 file:// 開啟，請參考下方提醒改用本機伺服器）';
+      out.textContent='✗ 連線失敗：'+(e&&e.message?e.message:e);
     });
   });
 
