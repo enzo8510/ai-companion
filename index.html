@@ -938,7 +938,7 @@ textarea.mid{ min-height:90px; }
 }
 .wm-clock-zone{
   position:relative; display:flex; flex-direction:column; align-items:center;
-  justify-content:center; margin-bottom:var(--space-lg);
+  justify-content:center; margin-bottom:var(--space-lg); min-height:160px;
 }
 /* 時間後方的白色暈染光暈 */
 .wm-clock-glow{
@@ -1001,10 +1001,10 @@ textarea.mid{ min-height:90px; }
 /* 倒計時時間選擇器 */
 .wm-countdown-selector{
   position:relative;
-  z-index:2; display:grid; grid-template-columns:1fr; gap:8px;
-  width:100%; max-width:200px; margin-bottom:var(--space-lg);
+  z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  width:100%; max-width:260px; margin-bottom:var(--space-lg);
 }
-.wm-countdown-selector.hidden{ display:none; }
+.wm-countdown-selector.hidden{ visibility:hidden; pointer-events:none; }
 .wm-time-btn{
   padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2);
   background:rgba(255,255,255,0.10); color:rgba(255,255,255,0.85);
@@ -2826,7 +2826,7 @@ textarea.mid{ min-height:90px; }
   'use strict';
 
   /* ============ Login gate ============ */
-  var LOGIN_PWD = '0000'; // ← 在這裡修改密碼
+  var LOGIN_PWD = '860818'; // ← 在這裡修改密碼
   var AUTH_KEY  = 'ai_auth_v1';
   function authToken(p){ return btoa(p + ':ai-companion'); }
   function checkLogin(){
