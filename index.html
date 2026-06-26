@@ -1909,11 +1909,8 @@ textarea.mid{ min-height:90px; }
           <h2>事件</h2>
           <p class="lead">上傳或貼上角色設定、世界觀、人物關係等資料。每筆事件最多 2000 字，最多 30 筆。這些內容會一起提供給 AI，讓卄珩更貼合設定。</p>
           <div class="panel-toolbar">
-            <label class="toolbar-btn primary" style="cursor:pointer;">
-              ↑ 上傳檔案
-              <input type="file" id="kbFile" accept=".md,.txt,.markdown,text/plain" multiple style="display:none;">
-            </label>
             <button class="toolbar-btn" id="kbAddBtn" type="button">＋ 新增事件</button>
+            <button class="toolbar-btn primary" id="kbSaveBtn" type="button">💾 儲存</button>
           </div>
           <div id="kbCount" style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;text-align:right;"></div>
           <div id="kbList"></div>
@@ -3099,6 +3096,12 @@ textarea.mid{ min-height:90px; }
         if(lastSeenRemote[key] === remoteValue) return; // 跟上次一樣，跳過
         lastSeenRemote[key] = remoteValue;
         var localValue = localStorage.getItem(key);
+        // 首次載入：本地有實質資料時以本地為準，不被雲端舊資料蓋掉
+        if(firstSnapshot && localValue && localValue.length > 4 && localValue !== remoteValue){
+          // 本地有資料，上傳本地版本取代雲端
+          pushKeyToFirebase(key, localValue);
+          return;
+        }
         // 設定類特別處理：保留本地非空金鑰，避免被雲端空值清掉
         var valueToStore = (key === KEYS.settings) ? mergeSettingsStr(remoteValue, localValue) : remoteValue;
         if(valueToStore !== localValue){
@@ -3115,6 +3118,7 @@ textarea.mid{ min-height:90px; }
         try {
           if(typeof renderMemories === 'function') renderMemories();
           if(typeof renderJournal === 'function') renderJournal();
+          if(typeof renderKnowledge === 'function' && changed.indexOf(KEYS.knowledge) >= 0) renderKnowledge();
           if(typeof renderThread === 'function' && changed.indexOf(KEYS.chat) >= 0) renderThread();
           if(typeof renderStarStats === 'function' && changed.indexOf(KEYS.star) >= 0) renderStarStats();
           if(typeof syncAvatar === 'function') syncAvatar();
@@ -4284,25 +4288,9 @@ textarea.mid{ min-height:90px; }
     knowledge.push({ id:uid('kb'), filename:'新事件.md', content:'' });
     save(KEYS.knowledge, knowledge); renderKnowledge(); flashSaved();
   });
-  $('kbFile').addEventListener('change', function(e){
-    var files = Array.prototype.slice.call(e.target.files||[]);
-    if(!files.length) return;
-    if(knowledge.length >= KB_MAX_ITEMS){ alert('已達上限 ' + KB_MAX_ITEMS + ' 筆，無法再上傳。'); e.target.value=''; return; }
-    var slots = KB_MAX_ITEMS - knowledge.length;
-    files = files.slice(0, slots);
-    var pending = files.length;
-    files.forEach(function(file){
-      var reader = new FileReader();
-      reader.onload = function(){
-        var content = String(reader.result||'').slice(0, KB_MAX_CHARS);
-        knowledge.push({ id:uid('kb'), filename:file.name, content:content });
-        pending--;
-        if(pending===0){ save(KEYS.knowledge, knowledge); renderKnowledge(); flashSaved(); }
-      };
-      reader.onerror = function(){ pending--; if(pending===0){ save(KEYS.knowledge, knowledge); renderKnowledge(); } };
-      reader.readAsText(file);
-    });
-    e.target.value = '';
+  $('kbSaveBtn').addEventListener('click', function(){
+    save(KEYS.knowledge, knowledge);
+    flashSaved('事件已儲存並同步 ✓');
   });
 
   /* ============ Memory panel ============ */
