@@ -1941,10 +1941,6 @@ textarea.mid{ min-height:90px; }
           <span class="star-act-icon">🐾</span>
           <span class="star-act-label">摸摸他</span>
         </button>
-        <button class="star-act-btn" id="starClothesBtn" type="button">
-          <span class="star-act-icon">👗</span>
-          <span class="star-act-label">換衣服</span>
-        </button>
         <button class="star-act-btn" id="starFeedHistBtn" type="button">
           <span class="star-act-icon">📋</span>
           <span class="star-act-label">餵食紀錄</span>
@@ -2443,10 +2439,6 @@ textarea.mid{ min-height:90px; }
         </div>
       </div>
       <button class="btn primary" id="ciCheckinBtn" type="button" style="width:100%;text-align:center;">🌙 今日打卡</button>
-      <div class="ci-recent-section">
-        <div class="ci-recent-title">最近打卡記錄</div>
-        <div id="ciRecentList"></div>
-      </div>
     </div>
   </div>
 </div>
@@ -6029,6 +6021,8 @@ textarea.mid{ min-height:90px; }
           var p = socialPosts.find(function(x){return x.id===pid;});
           if(!p) return;
           p.liked = !p.liked; p.likes = Math.max(0,(p.likes||0) + (p.liked?1:-1));
+          if(p.liked){ p.likedAt = Date.now(); if(!p.likeHistory) p.likeHistory=[]; p.likeHistory.push(Date.now()); }
+          else { delete p.likedAt; }
           save(SOCIAL_KEY, socialPosts); renderSocialFeed();
         });
       })(post.id);
