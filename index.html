@@ -2376,6 +2376,36 @@ textarea.mid{ min-height:90px; }
 
     <div class="saved-chip" id="savedChip">已儲存 ✓</div>
 
+    <!-- ============ KNOWLEDGE EVENT EDITOR ============ -->
+    <div class="kb-editor-overlay hidden" id="kbEditorOverlay">
+      <div class="kb-editor-sheet">
+        <div class="kb-editor-header">
+          <button class="kb-editor-back-btn" id="kbEditorClose" type="button">‹</button>
+          <span class="kb-editor-title">編輯事件</span>
+          <button class="kb-editor-save-btn" id="kbEditorSave" type="button">儲存</button>
+        </div>
+        <div class="kb-editor-body">
+          <div class="kb-editor-field">
+            <div class="kb-editor-field-top">
+              <span class="kb-editor-field-label">標題</span>
+              <span class="kb-editor-field-count" id="kbEditorNameCount">0/100</span>
+            </div>
+            <input type="text" id="kbEditorName" placeholder="事件名稱" maxlength="100">
+          </div>
+          <div class="kb-editor-field">
+            <div class="kb-editor-field-top">
+              <span class="kb-editor-field-label">內容</span>
+              <span class="kb-editor-field-count" id="kbEditorCharCount">0/2000</span>
+            </div>
+            <textarea id="kbEditorContent" placeholder="貼上設定內容、角色資料、世界觀…" maxlength="2000"></textarea>
+          </div>
+          <div class="kb-editor-del-row">
+            <button class="kb-editor-del-btn" id="kbEditorDelete" type="button">刪除此事件</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2694,36 +2724,6 @@ textarea.mid{ min-height:90px; }
       <button class="toolbar-btn primary" id="chatBgUploadBtn" type="button" style="flex:1;justify-content:center;">＋ 新增背景</button>
       <button class="toolbar-btn" id="chatBgRemoveBtn" type="button" style="flex:0 0 auto;color:var(--ink-soft);">移除背景</button>
       <input type="file" id="chatBgFileInput" accept="image/*" style="display:none;">
-    </div>
-  </div>
-</div>
-
-<!-- ============ KNOWLEDGE EVENT EDITOR ============ -->
-<div class="kb-editor-overlay hidden" id="kbEditorOverlay">
-  <div class="kb-editor-sheet">
-    <div class="kb-editor-header">
-      <button class="kb-editor-back-btn" id="kbEditorClose" type="button">‹</button>
-      <span class="kb-editor-title">編輯事件</span>
-      <button class="kb-editor-save-btn" id="kbEditorSave" type="button">儲存</button>
-    </div>
-    <div class="kb-editor-body">
-      <div class="kb-editor-field">
-        <div class="kb-editor-field-top">
-          <span class="kb-editor-field-label">標題</span>
-          <span class="kb-editor-field-count" id="kbEditorNameCount">0/100</span>
-        </div>
-        <input type="text" id="kbEditorName" placeholder="事件名稱" maxlength="100">
-      </div>
-      <div class="kb-editor-field">
-        <div class="kb-editor-field-top">
-          <span class="kb-editor-field-label">內容</span>
-          <span class="kb-editor-field-count" id="kbEditorCharCount">0/2000</span>
-        </div>
-        <textarea id="kbEditorContent" placeholder="貼上設定內容、角色資料、世界觀…" maxlength="2000"></textarea>
-      </div>
-      <div class="kb-editor-del-row">
-        <button class="kb-editor-del-btn" id="kbEditorDelete" type="button">刪除此事件</button>
-      </div>
     </div>
   </div>
 </div>
