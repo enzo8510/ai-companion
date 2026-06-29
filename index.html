@@ -6018,36 +6018,6 @@ textarea.mid{ min-height:90px; }
       var btns = document.createElement('div');
       btns.className = 'qa-hist-btns';
 
-      var delBtn = document.createElement('button');
-      delBtn.className = 'qa-hist-del';
-      delBtn.type = 'button';
-      delBtn.title = '刪除此記錄';
-      delBtn.textContent = '✕';
-      (function(entry, idx){
-        delBtn.addEventListener('click', function(){
-          if(!confirm('確定刪除這筆問答記錄？\n（聊天室裡的相關訊息也會一併刪除）')) return;
-          // Remove from qaHistory
-          qaHistory.splice(idx, 1);
-          save(KEYS.qaHistory, qaHistory);
-          // Remove matching QA messages from chatHistory
-          var q = entry.question;
-          var toDelete = [];
-          for(var i = 0; i < chatHistory.length; i++){
-            if(chatHistory[i].role === 'user' && chatHistory[i].isQa && chatHistory[i].content === q){
-              toDelete.push(i);
-              if(i + 1 < chatHistory.length && chatHistory[i + 1].role === 'assistant'){
-                toDelete.push(i + 1);
-              }
-            }
-          }
-          for(var j = toDelete.length - 1; j >= 0; j--) chatHistory.splice(toDelete[j], 1);
-          save(KEYS.chat, chatHistory);
-          renderThread();
-          renderTodayQaView();
-          flashSaved('記錄已刪除');
-        });
-      })(h, idx);
-
       var arrow = document.createElement('button');
       arrow.className = 'qa-hist-arrow';
       arrow.type = 'button';
@@ -6059,7 +6029,6 @@ textarea.mid{ min-height:90px; }
         });
       })(h);
 
-      btns.appendChild(delBtn);
       btns.appendChild(arrow);
       item.appendChild(dot);
       item.appendChild(content);
