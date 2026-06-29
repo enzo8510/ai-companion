@@ -1705,6 +1705,12 @@ textarea.mid{ min-height:90px; }
 .qa-review-a-text{ font-size:14px; color:var(--ink); line-height:1.8; white-space:pre-wrap; }
 .qa-review-no-ans{ font-size:13px; color:var(--ink-soft); font-style:italic; text-align:center; padding:24px 0; }
 .qa-review-footer{ flex:0 0 auto; padding:12px 16px; border-top:1px solid var(--line); display:flex; gap:8px; }
+.qa-review-note-card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+.qa-review-note-label{ font-size:10px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase; margin-bottom:8px; }
+.qa-review-note-input{ width:100%; box-sizing:border-box; background:var(--chat-bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:14px; color:var(--ink); line-height:1.7; resize:none; font-family:inherit; outline:none; transition:border-color .15s; }
+.qa-review-note-input:focus{ border-color:var(--companion); }
+.qa-review-note-saved{ font-size:11px; color:var(--companion); text-align:right; margin-top:6px; }
+.qa-review-note-saved.hidden{ display:none; }
 /* Cover drag hint */
 .cover-drag-hint{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity .2s; border-radius:0; }
 .cover-drag-hint.show{ opacity:1; }
@@ -2652,7 +2658,7 @@ textarea.mid{ min-height:90px; }
         <div class="qa-review-hdr">
           <button class="icon-btn" id="qaReviewClose" type="button" style="font-size:18px;">←</button>
           <span class="qa-review-hdr-title">回顧答案</span>
-          <div style="width:36px;"></div>
+          <button class="icon-btn" id="qaReviewDelete" type="button" style="font-size:16px;color:var(--danger,#c0392b);" title="刪除此記錄">🗑️</button>
         </div>
         <div class="qa-review-body">
           <div class="qa-review-q-card">
@@ -2663,6 +2669,11 @@ textarea.mid{ min-height:90px; }
           <div class="qa-review-a-card">
             <div class="qa-review-a-label">卄珩的回答</div>
             <div id="qaReviewAnswer"></div>
+          </div>
+          <div class="qa-review-note-card">
+            <div class="qa-review-note-label">我的想法</div>
+            <textarea class="qa-review-note-input" id="qaReviewNote" placeholder="寫下你對這個問題的想法…" rows="4"></textarea>
+            <div class="qa-review-note-saved hidden" id="qaReviewNoteSaved">已儲存 ✓</div>
           </div>
         </div>
         <div class="qa-review-footer">
@@ -5734,9 +5745,15 @@ textarea.mid{ min-height:90px; }
     });
   }
 
+  var _qaReviewEntry = null;
+  var _qaNoteSaveTimer = null;
+
   function openQaReview(entry){
+    _qaReviewEntry = entry;
     $('qaReviewQuestion').textContent = entry.question || '';
     $('qaReviewDate').textContent = entry.date || '';
+
+    // AI answer
     var ansEl = $('qaReviewAnswer');
     if(entry.answer){
       ansEl.innerHTML = '';
@@ -5745,19 +5762,54 @@ textarea.mid{ min-height:90px; }
       p.textContent = entry.answer;
       ansEl.appendChild(p);
     } else {
-      ansEl.innerHTML = '<div class="qa-review-no-ans">還沒有回答記錄</div>';
+      ansEl.innerHTML = '<div class="qa-review-no-ans">還沒有回答記錄<br><span style="font-size:11px;">點「↩ 重新詢問」讓卄珩回答後會自動儲存</span></div>';
     }
+
+    // user note
+    $('qaReviewNote').value = entry.userNote || '';
+    $('qaReviewNoteSaved').classList.add('hidden');
+
     $('qaReviewOverlay').classList.remove('hidden');
-    // store entry for re-ask
-    $('qaReviewReask')._entry = entry;
   }
+
+  // auto-save user note with debounce
+  $('qaReviewNote').addEventListener('input', function(){
+    clearTimeout(_qaNoteSaveTimer);
+    _qaNoteSaveTimer = setTimeout(function(){
+      if(!_qaReviewEntry) return;
+      var idx = qaHistory.indexOf(_qaReviewEntry);
+      if(idx < 0) idx = qaHistory.findIndex(function(h){ return h.question === _qaReviewEntry.question && h.date === _qaReviewEntry.date; });
+      if(idx >= 0){
+        qaHistory[idx].userNote = $('qaReviewNote').value;
+        _qaReviewEntry = qaHistory[idx];
+        save(KEYS.qaHistory, qaHistory);
+        var saved = $('qaReviewNoteSaved');
+        saved.classList.remove('hidden');
+        setTimeout(function(){ saved.classList.add('hidden'); }, 1500);
+      }
+    }, 800);
+  });
 
   $('qaReviewClose').addEventListener('click', function(){
     $('qaReviewOverlay').classList.add('hidden');
+    _qaReviewEntry = null;
+  });
+
+  $('qaReviewDelete').addEventListener('click', function(){
+    if(!_qaReviewEntry) return;
+    if(!confirm('確定刪除這筆問答記錄？')) return;
+    var idx = qaHistory.indexOf(_qaReviewEntry);
+    if(idx < 0) idx = qaHistory.findIndex(function(h){ return h.question === _qaReviewEntry.question && h.date === _qaReviewEntry.date; });
+    if(idx >= 0){ qaHistory.splice(idx, 1); save(KEYS.qaHistory, qaHistory); }
+    $('qaReviewOverlay').classList.add('hidden');
+    _qaReviewEntry = null;
+    renderTodayQaView();
+    flashSaved('記錄已刪除');
   });
 
   $('qaReviewReask').addEventListener('click', function(){
-    var entry = this._entry;
+    if(!_qaReviewEntry) return;
+    var entry = _qaReviewEntry;
     $('qaReviewOverlay').classList.add('hidden');
     showFront();
     if(!settings.apiKey){ chatInput.value = entry.question; chatInput.focus(); return; }
@@ -5772,6 +5824,9 @@ textarea.mid{ min-height:90px; }
       chatHistory.push({ role:'assistant', content:reply, ts:Date.now() });
       save(KEYS.chat, chatHistory);
       updateTokenBar(result.usage);
+      // save answer back to qaHistory entry
+      var idx = qaHistory.findIndex(function(h){ return h.question === entry.question && h.date === entry.date; });
+      if(idx >= 0){ qaHistory[idx].answer = reply; save(KEYS.qaHistory, qaHistory); }
       scrollThread(); setSending(false); maybeExtractMemory();
     }).catch(function(err){
       hideTyping();
