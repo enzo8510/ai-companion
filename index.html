@@ -3414,82 +3414,79 @@ textarea.mid{ min-height:90px; }
   function uid(p){ return (p||'id') + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6); }
   function todayLabel(){ var d = new Date(); return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'; }
 
-  /* ============ Firebase 初始化（加強版，帶錯誤處理）============ */
+  /* ============ Firebase 初始化 ============ */
   var isFirebaseReady = false;
   var database = null;
-  var firebaseInitialized = false;
+  var _fbAppInited = false;   // firebase.initializeApp() 是否已呼叫
+  var _fbAuthDone  = false;   // signInAnonymously 是否已成功
+  var _fbSdkWaits  = 0;
 
-  var firebaseInitAttempts = 0;
-  function initializeFirebase(){
-    if(firebaseInitialized) return;
-    firebaseInitAttempts++;
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDHMFC23fkqXs0dJ-8sPVh6VI8hVHaD4o",
+    authDomain: "ai-companion-6bb46.firebaseapp.com",
+    databaseURL: "https://ai-companion-6bb46-default-rtdb.firebaseio.com",
+    projectId: "ai-companion-6bb46",
+    storageBucket: "ai-companion-6bb46.appspot.com",
+    messagingSenderId: "521523243972",
+    appId: "1:521523243972:web:2928db3c3fa9249ca3bd291"
+  };
 
-    try {
-      // 檢查 Firebase SDK 是否已加載
-      if(typeof firebase === 'undefined'){
-        if(firebaseInitAttempts <= 20){ // 最多嘗試 20 次（10 秒）
-          console.warn('⚠ Firebase SDK 尚未加載 (' + firebaseInitAttempts + '/20)，等待中...');
-          setTimeout(initializeFirebase, 500);
+  function _fbDoAuth(){
+    if(_fbAuthDone) return;
+    firebase.auth().signInAnonymously().then(function(){
+      console.log('✓ Firebase 匿名登入成功');
+      _fbAuthDone = true;
+      database.ref('.info/connected').on('value', function(snap){
+        isFirebaseReady = snap.val() === true;
+        if(isFirebaseReady){
+          console.log('✓ Firebase 已連接');
+          setupAutoSync();
         } else {
-          console.error('✗ Firebase SDK 加載失敗，超時');
+          console.warn('⚠ Firebase 連接中斷');
         }
-        return;
-      }
-
-      var firebaseConfig = {
-        apiKey: "AIzaSyDHMFC23fkqXs0dJ-8sPVh6VI8hVHaD4o",
-        authDomain: "ai-companion-6bb46.firebaseapp.com",
-        databaseURL: "https://ai-companion-6bb46-default-rtdb.firebaseio.com",
-        projectId: "ai-companion-6bb46",
-        storageBucket: "ai-companion-6bb46.appspot.com",
-        messagingSenderId: "521523243972",
-        appId: "1:521523243972:web:2928db3c3fa9249ca3bd291"
-      };
-
-      // 初始化 Firebase
-      firebase.initializeApp(firebaseConfig);
-      database = firebase.database();
-      console.log('✓ Firebase 已初始化');
-
-      // 匿名登入後再掛連接監聽（讓 auth != null 規則通過）
-      firebase.auth().signInAnonymously().then(function(){
-        console.log('✓ Firebase 匿名登入成功');
-        firebaseInitialized = true;
-        database.ref('.info/connected').on('value', function(snap){
-          isFirebaseReady = snap.val() === true;
-          if(isFirebaseReady){
-            console.log('✓ Firebase 已連接（' + new Date().toLocaleTimeString('zh-TW') + '）');
-            setupAutoSync();
-          } else {
-            console.warn('⚠ Firebase 連接中斷');
-          }
-        });
-      }).catch(function(err){
-        console.error('✗ Firebase 匿名登入失敗:', err.message);
       });
-
-    } catch(err){
-      console.error('✗ Firebase 初始化失敗:', err.message);
-      firebaseInitialized = false;
-      setTimeout(initializeFirebase, 2000); // 2秒後重試
-    }
+    }).catch(function(err){
+      console.error('✗ Firebase 匿名登入失敗:', err.message);
+      // 3 秒後重試登入（不重新 initializeApp）
+      setTimeout(_fbDoAuth, 3000);
+    });
   }
 
-  // 延遲初始化（等待 DOM 準備好）
+  function initializeFirebase(){
+    // 等 Firebase SDK 載入
+    if(typeof firebase === 'undefined'){
+      _fbSdkWaits++;
+      if(_fbSdkWaits <= 30){ setTimeout(initializeFirebase, 500); }
+      else { console.error('✗ Firebase SDK 載入逾時'); }
+      return;
+    }
+
+    // initializeApp 只能呼叫一次；之後重試只重試 auth
+    if(!_fbAppInited){
+      try{
+        // 若 SDK 因某原因已有 default app，直接取用
+        var app = (firebase.apps && firebase.apps.length > 0)
+          ? firebase.apps[0]
+          : firebase.initializeApp(FIREBASE_CONFIG);
+        database = firebase.database(app);
+        _fbAppInited = true;
+        console.log('✓ Firebase App 初始化完成');
+      } catch(err){
+        console.error('✗ Firebase initializeApp 失敗:', err.message);
+        setTimeout(initializeFirebase, 2000);
+        return;
+      }
+    }
+
+    _fbDoAuth();
+  }
+
+  // 入口：DOMContentLoaded 或立即執行（只呼叫一次）
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', initializeFirebase);
   } else {
     initializeFirebase();
   }
-
-  // 也在 window.onload 時再試一次
-  window.addEventListener('load', function(){
-    if(!firebaseInitialized){
-      console.log('重新嘗試 Firebase 初始化...');
-      firebaseInitAttempts = 0;
-      initializeFirebase();
-    }
-  });
 
   /* ============ 即時雲同步 ============ */
   var syncEnabled = false;
