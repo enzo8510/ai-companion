@@ -591,6 +591,75 @@ textarea.mid{ min-height:90px; }
 .preset-svc-badge.gemini{ background:#e8f0fe; color:#1a73e8; }
 .preset-svc-badge.groq{ background:#fff3e0; color:#e65100; }
 .preset-svc-badge.custom{ background:var(--line); color:var(--ink-soft); }
+/* ---- Audio View ---- */
+.audio-page{ display:flex; flex-direction:column; height:100%; background:var(--surface); overflow:hidden; }
+.audio-hdr{ flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; }
+.audio-hdr-title{ font-size:17px; font-weight:700; color:var(--ink); }
+.audio-upload-btn{ width:34px; height:34px; border-radius:50%; border:1.5px solid var(--companion); background:var(--companion-soft); color:var(--companion); font-size:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; }
+.audio-upload-btn:hover{ background:var(--companion); color:#fff; }
+.audio-body{ flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+/* Now-playing mini player */
+.audio-now-playing{ flex:0 0 auto; margin:0 16px 12px; border-radius:18px; background:linear-gradient(135deg,var(--companion) 0%,#7b5ea7 100%); padding:14px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 4px 20px var(--companion-shadow,rgba(169,135,216,0.4)); }
+.audio-now-playing.hidden{ display:none; }
+.audio-np-thumb{ width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:22px; flex:0 0 auto; }
+.audio-np-info{ flex:1; min-width:0; }
+.audio-np-title{ font-size:14px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.audio-np-cat{ font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; }
+.audio-np-progress{ height:3px; background:rgba(255,255,255,.3); border-radius:99px; margin-top:6px; overflow:hidden; }
+.audio-np-bar{ height:100%; background:#fff; border-radius:99px; width:0%; transition:width .5s linear; }
+.audio-np-controls{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.audio-np-btn{ width:32px; height:32px; border-radius:50%; border:none; background:rgba(255,255,255,.2); color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+.audio-np-btn:hover{ background:rgba(255,255,255,.35); }
+.audio-np-btn.play{ width:36px; height:36px; font-size:16px; background:rgba(255,255,255,.3); }
+/* Track list */
+.audio-track-list{ padding:0 16px; }
+.audio-section-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase; padding:10px 0 6px; }
+.audio-track-row{ display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); cursor:pointer; transition:background .1s; border-radius:10px; }
+.audio-track-row:last-child{ border-bottom:none; }
+.audio-track-row.playing .audio-track-title{ color:var(--companion); }
+.audio-track-thumb{ width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex:0 0 auto; }
+.audio-cat-care .audio-track-thumb{ background:linear-gradient(135deg,#a8e6cf,#3db88a); }
+.audio-cat-sweet .audio-track-thumb{ background:linear-gradient(135deg,var(--companion-soft),var(--companion)); }
+.audio-cat-sleep .audio-track-thumb{ background:linear-gradient(135deg,#2c3e70,#4a6fa5); }
+.audio-cat-wake .audio-track-thumb{ background:linear-gradient(135deg,#f9a825,#f06821); }
+.audio-cat-other .audio-track-thumb{ background:linear-gradient(135deg,#cfd8dc,#90a4ae); }
+.audio-track-info{ flex:1; min-width:0; }
+.audio-track-title{ font-size:14px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .15s; }
+.audio-track-meta{ display:flex; align-items:center; gap:6px; margin-top:3px; }
+.audio-track-cat{ font-size:10px; font-weight:600; padding:2px 8px; border-radius:99px; }
+.audio-cat-care .audio-track-cat,.audio-track-row.audio-cat-care .audio-track-cat{ background:rgba(61,184,138,.15); color:#3db88a; }
+.audio-cat-sweet .audio-track-cat,.audio-track-row.audio-cat-sweet .audio-track-cat{ background:var(--companion-soft); color:var(--companion); }
+.audio-cat-sleep .audio-track-cat,.audio-track-row.audio-cat-sleep .audio-track-cat{ background:rgba(74,111,165,.15); color:#4a6fa5; }
+.audio-cat-wake .audio-track-cat,.audio-track-row.audio-cat-wake .audio-track-cat{ background:rgba(240,104,33,.12); color:#e06821; }
+.audio-cat-other .audio-track-cat,.audio-track-row.audio-cat-other .audio-track-cat{ background:rgba(144,164,174,.15); color:#607d8b; }
+.audio-track-dur{ font-size:11px; color:var(--ink-soft); }
+.audio-track-actions{ display:flex; align-items:center; gap:4px; flex:0 0 auto; }
+.audio-track-btn{ width:30px; height:30px; border-radius:50%; border:none; background:none; color:var(--ink-soft); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.audio-track-btn:hover{ background:var(--companion-soft); color:var(--companion); }
+.audio-play-icon{ font-size:18px; }
+.audio-empty{ text-align:center; padding:40px 20px; color:var(--ink-soft); }
+.audio-empty-icon{ font-size:48px; margin-bottom:12px; }
+.audio-empty-text{ font-size:14px; line-height:1.6; }
+/* Transcript overlay (inside phone-frame) */
+.audio-transcript-overlay{ position:absolute; inset:0; z-index:300; background:var(--surface); display:flex; flex-direction:column; }
+.audio-transcript-overlay.hidden{ display:none; }
+.audio-ts-header{ flex:0 0 auto; display:flex; align-items:center; gap:12px; padding:14px 16px 10px; border-bottom:1px solid var(--line); }
+.audio-ts-title{ flex:1; font-size:15px; font-weight:700; color:var(--ink); }
+.audio-ts-body{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.audio-ts-label{ font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
+.audio-ts-textarea{ flex:1; border:1.5px solid var(--line); border-radius:12px; padding:12px; font-family:inherit; font-size:14px; color:var(--ink); background:var(--chat-bg); outline:none; resize:none; min-height:180px; transition:border-color .15s; }
+.audio-ts-textarea:focus{ border-color:var(--companion); }
+.audio-ts-footer{ flex:0 0 auto; padding:12px 16px; border-top:1px solid var(--line); display:flex; gap:8px; }
+/* Edit modal overlay (inside phone-frame) */
+.audio-edit-overlay{ position:absolute; inset:0; z-index:310; background:rgba(0,0,0,.5); display:flex; align-items:flex-end; }
+.audio-edit-overlay.hidden{ display:none; }
+.audio-edit-sheet{ background:var(--surface); border-radius:20px 20px 0 0; padding:20px 16px 32px; width:100%; }
+.audio-edit-sheet-title{ font-size:15px; font-weight:700; color:var(--ink); margin-bottom:16px; }
+.audio-edit-field{ margin-bottom:12px; }
+.audio-edit-label{ font-size:11px; font-weight:600; color:var(--ink-soft); margin-bottom:6px; display:block; }
+.audio-cat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.audio-cat-option{ padding:8px 6px; border-radius:10px; border:1.5px solid var(--line); text-align:center; cursor:pointer; font-size:12px; font-weight:500; color:var(--ink-soft); transition:all .15s; }
+.audio-cat-option.selected{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
 /* ---- Bill-Tracker Calendar (checkinView + calendarView) ---- */
 .btc-page{ display:flex; flex-direction:column; height:100%; background:var(--surface); overflow:hidden; }
 .btc-header{ flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; }
@@ -2218,7 +2287,7 @@ textarea.mid{ min-height:90px; }
     <div class="view hidden" id="socialView">
       <div class="social-hdr">
         <button class="icon-btn" id="socialBackBtn" type="button" style="font-size:18px;">←</button>
-        <span class="social-hdr-title">📱 卄珩的社交</span>
+        <span class="social-hdr-title">📱 社群平台</span>
         <button class="icon-btn" id="socialEditProfileBtn" type="button" style="font-size:18px;">✏</button>
       </div>
       <div class="social-body" id="socialBody">
@@ -2248,6 +2317,86 @@ textarea.mid{ min-height:90px; }
       <div class="social-compose-bar">
         <input class="social-compose-input" id="socialComposeInput" placeholder="留言給卄珩…" maxlength="140">
         <button class="social-compose-btn" id="socialComposeBtn" type="button">送出</button>
+      </div>
+    </div>
+
+    <!-- ============ AUDIO VIEW ============ -->
+    <div class="view hidden audio-page" id="audioView">
+      <!-- Header -->
+      <div class="audio-hdr">
+        <button class="icon-btn" id="audioBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="audio-hdr-title">🎶 他的音檔</span>
+        <button class="audio-upload-btn" id="audioUploadTrigger" type="button" title="上傳音檔">＋</button>
+        <input type="file" id="audioFileInput" accept="audio/*" style="display:none;">
+      </div>
+
+      <!-- Category filter -->
+      <div class="btc-filter-row" style="padding:0 16px 12px;">
+        <div class="btc-chip active" data-audio-cat="all">全部</div>
+        <div class="btc-chip" data-audio-cat="care">日常關心</div>
+        <div class="btc-chip" data-audio-cat="sweet">甜言蜜語</div>
+        <div class="btc-chip" data-audio-cat="sleep">睡前故事</div>
+        <div class="btc-chip" data-audio-cat="wake">叫我起床</div>
+        <div class="btc-chip" data-audio-cat="other">其他</div>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="audio-body">
+        <!-- Now-playing mini player -->
+        <div class="audio-now-playing hidden" id="audioNowPlaying">
+          <div class="audio-np-thumb" id="audioNpThumb">🎵</div>
+          <div class="audio-np-info">
+            <div class="audio-np-title" id="audioNpTitle">—</div>
+            <div class="audio-np-cat" id="audioNpCat"></div>
+            <div class="audio-np-progress"><div class="audio-np-bar" id="audioNpBar"></div></div>
+          </div>
+          <div class="audio-np-controls">
+            <button class="audio-np-btn" id="audioNpPrev" type="button">⏮</button>
+            <button class="audio-np-btn play" id="audioNpPlay" type="button">▶</button>
+            <button class="audio-np-btn" id="audioNpNext" type="button">⏭</button>
+          </div>
+        </div>
+        <!-- Track list -->
+        <div class="audio-track-list" id="audioTrackList"></div>
+      </div>
+
+      <!-- Transcript full-screen overlay (inside phone-frame) -->
+      <div class="audio-transcript-overlay hidden" id="audioTsOverlay">
+        <div class="audio-ts-header">
+          <button class="icon-btn" id="audioTsClose" type="button" style="font-size:18px;">←</button>
+          <span class="audio-ts-title" id="audioTsTrackTitle">逐字稿</span>
+          <button class="btc-checkin-btn" id="audioTsSave" type="button" style="width:auto;padding:7px 18px;font-size:13px;border-radius:10px;margin-top:0;">儲存</button>
+        </div>
+        <div class="audio-ts-body">
+          <span class="audio-ts-label">逐字稿內容</span>
+          <textarea class="audio-ts-textarea" id="audioTsText" placeholder="在此輸入逐字稿，或等 AI 自動辨識後顯示…"></textarea>
+        </div>
+      </div>
+
+      <!-- Edit/Info bottom sheet (inside phone-frame) -->
+      <div class="audio-edit-overlay hidden" id="audioEditOverlay">
+        <div class="audio-edit-sheet">
+          <div class="audio-edit-sheet-title" id="audioEditTitle">編輯音檔</div>
+          <div class="audio-edit-field">
+            <label class="audio-edit-label">標題</label>
+            <input type="text" id="audioEditName" class="input-large" placeholder="音檔名稱" maxlength="60">
+          </div>
+          <div class="audio-edit-field">
+            <label class="audio-edit-label">分類</label>
+            <div class="audio-cat-grid" id="audioEditCatGrid">
+              <div class="audio-cat-option" data-cat="care">💬 日常關心</div>
+              <div class="audio-cat-option" data-cat="sweet">💕 甜言蜜語</div>
+              <div class="audio-cat-option" data-cat="sleep">🌙 睡前故事</div>
+              <div class="audio-cat-option" data-cat="wake">☀️ 叫我起床</div>
+              <div class="audio-cat-option" data-cat="other">🎵 其他</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;">
+            <button class="toolbar-btn primary" id="audioEditSave" type="button" style="flex:1;justify-content:center;">儲存</button>
+            <button class="toolbar-btn danger" id="audioEditDelete" type="button" style="flex:1;justify-content:center;">刪除</button>
+          </div>
+          <button class="toolbar-btn ghost" id="audioEditCancel" type="button" style="width:100%;justify-content:center;margin-top:8px;">取消</button>
+        </div>
       </div>
     </div>
 
@@ -3573,7 +3722,7 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView','chessView','calendarView','todayQaView','checkinView'];
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','audioView','withMeView','chessView','calendarView','todayQaView','checkinView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
   }
@@ -6429,7 +6578,250 @@ textarea.mid{ min-height:90px; }
     closeHbOverlay();
     flashSaved(msg);
   });
-  $('homeAudioBtn').addEventListener('click', function(){ flashSaved('功能即將開放 ✦'); });
+  $('homeAudioBtn').addEventListener('click', function(){ openAudioView(); });
+
+  /* ============ Audio View ============ */
+  var AUDIO_KEY = 'companion:audioTracks';
+  var audioTracks = load(AUDIO_KEY) || [];
+  var audioCurrentId = null;
+  var audioFilter = 'all';
+  var audioEditingId = null;
+  var audioEditCatSel = 'other';
+  var audioTsEditId = null;
+  var audioEl = new Audio();
+  var audioProgressTimer = null;
+
+  var AUDIO_CAT_META = {
+    care:  { label:'日常關心', emoji:'💬', cls:'audio-cat-care' },
+    sweet: { label:'甜言蜜語', emoji:'💕', cls:'audio-cat-sweet' },
+    sleep: { label:'睡前故事', emoji:'🌙', cls:'audio-cat-sleep' },
+    wake:  { label:'叫我起床', emoji:'☀️', cls:'audio-cat-wake' },
+    other: { label:'其他',     emoji:'🎵', cls:'audio-cat-other' }
+  };
+
+  function openAudioView(){
+    showOnly('audioView');
+    renderAudioList();
+  }
+
+  function fmtAudioDur(sec){
+    if(!sec || isNaN(sec)) return '—';
+    var m = Math.floor(sec/60), s = Math.floor(sec%60);
+    return m + ':' + (s<10?'0':'')+s;
+  }
+
+  function renderAudioList(){
+    var list = $('audioTrackList'); if(!list) return;
+    list.innerHTML = '';
+    var filtered = audioFilter === 'all' ? audioTracks : audioTracks.filter(function(t){ return t.category === audioFilter; });
+    if(!filtered.length){
+      list.innerHTML = '<div class="audio-empty"><div class="audio-empty-icon">🎶</div><div class="audio-empty-text">還沒有音檔<br>點右上角＋上傳第一個</div></div>';
+      return;
+    }
+    filtered.forEach(function(track, idx){
+      var cat = AUDIO_CAT_META[track.category] || AUDIO_CAT_META.other;
+      var isPlaying = track.id === audioCurrentId && !audioEl.paused;
+      var row = document.createElement('div');
+      row.className = 'audio-track-row ' + cat.cls + (isPlaying?' playing':'');
+      row.draggable = true;
+      row.dataset.id = track.id;
+
+      var thumb = document.createElement('div'); thumb.className='audio-track-thumb'; thumb.textContent=cat.emoji;
+      var info = document.createElement('div'); info.className='audio-track-info';
+      var title = document.createElement('div'); title.className='audio-track-title'; title.textContent=track.title||'未命名音檔';
+      var meta = document.createElement('div'); meta.className='audio-track-meta';
+      var catBadge = document.createElement('span'); catBadge.className='audio-track-cat'; catBadge.textContent=cat.label;
+      var dur = document.createElement('span'); dur.className='audio-track-dur'; dur.textContent=fmtAudioDur(track.duration);
+      meta.appendChild(catBadge); meta.appendChild(dur);
+      info.appendChild(title); info.appendChild(meta);
+
+      var acts = document.createElement('div'); acts.className='audio-track-actions';
+      var playBtn = document.createElement('button'); playBtn.type='button'; playBtn.className='audio-track-btn';
+      playBtn.innerHTML = isPlaying ? '<span class="audio-play-icon">⏸</span>' : '<span class="audio-play-icon">▶</span>';
+      var moreBtn = document.createElement('button'); moreBtn.type='button'; moreBtn.className='audio-track-btn'; moreBtn.textContent='…';
+
+      (function(t){
+        playBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleAudioPlay(t.id); });
+        moreBtn.addEventListener('click', function(e){ e.stopPropagation(); openAudioEdit(t.id); });
+        row.addEventListener('click', function(){ toggleAudioPlay(t.id); });
+      })(track);
+
+      acts.appendChild(playBtn); acts.appendChild(moreBtn);
+      row.appendChild(thumb); row.appendChild(info); row.appendChild(acts);
+      list.appendChild(row);
+    });
+
+    // drag-to-reorder
+    setupAudioDrag(list);
+  }
+
+  function setupAudioDrag(list){
+    var dragSrc = null;
+    list.querySelectorAll('.audio-track-row').forEach(function(row){
+      row.addEventListener('dragstart', function(e){ dragSrc=row; row.style.opacity='.4'; e.dataTransfer.effectAllowed='move'; });
+      row.addEventListener('dragend', function(){ row.style.opacity='1'; dragSrc=null; });
+      row.addEventListener('dragover', function(e){ e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+      row.addEventListener('drop', function(e){
+        e.preventDefault(); if(!dragSrc||dragSrc===row) return;
+        var srcId=dragSrc.dataset.id, dstId=row.dataset.id;
+        var si=audioTracks.findIndex(function(t){return t.id===srcId;}), di=audioTracks.findIndex(function(t){return t.id===dstId;});
+        if(si<0||di<0) return;
+        var moved=audioTracks.splice(si,1)[0]; audioTracks.splice(di,0,moved);
+        save(AUDIO_KEY, audioTracks); renderAudioList();
+      });
+    });
+  }
+
+  function toggleAudioPlay(trackId){
+    var track = audioTracks.find(function(t){ return t.id===trackId; });
+    if(!track || !track.dataUrl) return;
+    if(audioCurrentId === trackId){
+      if(audioEl.paused){ audioEl.play(); } else { audioEl.pause(); }
+    } else {
+      audioEl.pause();
+      audioEl.src = track.dataUrl;
+      audioCurrentId = trackId;
+      audioEl.play();
+      updateNowPlaying(track);
+    }
+    renderAudioList();
+  }
+
+  function updateNowPlaying(track){
+    var cat = AUDIO_CAT_META[track.category] || AUDIO_CAT_META.other;
+    $('audioNpThumb').textContent = cat.emoji;
+    $('audioNpTitle').textContent = track.title||'未命名音檔';
+    $('audioNpCat').textContent = cat.label;
+    $('audioNowPlaying').classList.remove('hidden');
+    clearInterval(audioProgressTimer);
+    audioProgressTimer = setInterval(function(){
+      if(!audioEl.duration) return;
+      $('audioNpBar').style.width = (audioEl.currentTime/audioEl.duration*100).toFixed(1)+'%';
+      $('audioNpPlay').textContent = audioEl.paused ? '▶' : '⏸';
+    }, 500);
+  }
+
+  audioEl.addEventListener('ended', function(){
+    var idx = audioTracks.findIndex(function(t){ return t.id===audioCurrentId; });
+    if(idx>=0 && idx<audioTracks.length-1){ toggleAudioPlay(audioTracks[idx+1].id); }
+    else { clearInterval(audioProgressTimer); $('audioNpBar').style.width='0%'; $('audioNpPlay').textContent='▶'; renderAudioList(); }
+  });
+
+  $('audioNpPlay').addEventListener('click', function(){
+    if(audioEl.paused) audioEl.play(); else audioEl.pause();
+    $('audioNpPlay').textContent = audioEl.paused ? '▶' : '⏸';
+    renderAudioList();
+  });
+  $('audioNpPrev').addEventListener('click', function(){
+    var idx=audioTracks.findIndex(function(t){return t.id===audioCurrentId;});
+    if(idx>0) toggleAudioPlay(audioTracks[idx-1].id);
+  });
+  $('audioNpNext').addEventListener('click', function(){
+    var idx=audioTracks.findIndex(function(t){return t.id===audioCurrentId;});
+    if(idx>=0&&idx<audioTracks.length-1) toggleAudioPlay(audioTracks[idx+1].id);
+  });
+
+  // Upload
+  $('audioUploadTrigger').addEventListener('click', function(){ $('audioFileInput').click(); });
+  $('audioFileInput').addEventListener('change', function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var tmpAudio = new Audio();
+      tmpAudio.src = ev.target.result;
+      tmpAudio.addEventListener('loadedmetadata', function(){
+        var dur = tmpAudio.duration;
+        var rawName = file.name.replace(/\.[^/.]+$/, '');
+        var track = { id: uid('aud'), title: rawName, category: 'other', dataUrl: ev.target.result, duration: dur, transcript: '', ts: Date.now() };
+        audioTracks.push(track);
+        save(AUDIO_KEY, audioTracks);
+        renderAudioList();
+        openAudioEdit(track.id); // 立即開啟編輯讓用戶設定分類
+      });
+      tmpAudio.addEventListener('error', function(){
+        var track = { id: uid('aud'), title: file.name.replace(/\.[^/.]+$/,''), category:'other', dataUrl: ev.target.result, duration: 0, transcript:'', ts: Date.now() };
+        audioTracks.push(track); save(AUDIO_KEY, audioTracks); renderAudioList(); openAudioEdit(track.id);
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  // Category filter chips
+  $('audioView').querySelectorAll('[data-audio-cat]').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      audioFilter = chip.dataset.audioCat;
+      $('audioView').querySelectorAll('[data-audio-cat]').forEach(function(c){ c.className='btc-chip'+(c.dataset.audioCat===audioFilter?' active':''); });
+      renderAudioList();
+    });
+  });
+
+  $('audioBackBtn').addEventListener('click', function(){ audioEl.pause(); clearInterval(audioProgressTimer); showHome(); });
+
+  // Edit overlay
+  function openAudioEdit(trackId){
+    var track = audioTracks.find(function(t){ return t.id===trackId; }); if(!track) return;
+    audioEditingId = trackId;
+    audioEditCatSel = track.category || 'other';
+    $('audioEditName').value = track.title || '';
+    $('audioEditTitle').textContent = '編輯音檔';
+    $('audioEditCatGrid').querySelectorAll('.audio-cat-option').forEach(function(o){
+      o.className = 'audio-cat-option' + (o.dataset.cat===audioEditCatSel?' selected':'');
+    });
+    $('audioEditOverlay').classList.remove('hidden');
+  }
+  $('audioEditCatGrid').querySelectorAll('.audio-cat-option').forEach(function(o){
+    o.addEventListener('click', function(){
+      audioEditCatSel = o.dataset.cat;
+      $('audioEditCatGrid').querySelectorAll('.audio-cat-option').forEach(function(x){ x.className='audio-cat-option'+(x.dataset.cat===audioEditCatSel?' selected':''); });
+    });
+  });
+  $('audioEditSave').addEventListener('click', function(){
+    var track = audioTracks.find(function(t){ return t.id===audioEditingId; }); if(!track) return;
+    track.title = $('audioEditName').value.trim() || track.title;
+    track.category = audioEditCatSel;
+    save(AUDIO_KEY, audioTracks); renderAudioList();
+    $('audioEditOverlay').classList.add('hidden'); audioEditingId=null;
+    flashSaved('音檔已更新 ✓');
+  });
+  $('audioEditDelete').addEventListener('click', function(){
+    if(!audioEditingId) return;
+    if(!confirm('確定刪除這個音檔？')) return;
+    if(audioCurrentId===audioEditingId){ audioEl.pause(); audioCurrentId=null; $('audioNowPlaying').classList.add('hidden'); clearInterval(audioProgressTimer); }
+    audioTracks = audioTracks.filter(function(t){ return t.id!==audioEditingId; });
+    save(AUDIO_KEY, audioTracks); renderAudioList();
+    $('audioEditOverlay').classList.add('hidden'); audioEditingId=null;
+  });
+  $('audioEditCancel').addEventListener('click', function(){ $('audioEditOverlay').classList.add('hidden'); audioEditingId=null; });
+
+  // Transcript overlay — opened via "逐字稿" action; accessible from More button context
+  // We'll add a "逐字稿" option in the edit sheet footer
+  function openAudioTranscript(trackId){
+    var track = audioTracks.find(function(t){ return t.id===trackId; }); if(!track) return;
+    audioTsEditId = trackId;
+    $('audioTsTrackTitle').textContent = track.title || '逐字稿';
+    $('audioTsText').value = track.transcript || '';
+    $('audioEditOverlay').classList.add('hidden');
+    $('audioTsOverlay').classList.remove('hidden');
+  }
+  $('audioTsClose').addEventListener('click', function(){ $('audioTsOverlay').classList.add('hidden'); audioTsEditId=null; });
+  $('audioTsSave').addEventListener('click', function(){
+    var track = audioTracks.find(function(t){ return t.id===audioTsEditId; }); if(!track) return;
+    track.transcript = $('audioTsText').value;
+    save(AUDIO_KEY, audioTracks);
+    $('audioTsOverlay').classList.add('hidden'); audioTsEditId=null;
+    flashSaved('逐字稿已儲存 ✓');
+  });
+
+  // Add transcript button to edit sheet dynamically
+  (function(){
+    var tsBtn = document.createElement('button');
+    tsBtn.type='button'; tsBtn.className='toolbar-btn ghost';
+    tsBtn.style.cssText='width:100%;justify-content:center;margin-top:8px;';
+    tsBtn.textContent='📝 查看 / 編輯逐字稿';
+    tsBtn.addEventListener('click', function(){ if(audioEditingId) openAudioTranscript(audioEditingId); });
+    $('audioEditCancel').parentNode.insertBefore(tsBtn, $('audioEditCancel'));
+  })();
 
   /* ============ Social View ============ */
   var SOCIAL_KEY = 'companion:social';
@@ -6483,6 +6875,13 @@ textarea.mid{ min-height:90px; }
         +'<span class="social-post-handle">'+socialProfile.handle.split(' · ')[0]+'</span>'
         +'<span class="social-post-time">'+fmtSocialTime(post.ts)+'</span>';
       var txt = document.createElement('div'); txt.className='social-post-text'; txt.textContent = post.text;
+      if(post.image){
+        var postImg = document.createElement('img');
+        postImg.src = post.image;
+        postImg.style.cssText='display:block;max-width:100%;border-radius:12px;margin-top:8px;border:1px solid var(--line);max-height:240px;object-fit:cover;cursor:pointer;';
+        postImg.addEventListener('click', function(){ var ol=document.createElement('div'); ol.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;'; var fi=document.createElement('img'); fi.src=post.image; fi.style.cssText='max-width:92vw;max-height:88vh;border-radius:14px;'; ol.appendChild(fi); ol.addEventListener('click',function(){document.body.removeChild(ol);}); document.body.appendChild(ol); });
+        txt.appendChild(postImg);
+      }
       var acts = document.createElement('div'); acts.className='social-post-actions';
 
       // Comments from 江黎
@@ -6529,14 +6928,29 @@ textarea.mid{ min-height:90px; }
     });
   }
 
+  var pendingPostImageDataUrl = null;
   function openSocialPostEditor(postId){
     var post = socialPosts.find(function(p){ return p.id === postId; });
     if(!post) return;
     currentEditingPostId = postId;
     $('socialPostEditText').value = post.text || '';
     $('socialPostEditorTitle').textContent = '編輯貼文';
-    $('socialPostEditImageContainer').innerHTML = '';
+    pendingPostImageDataUrl = post.image || null;
+    renderPostEditImagePreview();
     $('socialPostEditorOverlay').classList.remove('hidden');
+  }
+  function renderPostEditImagePreview(){
+    var c = $('socialPostEditImageContainer'); c.innerHTML = '';
+    if(!pendingPostImageDataUrl) return;
+    var wrap = document.createElement('div'); wrap.style.cssText='position:relative;display:inline-block;margin-bottom:8px;';
+    var img = document.createElement('img');
+    img.src = pendingPostImageDataUrl;
+    img.style.cssText='max-width:100%;max-height:180px;border-radius:12px;display:block;border:1px solid var(--line);';
+    var del = document.createElement('button'); del.type='button';
+    del.style.cssText='position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:24px;height:24px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+    del.textContent='✕';
+    del.addEventListener('click', function(){ pendingPostImageDataUrl=null; renderPostEditImagePreview(); });
+    wrap.appendChild(img); wrap.appendChild(del); c.appendChild(wrap);
   }
 
   function openSocialProfileEditor(){
@@ -6574,18 +6988,28 @@ textarea.mid{ min-height:90px; }
     reader.readAsDataURL(file);
   });
 
-  $('socialPostEditorClose').addEventListener('click', function(){ $('socialPostEditorOverlay').classList.add('hidden'); currentEditingPostId=null; });
-  $('socialPostEditorOverlay').addEventListener('click', function(e){ if(e.target === $('socialPostEditorOverlay')){ $('socialPostEditorOverlay').classList.add('hidden'); currentEditingPostId=null; } });
+  $('socialPostEditorClose').addEventListener('click', function(){ $('socialPostEditorOverlay').classList.add('hidden'); currentEditingPostId=null; pendingPostImageDataUrl=null; });
+  $('socialPostEditorOverlay').addEventListener('click', function(e){ if(e.target === $('socialPostEditorOverlay')){ $('socialPostEditorOverlay').classList.add('hidden'); currentEditingPostId=null; pendingPostImageDataUrl=null; } });
+
+  $('socialPostEditAddImageBtn').addEventListener('click', function(){ $('socialPostImageInput').click(); });
+  $('socialPostImageInput').addEventListener('change', function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){ pendingPostImageDataUrl = ev.target.result; renderPostEditImagePreview(); };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
 
   $('socialPostEditSaveBtn').addEventListener('click', function(){
     if(!currentEditingPostId) return;
     var post = socialPosts.find(function(p){ return p.id === currentEditingPostId; });
     if(!post) return;
     post.text = $('socialPostEditText').value.trim() || post.text;
+    if(pendingPostImageDataUrl !== null) post.image = pendingPostImageDataUrl;
     save(SOCIAL_KEY, socialPosts);
     renderSocialFeed();
     $('socialPostEditorOverlay').classList.add('hidden');
-    currentEditingPostId = null;
+    currentEditingPostId = null; pendingPostImageDataUrl = null;
     flashSaved('貼文已更新 ✓');
   });
 
