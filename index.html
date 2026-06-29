@@ -1702,6 +1702,14 @@ textarea.mid{ min-height:90px; }
   box-shadow:0 2px 8px rgba(169,135,216,0.3);
 }
 .qa-hist-arrow:hover{ opacity:.85; transform:scale(1.08); }
+.qa-hist-del{
+  width:28px; height:28px; border-radius:50%; flex:0 0 auto;
+  background:none; color:var(--ink-soft); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; cursor:pointer; transition:all .15s;
+}
+.qa-hist-del:hover{ background:rgba(224,82,82,.1); color:#e05252; border-color:#e05252; }
+.qa-hist-btns{ display:flex; flex-direction:column; align-items:center; gap:6px; flex:0 0 auto; }
 .qa-hist-answer{
   margin-top:7px; padding:7px 10px;
   background:var(--companion-soft); border-left:3px solid var(--companion);
@@ -1709,6 +1717,7 @@ textarea.mid{ min-height:90px; }
   line-height:1.6; max-height:80px; overflow:hidden;
   display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
 }
+.qa-hist-answer .action{ color:var(--companion); opacity:.7; font-style:italic; }
 /* QA review overlay (inside todayQaView) */
 .qa-review-overlay{ position:absolute; inset:0; z-index:200; background:var(--surface); display:flex; flex-direction:column; }
 .qa-review-overlay.hidden{ display:none; }
@@ -5867,11 +5876,44 @@ textarea.mid{ min-height:90px; }
       if(h.answer){
         var ansEl = document.createElement('div');
         ansEl.className = 'qa-hist-answer';
-        ansEl.textContent = h.answer;
+        ansEl.innerHTML = parseMarkdown(h.answer);
         content.appendChild(ansEl);
       }
 
-      // Arrow button → view stored answer (or re-ask if no answer)
+      // Buttons column (delete + arrow)
+      var btns = document.createElement('div');
+      btns.className = 'qa-hist-btns';
+
+      var delBtn = document.createElement('button');
+      delBtn.className = 'qa-hist-del';
+      delBtn.type = 'button';
+      delBtn.title = '刪除此記錄';
+      delBtn.textContent = '✕';
+      (function(entry, idx){
+        delBtn.addEventListener('click', function(){
+          if(!confirm('確定刪除這筆問答記錄？\n（聊天室裡的相關訊息也會一併刪除）')) return;
+          // Remove from qaHistory
+          qaHistory.splice(idx, 1);
+          save(KEYS.qaHistory, qaHistory);
+          // Remove matching QA messages from chatHistory
+          var q = entry.question;
+          var toDelete = [];
+          for(var i = 0; i < chatHistory.length; i++){
+            if(chatHistory[i].role === 'user' && chatHistory[i].isQa && chatHistory[i].content === q){
+              toDelete.push(i);
+              if(i + 1 < chatHistory.length && chatHistory[i + 1].role === 'assistant'){
+                toDelete.push(i + 1);
+              }
+            }
+          }
+          for(var j = toDelete.length - 1; j >= 0; j--) chatHistory.splice(toDelete[j], 1);
+          save(KEYS.chat, chatHistory);
+          renderThread();
+          renderTodayQaView();
+          flashSaved('記錄已刪除');
+        });
+      })(h, idx);
+
       var arrow = document.createElement('button');
       arrow.className = 'qa-hist-arrow';
       arrow.type = 'button';
@@ -5883,9 +5925,11 @@ textarea.mid{ min-height:90px; }
         });
       })(h);
 
+      btns.appendChild(delBtn);
+      btns.appendChild(arrow);
       item.appendChild(dot);
       item.appendChild(content);
-      item.appendChild(arrow);
+      item.appendChild(btns);
       list.appendChild(item);
     });
   }
