@@ -7121,26 +7121,77 @@ textarea.mid{ min-height:90px; }
 
   $('socialGenerateBtn').addEventListener('click', generateSocialPost);
 
-  // Social cover: tap = upload, long-press = drag to adjust vertical position
+  // Social cover: tap = show action menu (if has image) or upload picker
+  //               long-press = drag to adjust vertical position
   (function(){
     var cover = $('socialCover');
     var longPressTimer = null;
     var dragMode = false;
     var dragStartY = 0;
     var dragStartPosY = 0;
-    var hint = null;
+    var menuEl = null;
+    var menuTimer = null;
 
+    // --- action menu (更換 / 刪除) ---
+    function buildMenu(){
+      if(menuEl) return menuEl;
+      menuEl = document.createElement('div');
+      menuEl.style.cssText = 'position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:10;';
+
+      var btnReplace = document.createElement('button');
+      btnReplace.type = 'button';
+      btnReplace.textContent = '📷 更換';
+      btnReplace.style.cssText = 'font-size:11px;padding:4px 10px;border-radius:99px;border:none;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;font-weight:600;';
+      btnReplace.addEventListener('click', function(e){
+        e.stopPropagation();
+        hideMenu();
+        $('socialCoverInput').click();
+      });
+
+      var btnDelete = document.createElement('button');
+      btnDelete.type = 'button';
+      btnDelete.textContent = '🗑️ 刪除';
+      btnDelete.style.cssText = 'font-size:11px;padding:4px 10px;border-radius:99px;border:none;background:rgba(180,30,30,.75);color:#fff;cursor:pointer;font-weight:600;';
+      btnDelete.addEventListener('click', function(e){
+        e.stopPropagation();
+        hideMenu();
+        socialProfile.coverUrl = '';
+        socialProfile.coverPosY = 50;
+        save(SOCIAL_PROFILE_KEY, socialProfile);
+        syncSocialAvatar();
+        flashSaved('首圖已刪除 ✓');
+      });
+
+      menuEl.appendChild(btnReplace);
+      menuEl.appendChild(btnDelete);
+      cover.appendChild(menuEl);
+      return menuEl;
+    }
+
+    function showMenu(){
+      clearTimeout(menuTimer);
+      buildMenu();
+      menuEl.style.display = 'flex';
+      menuTimer = setTimeout(hideMenu, 4000);
+    }
+
+    function hideMenu(){
+      clearTimeout(menuTimer);
+      if(menuEl) menuEl.style.display = 'none';
+    }
+
+    // --- drag helpers ---
     function applyPosY(val){
       socialProfile.coverPosY = Math.max(0, Math.min(100, val));
       cover.style.backgroundPositionY = socialProfile.coverPosY + '%';
     }
 
     function enterDragMode(clientY){
+      hideMenu();
       dragMode = true;
       dragStartY = clientY;
       dragStartPosY = socialProfile.coverPosY != null ? socialProfile.coverPosY : 50;
-      // show hint
-      hint = cover.querySelector('.cover-drag-hint');
+      var hint = cover.querySelector('.cover-drag-hint');
       if(!hint){
         hint = document.createElement('div');
         hint.className = 'cover-drag-hint';
@@ -7153,19 +7204,19 @@ textarea.mid{ min-height:90px; }
 
     function exitDragMode(){
       dragMode = false;
+      var hint = cover.querySelector('.cover-drag-hint');
       if(hint) hint.classList.remove('show');
-      cover.style.cursor = socialProfile.coverUrl ? 'ns-resize' : 'pointer';
-      cover.title = '點擊更換首圖 / 長按拖曳調整位置';
+      cover.style.cursor = 'pointer';
       save(SOCIAL_PROFILE_KEY, socialProfile);
     }
 
-    // touch
+    // --- touch events ---
     cover.addEventListener('touchstart', function(e){
       if(!socialProfile.coverUrl) return;
+      var startY = e.touches[0].clientY;
       longPressTimer = setTimeout(function(){
         longPressTimer = null;
-        enterDragMode(e.touches[0].clientY);
-        e.preventDefault();
+        enterDragMode(startY);
       }, 500);
     }, { passive: true });
 
@@ -7173,20 +7224,18 @@ textarea.mid{ min-height:90px; }
       if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; }
       if(!dragMode) return;
       var dy = e.touches[0].clientY - dragStartY;
-      var coverH = cover.offsetHeight;
-      var delta = coverH > 0 ? (dy / coverH) * 100 : 0;
+      var delta = cover.offsetHeight > 0 ? (dy / cover.offsetHeight) * 100 : 0;
       applyPosY(dragStartPosY + delta);
       e.preventDefault();
     }, { passive: false });
 
-    cover.addEventListener('touchend', function(e){
+    cover.addEventListener('touchend', function(){
       if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; }
       if(dragMode){ exitDragMode(); return; }
-      // normal tap = upload
-      $('socialCoverInput').click();
+      if(socialProfile.coverUrl){ showMenu(); } else { $('socialCoverInput').click(); }
     });
 
-    // mouse (desktop fallback)
+    // --- mouse events (desktop) ---
     cover.addEventListener('mousedown', function(e){
       if(!socialProfile.coverUrl) return;
       longPressTimer = setTimeout(function(){
@@ -7198,19 +7247,23 @@ textarea.mid{ min-height:90px; }
     document.addEventListener('mousemove', function(e){
       if(!dragMode) return;
       var dy = e.clientY - dragStartY;
-      var coverH = cover.offsetHeight;
-      var delta = coverH > 0 ? (dy / coverH) * 100 : 0;
+      var delta = cover.offsetHeight > 0 ? (dy / cover.offsetHeight) * 100 : 0;
       applyPosY(dragStartPosY + delta);
     });
 
     document.addEventListener('mouseup', function(){
       if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; }
-      if(dragMode) exitDragMode();
+      if(dragMode){ exitDragMode(); return; }
     });
 
     cover.addEventListener('click', function(){
-      if(socialProfile.coverUrl){ return; } // has image: tap opens upload (touch) or drag finished (mouse)
-      $('socialCoverInput').click();
+      if(dragMode) return;
+      if(socialProfile.coverUrl){ showMenu(); } else { $('socialCoverInput').click(); }
+    });
+
+    // hide menu when clicking elsewhere
+    document.addEventListener('click', function(e){
+      if(menuEl && !cover.contains(e.target)) hideMenu();
     });
   })();
 
