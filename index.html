@@ -3758,6 +3758,7 @@ textarea.mid{ min-height:90px; }
   var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','audioView','withMeView','chessView','calendarView','todayQaView','checkinView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
+    try{ sessionStorage.setItem('companion:activeView', id); } catch(e){}
   }
   function showHome(){ showOnly('homeView'); }
   function showFront(){ showOnly('frontView'); }
@@ -8036,6 +8037,26 @@ textarea.mid{ min-height:90px; }
   applyWallpaper();
   applyChatBg();
   if(currentTheme) document.documentElement.setAttribute('data-theme', currentTheme);
+
+  // Restore last active view after page refresh
+  (function(){
+    var saved = '';
+    try{ saved = sessionStorage.getItem('companion:activeView') || ''; } catch(e){}
+    if(!saved || saved === 'homeView') return;
+    var map = {
+      frontView:    showFront,
+      adminView:    showAdmin,
+      starView:     showStar,
+      socialView:   showSocial,
+      audioView:    openAudioView,
+      withMeView:   showWithMe,
+      chessView:    showChess,
+      calendarView: showCalendarView,
+      todayQaView:  showTodayQa,
+      checkinView:  openCheckinView,
+    };
+    if(map[saved]) map[saved]();
+  })();
 })();
 </script>
 </body>
