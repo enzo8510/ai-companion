@@ -1368,8 +1368,18 @@ textarea.mid{ min-height:90px; }
 .cnt-add-anni-btn:hover{ border-color:var(--companion); background:var(--companion-soft); }
 .cnt-add-anni-form{ background:var(--chat-bg); border:1.5px solid var(--line); border-radius:14px; padding:14px; margin-bottom:8px; display:flex; flex-direction:column; gap:8px; }
 .cnt-add-anni-form.hidden{ display:none; }
-.cnt-add-anni-input{ width:100%; box-sizing:border-box; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:14px; color:var(--ink); font-family:inherit; outline:none; }
+.cnt-add-anni-input{ width:100%; box-sizing:border-box; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:14px; color:var(--ink); font-family:inherit; outline:none; margin-bottom:8px; }
 .cnt-add-anni-input:focus{ border-color:var(--companion); }
+.cnt-anni-emoji-pick-btn{ width:42px; height:42px; border-radius:12px; border:2px solid var(--line); background:var(--chat-bg); font-size:22px; cursor:pointer; flex:0 0 auto; display:flex; align-items:center; justify-content:center; transition:border-color .12s; }
+.cnt-anni-emoji-pick-btn:hover,.cnt-anni-emoji-pick-btn.open{ border-color:var(--companion); background:var(--companion-soft); }
+.cnt-emoji-grid{ display:flex; flex-wrap:wrap; gap:4px; padding:8px; background:var(--surface); border:1px solid var(--line); border-radius:12px; margin-bottom:8px; }
+.cnt-emoji-grid.hidden{ display:none; }
+.cnt-emoji-opt{ width:34px; height:34px; border-radius:8px; border:2px solid transparent; background:none; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .1s; }
+.cnt-emoji-opt:hover{ background:var(--companion-soft); }
+.cnt-emoji-opt.selected{ border-color:var(--companion); background:var(--companion-soft); }
+.cnt-emoji-popover{ position:absolute; left:0; right:0; z-index:20; padding:0 4px; }
+.cnt-emoji-popover.hidden{ display:none; }
+.cnt-emoji-popover .cnt-emoji-grid{ margin-bottom:0; box-shadow:0 4px 16px rgba(0,0,0,.1); }
 /* Feature 6: wider strip inside overlay */
 .cnt-preview-strip{ width:100%; background:var(--companion-soft); border:1.5px solid var(--companion); border-radius:16px; padding:var(--space-lg) var(--space-xl); margin-bottom:var(--space-xl); display:flex; align-items:center; justify-content:center; gap:var(--space-md); text-align:center; flex-wrap:wrap; }
 .cnt-preview-strip.hidden{ display:none; }
@@ -2901,12 +2911,20 @@ textarea.mid{ min-height:90px; }
       <div class="cnt-anni-list" id="cntAnniList"></div>
       <!-- inline add anniversary form -->
       <div class="cnt-add-anni-form hidden" id="cntAddAnniForm">
-        <input class="cnt-add-anni-input" id="cntAddAnniTitle" type="text" placeholder="紀念日名稱（如：第一次約會）" maxlength="30">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <button class="cnt-anni-emoji-pick-btn" id="cntAddAnniEmojiBtn" type="button" title="選擇 Emoji">💗</button>
+          <input class="cnt-add-anni-input" id="cntAddAnniTitle" type="text" placeholder="紀念日名稱（如：第一次約會）" maxlength="30" style="flex:1;margin-bottom:0;">
+        </div>
+        <div class="cnt-emoji-grid hidden" id="cntAddAnniEmojiGrid"></div>
         <input class="cnt-add-anni-input" id="cntAddAnniDate" type="date">
         <div style="display:flex;gap:8px;margin-top:6px;">
           <button class="toolbar-btn ghost" id="cntAddAnniCancel" type="button" style="flex:1;justify-content:center;">取消</button>
           <button class="toolbar-btn primary" id="cntAddAnniSave" type="button" style="flex:1;justify-content:center;">儲存</button>
         </div>
+      </div>
+      <!-- floating emoji picker for existing cards -->
+      <div class="cnt-emoji-popover hidden" id="cntAnniEmojiPopover">
+        <div class="cnt-emoji-grid" id="cntAnniEmojiGrid"></div>
       </div>
       <button class="cnt-add-anni-btn" id="cntAddAnniBtn" type="button">＋ 新增紀念日</button>
     </div>
@@ -5636,7 +5654,11 @@ textarea.mid{ min-height:90px; }
       var card=document.createElement('div');
       card.className='cnt-anni-card'+(isSelected?' selected':'');
 
-      var icon=document.createElement('div'); icon.className='cnt-anni-icon'; icon.textContent='💗';
+      var icon=document.createElement('div'); icon.className='cnt-anni-icon'; icon.textContent=ev.emoji||'💗';
+      icon.title='點擊更換 Emoji'; icon.style.cursor='pointer';
+      (function(evRef){ icon.addEventListener('click',function(e){
+        e.stopPropagation(); openAnniEmojiPopover(icon, evRef);
+      }); })(ev);
       var info=document.createElement('div'); info.className='cnt-anni-info';
       var name=document.createElement('div'); name.className='cnt-anni-name'; name.textContent=ev.title;
       var sub=document.createElement('div'); sub.className='cnt-anni-sub'; sub.textContent=ev.date+(diff===0?' · 今天！':diff===1?' · 明天':'');
@@ -5683,15 +5705,82 @@ textarea.mid{ min-height:90px; }
     });
   });
 
+  // Emoji presets
+  var ANNI_EMOJIS = ['💗','💕','❤️','🧡','💛','💚','💙','💜','🖤','🤍',
+    '💑','💍','💋','🥂','🌹','🌸','🌺','🌻','💐','🦋',
+    '🎂','🎉','🎊','🎁','⭐','🌟','✨','🌙','☀️','🌈',
+    '✈️','🏠','🎵','🎶','📸','🍰','🥰','😍','🤗','🫶'];
+
+  var _addAnniEmoji = '💗';
+
+  function buildEmojiGrid(gridEl, currentEmoji, onPick){
+    gridEl.innerHTML='';
+    ANNI_EMOJIS.forEach(function(em){
+      var btn=document.createElement('button');
+      btn.type='button'; btn.className='cnt-emoji-opt'+(em===currentEmoji?' selected':'');
+      btn.textContent=em;
+      btn.addEventListener('click',function(e){ e.stopPropagation(); onPick(em); });
+      gridEl.appendChild(btn);
+    });
+  }
+
+  // Popover for existing cards
+  var _popoverTargetEv=null;
+  function openAnniEmojiPopover(iconEl, evRef){
+    var popover=$('cntAnniEmojiPopover');
+    // toggle
+    if(!popover.classList.contains('hidden') && _popoverTargetEv===evRef){
+      popover.classList.add('hidden'); _popoverTargetEv=null; return;
+    }
+    _popoverTargetEv=evRef;
+    buildEmojiGrid($('cntAnniEmojiGrid'), evRef.emoji||'💗', function(em){
+      var idx=events.findIndex(function(x){ return x.id===evRef.id; });
+      if(idx>=0){ events[idx].emoji=em; save(KEYS.events,events); }
+      popover.classList.add('hidden'); _popoverTargetEv=null;
+      renderCntAnniList(); updateCountdown();
+    });
+    // Position below icon inside the list container
+    var list=$('cntAnniList');
+    var listRect=list.getBoundingClientRect();
+    var iconRect=iconEl.getBoundingClientRect();
+    popover.style.top=(iconRect.bottom - listRect.top + list.scrollTop + 4)+'px';
+    popover.classList.remove('hidden');
+  }
+  document.addEventListener('click',function(e){
+    var popover=$('cntAnniEmojiPopover');
+    if(popover && !popover.contains(e.target)) { popover.classList.add('hidden'); _popoverTargetEv=null; }
+  });
+
   // Add anniversary form
   $('cntAddAnniBtn').addEventListener('click',function(){
+    _addAnniEmoji='💗';
+    $('cntAddAnniEmojiBtn').textContent='💗';
+    $('cntAddAnniEmojiGrid').classList.add('hidden');
+    $('cntAddAnniEmojiBtn').classList.remove('open');
     $('cntAddAnniBtn').style.display='none';
     $('cntAddAnniTitle').value='';
     $('cntAddAnniDate').value='';
     $('cntAddAnniForm').classList.remove('hidden');
     $('cntAddAnniTitle').focus();
   });
+
+  $('cntAddAnniEmojiBtn').addEventListener('click',function(e){
+    e.stopPropagation();
+    var grid=$('cntAddAnniEmojiGrid');
+    var isOpen=!grid.classList.contains('hidden');
+    if(isOpen){ grid.classList.add('hidden'); this.classList.remove('open'); return; }
+    buildEmojiGrid(grid, _addAnniEmoji, function(em){
+      _addAnniEmoji=em;
+      $('cntAddAnniEmojiBtn').textContent=em;
+      grid.classList.add('hidden');
+      $('cntAddAnniEmojiBtn').classList.remove('open');
+    });
+    grid.classList.remove('hidden');
+    this.classList.add('open');
+  });
+
   $('cntAddAnniCancel').addEventListener('click',function(){
+    $('cntAddAnniEmojiGrid').classList.add('hidden');
     $('cntAddAnniForm').classList.add('hidden');
     $('cntAddAnniBtn').style.display='';
   });
@@ -5700,15 +5789,14 @@ textarea.mid{ min-height:90px; }
     var date=$('cntAddAnniDate').value;
     if(!title){ $('cntAddAnniTitle').focus(); return; }
     if(!date){ $('cntAddAnniDate').focus(); return; }
-    // Convert yyyy-mm-dd → yyyy年m月d日 format used by the rest of the app
     var parts=date.split('-');
     var dateLabel=parts[0]+'年'+parseInt(parts[1])+'月'+parseInt(parts[2])+'日';
-    var newEv={ id:uid('ev'), date:dateLabel, title:title, type:'anniversary' };
+    var newEv={ id:uid('ev'), date:dateLabel, title:title, type:'anniversary', emoji:_addAnniEmoji };
     events.push(newEv);
     save(KEYS.events,events);
-    // auto-select the new anniversary
     cntTarget='anni_'+newEv.id;
     localStorage.setItem(KEYS.cntTarget, cntTarget);
+    $('cntAddAnniEmojiGrid').classList.add('hidden');
     $('cntAddAnniForm').classList.add('hidden');
     $('cntAddAnniBtn').style.display='';
     renderCntAnniList(); renderCntMilestoneList(); updateCountdown();
