@@ -3452,42 +3452,53 @@ textarea.mid{ min-height:90px; }
 
   function _fbDoAuth(){
     if(_fbAuthDone) return;
+    // 確認 firebase.auth SDK 有載入
+    if(typeof firebase.auth !== 'function'){
+      console.error('✗ firebase-auth.js 未載入');
+      return;
+    }
     firebase.auth().signInAnonymously().then(function(){
       console.log('✓ Firebase 匿名登入成功');
       _fbAuthDone = true;
       database.ref('.info/connected').on('value', function(snap){
-        isFirebaseReady = snap.val() === true;
-        if(isFirebaseReady){
+        var connected = snap.val() === true;
+        isFirebaseReady = connected;
+        if(connected){
           console.log('✓ Firebase 已連接');
-          setupAutoSync();
+          setupAutoSync();          // 第一次：建立監聽、啟動同步
+          flushPendingUploads();    // 每次重連：沖刷斷線期間累積的佇列
         } else {
-          console.warn('⚠ Firebase 連接中斷');
+          console.warn('⚠ Firebase 連接中斷，資料暫存本地');
         }
       });
     }).catch(function(err){
-      console.error('✗ Firebase 匿名登入失敗:', err.message);
-      // 3 秒後重試登入（不重新 initializeApp）
-      setTimeout(_fbDoAuth, 3000);
+      console.error('✗ Firebase 匿名登入失敗:', err.message,
+        '| 請確認 Firebase Console → Authentication → 匿名登入已啟用');
+      setTimeout(_fbDoAuth, 4000); // 4 秒後重試
     });
   }
 
   function initializeFirebase(){
-    // 等 Firebase SDK 載入
-    if(typeof firebase === 'undefined'){
+    // 等 Firebase SDK 載入（firebase-app.js）
+    if(typeof firebase === 'undefined' || typeof firebase.initializeApp !== 'function'){
       _fbSdkWaits++;
       if(_fbSdkWaits <= 30){ setTimeout(initializeFirebase, 500); }
-      else { console.error('✗ Firebase SDK 載入逾時'); }
+      else { console.error('✗ Firebase SDK 載入逾時，請確認網路連線'); }
       return;
     }
 
-    // initializeApp 只能呼叫一次；之後重試只重試 auth
+    // initializeApp 只呼叫一次；若已有 default app 直接取用
     if(!_fbAppInited){
       try{
-        // 若 SDK 因某原因已有 default app，直接取用
-        var app = (firebase.apps && firebase.apps.length > 0)
-          ? firebase.apps[0]
-          : firebase.initializeApp(FIREBASE_CONFIG);
-        database = firebase.database(app);
+        if(!firebase.apps || firebase.apps.length === 0){
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        // 確認 firebase-database.js 已載入
+        if(typeof firebase.database !== 'function'){
+          console.error('✗ firebase-database.js 未載入');
+          return;
+        }
+        database = firebase.database(); // 使用 default app，最穩定
         _fbAppInited = true;
         console.log('✓ Firebase App 初始化完成');
       } catch(err){
