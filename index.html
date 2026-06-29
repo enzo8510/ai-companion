@@ -6414,17 +6414,20 @@ textarea.mid{ min-height:90px; }
   }
   function renderStarStats(){
     decayStarStats();
-    var hf=$('starHungerFill'), hv=$('starHungerVal'), mf=$('starMoodFill'), mv=$('starMoodVal'), outfit=$('starOutfit');
-    if(!hf || !hv || !mf || !mv || !outfit) return; // 星星畫面元素尚未渲染，跳過避免崩潰
+    var hf=$('starHungerFill'), hv=$('starHungerVal'), mf=$('starMoodFill'), mv=$('starMoodVal');
+    if(!hf || !hv || !mf || !mv) return;
     hf.style.width = starState.hunger + '%';
     hv.textContent = starState.hunger + '%';
     mf.style.width = starState.mood + '%';
     mv.textContent = starState.mood + '%';
-    if(starState.clothes > 0){
-      outfit.style.background = OUTFIT_COLORS[starState.clothes];
-      outfit.classList.add('show');
-    } else {
-      outfit.classList.remove('show');
+    var outfit = $('starOutfit');
+    if(outfit){
+      if(starState.clothes > 0){
+        outfit.style.background = OUTFIT_COLORS[starState.clothes];
+        outfit.classList.add('show');
+      } else {
+        outfit.classList.remove('show');
+      }
     }
   }
   function renderStarOutfitGrid(){
