@@ -8264,20 +8264,20 @@ textarea.mid{ min-height:90px; }
     reader.readAsText(file); e.target.value='';
   });
 
-  /* ============ Firebase 備份（加強版，帶重試機制）============ */
+  /* ============ Firebase 備份 ============ */
   $('firebaseBackupBtn').addEventListener('click', function(){
     var r=$('backupFirebaseResult');
 
-    if(!firebaseInitialized){
+    if(!_fbAuthDone){
       r.className='backup-result err';
-      r.textContent='✗ Firebase 初始化中...請稍待';
+      r.textContent='✗ Firebase 尚未登入，請稍待幾秒後再試';
       r.classList.remove('hidden');
       return;
     }
 
     if(!isFirebaseReady){
       r.className='backup-result err';
-      r.textContent='✗ Firebase 未連接。請檢查網路連接';
+      r.textContent='✗ Firebase 未連接，請確認網路後再試';
       r.classList.remove('hidden');
       return;
     }
@@ -8314,16 +8314,16 @@ textarea.mid{ min-height:90px; }
   $('firebaseRestoreBtn').addEventListener('click', function(){
     var r=$('backupFirebaseResult');
 
-    if(!firebaseInitialized){
+    if(!_fbAuthDone){
       r.className='backup-result err';
-      r.textContent='✗ Firebase 初始化中...請稍待';
+      r.textContent='✗ Firebase 尚未登入，請稍待幾秒後再試';
       r.classList.remove('hidden');
       return;
     }
 
     if(!isFirebaseReady){
       r.className='backup-result err';
-      r.textContent='✗ Firebase 未連接。請檢查網路連接';
+      r.textContent='✗ Firebase 未連接，請確認網路後再試';
       r.classList.remove('hidden');
       return;
     }
@@ -8372,7 +8372,7 @@ textarea.mid{ min-height:90px; }
 
   // 自動每小時備份一次（有檢查機制）
   setInterval(function(){
-    if(firebaseInitialized && isFirebaseReady && database){
+    if(_fbAuthDone && isFirebaseReady && database){
       try {
         var data = gatherAllData();
         var timestamp = new Date().toISOString();
