@@ -2906,6 +2906,10 @@ textarea.mid{ min-height:90px; }
         <button class="cnt-start-btn cal-trigger" id="cntStartDateBtn" type="button">修改 ›</button>
       </div>
       <div class="cnt-milestone-list" id="cntMilestoneList"></div>
+      <!-- floating emoji picker for milestone cards -->
+      <div class="cnt-emoji-popover hidden" id="cntMsEmojiPopover">
+        <div class="cnt-emoji-grid" id="cntMsEmojiGrid"></div>
+      </div>
 
       <div class="cnt-section-label" style="margin-top:20px;">📅 紀念日</div>
       <div class="cnt-anni-list" id="cntAnniList"></div>
@@ -3395,7 +3399,7 @@ textarea.mid{ min-height:90px; }
     wallpaper:'companion:wallpaper',
     walGallery:'companion:walGallery', walActive:'companion:walActive',
     avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
-    startDate:'companion:startDate', cntTarget:'companion:cntTarget',
+    startDate:'companion:startDate', cntTarget:'companion:cntTarget', msEmojis:'companion:msEmojis',
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
     theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
     dotColors:'companion:dotColors',
@@ -3757,6 +3761,7 @@ textarea.mid{ min-height:90px; }
   var wallpaperUrl= localStorage.getItem(KEYS.wallpaper) || '';
   var startDate   = localStorage.getItem(KEYS.startDate) || '';
   var cntTarget   = localStorage.getItem(KEYS.cntTarget) || '';
+  var msEmojis    = load(KEYS.msEmojis) || {};
   var walGallery  = load(KEYS.walGallery)    || [];
   var walActive   = localStorage.getItem(KEYS.walActive) || '';
   var avatarGallery = load(KEYS.avatarGallery) || [];
@@ -5541,10 +5546,11 @@ textarea.mid{ min-height:90px; }
         if(target){
           target.setHours(0,0,0,0);
           var diff=Math.round((target-today)/86400000);
+          var msEm=msEmojis[ms.id]||ms.emoji;
           strip.classList.remove('hidden');
           if(diff<=0){
             $('cntDays').textContent=''; $('cntUnit').textContent='';
-            $('cntEvent').textContent='🎉 '+ms.name+' 已達成！';
+            $('cntEvent').textContent=msEm+' '+ms.name+' 已達成！';
           } else {
             $('cntDays').textContent=diff; $('cntUnit').textContent='天';
             $('cntEvent').textContent='→ '+ms.name;
@@ -5627,13 +5633,14 @@ textarea.mid{ min-height:90px; }
     if(!previewShown) previewStrip.classList.add('hidden');
     // Milestone cards
     CNT_MILESTONES.forEach(function(ms){
+      var em = msEmojis[ms.id] || ms.emoji;
       var target=calcMilestoneTarget(ms);
       var diff=null, achieved=false;
       if(target){ target.setHours(0,0,0,0); diff=Math.round((target-today)/86400000); achieved=diff<=0; }
       var card=document.createElement('button'); card.type='button';
       card.className='cnt-milestone-card'+(cntTarget===ms.id?' selected':'')+(achieved?' achieved':'');
       var info=document.createElement('div'); info.className='cnt-milestone-info';
-      var name=document.createElement('div'); name.className='cnt-milestone-name'; name.textContent=ms.emoji+' '+ms.name;
+      var name=document.createElement('div'); name.className='cnt-milestone-name'; name.textContent=em+' '+ms.name;
       var sub=document.createElement('div'); sub.className='cnt-milestone-sub';
       if(!startDate){ sub.textContent='請先設定在一起的日期'; }
       else if(target){ sub.textContent=target.getFullYear()+'年'+(target.getMonth()+1)+'月'+target.getDate()+'日'; }
@@ -5642,12 +5649,17 @@ textarea.mid{ min-height:90px; }
       if(!startDate){ daysEl.textContent=''; }
       else if(achieved){ daysEl.textContent='已達成 ✓'; }
       else if(diff!==null){ daysEl.textContent=diff+'天'; }
-      card.appendChild(document.createElement('div')); card.children[0].className='cnt-milestone-icon'; card.children[0].textContent=ms.emoji;
-      card.appendChild(info); card.appendChild(daysEl);
-      (function(id){ card.addEventListener('click',function(){
+      var iconEl=document.createElement('div'); iconEl.className='cnt-milestone-icon'; iconEl.textContent=em;
+      iconEl.title='點擊更換 Emoji'; iconEl.style.cursor='pointer';
+      (function(id,el){ iconEl.addEventListener('click',function(e){
+        e.stopPropagation(); openMsEmojiPopover(el, id);
+      }); })(ms.id, iconEl);
+      card.appendChild(iconEl); card.appendChild(info); card.appendChild(daysEl);
+      (function(id,el){ card.addEventListener('click',function(e){
+        if(e.target===el || el.contains(e.target)) return;
         cntTarget=id; localStorage.setItem(KEYS.cntTarget, id);
         renderCntMilestoneList(); updateCountdown();
-      }); })(ms.id);
+      }); })(ms.id, iconEl);
       list.appendChild(card);
     });
   }
@@ -5760,6 +5772,31 @@ textarea.mid{ min-height:90px; }
   document.addEventListener('click',function(e){
     var popover=$('cntAnniEmojiPopover');
     if(popover && !popover.contains(e.target)) { popover.classList.add('hidden'); _popoverTargetEv=null; }
+  });
+
+  // Milestone emoji popover
+  var _msPopoverTargetId=null;
+  function openMsEmojiPopover(iconEl, msId){
+    var popover=$('cntMsEmojiPopover');
+    if(!popover.classList.contains('hidden') && _msPopoverTargetId===msId){
+      popover.classList.add('hidden'); _msPopoverTargetId=null; return;
+    }
+    _msPopoverTargetId=msId;
+    var defaultEm=(CNT_MILESTONES.find(function(m){ return m.id===msId; })||{}).emoji||'🌸';
+    buildEmojiGrid($('cntMsEmojiGrid'), msEmojis[msId]||defaultEm, function(em){
+      msEmojis[msId]=em; save(KEYS.msEmojis, msEmojis);
+      popover.classList.add('hidden'); _msPopoverTargetId=null;
+      renderCntMilestoneList(); updateCountdown();
+    });
+    var list=$('cntMilestoneList');
+    var listRect=list.getBoundingClientRect();
+    var iconRect=iconEl.getBoundingClientRect();
+    popover.style.top=(iconRect.bottom - listRect.top + list.scrollTop + 4)+'px';
+    popover.classList.remove('hidden');
+  }
+  document.addEventListener('click',function(e){
+    var popover=$('cntMsEmojiPopover');
+    if(popover && !popover.contains(e.target)) { popover.classList.add('hidden'); _msPopoverTargetId=null; }
   });
 
   // Add anniversary form
