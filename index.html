@@ -6,6 +6,7 @@
 <title>卄珩 ・ AI 伴侶</title>
 <!-- Firebase SDK (Compat version - most stable) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
@@ -3105,19 +3106,23 @@ textarea.mid{ min-height:90px; }
       // 初始化 Firebase
       firebase.initializeApp(firebaseConfig);
       database = firebase.database();
-      firebaseInitialized = true;
       console.log('✓ Firebase 已初始化');
 
-      // 檢查連接狀態
-      database.ref('.info/connected').on('value', function(snap){
-        isFirebaseReady = snap.val() === true;
-        if(isFirebaseReady){
-          console.log('✓ Firebase 已連接（' + new Date().toLocaleTimeString('zh-TW') + '）');
-          // Firebase 連接成功後，開始同步數據
-          setupAutoSync();
-        } else {
-          console.warn('⚠ Firebase 連接中斷');
-        }
+      // 匿名登入後再掛連接監聽（讓 auth != null 規則通過）
+      firebase.auth().signInAnonymously().then(function(){
+        console.log('✓ Firebase 匿名登入成功');
+        firebaseInitialized = true;
+        database.ref('.info/connected').on('value', function(snap){
+          isFirebaseReady = snap.val() === true;
+          if(isFirebaseReady){
+            console.log('✓ Firebase 已連接（' + new Date().toLocaleTimeString('zh-TW') + '）');
+            setupAutoSync();
+          } else {
+            console.warn('⚠ Firebase 連接中斷');
+          }
+        });
+      }).catch(function(err){
+        console.error('✗ Firebase 匿名登入失敗:', err.message);
       });
 
     } catch(err){
