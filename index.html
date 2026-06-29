@@ -591,6 +591,70 @@ textarea.mid{ min-height:90px; }
 .preset-svc-badge.gemini{ background:#e8f0fe; color:#1a73e8; }
 .preset-svc-badge.groq{ background:#fff3e0; color:#e65100; }
 .preset-svc-badge.custom{ background:var(--line); color:var(--ink-soft); }
+/* ---- Bill-Tracker Calendar (checkinView + calendarView) ---- */
+.btc-page{ display:flex; flex-direction:column; height:100%; background:var(--surface); overflow:hidden; }
+.btc-header{ flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; }
+.btc-header-title{ font-size:17px; font-weight:700; color:var(--ink); }
+.btc-header-side{ width:36px; }
+.btc-stats-row{ flex:0 0 auto; display:flex; gap:12px; padding:0 16px 14px; }
+.btc-stat-item{ flex:1; background:var(--chat-bg); border-radius:16px; padding:12px 10px; text-align:center; border:1px solid var(--line); }
+.btc-stat-num{ font-size:22px; font-weight:700; color:var(--ink); font-family:'LXGW WenKai TC',serif; line-height:1.1; }
+.btc-stat-num.accent{ color:var(--companion); }
+.btc-stat-label{ font-size:10px; font-weight:600; color:var(--ink-soft); margin-top:3px; letter-spacing:.03em; }
+.btc-filter-row{ flex:0 0 auto; display:flex; gap:8px; padding:0 16px 14px; overflow-x:auto; scrollbar-width:none; }
+.btc-filter-row::-webkit-scrollbar{ display:none; }
+.btc-chip{ flex:0 0 auto; padding:6px 16px; border-radius:999px; font-size:13px; font-weight:500; border:1.5px solid var(--line); background:var(--chat-bg); color:var(--ink-soft); cursor:pointer; transition:all .15s; white-space:nowrap; }
+.btc-chip.active{ background:var(--ink); color:var(--chat-bg); border-color:var(--ink); }
+.btc-body{ flex:1; overflow-y:auto; padding:0 16px 20px; }
+.btc-cal-card{ background:var(--chat-bg); border-radius:20px; border:1px solid var(--line); padding:16px 14px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,.04); }
+.btc-month-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.btc-month-btn{ width:34px; height:34px; border-radius:50%; border:1.5px solid var(--line); background:var(--surface); font-size:17px; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.btc-month-btn:hover{ border-color:var(--companion); color:var(--companion); }
+.btc-month-title{ font-size:16px; font-weight:700; color:var(--ink); }
+.btc-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:6px; }
+.btc-weekdays span{ text-align:center; font-size:11px; font-weight:600; color:var(--ink-soft); padding:4px 0; }
+.btc-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.btc-day{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:6px 0 4px; border-radius:12px; cursor:pointer; min-height:48px; transition:background .1s; user-select:none; }
+.btc-day:hover{ background:var(--surface); }
+.btc-day.selected{ background:var(--companion-soft); }
+.btc-day.today .btc-day-num{ border:2px solid var(--companion); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:var(--companion); font-weight:700; }
+.btc-day.checked .btc-day-num{ background:var(--companion); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; border:none; }
+.btc-day.today.checked .btc-day-num{ background:var(--companion); color:#fff; border:none; }
+.btc-day.empty{ pointer-events:none; }
+.btc-day.other-month .btc-day-num{ color:var(--ink-soft); opacity:.35; }
+.btc-day-num{ font-size:13px; font-weight:500; color:var(--ink); line-height:1; }
+.btc-day-icons{ display:flex; flex-wrap:wrap; justify-content:center; gap:1px; margin-top:3px; max-width:100%; }
+.btc-day-icon{ font-size:10px; line-height:1; }
+.btc-day-dot{ width:5px; height:5px; border-radius:50%; background:var(--companion); }
+.btc-day-more{ font-size:8px; color:var(--ink-soft); }
+.btc-day-detail{ background:var(--chat-bg); border-radius:16px; border:1px solid var(--line); padding:14px 16px; margin-bottom:14px; }
+.btc-detail-date{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:10px; }
+.btc-detail-empty{ font-size:13px; color:var(--ink-soft); text-align:center; padding:8px 0; font-style:italic; }
+.btc-event-row{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); }
+.btc-event-row:last-child{ border-bottom:none; }
+.btc-event-emoji{ font-size:18px; width:32px; height:32px; background:var(--surface); border-radius:10px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+.btc-event-info{ flex:1; }
+.btc-event-title{ font-size:13px; font-weight:500; color:var(--ink); }
+.btc-event-sub{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+.btc-event-del{ background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:15px; padding:4px; border-radius:6px; }
+.btc-event-del:hover{ color:#e05252; background:rgba(224,82,82,.08); }
+.btc-add-section{ background:var(--chat-bg); border-radius:16px; border:1px solid var(--line); padding:14px 16px; margin-bottom:14px; }
+.btc-add-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+.btc-checkin-btn{ width:100%; padding:16px; border-radius:16px; background:var(--companion); color:#fff; border:none; font-size:16px; font-weight:700; font-family:inherit; cursor:pointer; transition:opacity .15s; margin-top:4px; }
+.btc-checkin-btn:active{ opacity:.85; }
+.btc-checkin-btn:disabled{ opacity:.45; cursor:default; }
+.btc-checkin-done{ width:100%; padding:16px; border-radius:16px; background:var(--surface); color:var(--ink-soft); border:1.5px solid var(--line); font-size:15px; font-weight:600; font-family:inherit; text-align:center; margin-top:4px; }
+.btc-achieve-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.btc-badge{ display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 8px; border-radius:12px; flex:1; min-width:60px; border:1.5px solid var(--line); background:var(--chat-bg); }
+.btc-badge.unlocked{ border-color:var(--companion); background:var(--companion-soft); }
+.btc-badge.super{ border-color:#f0a03e; background:rgba(240,160,62,.1); }
+.btc-badge-emoji{ font-size:20px; }
+.btc-badge-label{ font-size:9px; color:var(--ink-soft); text-align:center; line-height:1.3; font-weight:600; }
+.btc-badge.unlocked .btc-badge-label{ color:var(--companion); }
+.btc-badge.super .btc-badge-label{ color:#e07a20; }
+.btc-hint{ font-size:12px; color:var(--ink-soft); text-align:center; padding:8px 0 4px; }
+.btc-period-day .btc-day-num{ color:var(--period-color,#e84c78) !important; font-weight:600; }
+.btc-period-day{ background:rgba(232,76,120,.07); border-radius:12px; }
 /* ---- Download overlay ---- */
 .dl-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:center; justify-content:center; padding:24px; }
 .dl-overlay.hidden{ display:none; }
@@ -2417,46 +2481,80 @@ textarea.mid{ min-height:90px; }
     </div>
 
     <!-- CALENDAR VIEW -->
-    <div class="view hidden" id="calendarView">
-      <div class="social-hdr">
+    <div class="view hidden btc-page" id="calendarView">
+      <!-- Header -->
+      <div class="btc-header">
         <button class="icon-btn" id="calBackBtn" type="button" style="font-size:18px;">←</button>
-        <span class="social-hdr-title">📅 行事曆</span>
-        <div style="width:36px;"></div>
+        <span class="btc-header-title">行事曆</span>
+        <div class="btc-header-side"></div>
       </div>
-      <div class="cal-sheet-body" style="flex:1; overflow-y:auto;">
-        <!-- 生理期顯示 -->
-        <div id="calPeriodStrip" class="period-info-strip" style="display:none; margin-bottom:var(--space-lg);">
+
+      <!-- Stats row -->
+      <div class="btc-stats-row">
+        <div class="btc-stat-item">
+          <div class="btc-stat-num accent" id="calStatEvents">0</div>
+          <div class="btc-stat-label">本月事項</div>
+        </div>
+        <div class="btc-stat-item">
+          <div class="btc-stat-num" id="calStatAnni">0</div>
+          <div class="btc-stat-label">紀念日</div>
+        </div>
+        <div class="btc-stat-item" id="calStatPeriodItem" style="display:none;">
+          <div class="btc-stat-num" id="calStatPeriod">—</div>
+          <div class="btc-stat-label">生理期</div>
+        </div>
+      </div>
+
+      <!-- Filter chips -->
+      <div class="btc-filter-row">
+        <div class="btc-chip active" id="calChipAll" data-filter="all">全部</div>
+        <div class="btc-chip" id="calChipEvent" data-filter="event">📝 事項</div>
+        <div class="btc-chip" id="calChipAnni" data-filter="anni">🎂 紀念日</div>
+        <div class="btc-chip" id="calChipCheckin" data-filter="checkin">🌙 打卡</div>
+        <div class="btc-chip" id="calChipPeriod" data-filter="period">🌸 生理期</div>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="btc-body">
+        <!-- 生理期狀態（縮小版）-->
+        <div id="calPeriodStrip" class="period-info-strip" style="display:none; margin-bottom:14px;">
           <div class="period-info-label">🌸 生理期</div>
           <div class="period-info-range" id="calPeriodRange"></div>
         </div>
 
-        <div class="cal-month-nav">
-          <button class="cal-nav" id="calOvPrev" type="button">‹</button>
-          <div class="cal-month-label" id="calOvMonthLabel"></div>
-          <button class="cal-nav" id="calOvNext" type="button">›</button>
+        <!-- Calendar card -->
+        <div class="btc-cal-card">
+          <div class="btc-month-nav">
+            <button class="btc-month-btn" id="calOvPrev" type="button">‹</button>
+            <div class="btc-month-title" id="calOvMonthLabel"></div>
+            <button class="btc-month-btn" id="calOvNext" type="button">›</button>
+          </div>
+          <div class="btc-weekdays">
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+          </div>
+          <div class="btc-grid" id="calOvGrid"></div>
         </div>
-        <div class="cal-full-weekdays">
-          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+
+        <!-- Day detail -->
+        <div class="btc-day-detail" id="calOvDayDetail" style="display:none;">
+          <div class="btc-detail-date" id="calOvDayLabel"></div>
+          <div id="calOvDayList"></div>
         </div>
-        <div class="cal-full-grid" id="calOvGrid"></div>
+        <div class="btc-hint" id="calOvNoSel">點選日期查看當天記錄</div>
 
-        <!-- 選中日期詳情（點日期才顯示）-->
-        <div id="calOvDayDetail" style="display:none;">
-          <div class="cal-section-label" id="calOvDayLabel"></div>
-          <div id="calOvDayList" class="cal-event-list"></div>
+        <!-- Anniversaries -->
+        <div class="btc-add-section" style="margin-bottom:14px;">
+          <div class="btc-add-title">
+            <span>🎂 紀念日</span>
+          </div>
+          <div id="calAnniList"></div>
         </div>
-        <div id="calOvNoSel" class="cal-day-empty-hint">點選日期查看當天記錄</div>
 
-        <!-- 紀念日分欄（永遠顯示）-->
-        <div class="cal-section-divider"></div>
-        <div class="cal-section-label">🎂 紀念日</div>
-        <div id="calAnniList" class="cal-event-list"></div>
-
-        <!-- 新增事項 -->
-        <div class="cal-add-section">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <h3 style="margin:0;">📝 新增事項</h3>
-            <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:16px;padding:4px 8px;">⚙</button>
+        <!-- Add event section -->
+        <div class="btc-add-section">
+          <div class="btc-add-title">
+            <span>✨ 新增事項</span>
+            <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:15px;">⚙</button>
           </div>
           <div class="cal-add-row">
             <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
@@ -2467,7 +2565,7 @@ textarea.mid{ min-height:90px; }
           <div class="cal-add-row">
             <select id="calAddType" class="select-category"></select>
           </div>
-          <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">✨ 新增事項</button>
+          <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">新增事項</button>
         </div>
       </div>
     </div>
@@ -2589,42 +2687,51 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
-<!-- ============ CHECKIN CALENDAR OVERLAY ============ -->
-<div class="cal-overlay hidden" id="ciCalOverlay">
-  <div class="cal-sheet">
-    <div class="cal-sheet-head">
-      <div class="cal-sheet-title">🌙 打卡記錄</div>
-      <button class="icon-btn" id="ciCalClose" type="button">✕</button>
+<!-- ============ CHECKIN VIEW (full-page) ============ -->
+<div class="view hidden btc-page" id="checkinView">
+  <!-- Header -->
+  <div class="btc-header">
+    <button class="icon-btn" id="ciBackBtn" type="button" style="font-size:18px;">←</button>
+    <span class="btc-header-title">每日打卡</span>
+    <div class="btc-header-side"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="btc-stats-row">
+    <div class="btc-stat-item">
+      <div class="btc-stat-num accent" id="ciStreakNum">0</div>
+      <div class="btc-stat-label">🔥 連續天數</div>
     </div>
-    <div class="cal-sheet-body" style="display:flex;flex-direction:column;">
-      <div class="cal-month-nav">
-        <button class="cal-nav" id="ciCalPrev" type="button">‹</button>
-        <div class="cal-month-label" id="ciCalMonthLabel"></div>
-        <button class="cal-nav" id="ciCalNext" type="button">›</button>
+    <div class="btc-stat-item">
+      <div class="btc-stat-num" id="ciMonthNum">0</div>
+      <div class="btc-stat-label">📅 本月打卡</div>
+    </div>
+    <div class="btc-stat-item">
+      <div class="btc-stat-num" id="ciTotalNum">0</div>
+      <div class="btc-stat-label">✨ 累計打卡</div>
+    </div>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="btc-body">
+    <!-- Calendar card -->
+    <div class="btc-cal-card">
+      <div class="btc-month-nav">
+        <button class="btc-month-btn" id="ciCalPrev" type="button">‹</button>
+        <div class="btc-month-title" id="ciCalMonthLabel"></div>
+        <button class="btc-month-btn" id="ciCalNext" type="button">›</button>
       </div>
-      <div class="cal-full-weekdays">
+      <div class="btc-weekdays">
         <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
       </div>
-      <div class="cal-full-grid ci-cal-grid-styled" id="ciCalGrid"></div>
-
-      <!-- 獎勵和統計放在下方 -->
-      <div class="ci-achievements" id="ciAchievements" style="margin-bottom:var(--space-lg);"></div>
-      <div class="ci-cal-stats">
-        <div class="ci-stat-box">
-          <div class="ci-stat-num" id="ciStreakNum">0</div>
-          <div class="ci-stat-label">連續天數</div>
-        </div>
-        <div class="ci-stat-box">
-          <div class="ci-stat-num" id="ciMonthNum">0</div>
-          <div class="ci-stat-label">本月打卡</div>
-        </div>
-        <div class="ci-stat-box">
-          <div class="ci-stat-num" id="ciTotalNum">0</div>
-          <div class="ci-stat-label">累計打卡</div>
-        </div>
-      </div>
-      <button class="btn primary" id="ciCheckinBtn" type="button" style="width:100%;text-align:center;">🌙 今日打卡</button>
+      <div class="btc-grid" id="ciCalGrid"></div>
     </div>
+
+    <!-- Achievements -->
+    <div class="btc-achieve-row" id="ciAchievements"></div>
+
+    <!-- Check-in button -->
+    <button class="btc-checkin-btn" id="ciCheckinBtn" type="button">🌙 今日打卡</button>
   </div>
 </div>
 
@@ -3466,7 +3573,7 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView','chessView','calendarView','todayQaView'];
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','withMeView','chessView','calendarView','todayQaView','checkinView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
   }
@@ -4627,19 +4734,7 @@ textarea.mid{ min-height:90px; }
     if(done) btn.classList.add('done'); else btn.classList.remove('done');
   }
   $('checkinBtn').addEventListener('click', function(){
-    var today = todayLabel();
-    if(!checkin.history) checkin.history = [];
-    if(checkin.lastDate !== today){
-      var d = new Date(); d.setDate(d.getDate()-1);
-      var yest = d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
-      checkin.streak = (checkin.lastDate === yest) ? checkin.streak + 1 : 1;
-      checkin.lastDate = today;
-      if(checkin.history.indexOf(today) < 0) checkin.history.push(today);
-      save(KEYS.checkin, checkin);
-      updateCheckinBtn();
-      showCheckinToast('打卡成功！✨  連續 ' + checkin.streak + ' 天');
-    }
-    openCiCalOverlay();
+    openCheckinView();
   });
 
   /* ============ Calendar Overlay ============ */
@@ -4722,120 +4817,184 @@ textarea.mid{ min-height:90px; }
     return items;
   }
 
+  var calFilter = 'all';
+  function setCalFilter(f){
+    calFilter = f;
+    ['all','event','anni','checkin','period'].forEach(function(id){
+      var el = $('calChip'+id.charAt(0).toUpperCase()+id.slice(1));
+      if(el) el.className = 'btc-chip' + (id===f?' active':'');
+    });
+    renderCalOvGrid();
+  }
+  ['all','event','anni','checkin','period'].forEach(function(f){
+    var el = $('calChip'+f.charAt(0).toUpperCase()+f.slice(1));
+    if(el) el.addEventListener('click', function(){ setCalFilter(f); });
+  });
+
   function renderCalOvGrid(){
     $('calOvMonthLabel').textContent = calOvYear + '年 ' + (calOvMonth+1) + '月';
     var grid = $('calOvGrid'); grid.innerHTML = '';
+
+    // Build date → items map
     var dotItems = getAllCalDotItems();
     var dateMap = {};
     dotItems.forEach(function(it){
       var d = parseMemDate(it.date); if(!d) return;
+      if(calFilter !== 'all' && it.type !== calFilter) return;
       var key = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
       if(!dateMap[key]) dateMap[key] = [];
-      dateMap[key].push(it.type);
+      dateMap[key].push(it);
     });
+
+    // Checkin history overlay
+    var ciHistory = (calFilter==='all'||calFilter==='checkin') ? (checkin.history||[]) : [];
+
     var today = new Date();
     var firstDow = new Date(calOvYear, calOvMonth, 1).getDay();
     var daysInMon = new Date(calOvYear, calOvMonth+1, 0).getDate();
+
     for(var i=0;i<firstDow;i++){
-      var emp=document.createElement('div'); emp.className='cal-full-day cal-fd-empty'; grid.appendChild(emp);
+      var emp=document.createElement('div'); emp.className='btc-day empty'; grid.appendChild(emp);
     }
     for(var d=1;d<=daysInMon;d++){
-      var btn=document.createElement('button'); btn.type='button';
+      var cell=document.createElement('div'); cell.type='button';
       var isToday=d===today.getDate()&&calOvMonth===today.getMonth()&&calOvYear===today.getFullYear();
-      var date = new Date(calOvYear, calOvMonth, d);
-      var periodClasses='';
-      if(periodStartDate && periodEndDate){
-        var dTime=date.getTime(), sTime=periodStartDate.getTime(), eTime=periodEndDate.getTime();
-        if(dTime>=sTime && dTime<=eTime){
-          var dow=date.getDay();
-          periodClasses=' period-in-range'+(dTime===sTime||dow===0?' period-range-start':'')+(dTime===eTime||dow===6?' period-range-end':'');
-        }
+      var date=new Date(calOvYear,calOvMonth,d);
+
+      // Period highlight
+      var inPeriod=false;
+      if(periodStartDate&&periodEndDate){
+        var dT=date.getTime(),sT=periodStartDate.getTime(),eT=periodEndDate.getTime();
+        if(dT>=sT&&dT<=eT) inPeriod=true;
       }
-      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+periodClasses;
-      var numSpan=document.createElement('span'); numSpan.className='pnum'; numSpan.textContent=d; btn.appendChild(numSpan);
+
+      var isSelected=(d===calOvSelDay);
+      cell.className='btc-day'+(isToday?' today':'')+(isSelected?' selected':'')+(inPeriod?' btc-period-day':'');
+
+      var numEl=document.createElement('div'); numEl.className='btc-day-num'; numEl.textContent=d; cell.appendChild(numEl);
+
       var key2=calOvYear+'-'+(calOvMonth+1)+'-'+d;
-      var types=dateMap[key2]||[];
-      if(types.length){
-        var dotWrap=document.createElement('div'); dotWrap.className='cal-fd-dot';
-        var shown={};
-        types.forEach(function(tp){ if(!shown[tp]){ shown[tp]=1; var s=document.createElement('span'); s.className='d-'+tp; dotWrap.appendChild(s); } });
-        btn.appendChild(dotWrap);
+      var items=dateMap[key2]||[];
+
+      // Checkin dot
+      var dateStr2=calOvYear+'年'+(calOvMonth+1)+'月'+d+'日';
+      var hasCi=ciHistory.indexOf(dateStr2)>=0;
+
+      var icons=[];
+      if(hasCi) icons.push('🌙');
+      if(inPeriod&&(calFilter==='all'||calFilter==='period')) icons.push('🌸');
+      items.forEach(function(it){
+        var emojiMap={event:'📝',anni:'🎂',birthday:'🎂',health:'💪',period:'🌸'};
+        var em=emojiMap[it.type]||'📌';
+        if(icons.indexOf(em)<0) icons.push(em);
+      });
+
+      if(icons.length){
+        var iconWrap=document.createElement('div'); iconWrap.className='btc-day-icons';
+        icons.slice(0,2).forEach(function(ic){
+          var sp=document.createElement('span'); sp.className='btc-day-icon'; sp.textContent=ic;
+          iconWrap.appendChild(sp);
+        });
+        if(icons.length>2){
+          var more=document.createElement('span'); more.className='btc-day-more'; more.textContent='+';
+          iconWrap.appendChild(more);
+        }
+        cell.appendChild(iconWrap);
       }
-      (function(day){ btn.addEventListener('click',function(){
+
+      (function(day){ cell.addEventListener('click',function(){
         calOvSelDay=day;
-        var dateStr=calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
-        calAddDateVal=dateStr; $('calAddDate').value=dateStr;
-        renderDayDetail(day);
+        var ds=calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
+        calAddDateVal=ds; $('calAddDate').value=ds;
+        renderCalOvGrid(); renderDayDetail(day);
       }); })(d);
-      grid.appendChild(btn);
+      grid.appendChild(cell);
     }
+
+    // Update stats
+    var evThisMonth=events.filter(function(ev){
+      var d=parseMemDate(ev.date); return d&&d.getFullYear()===calOvYear&&d.getMonth()===calOvMonth;
+    }).length;
+    var anniCount=(anniversaries||[]).length;
+    if($('calStatEvents')) $('calStatEvents').textContent=evThisMonth;
+    if($('calStatAnni'))   $('calStatAnni').textContent=anniCount;
   }
+
+  var TYPE_EMOJI = { event:'📝', anniversary:'🎂', birthday:'🎂', health:'💪', period:'🌸', journal:'📖' };
 
   function renderDayDetail(day){
     var detail=$('calOvDayDetail'), nosel=$('calOvNoSel'), list=$('calOvDayList');
     list.innerHTML='';
     if(day==null){ detail.style.display='none'; nosel.style.display=''; return; }
     detail.style.display='block'; nosel.style.display='none';
-    $('calOvDayLabel').textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
+    var wdays=['日','一','二','三','四','五','六'];
+    var dateObj=new Date(calOvYear,calOvMonth,day);
+    $('calOvDayLabel').textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日（'+wdays[dateObj.getDay()]+'）';
     var items=getAllCalItems();
     var filtered=items.filter(function(it){
       var d=parseMemDate(it.date); if(!d) return false;
       return d.getFullYear()===calOvYear&&d.getMonth()===calOvMonth&&d.getDate()===day;
     });
-    if(!filtered.length){ list.innerHTML='<div style="font-size:12.5px;color:var(--ink-soft);padding:6px 0 2px;">這天沒有記錄</div>'; return; }
+    // Also show checkin
+    var dateStr=calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
+    var hasCi=(checkin.history||[]).indexOf(dateStr)>=0;
+    if(hasCi) filtered.unshift({ title:'每日打卡 ✓', type:'checkin', _ci:true });
+
+    if(!filtered.length){ list.innerHTML='<div class="btc-detail-empty">這天沒有記錄</div>'; return; }
     filtered.forEach(function(it){
-      var item=document.createElement('div'); item.className='cal-event-item';
-      var dot=document.createElement('div'); dot.className='cal-ev-dot '+(it.type||'event');
-      var info=document.createElement('div'); info.className='cal-ev-info';
-      var titleEl=document.createElement('div'); titleEl.className='cal-ev-title'; titleEl.textContent=it.title;
+      var row=document.createElement('div'); row.className='btc-event-row';
+      var em=document.createElement('div'); em.className='btc-event-emoji';
+      em.textContent = it._ci ? '🌙' : (TYPE_EMOJI[it.type]||'📌');
+      var info=document.createElement('div'); info.className='btc-event-info';
+      var titleEl=document.createElement('div'); titleEl.className='btc-event-title'; titleEl.textContent=it.title;
       info.appendChild(titleEl);
-      item.appendChild(dot); item.appendChild(info);
-      if(it.id && it.type==='event'){
-        var del=document.createElement('button'); del.className='cal-ev-del'; del.title='刪除'; del.textContent='✕';
+      row.appendChild(em); row.appendChild(info);
+      if(it.id && (it.type==='event'||it.type==='anniversary')){
+        var del=document.createElement('button'); del.className='btc-event-del'; del.textContent='✕';
         (function(id){ del.addEventListener('click',function(){
           events=events.filter(function(x){ return x.id!==id; });
           save(KEYS.events,events); renderCalOvGrid(); renderDayDetail(calOvSelDay); renderAnniSection(); updateCountdown();
         }); })(it.id);
-        item.appendChild(del);
+        row.appendChild(del);
       }
       if(it.jIdx !== undefined){
-        var delJ=document.createElement('button'); delJ.className='cal-ev-del'; delJ.title='刪除日記'; delJ.textContent='✕';
+        var delJ=document.createElement('button'); delJ.className='btc-event-del'; delJ.textContent='✕';
         (function(idx){ delJ.addEventListener('click',function(){
           journal.splice(idx,1);
           save(KEYS.journal,journal); renderCalOvGrid(); renderDayDetail(calOvSelDay);
         }); })(it.jIdx);
-        item.appendChild(delJ);
+        row.appendChild(delJ);
       }
-      list.appendChild(item);
+      list.appendChild(row);
     });
   }
 
   function renderAnniSection(){
     var list=$('calAnniList'); list.innerHTML='';
     var annis=events.filter(function(e){ return e.type==='anniversary'; });
-    if(!annis.length){ list.innerHTML='<div style="font-size:12.5px;color:var(--ink-soft);padding:6px 0;">尚未新增紀念日</div>'; return; }
+    if(!annis.length){ list.innerHTML='<div class="btc-detail-empty">尚未新增紀念日</div>'; return; }
     var today=new Date(); today.setHours(0,0,0,0);
     annis.forEach(function(e){
-      var item=document.createElement('div'); item.className='cal-anni-item';
-      var dot=document.createElement('div'); dot.className='cal-anni-dot';
-      var info=document.createElement('div'); info.className='cal-anni-info';
-      var titleEl=document.createElement('div'); titleEl.className='cal-anni-title'; titleEl.textContent=e.title;
+      var row=document.createElement('div'); row.className='btc-event-row';
+      var em=document.createElement('div'); em.className='btc-event-emoji'; em.textContent='🎂';
+      var info=document.createElement('div'); info.className='btc-event-info';
+      var titleEl=document.createElement('div'); titleEl.className='btc-event-title'; titleEl.textContent=e.title;
       var d=parseMemDate(e.date);
-      var countdownEl=document.createElement('div'); countdownEl.className='cal-anni-countdown';
+      var sub=document.createElement('div'); sub.className='btc-event-sub';
       if(d){
         var next=new Date(today.getFullYear(),d.getMonth(),d.getDate()); next.setHours(0,0,0,0);
         if(next<today) next.setFullYear(today.getFullYear()+1);
         var diff=Math.round((next-today)/86400000);
-        countdownEl.textContent = diff===0 ? '🎉 今天就是！' : '距離還有 '+diff+' 天  ·  每年 '+(d.getMonth()+1)+'月'+d.getDate()+'日';
+        sub.textContent = diff===0 ? '🎉 今天就是！' : '還有 '+diff+' 天  ·  每年 '+(d.getMonth()+1)+'月'+d.getDate()+'日';
       }
-      info.appendChild(titleEl); info.appendChild(countdownEl);
-      var del=document.createElement('button'); del.className='cal-anni-del'; del.title='刪除'; del.textContent='✕';
+      info.appendChild(titleEl); info.appendChild(sub);
+      var del=document.createElement('button'); del.className='btc-event-del'; del.textContent='✕';
       (function(id){ del.addEventListener('click',function(){
         events=events.filter(function(x){ return x.id!==id; });
         save(KEYS.events,events); renderAnniSection(); updateCountdown();
       }); })(e.id);
-      item.appendChild(dot); item.appendChild(info); item.appendChild(del);
-      list.appendChild(item);
+      row.appendChild(em); row.appendChild(info); row.appendChild(del);
+      list.appendChild(row);
     });
   }
 
@@ -5809,18 +5968,24 @@ textarea.mid{ min-height:90px; }
     var daysInMon=new Date(ciCalYear,ciCalMonth+1,0).getDate();
     var monthCount=0;
     for(var i=0;i<firstDow;i++){
-      var e=document.createElement('div'); e.className='cal-full-day cal-fd-empty'; grid.appendChild(e);
+      var e=document.createElement('div'); e.className='btc-day empty'; grid.appendChild(e);
     }
     for(var d=1;d<=daysInMon;d++){
       var dateStr=ciCalYear+'年'+(ciCalMonth+1)+'月'+d+'日';
       var isToday=d===today.getDate()&&ciCalMonth===today.getMonth()&&ciCalYear===today.getFullYear();
       var isDone=history.indexOf(dateStr)>=0;
       if(isDone) monthCount++;
-      var btn=document.createElement('div');
-      var doneClass=isDone?' ci-done-'+Math.min(Math.floor((d-1)/7)+1,4):'';
-      btn.className='cal-full-day'+(isToday?' cal-fd-today':'')+doneClass;
-      btn.textContent=d;
-      grid.appendChild(btn);
+      var cell=document.createElement('div');
+      var cls='btc-day'+(isToday?' today':'')+(isDone?' checked':'');
+      cell.className=cls;
+      var numEl=document.createElement('div'); numEl.className='btc-day-num'; numEl.textContent=d;
+      cell.appendChild(numEl);
+      if(isDone){
+        var ic=document.createElement('div'); ic.className='btc-day-icons';
+        ic.innerHTML='<span class="btc-day-icon">🌙</span>';
+        cell.appendChild(ic);
+      }
+      grid.appendChild(cell);
     }
     var streak = checkin.streak || 0;
     $('ciStreakNum').textContent = streak;
@@ -5829,26 +5994,26 @@ textarea.mid{ min-height:90px; }
     // Update check-in button state
     var todayDone = checkin.lastDate === todayLabel();
     var ciBtn = $('ciCheckinBtn');
-    if(todayDone){ ciBtn.textContent='✅ 今天已打卡'; ciBtn.disabled=true; ciBtn.style.opacity='.5'; }
-    else{ ciBtn.textContent='🌙 今日打卡'; ciBtn.disabled=false; ciBtn.style.opacity='1'; }
+    if(todayDone){ ciBtn.textContent='✅ 今天已打卡'; ciBtn.disabled=true; ciBtn.className='btc-checkin-btn'; ciBtn.style.opacity='.45'; }
+    else{ ciBtn.textContent='🌙 今日打卡'; ciBtn.disabled=false; ciBtn.className='btc-checkin-btn'; ciBtn.style.opacity='1'; }
     // Render achievements
     var ach = $('ciAchievements'); ach.innerHTML='';
     CI_ACHIEVEMENTS.forEach(function(a){
       var unlocked = a.type==='streak' ? streak>=a.threshold : monthCount===daysInMon;
       var badge = document.createElement('div');
-      badge.className='ci-achieve-badge '+(unlocked?(a.id==='month'?'super':'unlocked'):'locked');
-      badge.innerHTML='<span class="ci-badge-emoji">'+(unlocked?a.emoji:'🔒')+'</span><span class="ci-badge-label">'+a.label+(a.type==='streak'?'<br>'+a.threshold+'天':'')+'</span>';
+      badge.className='btc-badge '+(unlocked?(a.id==='month'?'super':'unlocked'):'');
+      badge.innerHTML='<span class="btc-badge-emoji">'+(unlocked?a.emoji:'🔒')+'</span><span class="btc-badge-label">'+a.label+(a.type==='streak'?'<br>'+a.threshold+'天':'')+'</span>';
       ach.appendChild(badge);
     });
   }
-  function openCiCalOverlay(){
+  function openCheckinView(){
     ciCalYear=new Date().getFullYear(); ciCalMonth=new Date().getMonth();
     renderCiCalGrid();
-    renderCiRecentList();
-    $('ciCalOverlay').classList.remove('hidden');
+    showOnly('checkinView');
   }
-  $('ciCalClose').addEventListener('click',function(){ $('ciCalOverlay').classList.add('hidden'); });
-  $('ciCalOverlay').addEventListener('click',function(e){ if(e.target===$('ciCalOverlay')) $('ciCalOverlay').classList.add('hidden'); });
+  // legacy alias
+  function openCiCalOverlay(){ openCheckinView(); }
+  $('ciBackBtn').addEventListener('click', showHome);
   $('starFeedHistBtn').addEventListener('click', function(){
     renderStarFeedHistory();
     $('starFeedHistOverlay').classList.remove('hidden');
