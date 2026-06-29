@@ -2719,6 +2719,44 @@ textarea.mid{ min-height:90px; }
       </div>
     </div>
 
+    <!-- ============ CHECKIN VIEW (full-page) ============ -->
+    <div class="view hidden btc-page" id="checkinView">
+      <div class="btc-header">
+        <button class="icon-btn" id="ciBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="btc-header-title">每日打卡</span>
+        <div class="btc-header-side"></div>
+      </div>
+      <div class="btc-stats-row">
+        <div class="btc-stat-item">
+          <div class="btc-stat-num accent" id="ciStreakNum">0</div>
+          <div class="btc-stat-label">🔥 連續天數</div>
+        </div>
+        <div class="btc-stat-item">
+          <div class="btc-stat-num" id="ciMonthNum">0</div>
+          <div class="btc-stat-label">📅 本月打卡</div>
+        </div>
+        <div class="btc-stat-item">
+          <div class="btc-stat-num" id="ciTotalNum">0</div>
+          <div class="btc-stat-label">✨ 累計打卡</div>
+        </div>
+      </div>
+      <div class="btc-body">
+        <div class="btc-cal-card">
+          <div class="btc-month-nav">
+            <button class="btc-month-btn" id="ciCalPrev" type="button">‹</button>
+            <div class="btc-month-title" id="ciCalMonthLabel"></div>
+            <button class="btc-month-btn" id="ciCalNext" type="button">›</button>
+          </div>
+          <div class="btc-weekdays">
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+          </div>
+          <div class="btc-grid" id="ciCalGrid"></div>
+        </div>
+        <div class="btc-achieve-row" id="ciAchievements"></div>
+        <button class="btc-checkin-btn" id="ciCheckinBtn" type="button">🌙 今日打卡</button>
+      </div>
+    </div>
+
     <div class="saved-chip" id="savedChip">已儲存 ✓</div>
 
     <!-- ============ KNOWLEDGE EVENT EDITOR ============ -->
@@ -2836,53 +2874,6 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
-<!-- ============ CHECKIN VIEW (full-page) ============ -->
-<div class="view hidden btc-page" id="checkinView">
-  <!-- Header -->
-  <div class="btc-header">
-    <button class="icon-btn" id="ciBackBtn" type="button" style="font-size:18px;">←</button>
-    <span class="btc-header-title">每日打卡</span>
-    <div class="btc-header-side"></div>
-  </div>
-
-  <!-- Stats -->
-  <div class="btc-stats-row">
-    <div class="btc-stat-item">
-      <div class="btc-stat-num accent" id="ciStreakNum">0</div>
-      <div class="btc-stat-label">🔥 連續天數</div>
-    </div>
-    <div class="btc-stat-item">
-      <div class="btc-stat-num" id="ciMonthNum">0</div>
-      <div class="btc-stat-label">📅 本月打卡</div>
-    </div>
-    <div class="btc-stat-item">
-      <div class="btc-stat-num" id="ciTotalNum">0</div>
-      <div class="btc-stat-label">✨ 累計打卡</div>
-    </div>
-  </div>
-
-  <!-- Scrollable body -->
-  <div class="btc-body">
-    <!-- Calendar card -->
-    <div class="btc-cal-card">
-      <div class="btc-month-nav">
-        <button class="btc-month-btn" id="ciCalPrev" type="button">‹</button>
-        <div class="btc-month-title" id="ciCalMonthLabel"></div>
-        <button class="btc-month-btn" id="ciCalNext" type="button">›</button>
-      </div>
-      <div class="btc-weekdays">
-        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
-      </div>
-      <div class="btc-grid" id="ciCalGrid"></div>
-    </div>
-
-    <!-- Achievements -->
-    <div class="btc-achieve-row" id="ciAchievements"></div>
-
-    <!-- Check-in button -->
-    <button class="btc-checkin-btn" id="ciCheckinBtn" type="button">🌙 今日打卡</button>
-  </div>
-</div>
 
 <!-- ============ SOCIAL PROFILE EDITOR OVERLAY ============ -->
 <div class="cal-overlay hidden" id="socialProfileEditorOverlay">
