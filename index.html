@@ -3612,7 +3612,10 @@ textarea.mid{ min-height:90px; }
     <div class="avatar-preset-section">
       <div class="avatar-preset-label">預設頭像</div>
       <div class="avatar-preset-row" id="userAvatarPresetRow">
-        <!-- 預設頭像由使用者新增後放入 user portrait/ 資料夾 -->
+        <img class="avatar-preset-item" src="my head portrait/1.png" alt="1" data-userpreset="my head portrait/1.png">
+        <img class="avatar-preset-item" src="my head portrait/2.png" alt="2" data-userpreset="my head portrait/2.png">
+        <img class="avatar-preset-item" src="my head portrait/3.png" alt="3" data-userpreset="my head portrait/3.png">
+        <img class="avatar-preset-item" src="my head portrait/4.png" alt="4" data-userpreset="my head portrait/4.png">
       </div>
     </div>
     <div class="avatar-custom-label">已上傳頭像</div>
@@ -7983,9 +7986,32 @@ textarea.mid{ min-height:90px; }
     else{ el.style.backgroundImage=''; }
   }
 
+  function renderUserAvatarPresets(){
+    var items = document.querySelectorAll('[data-userpreset]');
+    items.forEach(function(el){
+      el.classList.toggle('active', el.dataset.userpreset === userAvatarActive);
+      el.onclick = function(){
+        var src = el.dataset.userpreset;
+        imgToDataUrl(src, function(dataUrl){
+          userAvatarActive = src;
+          localStorage.setItem(KEYS.userAvatarActive, userAvatarActive);
+          userAvatarUrl = dataUrl;
+          localStorage.setItem(KEYS.userAvatar, dataUrl);
+          syncAvatar();
+          document.querySelectorAll('[data-userpreset]').forEach(function(x){
+            x.classList.toggle('active', x.dataset.userpreset === src);
+          });
+          applyUserAvatarLargePreview();
+          flashSaved();
+        });
+      };
+    });
+  }
+
   function renderUserAvatarGallery(){
     var wrap = $('userAvatarGalleryWrap'); if(!wrap) return; wrap.innerHTML='';
     applyUserAvatarLargePreview();
+    renderUserAvatarPresets();
     userAvatarGallery.forEach(function(item){
       var card = document.createElement('div');
       card.style.cssText = 'position:relative;width:54px;height:54px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0;';
