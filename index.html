@@ -1033,6 +1033,9 @@ textarea.mid{ min-height:90px; }
 .token-bar-detail{ font-size:10px; color:var(--ink-soft); opacity:.7; }
 .token-bar-reset{ background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:13px; padding:1px 5px; border-radius:4px; line-height:1; opacity:.5; transition:opacity .12s, color .12s; font-family:inherit; }
 .token-bar-reset:hover{ opacity:1; color:var(--companion); }
+.or-balance{ margin-top:8px; padding:8px 12px; border-radius:8px; background:var(--surface); border:1px solid var(--line); font-size:12px; color:var(--ink-soft); display:flex; align-items:center; gap:8px; }
+.or-balance b{ color:var(--ink); font-weight:600; }
+.or-balance .or-bal-used{ opacity:.7; font-size:11px; }
 /* ---- Chat toolbar ---- */
 .chat-toolbar{ flex:0 0 auto; display:flex; align-items:center; gap:var(--space-sm); padding:var(--space-sm) var(--space-md); background:var(--surface); border-top:1px solid var(--line); }
 .chat-tool-btn{ display:flex; align-items:center; gap:4px; background:var(--chat-bg); border:1px solid var(--line); border-radius:999px; padding:5px 11px; font-family:inherit; font-size:12px; color:var(--ink-soft); cursor:pointer; white-space:nowrap; transition:border-color .1s, color .1s; }
@@ -2184,6 +2187,8 @@ textarea.mid{ min-height:90px; }
         <span class="token-bar-sep">·</span>
         <span class="token-bar-item">全部：<b id="tokenTotal">—</b></span>
         <span class="token-bar-detail" id="tokenDetail"></span>
+        <span class="token-bar-sep token-bar-balance-sep" id="tokenBalanceSep" style="display:none">·</span>
+        <span class="token-bar-item token-bar-balance-item" id="tokenBalanceItem" style="display:none">💳 餘額：<b id="tokenBalance">—</b></span>
         <button class="token-bar-reset" id="tokenReset" title="重置累計">↺</button>
       </div>
 
@@ -2327,6 +2332,7 @@ textarea.mid{ min-height:90px; }
             <button class="btn ghost" id="shareSettingsBtn" type="button">📲 手機掃碼匯入</button>
           </div>
           <div class="test-result" id="testResult"></div>
+          <div class="or-balance" id="orBalance" style="display:none"></div>
           <div class="hint" id="corsHint">
             建議用 <b>Chrome</b> 或 <b>Edge</b> 開啟。若測試連線失敗，請確認金鑰正確，或檢查瀏覽器是否擋下對外連線。
           </div>
@@ -4404,6 +4410,7 @@ textarea.mid{ min-height:90px; }
     var tab = btn.getAttribute('data-tab');
     Array.prototype.forEach.call(tabbar.querySelectorAll('.tab-btn'), function(b){ b.classList.toggle('active', b===btn); });
     Array.prototype.forEach.call(document.querySelectorAll('.panel'), function(p){ p.classList.toggle('active', p.id==='panel-'+tab); });
+    if(tab==='settings') fetchOrBalance();
   });
 
   /* ============ Header sync ============ */
@@ -4961,6 +4968,37 @@ textarea.mid{ min-height:90px; }
     else{ f.type='password'; this.textContent='顯示金鑰'; }
   });
 
+  function fetchOrBalance(){
+    var key = settings.apiKey || '';
+    var isOr = key.startsWith('sk-or-');
+    var orBalEl = $('orBalance');
+    var tbItem = $('tokenBalanceItem');
+    var tbSep  = $('tokenBalanceSep');
+    if(!isOr){ orBalEl.style.display='none'; tbItem.style.display='none'; tbSep.style.display='none'; return; }
+    orBalEl.style.display='flex'; orBalEl.innerHTML='💳 查詢餘額中…';
+    fetch('https://openrouter.ai/api/v1/auth/key', {
+      headers:{ 'Authorization':'Bearer '+key }
+    }).then(function(r){ return r.json(); }).then(function(d){
+      var data = d && d.data ? d.data : d;
+      var usage = parseFloat(data.usage || 0);
+      var limit = data.limit != null ? parseFloat(data.limit) : null;
+      var remaining = limit != null ? (limit - usage) : null;
+      var usageStr = '$' + usage.toFixed(4);
+      if(remaining != null){
+        var remStr = '$' + remaining.toFixed(4);
+        orBalEl.innerHTML = '💳 剩餘額度：<b>'+remStr+'</b> <span class="or-bal-used">｜ 已用：'+usageStr+' ／ 共 $'+limit.toFixed(2)+'</span>';
+        tbItem.style.display=''; tbSep.style.display='';
+        $('tokenBalance').textContent = remStr;
+      } else {
+        orBalEl.innerHTML = '💳 已用量：<b>'+usageStr+'</b> <span class="or-bal-used">（無用量上限）</span>';
+        tbItem.style.display=''; tbSep.style.display='';
+        $('tokenBalance').textContent = '已用 '+usageStr;
+      }
+    }).catch(function(){
+      orBalEl.innerHTML = '💳 餘額查詢失敗';
+    });
+  }
+
   $('testBtn').addEventListener('click', function(){
     settings.apiKey  = $('setApiKey').value.trim();
     if(settings.activePreset !== 'custom'){
@@ -4980,7 +5018,7 @@ textarea.mid{ min-height:90px; }
       headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey },
       body: JSON.stringify({ model:settings.model, messages:[{ role:'user', content:'回覆「OK」兩個字即可。' }], max_tokens:5 })
     }).then(function(r){
-      if(r.ok){ out.className='test-result ok'; out.textContent='✓ 連線成功！可以回聊天室開始跟卄珩對話了。'; renderThread(); }
+      if(r.ok){ out.className='test-result ok'; out.textContent='✓ 連線成功！可以回聊天室開始跟卄珩對話了。'; renderThread(); fetchOrBalance(); }
       else{ return r.text().then(function(t){ out.className='test-result err'; out.textContent='✗ 失敗（'+r.status+'）：'+t.slice(0,200); }); }
     }).catch(function(e){
       out.className='test-result err';
@@ -9703,6 +9741,7 @@ textarea.mid{ min-height:90px; }
   syncHeader();
   syncAvatar();
   renderTokenBar();
+  fetchOrBalance();
   renderUserAvatarGallery();
   fillSettings();
   fillPersona();
