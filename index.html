@@ -786,6 +786,80 @@ textarea.mid{ min-height:90px; }
 .ci-health-note:focus{ border-color:var(--companion); }
 .ci-ongoing-label{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink); cursor:pointer; padding:4px 0; }
 .ci-ongoing-label input[type=checkbox]{ accent-color:var(--period-color,#e84c78); width:16px; height:16px; flex:0 0 auto; }
+/* ---- Health Charts ---- */
+.ci-charts-section{ background:var(--chat-bg); border-radius:18px; border:1px solid var(--line); padding:14px 16px 16px; margin-top:14px; }
+.ci-charts-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.ci-chart-title{ font-size:13px; font-weight:700; color:var(--ink); }
+.ci-chart-range-sel{ font-size:11px; border:1.5px solid var(--line); border-radius:8px; padding:3px 8px; background:var(--surface); color:var(--ink-soft); font-family:inherit; cursor:pointer; outline:none; }
+.ci-chart-tabs{ display:flex; gap:5px; margin-bottom:12px; }
+.ci-chart-tab{ padding:4px 10px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); font-size:11px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-chart-tab.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
+.ci-bar-chart{ display:flex; align-items:flex-end; gap:3px; height:90px; padding-bottom:22px; position:relative; }
+.ci-bar-chart::after{ content:''; position:absolute; left:0; right:0; bottom:22px; height:1px; background:var(--line); }
+.ci-bar-wrap{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative; }
+.ci-bar-inner{ position:relative; width:100%; display:flex; align-items:flex-end; justify-content:center; flex:1; }
+.ci-bar{ width:80%; border-radius:4px 4px 0 0; background:var(--companion); opacity:.6; transition:height .3s ease; min-height:2px; }
+.ci-bar.today{ opacity:1; }
+.ci-bar-wrap.no-data .ci-bar{ background:var(--line); opacity:.3; }
+.ci-bar-date{ font-size:9px; color:var(--ink-soft); margin-top:3px; white-space:nowrap; line-height:1; }
+.ci-bar-date.today-lbl{ color:var(--companion); font-weight:700; }
+.ci-bar-val-tip{ font-size:9px; color:var(--companion); font-weight:700; position:absolute; top:-14px; left:50%; transform:translateX(-50%); white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .1s; }
+.ci-bar-wrap:hover .ci-bar-val-tip{ opacity:1; }
+/* Meal tabs */
+.ci-meal-tabs{ display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; }
+.ci-meal-tab{ padding:4px 10px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); font-size:11px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-meal-tab.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
+.ci-meal-eaten-row{ display:flex; align-items:center; margin-bottom:6px; }
+.ci-meal-eaten-cb{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink); cursor:pointer; }
+.ci-meal-eaten-cb input{ accent-color:var(--companion); width:15px; height:15px; cursor:pointer; }
+.ci-nutrient-tags{ display:flex; gap:5px; flex-wrap:wrap; }
+.ci-nutrient-tag{ padding:4px 10px; border-radius:9px; border:1.5px solid var(--line); background:var(--surface); font-size:11px; color:var(--ink-soft); cursor:pointer; transition:all .15s; user-select:none; }
+.ci-nutrient-tag.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
+/* Mood buttons */
+.ci-mood-btns{ display:flex; gap:5px; flex-wrap:wrap; }
+.ci-mood-btn{ padding:5px 10px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-mood-btn.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
+/* Sleep times */
+.ci-sleep-times{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+.ci-time-wrap{ display:flex; align-items:center; gap:5px; background:var(--surface); border:1.5px solid var(--line); border-radius:10px; padding:4px 10px; transition:border-color .15s; }
+.ci-time-wrap:focus-within{ border-color:var(--companion); }
+.ci-time-label{ font-size:11px; color:var(--ink-soft); white-space:nowrap; }
+.ci-time-input{ border:none; background:transparent; font-size:13px; font-weight:700; color:var(--ink); font-family:inherit; outline:none; cursor:pointer; width:82px; }
+/* Period in health */
+.ci-period-health-section{ border-top:1px solid rgba(232,76,120,.2); margin-top:4px; padding-top:10px; }
+.ci-period-health-title{ font-size:12px; font-weight:700; color:var(--period-color,#e84c78); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+.ci-flow-btns,.ci-period-mood-btns{ display:flex; gap:5px; flex-wrap:wrap; }
+.ci-flow-btn,.ci-period-mood-btn{ padding:4px 11px; border-radius:9px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-flow-btn.active,.ci-period-mood-btn.active{ border-color:var(--period-color,#e84c78); background:rgba(232,76,120,.08); color:var(--period-color,#e84c78); font-weight:700; }
+.ci-discomfort-btns{ display:flex; gap:4px; }
+.ci-discomfort-btn{ width:30px; height:30px; border-radius:50%; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; display:flex; align-items:center; justify-content:center; }
+.ci-discomfort-btn.active{ border-color:var(--period-color,#e84c78); background:rgba(232,76,120,.08); color:var(--period-color,#e84c78); font-weight:700; }
+/* Day detail modal */
+.ci-day-modal{ position:fixed; inset:0; z-index:800; display:flex; flex-direction:column; justify-content:flex-end; pointer-events:none; }
+.ci-day-modal.open{ pointer-events:auto; }
+.ci-day-modal-overlay{ position:absolute; inset:0; background:rgba(0,0,0,.32); opacity:0; transition:opacity .25s; }
+.ci-day-modal.open .ci-day-modal-overlay{ opacity:1; }
+.ci-day-modal-sheet{ background:var(--bg); border-radius:22px 22px 0 0; padding:0 18px 32px; max-height:80vh; overflow-y:auto; position:relative; transform:translateY(100%); transition:transform .28s cubic-bezier(.32,0,.3,1); }
+.ci-day-modal.open .ci-day-modal-sheet{ transform:translateY(0); }
+.ci-day-modal-handle{ width:36px; height:4px; border-radius:2px; background:var(--line); margin:14px auto 0; }
+.ci-day-modal-header{ display:flex; align-items:center; justify-content:space-between; padding:14px 0 10px; border-bottom:1px solid var(--line); }
+.ci-day-modal-date{ font-size:15px; font-weight:700; color:var(--ink); }
+.ci-day-modal-close{ font-size:18px; color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:50%; }
+.ci-dm-row{ display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-top:1px solid var(--line); }
+.ci-dm-icon{ font-size:18px; flex:0 0 26px; text-align:center; padding-top:2px; }
+.ci-dm-info{ flex:1; min-width:0; }
+.ci-dm-label{ font-size:10px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.ci-dm-val{ font-size:13px; color:var(--ink); line-height:1.6; }
+.ci-clock-display{ display:flex; align-items:center; gap:8px; margin-top:4px; }
+.ci-clock-item{ display:flex; align-items:center; gap:4px; font-size:14px; font-weight:700; color:var(--companion); }
+.ci-dm-meal-row{ display:flex; align-items:center; gap:8px; padding:3px 0; }
+.ci-dm-meal-name{ font-size:11px; color:var(--ink-soft); width:38px; flex:0 0 auto; }
+.ci-dm-meal-tags{ display:flex; gap:4px; flex-wrap:wrap; }
+.ci-dm-meal-tag{ font-size:10px; padding:2px 7px; border-radius:6px; background:var(--companion-soft); color:var(--companion); font-weight:600; }
+.ci-dm-meal-tag.no-eat{ background:var(--line); color:var(--ink-soft); }
+.ci-no-data{ text-align:center; padding:28px 0 8px; color:var(--ink-soft); font-size:13px; line-height:2.2; }
+.btc-day-health{ display:flex; justify-content:center; gap:2px; margin-top:2px; }
+.btc-day-hdot{ width:4px; height:4px; border-radius:50%; }
 /* ---- Download overlay ---- */
 .dl-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:center; justify-content:center; padding:24px; }
 .dl-overlay.hidden{ display:none; }
@@ -2971,13 +3045,31 @@ textarea.mid{ min-height:90px; }
         </div>
         <div class="btc-achieve-row" id="ciAchievements"></div>
         <button class="btc-checkin-btn" id="ciCheckinBtn" type="button">🌙 今日打卡</button>
+        <!-- Charts section -->
+        <div class="ci-charts-section" id="ciChartsSection">
+          <div class="ci-charts-header">
+            <span class="ci-chart-title">📊 近期趨勢</span>
+            <select id="ciChartRange" class="ci-chart-range-sel">
+              <option value="7">7 天</option>
+              <option value="14">14 天</option>
+              <option value="30">30 天</option>
+            </select>
+          </div>
+          <div class="ci-chart-tabs" id="ciChartTabs">
+            <button class="ci-chart-tab active" data-chart="sleep" type="button">😴 睡眠</button>
+            <button class="ci-chart-tab" data-chart="water" type="button">💧 飲水</button>
+            <button class="ci-chart-tab" data-chart="mood" type="button">💕 心情</button>
+          </div>
+          <div class="ci-bar-chart" id="ciBarChart"></div>
+        </div>
         <!-- Health module -->
         <div class="ci-health-card" id="ciHealthCard">
           <div class="ci-health-title">🌿 今日健康紀錄</div>
+          <!-- Sleep -->
           <div class="ci-health-row">
             <div class="ci-health-icon">😴</div>
             <div class="ci-health-info">
-              <div class="ci-health-label">睡眠時長</div>
+              <div class="ci-health-label">睡眠</div>
               <div class="ci-h-opts" id="ciSleepOpts">
                 <button class="ci-h-opt" data-val="4" type="button">4h</button>
                 <button class="ci-h-opt" data-val="5" type="button">5h</button>
@@ -2987,21 +3079,46 @@ textarea.mid{ min-height:90px; }
                 <button class="ci-h-opt" data-val="9" type="button">9h</button>
                 <button class="ci-h-opt" data-val="10" type="button">10h+</button>
               </div>
-            </div>
-          </div>
-          <div class="ci-health-row">
-            <div class="ci-health-icon">🍚</div>
-            <div class="ci-health-info">
-              <div class="ci-health-label">飲食狀況</div>
-              <div class="ci-h-emojis" id="ciDietOpts" data-field="diet">
-                <span data-val="1" title="很差">🤢</span>
-                <span data-val="2" title="不太好">😕</span>
-                <span data-val="3" title="普通">😐</span>
-                <span data-val="4" title="不錯">😊</span>
-                <span data-val="5" title="很好">😋</span>
+              <div class="ci-sleep-times">
+                <div class="ci-time-wrap">
+                  <span class="ci-time-label">🌙 就寢</span>
+                  <input type="time" id="ciBedtime" class="ci-time-input">
+                </div>
+                <div class="ci-time-wrap">
+                  <span class="ci-time-label">☀️ 起床</span>
+                  <input type="time" id="ciWakeup" class="ci-time-input">
+                </div>
               </div>
             </div>
           </div>
+          <!-- Diet -->
+          <div class="ci-health-row">
+            <div class="ci-health-icon">🍽️</div>
+            <div class="ci-health-info">
+              <div class="ci-health-label">飲食紀錄</div>
+              <div class="ci-meal-tabs" id="ciMealTabs">
+                <button class="ci-meal-tab active" data-meal="breakfast" type="button">🌅 早餐</button>
+                <button class="ci-meal-tab" data-meal="lunch" type="button">☀️ 午餐</button>
+                <button class="ci-meal-tab" data-meal="dinner" type="button">🌙 晚餐</button>
+                <button class="ci-meal-tab" data-meal="snack" type="button">🍪 點心</button>
+              </div>
+              <div id="ciMealPanel">
+                <div class="ci-meal-eaten-row">
+                  <label class="ci-meal-eaten-cb">
+                    <input type="checkbox" id="ciMealEaten">
+                    有吃這餐
+                  </label>
+                </div>
+                <div class="ci-nutrient-tags" id="ciNutrientTags">
+                  <div class="ci-nutrient-tag" data-nutrient="protein">🥩 蛋白質</div>
+                  <div class="ci-nutrient-tag" data-nutrient="veg">🥦 蔬菜</div>
+                  <div class="ci-nutrient-tag" data-nutrient="carb">🍚 澱粉</div>
+                  <div class="ci-nutrient-tag" data-nutrient="fruit">🍎 水果</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Water -->
           <div class="ci-health-row">
             <div class="ci-health-icon">💧</div>
             <div class="ci-health-info">
@@ -3015,19 +3132,21 @@ textarea.mid{ min-height:90px; }
               </div>
             </div>
           </div>
+          <!-- Mood -->
           <div class="ci-health-row">
             <div class="ci-health-icon">💕</div>
             <div class="ci-health-info">
               <div class="ci-health-label">今日心情</div>
-              <div class="ci-h-emojis" id="ciMoodOpts" data-field="mood">
-                <span data-val="1" title="很差">😢</span>
-                <span data-val="2" title="不好">😟</span>
-                <span data-val="3" title="普通">😐</span>
-                <span data-val="4" title="不錯">🙂</span>
-                <span data-val="5" title="很棒">😄</span>
+              <div class="ci-mood-btns" id="ciMoodOpts">
+                <button class="ci-mood-btn" data-val="1" type="button">😔 很差</button>
+                <button class="ci-mood-btn" data-val="2" type="button">😕 不好</button>
+                <button class="ci-mood-btn" data-val="3" type="button">😐 普通</button>
+                <button class="ci-mood-btn" data-val="4" type="button">🙂 不錯</button>
+                <button class="ci-mood-btn" data-val="5" type="button">😄 很棒</button>
               </div>
             </div>
           </div>
+          <!-- Poop -->
           <div class="ci-health-row">
             <div class="ci-health-icon">🚽</div>
             <div class="ci-health-info">
@@ -3039,6 +3158,47 @@ textarea.mid{ min-height:90px; }
               </div>
             </div>
           </div>
+          <!-- Period (shown only when in period) -->
+          <div class="ci-period-health-section" id="ciPeriodHealthSection" style="display:none">
+            <div class="ci-period-health-title">🩸 生理期狀態</div>
+            <div class="ci-health-row" style="border-top:none;padding-top:0;">
+              <div class="ci-health-icon" style="font-size:15px;line-height:2;">血量</div>
+              <div class="ci-health-info">
+                <div class="ci-flow-btns" id="ciFlowBtns">
+                  <button class="ci-flow-btn" data-val="1" type="button">少</button>
+                  <button class="ci-flow-btn" data-val="2" type="button">中</button>
+                  <button class="ci-flow-btn" data-val="3" type="button">多</button>
+                  <button class="ci-flow-btn" data-val="4" type="button">很多</button>
+                </div>
+              </div>
+            </div>
+            <div class="ci-health-row">
+              <div class="ci-health-icon" style="font-size:15px;line-height:2;">不適</div>
+              <div class="ci-health-info">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="ci-discomfort-btns" id="ciDiscomfortBtns">
+                    <button class="ci-discomfort-btn" data-val="1" type="button">1</button>
+                    <button class="ci-discomfort-btn" data-val="2" type="button">2</button>
+                    <button class="ci-discomfort-btn" data-val="3" type="button">3</button>
+                    <button class="ci-discomfort-btn" data-val="4" type="button">4</button>
+                    <button class="ci-discomfort-btn" data-val="5" type="button">5</button>
+                  </div>
+                  <span style="font-size:11px;color:var(--ink-soft);">1=輕微 5=劇烈</span>
+                </div>
+              </div>
+            </div>
+            <div class="ci-health-row">
+              <div class="ci-health-icon" style="font-size:15px;line-height:2;">心情</div>
+              <div class="ci-health-info">
+                <div class="ci-period-mood-btns" id="ciPeriodMoodBtns">
+                  <button class="ci-period-mood-btn" data-val="1" type="button">還好</button>
+                  <button class="ci-period-mood-btn" data-val="2" type="button">不太好</button>
+                  <button class="ci-period-mood-btn" data-val="3" type="button">很不適</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Notes -->
           <div class="ci-health-row" style="padding-bottom:4px;">
             <div class="ci-health-icon">📝</div>
             <div class="ci-health-info">
@@ -3047,6 +3207,19 @@ textarea.mid{ min-height:90px; }
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Day detail modal -->
+    <div class="ci-day-modal" id="ciDayModal">
+      <div class="ci-day-modal-overlay" id="ciDayModalOverlay"></div>
+      <div class="ci-day-modal-sheet">
+        <div class="ci-day-modal-handle"></div>
+        <div class="ci-day-modal-header">
+          <span class="ci-day-modal-date" id="ciDayModalDate"></span>
+          <button class="ci-day-modal-close" id="ciDayModalClose" type="button">✕</button>
+        </div>
+        <div id="ciDayModalBody"></div>
       </div>
     </div>
 
@@ -7066,18 +7239,29 @@ textarea.mid{ min-height:90px; }
     }
     for(var d=1;d<=daysInMon;d++){
       var dateStr=ciCalYear+'年'+(ciCalMonth+1)+'月'+d+'日';
+      var healthKey=ciCalYear+'-'+String(ciCalMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
       var isToday=d===today.getDate()&&ciCalMonth===today.getMonth()&&ciCalYear===today.getFullYear();
       var isDone=history.indexOf(dateStr)>=0;
       if(isDone) monthCount++;
       var cell=document.createElement('div');
       var cls='btc-day'+(isToday?' today':'')+(isDone?' checked':'');
       cell.className=cls;
+      cell.style.cursor='pointer';
+      (function(dk){ cell.addEventListener('click',function(){ openDayDetail(dk); }); })(healthKey);
       var numEl=document.createElement('div'); numEl.className='btc-day-num'; numEl.textContent=d;
       cell.appendChild(numEl);
       if(isDone){
         var ic=document.createElement('div'); ic.className='btc-day-icons';
         ic.innerHTML='<span class="btc-day-icon">🌙</span>';
         cell.appendChild(ic);
+      }
+      var hEntry=healthLog[healthKey];
+      if(hEntry&&(hEntry.sleep||hEntry.water||hEntry.mood)){
+        var dotRow=document.createElement('div'); dotRow.className='btc-day-health';
+        if(hEntry.sleep){ var d1=document.createElement('div'); d1.className='btc-day-hdot'; d1.style.background='#7ec8a0'; dotRow.appendChild(d1); }
+        if(hEntry.water){ var d2=document.createElement('div'); d2.className='btc-day-hdot'; d2.style.background='#74b3e0'; dotRow.appendChild(d2); }
+        if(hEntry.mood){ var d3=document.createElement('div'); d3.className='btc-day-hdot'; d3.style.background='var(--companion)'; dotRow.appendChild(d3); }
+        cell.appendChild(dotRow);
       }
       grid.appendChild(cell);
     }
@@ -7102,38 +7286,248 @@ textarea.mid{ min-height:90px; }
   }
   /* ============ Health Log ============ */
   var healthLog = load(KEYS.healthLog) || {};
+  var ciActiveMeal = 'breakfast';
+  var ciChartType = 'sleep';
+  var ciChartRange = 7;
+
   function todayHealthKey(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-  function getOrCreateTodayHealth(){ var k=todayHealthKey(); if(!healthLog[k]) healthLog[k]={sleep:0,diet:0,water:0,mood:0,poop:-1,note:''}; return healthLog[k]; }
+  function defaultMeal(){ return {eaten:false,protein:false,veg:false,carb:false,fruit:false}; }
+  function getOrCreateTodayHealth(){
+    var k=todayHealthKey();
+    if(!healthLog[k]) healthLog[k]={sleep:0,bedtime:'',wakeup:'',meals:{breakfast:defaultMeal(),lunch:defaultMeal(),dinner:defaultMeal(),snack:defaultMeal()},water:0,mood:0,poop:-1,period:null,note:''};
+    if(!healthLog[k].meals) healthLog[k].meals={breakfast:defaultMeal(),lunch:defaultMeal(),dinner:defaultMeal(),snack:defaultMeal()};
+    return healthLog[k];
+  }
+  function isTodayInPeriod(){
+    var key=todayHealthKey();
+    return periodRecords.some(function(r){ return r.start && key>=r.start && (r.end ? key<=r.end : key<=key); });
+  }
+  function renderMealPanel(h){
+    var meal=(h.meals&&h.meals[ciActiveMeal])||{};
+    var eaten=!!meal.eaten;
+    if($('ciMealEaten')) $('ciMealEaten').checked=eaten;
+    $('ciNutrientTags').querySelectorAll('.ci-nutrient-tag').forEach(function(tag){
+      var n=tag.dataset.nutrient;
+      tag.classList.toggle('active',eaten&&!!meal[n]);
+      tag.style.opacity=eaten?'1':'0.4';
+      tag.style.pointerEvents=eaten?'auto':'none';
+    });
+  }
   function renderHealthCard(){
-    var h=healthLog[todayHealthKey()]||{sleep:0,diet:0,water:0,mood:0,poop:-1,note:''};
+    var h=healthLog[todayHealthKey()]||{sleep:0,bedtime:'',wakeup:'',meals:{},water:0,mood:0,poop:-1,period:null,note:''};
+    if(!h.meals) h.meals={breakfast:{},lunch:{},dinner:{},snack:{}};
     $('ciSleepOpts').querySelectorAll('.ci-h-opt').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===h.sleep); });
-    $('ciDietOpts').querySelectorAll('span').forEach(function(s){ s.classList.toggle('active',parseInt(s.dataset.val)===h.diet); });
+    $('ciBedtime').value=h.bedtime||'';
+    $('ciWakeup').value=h.wakeup||'';
     $('ciWaterVal').textContent=h.water||0;
-    $('ciMoodOpts').querySelectorAll('span').forEach(function(s){ s.classList.toggle('active',parseInt(s.dataset.val)===h.mood); });
+    $('ciMoodOpts').querySelectorAll('.ci-mood-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===h.mood); });
     $('ciPoopRow').querySelectorAll('.ci-poop-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===h.poop); });
     $('ciHealthNote').value=h.note||'';
+    renderMealPanel(h);
+    var inPeriod=isTodayInPeriod();
+    $('ciPeriodHealthSection').style.display=inPeriod?'block':'none';
+    if(inPeriod){
+      var pd=h.period||{};
+      $('ciFlowBtns').querySelectorAll('.ci-flow-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.flow||0)); });
+      $('ciDiscomfortBtns').querySelectorAll('.ci-discomfort-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.discomfort||0)); });
+      $('ciPeriodMoodBtns').querySelectorAll('.ci-period-mood-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.periodMood||0)); });
+    }
   }
-  $('ciSleepOpts').querySelectorAll('.ci-h-opt').forEach(function(btn){
-    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h.sleep=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
-  });
-  ['ciDietOpts','ciMoodOpts'].forEach(function(id){
-    var el=$(id); if(!el) return;
-    el.querySelectorAll('span').forEach(function(sp){
-      sp.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h[el.dataset.field]=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+
+  /* ---- Charts ---- */
+  function renderHealthCharts(){
+    var chart=$('ciBarChart'); if(!chart) return;
+    chart.innerHTML='';
+    var today=new Date();
+    var days=[];
+    for(var i=ciChartRange-1;i>=0;i--){
+      var dc=new Date(today); dc.setDate(dc.getDate()-i);
+      var k=dc.getFullYear()+'-'+String(dc.getMonth()+1).padStart(2,'0')+'-'+String(dc.getDate()).padStart(2,'0');
+      days.push({key:k,date:dc,isToday:i===0});
+    }
+    var vals=days.map(function(day){
+      var h=healthLog[day.key]; if(!h) return null;
+      if(ciChartType==='sleep') return h.sleep||null;
+      if(ciChartType==='water') return h.water||null;
+      if(ciChartType==='mood') return h.mood||null;
+      return null;
+    });
+    var maxVal=ciChartType==='sleep'?10:ciChartType==='water'?2500:5;
+    vals.forEach(function(v){ if(v&&v>maxVal) maxVal=v; });
+    if(maxVal===0) maxVal=1;
+    days.forEach(function(day,i){
+      var val=vals[i]; var hasData=val!==null&&val>0;
+      var wrap=document.createElement('div'); wrap.className='ci-bar-wrap'+(hasData?'':' no-data');
+      var barH=hasData?Math.max(4,Math.round((val/maxVal)*60)):2;
+      var inner=document.createElement('div'); inner.className='ci-bar-inner';
+      var tip=document.createElement('div'); tip.className='ci-bar-val-tip';
+      if(hasData){
+        if(ciChartType==='sleep') tip.textContent=val+'h';
+        else if(ciChartType==='water') tip.textContent=val>=1000?(val/1000).toFixed(1)+'L':val+'mL';
+        else if(ciChartType==='mood'){ var ml=['','😔','😕','😐','🙂','😄']; tip.textContent=ml[val]||''; }
+      }
+      var bar=document.createElement('div'); bar.className='ci-bar'+(day.isToday?' today':''); bar.style.height=barH+'px';
+      inner.appendChild(tip); inner.appendChild(bar);
+      var dateEl=document.createElement('div');
+      dateEl.className='ci-bar-date'+(day.isToday?' today-lbl':'');
+      dateEl.textContent=day.isToday?'今':(days.length<=14?day.date.getDate()+'日':(day.date.getMonth()+1)+'/'+day.date.getDate());
+      wrap.appendChild(inner); wrap.appendChild(dateEl);
+      chart.appendChild(wrap);
+    });
+  }
+  $('ciChartTabs').querySelectorAll('.ci-chart-tab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      $('ciChartTabs').querySelectorAll('.ci-chart-tab').forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active'); ciChartType=this.dataset.chart; renderHealthCharts();
     });
   });
+  $('ciChartRange').addEventListener('change',function(){ ciChartRange=parseInt(this.value); renderHealthCharts(); });
+
+  /* ---- Meal tabs ---- */
+  $('ciMealTabs').querySelectorAll('.ci-meal-tab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      $('ciMealTabs').querySelectorAll('.ci-meal-tab').forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active'); ciActiveMeal=this.dataset.meal;
+      renderMealPanel(healthLog[todayHealthKey()]||{meals:{}});
+    });
+  });
+  $('ciMealEaten').addEventListener('change',function(){
+    var h=getOrCreateTodayHealth();
+    if(!h.meals[ciActiveMeal]) h.meals[ciActiveMeal]=defaultMeal();
+    h.meals[ciActiveMeal].eaten=this.checked;
+    if(!this.checked){['protein','veg','carb','fruit'].forEach(function(n){ h.meals[ciActiveMeal][n]=false; });}
+    save(KEYS.healthLog,healthLog); renderMealPanel(h);
+  });
+  $('ciNutrientTags').querySelectorAll('.ci-nutrient-tag').forEach(function(tag){
+    tag.addEventListener('click',function(){
+      var h=getOrCreateTodayHealth();
+      if(!h.meals[ciActiveMeal]) h.meals[ciActiveMeal]=defaultMeal();
+      if(!h.meals[ciActiveMeal].eaten) return;
+      var n=this.dataset.nutrient; h.meals[ciActiveMeal][n]=!h.meals[ciActiveMeal][n];
+      save(KEYS.healthLog,healthLog); renderMealPanel(h);
+    });
+  });
+
+  /* ---- Sleep ---- */
+  $('ciSleepOpts').querySelectorAll('.ci-h-opt').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h.sleep=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts(); });
+  });
+  function calcSleepHours(bedtime, wakeup){
+    var bP=bedtime.split(':'), wP=wakeup.split(':');
+    var bM=parseInt(bP[0])*60+parseInt(bP[1]), wM=parseInt(wP[0])*60+parseInt(wP[1]);
+    var diff=wM-bM; if(diff<0) diff+=1440; return Math.round(diff/60);
+  }
+  $('ciBedtime').addEventListener('change',function(){
+    var h=getOrCreateTodayHealth(); h.bedtime=this.value;
+    if(h.bedtime&&h.wakeup) h.sleep=calcSleepHours(h.bedtime,h.wakeup);
+    save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts();
+  });
+  $('ciWakeup').addEventListener('change',function(){
+    var h=getOrCreateTodayHealth(); h.wakeup=this.value;
+    if(h.bedtime&&h.wakeup) h.sleep=calcSleepHours(h.bedtime,h.wakeup);
+    save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts();
+  });
+
+  /* ---- Mood ---- */
+  $('ciMoodOpts').querySelectorAll('.ci-mood-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h.mood=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts(); });
+  });
+
+  /* ---- Poop ---- */
   $('ciPoopRow').querySelectorAll('.ci-poop-btn').forEach(function(btn){
     btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h.poop=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
   });
+
+  /* ---- Water ---- */
   $('ciHealthCard').querySelectorAll('.ci-h-add-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(this.id==='ciWaterReset'){h.water=0;}else{h.water=(h.water||0)+parseInt(this.dataset.add);} save(KEYS.healthLog,healthLog); renderHealthCard(); });
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(this.id==='ciWaterReset'){h.water=0;}else{h.water=(h.water||0)+parseInt(this.dataset.add);} save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts(); });
   });
+
+  /* ---- Period in health ---- */
+  $('ciFlowBtns').querySelectorAll('.ci-flow-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0}; h.period.flow=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+  });
+  $('ciDiscomfortBtns').querySelectorAll('.ci-discomfort-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0}; h.period.discomfort=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+  });
+  $('ciPeriodMoodBtns').querySelectorAll('.ci-period-mood-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0}; h.period.periodMood=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+  });
+
+  /* ---- Note ---- */
   $('ciHealthNote').addEventListener('input',function(){ var h=getOrCreateTodayHealth(); h.note=this.value; save(KEYS.healthLog,healthLog); });
+
+  /* ---- Day detail modal ---- */
+  function openDayDetail(dateKey){
+    var modal=$('ciDayModal'); if(!modal) return;
+    var h=healthLog[dateKey]||null;
+    var parts=dateKey.split('-');
+    $('ciDayModalDate').textContent=parseInt(parts[0])+'年'+parseInt(parts[1])+'月'+parseInt(parts[2])+'日';
+    var body=$('ciDayModalBody'); body.innerHTML='';
+    var hasAny=h&&(h.sleep||h.water||h.mood||(h.poop>=0)|h.note||
+      (h.meals&&['breakfast','lunch','dinner','snack'].some(function(m){ return h.meals[m]&&h.meals[m].eaten; }))||
+      (h.period&&(h.period.flow||h.period.discomfort)));
+    if(!hasAny){
+      body.innerHTML='<div class="ci-no-data">這天還沒有健康紀錄 🌿<br><span style="font-size:12px">記錄習慣，從今天開始</span></div>';
+    } else {
+      if(h.sleep||h.bedtime||h.wakeup){
+        var sr=dmRow('😴','睡眠'); var sc='';
+        if(h.sleep) sc+='<span style="font-size:16px;font-weight:700;color:var(--companion)">'+h.sleep+'h</span>&ensp;';
+        if(h.bedtime||h.wakeup){
+          sc+='<div class="ci-clock-display">';
+          if(h.bedtime) sc+='<span class="ci-clock-item">🌙&nbsp;'+h.bedtime+'</span>';
+          if(h.bedtime&&h.wakeup) sc+='<span style="color:var(--ink-soft);font-size:12px">→</span>';
+          if(h.wakeup) sc+='<span class="ci-clock-item">☀️&nbsp;'+h.wakeup+'</span>';
+          sc+='</div>';
+        }
+        sr.querySelector('.ci-dm-val').innerHTML=sc; body.appendChild(sr);
+      }
+      if(h.meals){
+        var mealOrder=['breakfast','lunch','dinner','snack'];
+        var mealLabels={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'點心'};
+        var mr=dmRow('🍽️','飲食'); var mc='';
+        mealOrder.forEach(function(m){
+          var meal=h.meals[m]; if(!meal) return;
+          mc+='<div class="ci-dm-meal-row"><span class="ci-dm-meal-name">'+mealLabels[m]+'</span><div class="ci-dm-meal-tags">';
+          if(meal.eaten){
+            var tags=[];
+            if(meal.protein) tags.push('🥩蛋白質'); if(meal.veg) tags.push('🥦蔬菜');
+            if(meal.carb) tags.push('🍚澱粉'); if(meal.fruit) tags.push('🍎水果');
+            if(tags.length) mc+=tags.map(function(t){ return '<span class="ci-dm-meal-tag">'+t+'</span>'; }).join('');
+            else mc+='<span class="ci-dm-meal-tag">✓ 有吃</span>';
+          } else { mc+='<span class="ci-dm-meal-tag no-eat">—</span>'; }
+          mc+='</div></div>';
+        });
+        mr.querySelector('.ci-dm-val').innerHTML=mc; body.appendChild(mr);
+      }
+      if(h.water){ var wr=dmRow('💧','飲水'); wr.querySelector('.ci-dm-val').innerHTML='<span style="font-size:16px;font-weight:700;color:var(--companion)">'+(h.water>=1000?(h.water/1000).toFixed(1)+'L':h.water+'mL')+'</span>'; body.appendChild(wr); }
+      if(h.mood){ var mor=dmRow('💕','心情'); var moods=['','😔 很差','😕 不好','😐 普通','🙂 不錯','😄 很棒']; mor.querySelector('.ci-dm-val').textContent=moods[h.mood]||''; body.appendChild(mor); }
+      if(h.period&&(h.period.flow||h.period.discomfort||h.period.periodMood)){
+        var pr2=dmRow('🩸','生理期'); var pd=h.period; var pArr=[];
+        if(pd.flow){var flows={1:'少',2:'中',3:'多',4:'很多'};pArr.push('血量：'+flows[pd.flow]);}
+        if(pd.discomfort) pArr.push('不適度：'+pd.discomfort+'/5');
+        if(pd.periodMood){var pm={1:'還好',2:'不太好',3:'很不適'};pArr.push(pm[pd.periodMood]);}
+        pr2.querySelector('.ci-dm-val').textContent=pArr.join(' · '); body.appendChild(pr2);
+      }
+      if(h.poop>=0){ var por=dmRow('🚽','排便'); var pl={0:'沒有',1:'正常 ✓',2:'異常'}; por.querySelector('.ci-dm-val').textContent=pl[h.poop]||''; body.appendChild(por); }
+      if(h.note){ var nor=dmRow('📝','備註'); nor.querySelector('.ci-dm-val').textContent=h.note; body.appendChild(nor); }
+    }
+    modal.classList.add('open');
+  }
+  function dmRow(icon,label){
+    var row=document.createElement('div'); row.className='ci-dm-row';
+    row.innerHTML='<div class="ci-dm-icon">'+icon+'</div><div class="ci-dm-info"><div class="ci-dm-label">'+label+'</div><div class="ci-dm-val"></div></div>';
+    return row;
+  }
+  function closeDayModal(){ $('ciDayModal').classList.remove('open'); }
+  $('ciDayModalClose').addEventListener('click', closeDayModal);
+  $('ciDayModalOverlay').addEventListener('click', closeDayModal);
 
   function openCheckinView(){
     ciCalYear=new Date().getFullYear(); ciCalMonth=new Date().getMonth();
     renderCiCalGrid();
     renderHealthCard();
+    renderHealthCharts();
     showOnly('checkinView');
   }
   // legacy alias
