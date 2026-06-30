@@ -625,18 +625,18 @@ textarea.mid{ min-height:90px; }
 .audio-upload-btn:hover{ background:var(--companion); color:#fff; }
 .audio-body{ flex:1; overflow-y:auto; display:flex; flex-direction:column; }
 /* Now-playing mini player */
-.audio-now-playing{ flex:0 0 auto; margin:0 16px 12px; border-radius:18px; background:linear-gradient(135deg,var(--companion) 0%,#7b5ea7 100%); padding:14px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 4px 20px var(--companion-shadow,rgba(169,135,216,0.4)); }
+.audio-now-playing{ flex:0 0 auto; margin:0 16px 12px; border-radius:18px; background:var(--chat-bg); border:1.5px solid var(--line); padding:12px 14px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 12px rgba(0,0,0,.07); }
 .audio-now-playing.hidden{ display:none; }
-.audio-np-thumb{ width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:22px; flex:0 0 auto; }
+.audio-np-thumb{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex:0 0 auto; }
 .audio-np-info{ flex:1; min-width:0; }
-.audio-np-title{ font-size:14px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.audio-np-cat{ font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; }
-.audio-np-progress{ height:3px; background:rgba(255,255,255,.3); border-radius:99px; margin-top:6px; overflow:hidden; }
-.audio-np-bar{ height:100%; background:#fff; border-radius:99px; width:0%; transition:width .5s linear; }
-.audio-np-controls{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
-.audio-np-btn{ width:32px; height:32px; border-radius:50%; border:none; background:rgba(255,255,255,.2); color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
-.audio-np-btn:hover{ background:rgba(255,255,255,.35); }
-.audio-np-btn.play{ width:36px; height:36px; font-size:16px; background:rgba(255,255,255,.3); }
+.audio-np-title{ font-size:14px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.audio-np-cat{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+.audio-np-progress{ height:3px; background:var(--line); border-radius:99px; margin-top:7px; overflow:hidden; }
+.audio-np-bar{ height:100%; background:var(--companion); border-radius:99px; width:0%; transition:width .5s linear; }
+.audio-np-controls{ display:flex; align-items:center; gap:6px; flex:0 0 auto; }
+.audio-np-btn{ width:32px; height:32px; border-radius:50%; border:1px solid var(--line); background:var(--surface); color:var(--ink); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.audio-np-btn:hover{ background:var(--companion-soft); border-color:var(--companion); color:var(--companion); }
+.audio-np-btn.play{ width:38px; height:38px; font-size:16px; background:var(--companion); color:#fff; border-color:var(--companion); }
 /* Track list */
 .audio-track-list{ padding:0 16px; }
 .audio-section-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase; padding:10px 0 6px; }
@@ -2666,8 +2666,11 @@ textarea.mid{ min-height:90px; }
           </div>
           <div class="el-sheet-body">
             <div class="field">
-              <label class="el-label">輸入文字（動作描述將自動過濾）</label>
-              <textarea id="elTtsText" class="el-textarea" placeholder="輸入要生成語音的文字，或點下方按鈕帶入最新 AI 回覆…" rows="5"></textarea>
+              <label class="el-label" style="display:flex;justify-content:space-between;align-items:baseline;">
+                <span>輸入文字（動作描述將自動過濾）</span>
+                <span id="elTtsCharCount" style="font-size:11px;color:var(--ink-soft);font-weight:400;">0 / 5000</span>
+              </label>
+              <textarea id="elTtsText" class="el-textarea" placeholder="輸入要生成語音的文字，或點下方按鈕帶入最新 AI 回覆…" rows="5" maxlength="5000"></textarea>
             </div>
             <button class="btn ghost small" id="elFillLastReply" type="button" style="margin-bottom:12px;">帶入最新 AI 回覆</button>
 
@@ -2695,7 +2698,16 @@ textarea.mid{ min-height:90px; }
             <div id="elTtsStatus" style="font-size:13px;color:var(--ink-soft);margin-top:8px;min-height:20px;text-align:center;"></div>
             <div id="elAudioWrap" class="hidden" style="margin-top:12px;">
               <audio id="elAudioPlayer" controls style="width:100%;border-radius:10px;"></audio>
-              <button class="btn ghost" id="elSaveTrackBtn" type="button" style="width:100%;margin-top:8px;">💾 儲存到音檔清單</button>
+              <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+                <select id="elSaveCatSelect" style="flex:1;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:13px;font-family:inherit;">
+                  <option value="care">🌿 日常關心</option>
+                  <option value="sweet">💕 甜言蜜語</option>
+                  <option value="sleep">🌙 睡前故事</option>
+                  <option value="wake">☀️ 叫我起床</option>
+                  <option value="other" selected>📁 其他</option>
+                </select>
+                <button class="btn ghost" id="elSaveTrackBtn" type="button" style="white-space:nowrap;">💾 儲存</button>
+              </div>
             </div>
           </div>
         </div>
@@ -8663,8 +8675,10 @@ textarea.mid{ min-height:90px; }
   function elHideSettings(){ $('elSettingsOverlay').classList.add('hidden'); }
   function elShowTts(){
     $('elTtsText').value = '';
+    $('elTtsCharCount').textContent = '0 / 5000';
     $('elTtsStatus').textContent = '';
     $('elAudioWrap').classList.add('hidden');
+    $('elSaveCatSelect').value = 'other';
     elGeneratedBlob = null;
     var stab = settings.elStability != null ? settings.elStability : 0.3;
     var styl = settings.elStyle     != null ? settings.elStyle     : 0.5;
@@ -8679,6 +8693,11 @@ textarea.mid{ min-height:90px; }
   function stripActions(text){
     return (text||'').replace(/\*[^*\n]+\*/g,'').replace(/\s+/g,' ').trim();
   }
+
+  // Char count
+  $('elTtsText').addEventListener('input', function(){
+    $('elTtsCharCount').textContent = this.value.length + ' / 5000';
+  });
 
   // Slider live preview
   $('elStabilitySlider').addEventListener('input', function(){
@@ -8785,7 +8804,8 @@ textarea.mid{ min-height:90px; }
     var reader = new FileReader();
     reader.onload = function(e){
       var title = ($('elTtsText').value.slice(0,20)||'AI 語音') + '…';
-      var track = { id:uid('el'), title:title, cat:'other', dataUrl:e.target.result, ts:Date.now() };
+      var cat = $('elSaveCatSelect').value || 'other';
+      var track = { id:uid('el'), title:title, cat:cat, dataUrl:e.target.result, ts:Date.now() };
       audioTracks.unshift(track);
       save(KEYS.audioTracks, audioTracks);
       renderAudioList();
