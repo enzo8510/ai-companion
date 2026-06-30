@@ -656,6 +656,8 @@ textarea.mid{ min-height:90px; }
 .audio-empty{ text-align:center; padding:40px 20px; color:var(--ink-soft); }
 .audio-empty-icon{ font-size:48px; margin-bottom:12px; }
 .audio-empty-text{ font-size:14px; line-height:1.6; }
+.audio-storage-notice{ margin:8px 16px 20px; padding:10px 14px; background:var(--companion-soft); border-radius:12px; font-size:11px; color:var(--ink-soft); line-height:1.7; display:flex; flex-direction:column; gap:2px; }
+.audio-upload-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 /* Transcript overlay (inside phone-frame) */
 .audio-transcript-overlay{ position:absolute; inset:0; z-index:300; background:var(--surface); display:flex; flex-direction:column; }
 .audio-transcript-overlay.hidden{ display:none; }
@@ -749,8 +751,41 @@ textarea.mid{ min-height:90px; }
 .btc-badge.unlocked .btc-badge-label{ color:var(--companion); }
 .btc-badge.super .btc-badge-label{ color:#e07a20; }
 .btc-hint{ font-size:12px; color:var(--ink-soft); text-align:center; padding:8px 0 4px; }
-.btc-period-day .btc-day-num{ color:var(--period-color,#e84c78) !important; font-weight:600; }
-.btc-period-day{ background:rgba(232,76,120,.07); border-radius:12px; }
+/* Period bar visual — pill spanning multiple days */
+.btc-period-day{ background:transparent; border-radius:0; position:relative; }
+.btc-period-day::before{ content:''; position:absolute; top:3px; bottom:3px; left:-2px; right:-2px; background:rgba(232,76,120,.13); z-index:0; border-radius:0; }
+.btc-period-start::before{ left:48%; border-radius:14px 0 0 14px; }
+.btc-period-end::before{ right:48%; border-radius:0 14px 14px 0; }
+.btc-period-start.btc-period-end::before{ left:10%; right:10%; border-radius:14px; }
+.btc-period-day .btc-day-num{ position:relative; z-index:1; background:var(--period-color,#e84c78); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:#fff !important; font-weight:700; }
+.btc-period-day.today .btc-day-num{ background:var(--period-color,#e84c78); border:2px solid rgba(255,255,255,.9); box-shadow:0 0 0 2px var(--period-color,#e84c78); }
+.btc-period-day.selected{ background:transparent; }
+/* Health module */
+.ci-health-card{ background:var(--chat-bg); border-radius:18px; border:1px solid var(--line); padding:16px; margin-top:14px; }
+.ci-health-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+.ci-health-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--line); }
+.ci-health-title + .ci-health-row{ border-top:none; }
+.ci-health-icon{ font-size:20px; flex:0 0 28px; text-align:center; }
+.ci-health-info{ flex:1; min-width:0; }
+.ci-health-label{ font-size:11px; color:var(--ink-soft); font-weight:600; margin-bottom:5px; }
+.ci-h-opts{ display:flex; gap:4px; flex-wrap:wrap; }
+.ci-h-opt{ padding:4px 9px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-h-opt.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
+.ci-h-emojis{ display:flex; gap:6px; }
+.ci-h-emojis span{ font-size:22px; cursor:pointer; opacity:.4; transition:all .15s; }
+.ci-h-emojis span.active{ opacity:1; transform:scale(1.2); }
+.ci-water-row{ display:flex; align-items:center; gap:6px; }
+.ci-water-num{ font-size:16px; font-weight:700; color:var(--companion); min-width:36px; }
+.ci-water-unit{ font-size:11px; color:var(--ink-soft); margin-right:4px; }
+.ci-h-add-btn{ padding:4px 10px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink); cursor:pointer; font-family:inherit; transition:background .15s; }
+.ci-h-add-btn:active{ background:var(--companion-soft); }
+.ci-poop-row{ display:flex; gap:6px; }
+.ci-poop-btn{ padding:5px 12px; border-radius:9px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-poop-btn.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
+.ci-health-note{ width:100%; border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12px; color:var(--ink); background:var(--surface); font-family:inherit; resize:none; outline:none; box-sizing:border-box; margin-top:2px; }
+.ci-health-note:focus{ border-color:var(--companion); }
+.ci-ongoing-label{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink); cursor:pointer; padding:4px 0; }
+.ci-ongoing-label input[type=checkbox]{ accent-color:var(--period-color,#e84c78); width:16px; height:16px; flex:0 0 auto; }
 /* ---- Download overlay ---- */
 .dl-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:center; justify-content:center; padding:24px; }
 .dl-overlay.hidden{ display:none; }
@@ -1352,6 +1387,8 @@ textarea.mid{ min-height:90px; }
 .star-bar-track{ flex:1; height:18px; background:linear-gradient(90deg, #f5f5f5 0%, #ffffff 50%, #f5f5f5 100%); border-radius:14px; overflow:hidden; border:1px solid rgba(200,200,200,0.3); box-shadow:inset 0 2px 4px rgba(0,0,0,0.06); position:relative; }
 .star-bar-fill{ transition:width .6s ease-out; }
 .star-bar-fill{ height:100%; border-radius:14px; transition:width .5s cubic-bezier(.34,.1,.68,.55); position:relative; background:var(--companion); box-shadow:0 0 8px var(--companion-shadow), inset 0 1px 2px rgba(255,255,255,0.3); }
+#starHungerFill{ background:#5BAF5B; box-shadow:0 0 8px rgba(91,175,91,0.4), inset 0 1px 2px rgba(255,255,255,0.3); }
+#starMoodFill{ background:#E8849A; box-shadow:0 0 8px rgba(232,132,154,0.4), inset 0 1px 2px rgba(255,255,255,0.3); }
 .star-bar-fill::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%); border-radius:14px; animation:shimmer 2s infinite; }
 @keyframes shimmer{ 0%,100%{ opacity:0.3; } 50%{ opacity:0.8; } }
 .star-stat-val{ font-size:13px; color:var(--companion); flex:0 0 50px; text-align:right; font-weight:700; }
@@ -2325,12 +2362,12 @@ textarea.mid{ min-height:90px; }
       <div class="star-stats">
         <div class="star-stat-row">
           <span class="star-stat-label">🍚 飽食度</span>
-          <div class="star-bar-track"><div class="star-bar-fill" id="starHungerFill" style="background:var(--companion);width:80%;"></div></div>
+          <div class="star-bar-track"><div class="star-bar-fill" id="starHungerFill" style="width:80%;"></div></div>
           <span class="star-stat-val" id="starHungerVal">80%</span>
         </div>
         <div class="star-stat-row">
           <span class="star-stat-label">💕 心情</span>
-          <div class="star-bar-track"><div class="star-bar-fill" id="starMoodFill" style="background:#E8A0C0;width:80%;"></div></div>
+          <div class="star-bar-track"><div class="star-bar-fill" id="starMoodFill" style="width:80%;"></div></div>
           <span class="star-stat-val" id="starMoodVal">80%</span>
         </div>
       </div>
@@ -2440,6 +2477,7 @@ textarea.mid{ min-height:90px; }
       <div class="audio-hdr">
         <button class="icon-btn" id="audioBackBtn" type="button" style="font-size:18px;">←</button>
         <span class="audio-hdr-title">🎶 他的音檔</span>
+        <span id="audioTrackCount" style="font-size:11px;color:var(--ink-soft);margin-right:4px;"></span>
         <button class="audio-upload-btn" id="audioUploadTrigger" type="button" title="上傳音檔">＋</button>
         <input type="file" id="audioFileInput" accept="audio/*" style="display:none;">
       </div>
@@ -2472,6 +2510,11 @@ textarea.mid{ min-height:90px; }
         </div>
         <!-- Track list -->
         <div class="audio-track-list" id="audioTrackList"></div>
+        <!-- Storage notice -->
+        <div class="audio-storage-notice">
+          <div>💾 音檔儲存於瀏覽器本地，換裝置或清除快取後需重新上傳</div>
+          <div>建議 MP3 格式・單檔上限 5 MB・最多 20 個</div>
+        </div>
       </div>
 
       <!-- Transcript full-screen overlay (inside phone-frame) -->
@@ -2803,7 +2846,6 @@ textarea.mid{ min-height:90px; }
         <div class="btc-chip active" id="calChipAll" data-filter="all">全部</div>
         <div class="btc-chip" id="calChipEvent" data-filter="event">📝 事項</div>
         <div class="btc-chip" id="calChipAnni" data-filter="anni">🎂 紀念日</div>
-        <div class="btc-chip" id="calChipCheckin" data-filter="checkin">🌙 打卡</div>
         <div class="btc-chip" id="calChipPeriod" data-filter="period">🌸 生理期</div>
       </div>
 
@@ -2859,6 +2901,12 @@ textarea.mid{ min-height:90px; }
               <span class="cal-period-form-label">結束日期</span>
               <input type="date" id="calPeriodEndInput" class="period-input" style="flex:1;">
               <span id="calPeriodDayCount" class="cal-period-day-count"></span>
+            </div>
+            <div class="cal-period-form-row" style="border-top:none;padding-top:0;">
+              <label class="ci-ongoing-label">
+                <input type="checkbox" id="calPeriodOngoing">
+                仍在生理期中（尚未結束）
+              </label>
             </div>
             <div style="display:flex;gap:8px;margin-top:8px;">
               <button class="toolbar-btn ghost" id="calPeriodCancelBtn" type="button" style="flex:1;justify-content:center;">取消</button>
@@ -2923,6 +2971,82 @@ textarea.mid{ min-height:90px; }
         </div>
         <div class="btc-achieve-row" id="ciAchievements"></div>
         <button class="btc-checkin-btn" id="ciCheckinBtn" type="button">🌙 今日打卡</button>
+        <!-- Health module -->
+        <div class="ci-health-card" id="ciHealthCard">
+          <div class="ci-health-title">🌿 今日健康紀錄</div>
+          <div class="ci-health-row">
+            <div class="ci-health-icon">😴</div>
+            <div class="ci-health-info">
+              <div class="ci-health-label">睡眠時長</div>
+              <div class="ci-h-opts" id="ciSleepOpts">
+                <button class="ci-h-opt" data-val="4" type="button">4h</button>
+                <button class="ci-h-opt" data-val="5" type="button">5h</button>
+                <button class="ci-h-opt" data-val="6" type="button">6h</button>
+                <button class="ci-h-opt" data-val="7" type="button">7h</button>
+                <button class="ci-h-opt" data-val="8" type="button">8h</button>
+                <button class="ci-h-opt" data-val="9" type="button">9h</button>
+                <button class="ci-h-opt" data-val="10" type="button">10h+</button>
+              </div>
+            </div>
+          </div>
+          <div class="ci-health-row">
+            <div class="ci-health-icon">🍚</div>
+            <div class="ci-health-info">
+              <div class="ci-health-label">飲食狀況</div>
+              <div class="ci-h-emojis" id="ciDietOpts" data-field="diet">
+                <span data-val="1" title="很差">🤢</span>
+                <span data-val="2" title="不太好">😕</span>
+                <span data-val="3" title="普通">😐</span>
+                <span data-val="4" title="不錯">😊</span>
+                <span data-val="5" title="很好">😋</span>
+              </div>
+            </div>
+          </div>
+          <div class="ci-health-row">
+            <div class="ci-health-icon">💧</div>
+            <div class="ci-health-info">
+              <div class="ci-health-label">飲水量</div>
+              <div class="ci-water-row">
+                <span class="ci-water-num" id="ciWaterVal">0</span>
+                <span class="ci-water-unit">mL</span>
+                <button class="ci-h-add-btn" data-add="200" type="button">+200</button>
+                <button class="ci-h-add-btn" data-add="500" type="button">+500</button>
+                <button class="ci-h-add-btn" id="ciWaterReset" type="button">↺</button>
+              </div>
+            </div>
+          </div>
+          <div class="ci-health-row">
+            <div class="ci-health-icon">💕</div>
+            <div class="ci-health-info">
+              <div class="ci-health-label">今日心情</div>
+              <div class="ci-h-emojis" id="ciMoodOpts" data-field="mood">
+                <span data-val="1" title="很差">😢</span>
+                <span data-val="2" title="不好">😟</span>
+                <span data-val="3" title="普通">😐</span>
+                <span data-val="4" title="不錯">🙂</span>
+                <span data-val="5" title="很棒">😄</span>
+              </div>
+            </div>
+          </div>
+          <div class="ci-health-row">
+            <div class="ci-health-icon">🚽</div>
+            <div class="ci-health-info">
+              <div class="ci-health-label">排便狀況</div>
+              <div class="ci-poop-row" id="ciPoopRow">
+                <button class="ci-poop-btn" data-val="0" type="button">沒有</button>
+                <button class="ci-poop-btn" data-val="1" type="button">正常</button>
+                <button class="ci-poop-btn" data-val="2" type="button">異常</button>
+              </div>
+            </div>
+          </div>
+          <div class="ci-health-row" style="padding-bottom:4px;">
+            <div class="ci-health-icon">📝</div>
+            <div class="ci-health-info">
+              <div class="ci-health-label">今日備註</div>
+              <textarea id="ciHealthNote" class="ci-health-note" placeholder="記錄一下今天的狀態…" maxlength="200" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -3534,7 +3658,8 @@ textarea.mid{ min-height:90px; }
     dotColors:'companion:dotColors',
     chess:'companion:chess', chessHistory:'companion:chessHistory',
     qaHistory:'companion:qaHistory',
-    periodRecords:'companion:periodRecords'
+    periodRecords:'companion:periodRecords',
+    healthLog:'companion:healthLog'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -3793,6 +3918,9 @@ textarea.mid{ min-height:90px; }
       }
       if(key === KEYS.periodRecords){
         periodRecords = load(KEYS.periodRecords) || periodRecords;
+      }
+      if(key === KEYS.healthLog){
+        healthLog = load(KEYS.healthLog) || healthLog;
       }
       if(key === KEYS.avatar) avatarDataUrl = localStorage.getItem(KEYS.avatar) || '';
       if(key === KEYS.theme){
@@ -5208,8 +5336,8 @@ textarea.mid{ min-height:90px; }
     if(periodRecords.length){
       var last = periodRecords[periodRecords.length-1];
       periodStartDate = new Date(last.start.replace(/-/g,'/'));
-      periodEndDate   = new Date(last.end.replace(/-/g,'/'));
-      updatePeriodDisplay();
+      periodEndDate   = last.end ? new Date(last.end.replace(/-/g,'/')) : null;
+      if(periodEndDate) updatePeriodDisplay();
     }
   }
 
@@ -5217,7 +5345,10 @@ textarea.mid{ min-height:90px; }
   function isInAnyPeriod(y, m, d){
     if(!periodRecords.length) return false;
     var key = y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    return periodRecords.some(function(r){ return r.start && r.end && key>=r.start && key<=r.end; });
+    var todayKey = new Date().toISOString().slice(0,10);
+    return periodRecords.some(function(r){
+      return r.start && key>=r.start && (r.end ? key<=r.end : key<=todayKey);
+    });
   }
 
   function updatePeriodDisplay(){
@@ -5296,13 +5427,13 @@ textarea.mid{ min-height:90px; }
   var calFilter = 'all';
   function setCalFilter(f){
     calFilter = f;
-    ['all','event','anni','checkin','period'].forEach(function(id){
+    ['all','event','anni','period'].forEach(function(id){
       var el = $('calChip'+id.charAt(0).toUpperCase()+id.slice(1));
       if(el) el.className = 'btc-chip' + (id===f?' active':'');
     });
     renderCalOvGrid();
   }
-  ['all','event','anni','checkin','period'].forEach(function(f){
+  ['all','event','anni','period'].forEach(function(f){
     var el = $('calChip'+f.charAt(0).toUpperCase()+f.slice(1));
     if(el) el.addEventListener('click', function(){ setCalFilter(f); });
   });
@@ -5324,12 +5455,22 @@ textarea.mid{ min-height:90px; }
       dateMap[key].push(it);
     });
 
-    // Checkin history overlay
-    var ciHistory = (calFilter==='all'||calFilter==='checkin') ? (checkin.history||[]) : [];
-
     var today = new Date();
     var firstDow = new Date(calOvYear, calOvMonth, 1).getDay();
     var daysInMon = new Date(calOvYear, calOvMonth+1, 0).getDate();
+
+    // Pre-compute period days for bar visual
+    var periodDays = {};
+    if(calFilter==='all'||calFilter==='period'){
+      for(var pd=1;pd<=daysInMon;pd++) periodDays[pd]=isInAnyPeriod(calOvYear,calOvMonth,pd);
+    }
+    function getPeriodClasses(day){
+      if(!periodDays[day]) return '';
+      var prevIn=!!periodDays[day-1], nextIn=!!periodDays[day+1];
+      var dow=new Date(calOvYear,calOvMonth,day).getDay();
+      var isBarStart=!prevIn||dow===0, isBarEnd=!nextIn||dow===6;
+      return ' btc-period-day'+(isBarStart?' btc-period-start':'')+(isBarEnd?' btc-period-end':'');
+    }
 
     for(var i=0;i<firstDow;i++){
       var emp=document.createElement('div'); emp.className='btc-day empty'; grid.appendChild(emp);
@@ -5337,28 +5478,18 @@ textarea.mid{ min-height:90px; }
     for(var d=1;d<=daysInMon;d++){
       var cell=document.createElement('div'); cell.type='button';
       var isToday=d===today.getDate()&&calOvMonth===today.getMonth()&&calOvYear===today.getFullYear();
-      var date=new Date(calOvYear,calOvMonth,d);
-
-      // Period highlight — check all period records
-      var inPeriod = isInAnyPeriod(calOvYear, calOvMonth, d);
-
       var isSelected=(d===calOvSelDay);
-      cell.className='btc-day'+(isToday?' today':'')+(isSelected?' selected':'')+(inPeriod?' btc-period-day':'');
+      var periodCls=getPeriodClasses(d);
+      cell.className='btc-day'+(isToday?' today':'')+(isSelected?' selected':'')+periodCls;
 
       var numEl=document.createElement('div'); numEl.className='btc-day-num'; numEl.textContent=d; cell.appendChild(numEl);
 
       var key2=calOvYear+'-'+(calOvMonth+1)+'-'+d;
       var items=dateMap[key2]||[];
 
-      // Checkin dot
-      var dateStr2=calOvYear+'年'+(calOvMonth+1)+'月'+d+'日';
-      var hasCi=ciHistory.indexOf(dateStr2)>=0;
-
       var icons=[];
-      if(hasCi) icons.push('🌙');
-      if(inPeriod&&(calFilter==='all'||calFilter==='period')) icons.push('🌸');
       items.forEach(function(it){
-        var emojiMap={event:'📝',anni:'🎂',birthday:'🎂',health:'💪',period:'🌸'};
+        var emojiMap={event:'📝',anni:'🎂',birthday:'🎂',health:'💪'};
         var em=emojiMap[it.type]||'📌';
         if(icons.indexOf(em)<0) icons.push(em);
       });
@@ -5413,12 +5544,12 @@ textarea.mid{ min-height:90px; }
       }
       return d.getFullYear()===calOvYear&&d.getMonth()===calOvMonth&&d.getDate()===day;
     });
-    // Also show checkin
-    var dateStr=calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
-    var hasCi=(checkin.history||[]).indexOf(dateStr)>=0;
-    if(hasCi) filtered.unshift({ title:'每日打卡 ✓', type:'checkin', _ci:true });
     // Show period record if this day is in a period
-    if(isInAnyPeriod(calOvYear, calOvMonth, day)) filtered.unshift({ title:'生理期中', type:'period', _period:true });
+    if(isInAnyPeriod(calOvYear, calOvMonth, day)){
+      var pr=periodRecords.find(function(r){ var k=calOvYear+'-'+String(calOvMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0'); return r.start&&k>=r.start&&(r.end?k<=r.end:true); });
+      var ptitle=pr&&!pr.end?'生理期中（進行中）':'生理期中';
+      filtered.unshift({ title:ptitle, type:'period', _period:true });
+    }
 
     if(!filtered.length){ list.innerHTML='<div class="btc-detail-empty">這天沒有記錄</div>'; return; }
     filtered.forEach(function(it){
@@ -5497,16 +5628,18 @@ textarea.mid{ min-height:90px; }
     }
     var sorted = periodRecords.slice().sort(function(a,b){ return b.start > a.start ? 1 : -1; });
     sorted.forEach(function(r){
-      var sd = new Date(r.start.replace(/-/g,'/')), ed = new Date(r.end.replace(/-/g,'/'));
+      var sd = new Date(r.start.replace(/-/g,'/'));
+      var isOngoing = !r.end;
+      var ed = isOngoing ? new Date() : new Date(r.end.replace(/-/g,'/'));
       var days = Math.round((ed-sd)/86400000)+1;
       var fmt = function(d){ return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'; };
       var row = document.createElement('div'); row.className = 'cal-period-record';
       var icon = document.createElement('div'); icon.className = 'cal-period-record-icon'; icon.textContent = '🌸';
       var info = document.createElement('div'); info.className = 'cal-period-record-info';
       var dateEl = document.createElement('div'); dateEl.className = 'cal-period-record-date';
-      dateEl.textContent = fmt(sd) + ' ～ ' + fmt(ed);
+      dateEl.textContent = isOngoing ? fmt(sd)+' ～ 進行中' : fmt(sd)+' ～ '+fmt(ed);
       var daysEl = document.createElement('div'); daysEl.className = 'cal-period-record-days';
-      daysEl.textContent = days + ' 天';
+      daysEl.textContent = isOngoing ? '已持續 '+days+' 天 🌸' : days+' 天';
       info.appendChild(dateEl); info.appendChild(daysEl);
       var btns = document.createElement('div'); btns.style.cssText = 'display:flex;gap:4px;flex:0 0 auto;';
       var editBtn = document.createElement('button'); editBtn.type='button'; editBtn.className='icon-btn'; editBtn.title='編輯'; editBtn.style.fontSize='14px'; editBtn.textContent='✏️';
@@ -5515,7 +5648,10 @@ textarea.mid{ min-height:90px; }
         editBtn.addEventListener('click', function(){
           _editingPeriodId = rec.id;
           $('calPeriodStartInput').value = rec.start;
-          $('calPeriodEndInput').value   = rec.end;
+          var ongoing = !rec.end;
+          $('calPeriodOngoing').checked = ongoing;
+          $('calPeriodEndInput').value = rec.end||'';
+          $('calPeriodEndInput').disabled = ongoing;
           updatePeriodDayCount();
           $('calPeriodAddForm').classList.remove('hidden');
           $('calPeriodAddForm').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -5526,7 +5662,8 @@ textarea.mid{ min-height:90px; }
           save(KEYS.periodRecords, periodRecords);
           if(periodRecords.length){
             var last=periodRecords[periodRecords.length-1];
-            periodStartDate=new Date(last.start.replace(/-/g,'/')); periodEndDate=new Date(last.end.replace(/-/g,'/'));
+            periodStartDate=new Date(last.start.replace(/-/g,'/'));
+            periodEndDate=last.end?new Date(last.end.replace(/-/g,'/')):null;
           } else { periodStartDate=null; periodEndDate=null; }
           renderPeriodSection(); renderCalOvGrid(); updatePeriodInfoStrip();
         });
@@ -5539,11 +5676,18 @@ textarea.mid{ min-height:90px; }
 
   function updatePeriodDayCount(){
     var s=$('calPeriodStartInput').value, e=$('calPeriodEndInput').value, el=$('calPeriodDayCount');
-    if(s&&e&&s<=e){
-      var sd=new Date(s.replace(/-/g,'/')), ed=new Date(e.replace(/-/g,'/'));
-      el.textContent = (Math.round((ed-sd)/86400000)+1)+' 天';
+    var ongoing=$('calPeriodOngoing')&&$('calPeriodOngoing').checked;
+    if(s&&(ongoing||(e&&s<=e))){
+      var sd=new Date(s.replace(/-/g,'/')), ed=ongoing?new Date():new Date(e.replace(/-/g,'/'));
+      el.textContent=(Math.round((ed-sd)/86400000)+1)+' 天'+(ongoing?' (進行中)':'');
     } else { el.textContent=''; }
   }
+
+  $('calPeriodOngoing').addEventListener('change', function(){
+    $('calPeriodEndInput').disabled = this.checked;
+    if(this.checked) $('calPeriodEndInput').value='';
+    updatePeriodDayCount();
+  });
 
   $('calOvPrev').addEventListener('click',function(){ calOvMonth--; if(calOvMonth<0){calOvMonth=11;calOvYear--;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
   $('calOvNext').addEventListener('click',function(){ calOvMonth++; if(calOvMonth>11){calOvMonth=0;calOvYear++;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
@@ -5581,9 +5725,12 @@ textarea.mid{ min-height:90px; }
   $('calPeriodStartInput').addEventListener('change', updatePeriodDayCount);
   $('calPeriodEndInput').addEventListener('change', updatePeriodDayCount);
   $('calPeriodSaveBtn').addEventListener('click', function(){
-    var s = $('calPeriodStartInput').value, e = $('calPeriodEndInput').value;
-    if(!s||!e){ alert('請選擇完整日期'); return; }
-    if(s>e){ alert('開始日期不能晚於結束日期'); return; }
+    var s = $('calPeriodStartInput').value;
+    var ongoing = $('calPeriodOngoing').checked;
+    var e = ongoing ? null : $('calPeriodEndInput').value;
+    if(!s){ alert('請選擇開始日期'); return; }
+    if(!ongoing && !e){ alert('請選擇結束日期，或勾選「仍在生理期中」'); return; }
+    if(!ongoing && s>e){ alert('開始日期不能晚於結束日期'); return; }
     if(_editingPeriodId){
       var idx = periodRecords.findIndex(function(r){ return r.id===_editingPeriodId; });
       if(idx>=0){ periodRecords[idx].start=s; periodRecords[idx].end=e; }
@@ -5591,11 +5738,12 @@ textarea.mid{ min-height:90px; }
       periodRecords.push({ id:uid('pr'), start:s, end:e });
     }
     save(KEYS.periodRecords, periodRecords);
-    // Keep legacy vars in sync
     var last=periodRecords[periodRecords.length-1];
-    periodStartDate=new Date(last.start.replace(/-/g,'/')); periodEndDate=new Date(last.end.replace(/-/g,'/'));
+    periodStartDate=new Date(last.start.replace(/-/g,'/'));
+    periodEndDate=last.end?new Date(last.end.replace(/-/g,'/')):null;
     _editingPeriodId = null;
     $('calPeriodAddForm').classList.add('hidden');
+    $('calPeriodOngoing').checked=false; $('calPeriodEndInput').disabled=false;
     renderPeriodSection(); renderCalOvGrid(); updatePeriodInfoStrip();
     flashSaved('生理期已儲存 ✓');
   });
@@ -5813,18 +5961,22 @@ textarea.mid{ min-height:90px; }
 
   function updatePeriodInfoStrip(){
     var strip = $('calPeriodStrip');
-    // Show the currently-active or most recent period
-    var today = new Date();
+    var today = new Date(); today.setHours(0,0,0,0);
     var active = periodRecords.find(function(r){
-      return r.start && r.end && today>=new Date(r.start.replace(/-/g,'/')) && today<=new Date(r.end.replace(/-/g,'/'));
+      if(!r.start) return false;
+      var sd=new Date(r.start.replace(/-/g,'/')); sd.setHours(0,0,0,0);
+      if(!r.end) return today>=sd;
+      var ed=new Date(r.end.replace(/-/g,'/')); ed.setHours(0,0,0,0);
+      return today>=sd && today<=ed;
     });
     var show = active || (periodRecords.length ? periodRecords[periodRecords.length-1] : null);
     if(show){
-      var sd=new Date(show.start.replace(/-/g,'/')), ed=new Date(show.end.replace(/-/g,'/'));
+      var sd=new Date(show.start.replace(/-/g,'/'));
+      var isOngoing=!show.end;
       var fmt=function(d){ return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'; };
-      var label = active ? '🌸 生理期中' : '🌸 最近記錄';
+      var label = active ? (isOngoing?'🌸 生理期中（進行中）':'🌸 生理期中') : '🌸 最近記錄';
       $('calPeriodStrip').querySelector('.period-info-label').textContent = label;
-      $('calPeriodRange').textContent = fmt(sd) + ' ～ ' + fmt(ed);
+      $('calPeriodRange').textContent = isOngoing ? fmt(sd)+' ～ 進行中' : fmt(sd)+' ～ '+fmt(new Date(show.end.replace(/-/g,'/')));
       strip.style.display = 'block';
     } else {
       strip.style.display = 'none';
@@ -6948,9 +7100,40 @@ textarea.mid{ min-height:90px; }
       ach.appendChild(badge);
     });
   }
+  /* ============ Health Log ============ */
+  var healthLog = load(KEYS.healthLog) || {};
+  function todayHealthKey(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function getOrCreateTodayHealth(){ var k=todayHealthKey(); if(!healthLog[k]) healthLog[k]={sleep:0,diet:0,water:0,mood:0,poop:-1,note:''}; return healthLog[k]; }
+  function renderHealthCard(){
+    var h=healthLog[todayHealthKey()]||{sleep:0,diet:0,water:0,mood:0,poop:-1,note:''};
+    $('ciSleepOpts').querySelectorAll('.ci-h-opt').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===h.sleep); });
+    $('ciDietOpts').querySelectorAll('span').forEach(function(s){ s.classList.toggle('active',parseInt(s.dataset.val)===h.diet); });
+    $('ciWaterVal').textContent=h.water||0;
+    $('ciMoodOpts').querySelectorAll('span').forEach(function(s){ s.classList.toggle('active',parseInt(s.dataset.val)===h.mood); });
+    $('ciPoopRow').querySelectorAll('.ci-poop-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===h.poop); });
+    $('ciHealthNote').value=h.note||'';
+  }
+  $('ciSleepOpts').querySelectorAll('.ci-h-opt').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h.sleep=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+  });
+  ['ciDietOpts','ciMoodOpts'].forEach(function(id){
+    var el=$(id); if(!el) return;
+    el.querySelectorAll('span').forEach(function(sp){
+      sp.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h[el.dataset.field]=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+    });
+  });
+  $('ciPoopRow').querySelectorAll('.ci-poop-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h.poop=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+  });
+  $('ciHealthCard').querySelectorAll('.ci-h-add-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(this.id==='ciWaterReset'){h.water=0;}else{h.water=(h.water||0)+parseInt(this.dataset.add);} save(KEYS.healthLog,healthLog); renderHealthCard(); });
+  });
+  $('ciHealthNote').addEventListener('input',function(){ var h=getOrCreateTodayHealth(); h.note=this.value; save(KEYS.healthLog,healthLog); });
+
   function openCheckinView(){
     ciCalYear=new Date().getFullYear(); ciCalMonth=new Date().getMonth();
     renderCiCalGrid();
+    renderHealthCard();
     showOnly('checkinView');
   }
   // legacy alias
@@ -7460,6 +7643,8 @@ textarea.mid{ min-height:90px; }
   var audioFilter = 'all';
   var audioEditingId = null;
   var audioEditCatSel = 'other';
+  var MAX_AUDIO_TRACKS = 20;
+  var MAX_AUDIO_FILE_MB = 5;
   var audioTsEditId = null;
   var audioEl = new Audio();
   var audioProgressTimer = null;
@@ -7486,6 +7671,11 @@ textarea.mid{ min-height:90px; }
   function renderAudioList(){
     var list = $('audioTrackList'); if(!list) return;
     list.innerHTML = '';
+    var countEl = $('audioTrackCount');
+    if(countEl) countEl.textContent = audioTracks.length + ' / ' + MAX_AUDIO_TRACKS;
+    var full = audioTracks.length >= MAX_AUDIO_TRACKS;
+    var uploadBtn = $('audioUploadTrigger');
+    if(uploadBtn){ uploadBtn.disabled = full; uploadBtn.title = full ? '已達上限（'+MAX_AUDIO_TRACKS+'個）' : '上傳音檔'; }
     var filtered = audioFilter === 'all' ? audioTracks : audioTracks.filter(function(t){ return t.category === audioFilter; });
     if(!filtered.length){
       list.innerHTML = '<div class="audio-empty"><div class="audio-empty-icon">🎶</div><div class="audio-empty-text">還沒有音檔<br>點右上角＋上傳第一個</div></div>';
@@ -7595,29 +7785,40 @@ textarea.mid{ min-height:90px; }
   });
 
   // Upload
-  $('audioUploadTrigger').addEventListener('click', function(){ $('audioFileInput').click(); });
+  $('audioUploadTrigger').addEventListener('click', function(){ if(!this.disabled) $('audioFileInput').click(); });
   $('audioFileInput').addEventListener('change', function(e){
     var file = e.target.files[0]; if(!file) return;
+    e.target.value = '';
+    if(audioTracks.length >= MAX_AUDIO_TRACKS){
+      alert('音檔數量已達上限（'+MAX_AUDIO_TRACKS+' 個），請先刪除一些音檔後再上傳。'); return;
+    }
+    if(file.size > MAX_AUDIO_FILE_MB * 1024 * 1024){
+      alert('檔案過大（'+(file.size/1024/1024).toFixed(1)+' MB），\n請選擇 '+MAX_AUDIO_FILE_MB+' MB 以內的音檔。\n\n建議使用 MP3 格式，或先壓縮後再上傳。'); return;
+    }
     var reader = new FileReader();
     reader.onload = function(ev){
+      function saveTrack(track){
+        audioTracks.push(track);
+        try{
+          save(AUDIO_KEY, audioTracks);
+        }catch(err){
+          audioTracks.pop();
+          alert('本地儲存空間不足，無法儲存此音檔。\n請刪除一些舊音檔後再試。');
+          renderAudioList(); return;
+        }
+        renderAudioList();
+        openAudioEdit(track.id);
+      }
       var tmpAudio = new Audio();
       tmpAudio.src = ev.target.result;
       tmpAudio.addEventListener('loadedmetadata', function(){
-        var dur = tmpAudio.duration;
-        var rawName = file.name.replace(/\.[^/.]+$/, '');
-        var track = { id: uid('aud'), title: rawName, category: 'other', dataUrl: ev.target.result, duration: dur, transcript: '', ts: Date.now() };
-        audioTracks.push(track);
-        save(AUDIO_KEY, audioTracks);
-        renderAudioList();
-        openAudioEdit(track.id); // 立即開啟編輯讓用戶設定分類
+        saveTrack({ id:uid('aud'), title:file.name.replace(/\.[^/.]+$/,''), category:'other', dataUrl:ev.target.result, duration:tmpAudio.duration, transcript:'', ts:Date.now() });
       });
       tmpAudio.addEventListener('error', function(){
-        var track = { id: uid('aud'), title: file.name.replace(/\.[^/.]+$/,''), category:'other', dataUrl: ev.target.result, duration: 0, transcript:'', ts: Date.now() };
-        audioTracks.push(track); save(AUDIO_KEY, audioTracks); renderAudioList(); openAudioEdit(track.id);
+        saveTrack({ id:uid('aud'), title:file.name.replace(/\.[^/.]+$/,''), category:'other', dataUrl:ev.target.result, duration:0, transcript:'', ts:Date.now() });
       });
     };
     reader.readAsDataURL(file);
-    e.target.value = '';
   });
 
   // Category filter chips
