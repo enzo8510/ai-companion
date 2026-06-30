@@ -2636,24 +2636,6 @@ textarea.mid{ min-height:90px; }
               <input type="text" id="elVoiceInput" class="el-input" placeholder="貼上 Voice ID（從 elevenlabs.io 複製）">
             </div>
 
-            <!-- Voice quality sliders -->
-            <div class="field" style="margin-top:14px;">
-              <label class="el-label" style="display:flex;justify-content:space-between;">
-                <span>穩定度（Stability）</span>
-                <span id="elStabilityVal" style="color:var(--companion);font-weight:600;">0.30</span>
-              </label>
-              <p class="el-hint" style="margin:2px 0 6px;">數值越低語音越有起伏感情，越高越平穩但偏機器感</p>
-              <input type="range" id="elStabilitySlider" min="0" max="1" step="0.05" value="0.3" style="width:100%;accent-color:var(--companion);">
-            </div>
-            <div class="field">
-              <label class="el-label" style="display:flex;justify-content:space-between;">
-                <span>風格誇張度（Style）</span>
-                <span id="elStyleVal" style="color:var(--companion);font-weight:600;">0.50</span>
-              </label>
-              <p class="el-hint" style="margin:2px 0 6px;">數值越高語調變化越豐富，但過高可能不穩定</p>
-              <input type="range" id="elStyleSlider" min="0" max="1" step="0.05" value="0.5" style="width:100%;accent-color:var(--companion);">
-            </div>
-
             <button class="btn" id="elSettingsSave" type="button" style="width:100%;margin-top:8px;">儲存設定</button>
 
             <!-- Usage display -->
@@ -2687,7 +2669,28 @@ textarea.mid{ min-height:90px; }
               <label class="el-label">輸入文字（動作描述將自動過濾）</label>
               <textarea id="elTtsText" class="el-textarea" placeholder="輸入要生成語音的文字，或點下方按鈕帶入最新 AI 回覆…" rows="5"></textarea>
             </div>
-            <button class="btn ghost small" id="elFillLastReply" type="button" style="margin-bottom:10px;">帶入最新 AI 回覆</button>
+            <button class="btn ghost small" id="elFillLastReply" type="button" style="margin-bottom:12px;">帶入最新 AI 回覆</button>
+
+            <!-- Voice quality sliders -->
+            <div style="background:var(--surface);border-radius:12px;border:1px solid var(--line);padding:12px;margin-bottom:12px;">
+              <div style="margin-bottom:10px;">
+                <label style="font-size:12px;font-weight:700;color:var(--ink);display:flex;justify-content:space-between;margin-bottom:2px;">
+                  <span>穩定度（Stability）</span>
+                  <span id="elStabilityVal" style="color:var(--companion);font-weight:600;">0.30</span>
+                </label>
+                <p class="el-hint" style="margin:2px 0 5px;font-size:11px;">越低越有起伏感情，越高越平穩</p>
+                <input type="range" id="elStabilitySlider" min="0" max="1" step="0.05" value="0.3" style="width:100%;accent-color:var(--companion);">
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:700;color:var(--ink);display:flex;justify-content:space-between;margin-bottom:2px;">
+                  <span>風格誇張度（Style）</span>
+                  <span id="elStyleVal" style="color:var(--companion);font-weight:600;">0.50</span>
+                </label>
+                <p class="el-hint" style="margin:2px 0 5px;font-size:11px;">越高語調變化越豐富</p>
+                <input type="range" id="elStyleSlider" min="0" max="1" step="0.05" value="0.5" style="width:100%;accent-color:var(--companion);">
+              </div>
+            </div>
+
             <button class="btn" id="elGenerateBtn" type="button" style="width:100%;">🎙 生成語音</button>
             <div id="elTtsStatus" style="font-size:13px;color:var(--ink-soft);margin-top:8px;min-height:20px;text-align:center;"></div>
             <div id="elAudioWrap" class="hidden" style="margin-top:12px;">
@@ -3959,7 +3962,7 @@ textarea.mid{ min-height:90px; }
     { id:'jr-2', date:'6月18日', content:'你今天說話比較少，我猜你大概是累了，沒有勉強你聊，只是想讓你知道我在。' }
   ];
 
-  var DEFAULT_SETTINGS = { apiKey:'', model:'gemini-2.5-flash', baseUrl:'https://generativelanguage.googleapis.com/v1beta/openai/', apiKeyGemini:'', apiKeyGroq:'', apiKeyClaude:'', activePreset:'g-2.5-flash', elKey:'', elVoice:'' };
+  var DEFAULT_SETTINGS = { apiKey:'', model:'gemini-2.5-flash', baseUrl:'https://generativelanguage.googleapis.com/v1beta/openai/', apiKeyGemini:'', apiKeyGroq:'', apiKeyClaude:'', activePreset:'g-2.5-flash', elKey:'', elVoice:'', elStability:0.3, elStyle:0.5 };
 
   var SERVICE_PRESETS = {
     'g-2.5-flash': { svc:'gemini', model:'gemini-2.5-flash',                    url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
@@ -4152,6 +4155,8 @@ textarea.mid{ min-height:90px; }
       if((!r.apiKeyGemini || r.apiKeyGemini === '') && l.apiKeyGemini) r.apiKeyGemini = l.apiKeyGemini;
       if((!r.apiKeyGroq   || r.apiKeyGroq   === '') && l.apiKeyGroq)   r.apiKeyGroq   = l.apiKeyGroq;
       if((!r.activePreset || r.activePreset === '') && l.activePreset) r.activePreset = l.activePreset;
+      if((!r.elKey        || r.elKey        === '') && l.elKey)        r.elKey        = l.elKey;
+      if((!r.elVoice      || r.elVoice      === '') && l.elVoice)      r.elVoice      = l.elVoice;
       return JSON.stringify(r);
     }catch(e){ return remoteStr; }
   }
@@ -8648,12 +8653,6 @@ textarea.mid{ min-height:90px; }
   function elShowSettings(){
     $('elApiKeyInput').value  = settings.elKey   || '';
     $('elVoiceInput').value   = settings.elVoice || '';
-    var stab = settings.elStability != null ? settings.elStability : 0.3;
-    var styl = settings.elStyle     != null ? settings.elStyle     : 0.5;
-    $('elStabilitySlider').value = stab;
-    $('elStabilityVal').textContent = stab.toFixed(2);
-    $('elStyleSlider').value = styl;
-    $('elStyleVal').textContent = styl.toFixed(2);
     $('elUsageWrap').style.display = 'none';
     $('elUsageStatus').textContent = '';
     $('elSettingsOverlay').classList.remove('hidden');
@@ -8664,6 +8663,12 @@ textarea.mid{ min-height:90px; }
     $('elTtsStatus').textContent = '';
     $('elAudioWrap').classList.add('hidden');
     elGeneratedBlob = null;
+    var stab = settings.elStability != null ? settings.elStability : 0.3;
+    var styl = settings.elStyle     != null ? settings.elStyle     : 0.5;
+    $('elStabilitySlider').value = stab;
+    $('elStabilityVal').textContent = stab.toFixed(2);
+    $('elStyleSlider').value = styl;
+    $('elStyleVal').textContent = styl.toFixed(2);
     $('elTtsOverlay').classList.remove('hidden');
   }
   function elHideTts(){ $('elTtsOverlay').classList.add('hidden'); }
@@ -8689,10 +8694,8 @@ textarea.mid{ min-height:90px; }
   $('elTtsClose').addEventListener('click', elHideTts);
 
   $('elSettingsSave').addEventListener('click', function(){
-    settings.elKey        = $('elApiKeyInput').value.trim();
-    settings.elVoice      = $('elVoiceInput').value.trim();
-    settings.elStability  = parseFloat($('elStabilitySlider').value);
-    settings.elStyle      = parseFloat($('elStyleSlider').value);
+    settings.elKey   = $('elApiKeyInput').value.trim();
+    settings.elVoice = $('elVoiceInput').value.trim();
     save(KEYS.settings, settings);
     elHideSettings();
     flashSaved();
@@ -8737,8 +8740,11 @@ textarea.mid{ min-height:90px; }
     if(!text){ $('elTtsStatus').textContent = '請輸入文字。'; return; }
     if(!settings.elKey){ $('elTtsStatus').textContent = '請先設定 ElevenLabs API Key。'; elShowSettings(); return; }
     var voiceId = settings.elVoice || '21m00Tcm4TlvDq8ikWAM';
-    var stability = settings.elStability != null ? settings.elStability : 0.3;
-    var style     = settings.elStyle     != null ? settings.elStyle     : 0.5;
+    var stability = parseFloat($('elStabilitySlider').value);
+    var style     = parseFloat($('elStyleSlider').value);
+    settings.elStability = stability;
+    settings.elStyle     = style;
+    save(KEYS.settings, settings);
     var btn = this; btn.disabled = true;
     $('elTtsStatus').textContent = '生成中…';
     $('elAudioWrap').classList.add('hidden');
