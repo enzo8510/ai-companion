@@ -1711,6 +1711,12 @@ textarea.mid{ min-height:90px; }
 .qa-hist-header{ display:flex; align-items:center; justify-content:space-between; padding:0 2px; }
 .qa-hist-title{ font-size:13px; font-weight:700; color:var(--ink); letter-spacing:.02em; }
 .qa-hist-count{ font-size:12px; color:var(--ink-soft); }
+.qa-month-nav{ display:flex; align-items:center; justify-content:center; gap:10px; }
+.qa-month-nav.hidden{ display:none; }
+.qa-month-label{ font-size:13px; font-weight:600; color:var(--companion); min-width:76px; text-align:center; }
+.qa-month-btn{ width:28px; height:28px; border-radius:50%; border:1.5px solid var(--companion-soft); background:transparent; color:var(--ink-soft); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all .15s; line-height:1; padding:0; }
+.qa-month-btn:hover:not(:disabled){ background:var(--companion-soft); color:var(--companion); border-color:var(--companion); }
+.qa-month-btn:disabled{ opacity:.25; cursor:default; }
 .qa-hist-list{ display:flex; flex-direction:column; gap:8px; }
 .qa-hist-item{
   display:flex; align-items:flex-start; gap:12px;
@@ -2715,6 +2721,11 @@ textarea.mid{ min-height:90px; }
             <div class="qa-hist-header">
               <span class="qa-hist-title">問答記錄</span>
               <span class="qa-hist-count" id="qaHistCount"></span>
+            </div>
+            <div class="qa-month-nav hidden" id="qaMonthNav">
+              <button class="qa-month-btn" id="qaMonthPrev" type="button">‹</button>
+              <span class="qa-month-label" id="qaMonthLabel"></span>
+              <button class="qa-month-btn" id="qaMonthNext" type="button">›</button>
             </div>
             <div class="qa-hist-list" id="qaHistoryList"></div>
           </div>
@@ -6098,22 +6109,69 @@ textarea.mid{ min-height:90px; }
     $('qaStatTotal').textContent = total;
     $('qaStatMonth').textContent = thisMonth;
     $('qaStatDays').textContent = uniqueDays;
-    $('qaHistCount').textContent = total > 0 ? total + ' 則記錄' : '';
-
     renderQaHistoryList();
   }
 
+  var qaFilterMonth = '';
+
+  function parseYM(ym){
+    var m = ym.match(/(\d+)年(\d+)月/);
+    return m ? parseInt(m[1]) * 100 + parseInt(m[2]) : 0;
+  }
+
+  function getQaMonths(){
+    var seen = {};
+    qaHistory.forEach(function(h){
+      if(!h.date) return;
+      var mi = h.date.indexOf('月');
+      if(mi < 0) return;
+      seen[h.date.slice(0, mi + 1)] = true;
+    });
+    return Object.keys(seen).sort(function(a,b){ return parseYM(a) - parseYM(b); });
+  }
+
+  function updateQaMonthNav(){
+    var months = getQaMonths();
+    var nav = $('qaMonthNav');
+    if(months.length < 2){
+      nav.classList.add('hidden');
+      qaFilterMonth = months.length === 1 ? months[0] : '';
+      return;
+    }
+    nav.classList.remove('hidden');
+    if(!qaFilterMonth || months.indexOf(qaFilterMonth) < 0){
+      qaFilterMonth = months[months.length - 1];
+    }
+    var idx = months.indexOf(qaFilterMonth);
+    $('qaMonthLabel').textContent = qaFilterMonth;
+    $('qaMonthPrev').disabled = (idx <= 0);
+    $('qaMonthNext').disabled = (idx >= months.length - 1);
+  }
+
   function renderQaHistoryList(){
+    updateQaMonthNav();
+    var filtered = qaFilterMonth
+      ? qaHistory.filter(function(h){
+          if(!h.date) return false;
+          var mi = h.date.indexOf('月');
+          return mi >= 0 && h.date.slice(0, mi + 1) === qaFilterMonth;
+        })
+      : qaHistory;
+
+    $('qaHistCount').textContent = filtered.length > 0 ? filtered.length + ' 則記錄' : '';
+
     var list = $('qaHistoryList');
     list.innerHTML = '';
-    if(qaHistory.length === 0){
+    if(filtered.length === 0){
       var empty = document.createElement('div');
       empty.className = 'qa-empty-hint';
-      empty.innerHTML = '🎲<br>還沒有提問過喔<br>去找卄珩聊聊今天的問題吧！';
+      empty.innerHTML = qaHistory.length === 0
+        ? '🎲<br>還沒有提問過喔<br>去找卄珩聊聊今天的問題吧！'
+        : '📭<br>' + (qaFilterMonth || '') + ' 沒有記錄';
       list.appendChild(empty);
       return;
     }
-    qaHistory.forEach(function(h, idx){
+    filtered.forEach(function(h, idx){
       var item = document.createElement('div');
       item.className = 'qa-hist-item';
 
@@ -6258,6 +6316,16 @@ textarea.mid{ min-height:90px; }
   });
 
   $('qaBackBtn').addEventListener('click', showHome);
+  $('qaMonthPrev').addEventListener('click', function(){
+    var months = getQaMonths();
+    var idx = months.indexOf(qaFilterMonth);
+    if(idx > 0){ qaFilterMonth = months[idx - 1]; renderQaHistoryList(); }
+  });
+  $('qaMonthNext').addEventListener('click', function(){
+    var months = getQaMonths();
+    var idx = months.indexOf(qaFilterMonth);
+    if(idx < months.length - 1){ qaFilterMonth = months[idx + 1]; renderQaHistoryList(); }
+  });
   $('qaTodayRefreshBtn').addEventListener('click', function(){
     dailyQa.qIndex = (dailyQa.qIndex + 1) % QA_LIST.length;
     save(KEYS.dailyqa, dailyQa);
