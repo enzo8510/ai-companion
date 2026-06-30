@@ -204,6 +204,11 @@ body{
   background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%);
   background-size:contain; background-position:center; background-repeat:no-repeat;
 }
+.mini-avatar-me{
+  width:26px; height:26px; border-radius:50%; flex:0 0 auto; margin-top:auto;
+  background:linear-gradient(135deg, #ffe8f2, #f0b8d4);
+  background-size:cover; background-position:center; background-repeat:no-repeat;
+}
 .avatar-upload-wrap{ display:flex; align-items:center; gap:16px; }
 .avatar-preset-section{ padding:12px 16px 4px; }
 .avatar-preset-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.05em; margin-bottom:8px; text-transform:uppercase; }
@@ -232,6 +237,9 @@ body{
   word-break:break-word;
   white-space:pre-wrap;
 }
+.bubble-time{ display:block; font-size:9px; color:rgba(26,26,46,0.38); margin-top:5px; line-height:1; }
+.bubble.me .bubble-time{ text-align:right; }
+.bubble.her .bubble-time{ text-align:left; }
 .bubble.her{ background:rgba(176,158,212,0.85); color:#1a1a2e; border-radius:18px 18px 18px 5px; }
 .bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
@@ -892,6 +900,8 @@ textarea.mid{ min-height:90px; }
 .token-bar-item b{ color:var(--ink); font-weight:600; }
 .token-bar-sep{ color:var(--line); }
 .token-bar-detail{ font-size:10px; color:var(--ink-soft); opacity:.7; }
+.token-bar-reset{ background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:13px; padding:1px 5px; border-radius:4px; line-height:1; opacity:.5; transition:opacity .12s, color .12s; font-family:inherit; }
+.token-bar-reset:hover{ opacity:1; color:var(--companion); }
 /* ---- Chat toolbar ---- */
 .chat-toolbar{ flex:0 0 auto; display:flex; align-items:center; gap:var(--space-sm); padding:var(--space-sm) var(--space-md); background:var(--surface); border-top:1px solid var(--line); }
 .chat-tool-btn{ display:flex; align-items:center; gap:4px; background:var(--chat-bg); border:1px solid var(--line); border-radius:999px; padding:5px 11px; font-family:inherit; font-size:12px; color:var(--ink-soft); cursor:pointer; white-space:nowrap; transition:border-color .1s, color .1s; }
@@ -2032,8 +2042,9 @@ textarea.mid{ min-height:90px; }
       <div class="token-bar hidden" id="tokenBar">
         <span class="token-bar-item">⚡ 上次：<b id="tokenLast">—</b></span>
         <span class="token-bar-sep">·</span>
-        <span class="token-bar-item">累計：<b id="tokenTotal">—</b></span>
+        <span class="token-bar-item">全部：<b id="tokenTotal">—</b></span>
         <span class="token-bar-detail" id="tokenDetail"></span>
+        <button class="token-bar-reset" id="tokenReset" title="重置累計">↺</button>
       </div>
 
       <div class="composer">
@@ -2052,6 +2063,11 @@ textarea.mid{ min-height:90px; }
             <span class="lp-item-icon">👤</span>
             <span>更改頭像</span>
           </button>
+          <button class="lp-item" id="rpChangeUserAvatar" type="button">
+            <div class="mini-avatar-me" id="rpUserAvatarPreview" style="width:22px;height:22px;flex:0 0 auto;margin:0;"></div>
+            <span>我的頭像</span>
+          </button>
+          <input type="file" id="userAvatarInput" accept="image/*" style="display:none;">
           <button class="lp-item" id="rpChangeBg" type="button">
             <span class="lp-item-icon">🖼</span>
             <span>更改聊天室背景</span>
@@ -3410,6 +3426,7 @@ textarea.mid{ min-height:90px; }
     walGallery:'companion:walGallery', walActive:'companion:walActive',
     avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
     startDate:'companion:startDate', cntTarget:'companion:cntTarget', msEmojis:'companion:msEmojis',
+    userAvatar:'companion:userAvatar', tokenStats:'companion:tokenStats',
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
     theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
     dotColors:'companion:dotColors',
@@ -3772,6 +3789,8 @@ textarea.mid{ min-height:90px; }
   var startDate   = localStorage.getItem(KEYS.startDate) || '';
   var cntTarget   = localStorage.getItem(KEYS.cntTarget) || '';
   var msEmojis    = load(KEYS.msEmojis) || {};
+  var userAvatarUrl = localStorage.getItem(KEYS.userAvatar) || '';
+  var tokenStats  = load(KEYS.tokenStats) || { totalIn:0, totalOut:0 };
   var walGallery  = load(KEYS.walGallery)    || [];
   var walActive   = localStorage.getItem(KEYS.walActive) || '';
   var avatarGallery = load(KEYS.avatarGallery) || [];
@@ -3843,11 +3862,18 @@ textarea.mid{ min-height:90px; }
     if(avatarDataUrl){ el.style.backgroundImage='url("'+avatarDataUrl+'")'; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; }
     else{ el.style.backgroundImage=''; el.style.backgroundSize=''; }
   }
+  function applyUserAvatarToEl(el){
+    if(!el) return;
+    if(userAvatarUrl){ el.style.backgroundImage='url("'+userAvatarUrl+'")'; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; }
+    else{ el.style.backgroundImage=''; }
+  }
   function syncAvatar(){
     applyAvatarToEl(document.querySelector('.avatar-orb'));
     Array.prototype.forEach.call(document.querySelectorAll('.mini-avatar'), applyAvatarToEl);
     applyAvatarToEl($('avatarPreview'));
     applyAvatarToEl($('homeAvatar'));
+    Array.prototype.forEach.call(document.querySelectorAll('.mini-avatar-me'), applyUserAvatarToEl);
+    applyUserAvatarToEl($('rpUserAvatarPreview'));
   }
 
   /* ============ View switching ============ */
@@ -4061,7 +4087,7 @@ textarea.mid{ min-height:90px; }
     return card;
   }
 
-  function bubbleRow(role, text, msgIndex){
+  function bubbleRow(role, text, msgIndex, ts){
     var row = document.createElement('div');
     row.className = 'row ' + (role==='assistant' ? 'her' : 'me');
     if(msgIndex!==undefined) row.setAttribute('data-msg-index', msgIndex);
@@ -4074,7 +4100,21 @@ textarea.mid{ min-height:90px; }
     b.className = 'bubble ' + (role==='assistant' ? 'her' : 'me');
     if(role==='assistant'){ b.innerHTML = parseMarkdown(text); }
     else{ b.textContent = text; }
+    if(ts){
+      var d = new Date(ts);
+      var hh = String(d.getHours()).padStart(2,'0');
+      var mm = String(d.getMinutes()).padStart(2,'0');
+      var timeEl = document.createElement('span');
+      timeEl.className = 'bubble-time';
+      timeEl.textContent = hh + ':' + mm;
+      b.appendChild(timeEl);
+    }
     row.appendChild(b);
+    if(role!=='assistant'){
+      var uav = document.createElement('div'); uav.className='mini-avatar-me'; uav.setAttribute('aria-hidden','true');
+      applyUserAvatarToEl(uav);
+      row.appendChild(uav);
+    }
     if(msgIndex!==undefined){
       (function(idx){
         b.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); showChatContextMenu(e, idx); });
@@ -4123,7 +4163,7 @@ textarea.mid{ min-height:90px; }
       } else if(t.isQa && t.role==='user'){
         thread.appendChild(createQaCard(t.content, idx));
       } else {
-        thread.appendChild(bubbleRow(t.role, t.content, idx));
+        thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
       }
     });
     scrollThread();
@@ -4273,18 +4313,26 @@ textarea.mid{ min-height:90px; }
 
   /* ============ Token counter ============ */
   var sessionTokenIn = 0, sessionTokenOut = 0;
+  function fmt(n){ return n.toLocaleString(); }
+  function renderTokenBar(){
+    var total = tokenStats.totalIn + tokenStats.totalOut;
+    $('tokenTotal').textContent = fmt(total) + ' tokens';
+    if(total > 0) $('tokenBar').classList.remove('hidden');
+  }
   function updateTokenBar(usage){
     if(!usage) return;
     var inTok  = usage.prompt_tokens     || 0;
     var outTok = usage.completion_tokens || 0;
     sessionTokenIn  += inTok;
     sessionTokenOut += outTok;
+    tokenStats.totalIn  += inTok;
+    tokenStats.totalOut += outTok;
+    save(KEYS.tokenStats, tokenStats);
     var lastTotal = inTok + outTok;
-    var sessTotal = sessionTokenIn + sessionTokenOut;
-    function fmt(n){ return n.toLocaleString(); }
+    var total = tokenStats.totalIn + tokenStats.totalOut;
     $('tokenLast').textContent  = fmt(lastTotal) + ' tokens';
-    $('tokenTotal').textContent = fmt(sessTotal) + ' tokens';
-    $('tokenDetail').textContent = '（輸入 ' + fmt(inTok) + ' ｜ 輸出 ' + fmt(outTok) + '）';
+    $('tokenTotal').textContent = fmt(total) + ' tokens';
+    $('tokenDetail').textContent = '（本次輸入 ' + fmt(inTok) + ' ｜ 輸出 ' + fmt(outTok) + '）';
     $('tokenBar').classList.remove('hidden');
   }
 
@@ -4304,8 +4352,9 @@ textarea.mid{ min-height:90px; }
       thread.appendChild(imgRow);
       clearPendingImg();
     }
-    if(t) thread.appendChild(bubbleRow('user', t));
-    chatHistory.push({ role:'user', content:(img&&!t?'（附圖）':t), ts:Date.now() });
+    var userTs = Date.now();
+    if(t) thread.appendChild(bubbleRow('user', t, undefined, userTs));
+    chatHistory.push({ role:'user', content:(img&&!t?'（附圖）':t), ts:userTs });
     save(KEYS.chat, chatHistory);
     chatInput.value = '';
     setSending(true);
@@ -4314,9 +4363,10 @@ textarea.mid{ min-height:90px; }
 
     callAI(img).then(function(result){
       var reply = result.text;
+      var replyTs = Date.now();
       hideTyping();
-      thread.appendChild(bubbleRow('assistant', reply));
-      chatHistory.push({ role:'assistant', content:reply, ts:Date.now() });
+      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
+      chatHistory.push({ role:'assistant', content:reply, ts:replyTs });
       save(KEYS.chat, chatHistory);
       updateTokenBar(result.usage);
       scrollThread();
@@ -5929,9 +5979,10 @@ textarea.mid{ min-height:90px; }
     setSending(true); showTyping(); scrollThread();
     callAI().then(function(result){
       var reply = result.text;
+      var replyTs = Date.now();
       hideTyping();
-      thread.appendChild(bubbleRow('assistant', reply));
-      chatHistory.push({ role:'assistant', content:reply, ts:Date.now() });
+      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
+      chatHistory.push({ role:'assistant', content:reply, ts:replyTs });
       save(KEYS.chat, chatHistory);
       updateTokenBar(result.usage);
       var qaIdx = qaHistory.findIndex(function(h){ return h.question === q && h.date === todayLabel(); });
@@ -6121,9 +6172,10 @@ textarea.mid{ min-height:90px; }
     renderThread(); setSending(true); showTyping(); scrollThread();
     callAI().then(function(result){
       var reply = result.text;
+      var replyTs = Date.now();
       hideTyping();
-      thread.appendChild(bubbleRow('assistant', reply));
-      chatHistory.push({ role:'assistant', content:reply, ts:Date.now() });
+      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
+      chatHistory.push({ role:'assistant', content:reply, ts:replyTs });
       save(KEYS.chat, chatHistory);
       updateTokenBar(result.usage);
       // save answer back to qaHistory entry
@@ -6757,6 +6809,36 @@ textarea.mid{ min-height:90px; }
     renderMoodDiaryOverlay();
     $('moodDiaryOverlay').classList.remove('hidden');
   }
+  /* ============ Token bar reset ============ */
+  $('tokenReset').addEventListener('click', function(){
+    tokenStats = { totalIn:0, totalOut:0 };
+    sessionTokenIn = 0; sessionTokenOut = 0;
+    save(KEYS.tokenStats, tokenStats);
+    $('tokenLast').textContent = '—';
+    $('tokenTotal').textContent = '0 tokens';
+    $('tokenDetail').textContent = '';
+    $('tokenBar').classList.add('hidden');
+  });
+
+  /* ============ User avatar upload ============ */
+  $('rpChangeUserAvatar').addEventListener('click', function(){
+    closeRightPanel();
+    $('userAvatarInput').click();
+  });
+  $('userAvatarInput').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      userAvatarUrl = ev.target.result;
+      localStorage.setItem(KEYS.userAvatar, userAvatarUrl);
+      syncAvatar();
+      flashSaved('頭像已更新');
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
   /* ============ Right panel menu items ============ */
   $('rpChangeAvatar').addEventListener('click', function(){
     closeRightPanel();
@@ -8441,6 +8523,7 @@ textarea.mid{ min-height:90px; }
   /* ============ Init ============ */
   syncHeader();
   syncAvatar();
+  renderTokenBar();
   fillSettings();
   fillPersona();
   renderKnowledge();
