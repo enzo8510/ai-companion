@@ -758,7 +758,12 @@ textarea.mid{ min-height:90px; }
 .cal-period-record-info{ flex:1; }
 .cal-period-record-date{ font-size:13px; font-weight:600; color:var(--ink); }
 .cal-period-record-days{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
-.btc-add-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+.btc-add-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:0; display:flex; align-items:center; justify-content:space-between; }
+.btc-add-title.btc-has-body{ cursor:pointer; user-select:none; }
+.btc-add-title.btc-has-body.open{ margin-bottom:12px; }
+.btc-chevron{ font-size:13px; color:var(--ink-soft); display:inline-block; transition:transform .2s; transform:rotate(0deg); margin-left:4px; }
+.btc-add-title.open .btc-chevron{ transform:rotate(90deg); }
+.btc-collapse-body{ overflow:hidden; }
 .btc-checkin-btn{ width:100%; padding:16px; border-radius:16px; background:var(--companion); color:#fff; border:none; font-size:16px; font-weight:700; font-family:inherit; cursor:pointer; transition:opacity .15s; margin-top:4px; }
 .btc-checkin-btn:active{ opacity:.85; }
 .btc-checkin-btn:disabled{ opacity:.45; cursor:default; }
@@ -3098,66 +3103,76 @@ textarea.mid{ min-height:90px; }
 
         <!-- Period records section -->
         <div class="btc-add-section" style="margin-bottom:14px;">
-          <div class="btc-add-title">
+          <div class="btc-add-title btc-has-body" id="calPeriodCollapseTitle">
             <span>🌸 生理期記錄</span>
-            <button class="icon-btn" id="calAddPeriodBtn" type="button" title="新增生理期" style="font-size:16px;">＋</button>
-          </div>
-          <!-- Inline add/edit form -->
-          <div class="cal-period-add-form hidden" id="calPeriodAddForm">
-            <div class="cal-period-form-row">
-              <span class="cal-period-form-label">開始日期</span>
-              <input type="date" id="calPeriodStartInput" class="period-input" style="flex:1;">
-            </div>
-            <div class="cal-period-form-row">
-              <span class="cal-period-form-label">結束日期</span>
-              <input type="date" id="calPeriodEndInput" class="period-input" style="flex:1;">
-              <span id="calPeriodDayCount" class="cal-period-day-count"></span>
-            </div>
-            <div class="cal-period-form-row" style="border-top:none;padding-top:0;">
-              <label class="ci-ongoing-label">
-                <input type="checkbox" id="calPeriodOngoing">
-                仍在生理期中（尚未結束）
-              </label>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:8px;">
-              <button class="toolbar-btn ghost" id="calPeriodCancelBtn" type="button" style="flex:1;justify-content:center;">取消</button>
-              <button class="toolbar-btn primary" id="calPeriodSaveBtn" type="button" style="flex:1;justify-content:center;">💾 儲存</button>
+            <div style="display:flex;align-items:center;gap:2px;">
+              <button class="icon-btn" id="calAddPeriodBtn" type="button" title="新增生理期" style="font-size:16px;">＋</button>
+              <span class="btc-chevron">›</span>
             </div>
           </div>
-          <div id="calPeriodList"></div>
+          <div class="btc-collapse-body" id="calPeriodBody" style="display:none;">
+            <!-- Inline add/edit form -->
+            <div class="cal-period-add-form hidden" id="calPeriodAddForm">
+              <div class="cal-period-form-row">
+                <span class="cal-period-form-label">開始日期</span>
+                <input type="date" id="calPeriodStartInput" class="period-input" style="flex:1;">
+              </div>
+              <div class="cal-period-form-row">
+                <span class="cal-period-form-label">結束日期</span>
+                <input type="date" id="calPeriodEndInput" class="period-input" style="flex:1;">
+                <span id="calPeriodDayCount" class="cal-period-day-count"></span>
+              </div>
+              <div class="cal-period-form-row" style="border-top:none;padding-top:0;">
+                <label class="ci-ongoing-label">
+                  <input type="checkbox" id="calPeriodOngoing">
+                  仍在生理期中（尚未結束）
+                </label>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <button class="toolbar-btn ghost" id="calPeriodCancelBtn" type="button" style="flex:1;justify-content:center;">取消</button>
+                <button class="toolbar-btn primary" id="calPeriodSaveBtn" type="button" style="flex:1;justify-content:center;">💾 儲存</button>
+              </div>
+            </div>
+            <div id="calPeriodList"></div>
+          </div>
         </div>
 
         <!-- Add event section -->
         <div class="btc-add-section">
-          <div class="btc-add-title">
+          <div class="btc-add-title btc-has-body" id="calEventCollapseTitle">
             <span>✨ 新增事項</span>
-            <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:15px;">⚙</button>
-          </div>
-          <div class="cal-add-row">
-            <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
-          </div>
-          <div class="cal-add-row">
-            <input type="text" id="calAddDate" placeholder="開始日期" readonly class="input-date" style="flex:1">
-            <input type="text" id="calAddEndDate" placeholder="結束日期（多日可選）" readonly class="input-date" style="flex:1;color:var(--ink-soft)">
-          </div>
-          <div class="cal-add-row" id="calColorRow" style="display:none">
-            <div class="cal-color-row">
-              <span class="cal-color-label">橫條色</span>
-              <div class="cal-color-swatches" id="calColorSwatches">
-                <div class="cal-color-swatch active" data-color="auto" style="background:var(--event-color)" title="主題色"></div>
-                <div class="cal-color-swatch" data-color="#E84C78" style="background:#E84C78" title="粉紅"></div>
-                <div class="cal-color-swatch" data-color="#3BADCC" style="background:#3BADCC" title="天藍"></div>
-                <div class="cal-color-swatch" data-color="#e08050" style="background:#e08050" title="橘橙"></div>
-                <div class="cal-color-swatch" data-color="#6db56d" style="background:#6db56d" title="草綠"></div>
-                <div class="cal-color-swatch" data-color="#9b6fc0" style="background:#9b6fc0" title="紫"></div>
-                <div class="cal-color-swatch" data-color="#c8a44a" style="background:#c8a44a" title="金黃"></div>
-              </div>
+            <div style="display:flex;align-items:center;gap:2px;">
+              <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:15px;">⚙</button>
+              <span class="btc-chevron">›</span>
             </div>
           </div>
-          <div class="cal-add-row">
-            <select id="calAddType" class="select-category"></select>
+          <div class="btc-collapse-body" id="calEventBody" style="display:none;">
+            <div class="cal-add-row">
+              <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
+            </div>
+            <div class="cal-add-row">
+              <input type="text" id="calAddDate" placeholder="開始日期" readonly class="input-date" style="flex:1">
+              <input type="text" id="calAddEndDate" placeholder="結束日期（多日可選）" readonly class="input-date" style="flex:1;color:var(--ink-soft)">
+            </div>
+            <div class="cal-add-row" id="calColorRow" style="display:none">
+              <div class="cal-color-row">
+                <span class="cal-color-label">橫條色</span>
+                <div class="cal-color-swatches" id="calColorSwatches">
+                  <div class="cal-color-swatch active" data-color="auto" style="background:var(--event-color)" title="主題色"></div>
+                  <div class="cal-color-swatch" data-color="#E84C78" style="background:#E84C78" title="粉紅"></div>
+                  <div class="cal-color-swatch" data-color="#3BADCC" style="background:#3BADCC" title="天藍"></div>
+                  <div class="cal-color-swatch" data-color="#e08050" style="background:#e08050" title="橘橙"></div>
+                  <div class="cal-color-swatch" data-color="#6db56d" style="background:#6db56d" title="草綠"></div>
+                  <div class="cal-color-swatch" data-color="#9b6fc0" style="background:#9b6fc0" title="紫"></div>
+                  <div class="cal-color-swatch" data-color="#c8a44a" style="background:#c8a44a" title="金黃"></div>
+                </div>
+              </div>
+            </div>
+            <div class="cal-add-row">
+              <select id="calAddType" class="select-category"></select>
+            </div>
+            <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">新增事項</button>
           </div>
-          <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">新增事項</button>
         </div>
       </div>
     </div>
@@ -6232,14 +6247,39 @@ textarea.mid{ min-height:90px; }
     renderPeriodCalGrid();
   });
 
+  /* ---- Collapsible sections toggle ---- */
+  function btcToggleSection(titleEl, bodyEl){
+    var open = titleEl.classList.contains('open');
+    if(open){
+      bodyEl.style.display = 'none';
+      titleEl.classList.remove('open');
+    } else {
+      bodyEl.style.display = 'block';
+      titleEl.classList.add('open');
+    }
+  }
+  function btcExpandSection(titleEl, bodyEl){
+    bodyEl.style.display = 'block';
+    titleEl.classList.add('open');
+  }
+  $('calPeriodCollapseTitle').addEventListener('click', function(e){
+    if(e.target.closest('button')) return; // let buttons handle themselves
+    btcToggleSection(this, $('calPeriodBody'));
+  });
+  $('calEventCollapseTitle').addEventListener('click', function(e){
+    if(e.target.closest('button')) return;
+    btcToggleSection(this, $('calEventBody'));
+  });
+
   /* ---- Inline period add/edit form (calendarView) ---- */
   $('calAddPeriodBtn').addEventListener('click', function(){
+    btcExpandSection($('calPeriodCollapseTitle'), $('calPeriodBody'));
     _editingPeriodId = null;
     $('calPeriodStartInput').value = '';
     $('calPeriodEndInput').value   = '';
     $('calPeriodDayCount').textContent = '';
     $('calPeriodAddForm').classList.remove('hidden');
-    $('calPeriodAddForm').scrollIntoView({behavior:'smooth',block:'nearest'});
+    setTimeout(function(){ $('calPeriodAddForm').scrollIntoView({behavior:'smooth',block:'nearest'}); }, 60);
   });
   $('calPeriodCancelBtn').addEventListener('click', function(){
     _editingPeriodId = null;
@@ -6450,6 +6490,7 @@ textarea.mid{ min-height:90px; }
   applyDotColors(); // 載入時套用已存的顏色
 
   $('calTypeManagerBtn').addEventListener('click', function(){
+    btcExpandSection($('calEventCollapseTitle'), $('calEventBody'));
     renderEventTypeManager();
     renderDotColorList();
     $('eventTypeManagerOverlay').classList.remove('hidden');
