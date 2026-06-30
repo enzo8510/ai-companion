@@ -6043,12 +6043,15 @@ textarea.mid{ min-height:90px; }
     detail.style.display='block'; nosel.style.display='none';
     setTimeout(function(){
       var btcBody = document.querySelector('#calendarView .btc-body');
-      if(btcBody){
-        var calCard = btcBody.querySelector('.btc-cal-card');
-        var targetTop = calCard ? (calCard.offsetTop + calCard.offsetHeight + 8) : detail.offsetTop;
-        btcBody.scrollTo({ top: targetTop, behavior: 'smooth' });
+      if(btcBody && detail){
+        var bodyRect   = btcBody.getBoundingClientRect();
+        var detailRect = detail.getBoundingClientRect();
+        // pixels the detail is currently below the visible top of btcBody
+        var offset = detailRect.top - bodyRect.top;
+        var targetTop = btcBody.scrollTop + offset - 8;
+        btcBody.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
       }
-    }, 60);
+    }, 80);
     var wdays=['日','一','二','三','四','五','六'];
     var dateObj=new Date(calOvYear,calOvMonth,day);
     $('calOvDayLabel').textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日（'+wdays[dateObj.getDay()]+'）';
