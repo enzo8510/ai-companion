@@ -457,12 +457,12 @@ textarea.mid{ min-height:90px; }
 /* ---- Home Screen ---- */
 #homeView{ background:var(--bg); justify-content:center; align-items:center; position:relative; }
 .home-wrap{ display:flex; flex-direction:column; align-items:center; padding:var(--space-3xl) var(--space-2xl); width:100%; }
-.home-avatar-ring{ width:132px; height:132px; border-radius:50%; background:var(--companion); padding:3px; display:flex; align-items:center; justify-content:center; margin-bottom:var(--space-xl); box-shadow:0 6px 24px var(--companion-shadow); }
+.home-avatar-ring{ width:132px; height:132px; border-radius:50%; background:transparent; padding:0; display:flex; align-items:center; justify-content:center; margin-bottom:var(--space-xl); }
 .home-avatar{ width:106px; height:106px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%); background-size:contain; background-position:center; background-repeat:no-repeat; border:3px solid var(--bg); }
 .home-name{ font-family:'LXGW WenKai TC', serif; font-size:38px; font-weight:700; color:var(--ink); letter-spacing:.04em; margin-bottom:var(--space-sm); line-height:1.2; }
 .home-tagline{ font-size:12.5px; color:var(--ink-soft); letter-spacing:.05em; margin-bottom:var(--space-xl); text-align:center; line-height:1.9; opacity:0.85; }
 .home-enter-btn{ display:flex; align-items:center; gap:10px; background:var(--companion); color:#fff; border:none; font-family:inherit; font-size:15px; font-weight:600; padding:15px 40px; border-radius:999px; cursor:pointer; transition:all .18s; letter-spacing:.04em; box-shadow:0 4px 18px var(--companion-shadow); }
-.home-enter-btn:hover{ opacity:.92; transform:translateY(-2px) scale(1.02); box-shadow:0 8px 28px var(--companion-shadow); }
+.home-enter-btn:hover{ opacity:.88; }
 .home-enter-arrow{ font-size:18px; line-height:1; }
 .home-admin-btn{ position:absolute; top:18px; right:16px; background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer; padding:6px 8px; border-radius:10px; }
 .home-admin-btn:hover{ color:var(--companion); background:var(--companion-soft); }
@@ -489,7 +489,7 @@ textarea.mid{ min-height:90px; }
 #homeView{ overflow-y:auto; justify-content:center; align-items:center; }
 .home-wrap{ padding:32px 24px 36px; }
 .home-countdown-strip{ width:100%; background:linear-gradient(135deg, rgba(255,255,255,0.96) 0%, var(--companion-soft) 100%); border:1.5px solid rgba(169,135,216,0.22); border-radius:16px; padding:var(--space-md) var(--space-lg); margin-bottom:var(--space-lg); display:flex; align-items:center; justify-content:center; gap:var(--space-md); text-align:center; cursor:pointer; transition:all .18s; box-shadow:0 2px 14px rgba(169,135,216,0.12); }
-.home-countdown-strip:hover{ border-color:var(--companion); box-shadow:0 4px 20px var(--companion-shadow); transform:translateY(-1px); }
+.home-countdown-strip:hover{ opacity:.92; }
 .home-countdown-strip.hidden{ display:none; }
 .cnt-label{ font-size:11.5px; color:var(--ink-soft); }
 .cnt-days{ font-size:30px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
@@ -498,7 +498,7 @@ textarea.mid{ min-height:90px; }
 .cnt-today{ font-size:13px; color:var(--companion); font-weight:600; }
 .home-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm); margin-bottom:var(--space-xl); width:100%; }
 .home-action-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:rgba(255,255,255,0.92); border:1.5px solid rgba(50,58,80,0.07); border-radius:18px; padding:var(--space-md); min-height:84px; cursor:pointer; font-family:inherit; transition:all .18s; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
-.home-action-btn:hover{ box-shadow:0 5px 20px var(--companion-shadow); border-color:var(--companion); transform:translateY(-2px); }
+.home-action-btn:hover{ opacity:.92; }
 .home-action-btn.done{ border-color:var(--companion); background:var(--companion-soft); }
 .act-icon{ font-size:24px; line-height:1; }
 .act-label{ font-size:11px; color:var(--ink); font-weight:500; white-space:nowrap; }
