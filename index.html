@@ -761,6 +761,18 @@ textarea.mid{ min-height:90px; }
 .btc-period-day .btc-day-num{ position:relative; z-index:1; background:var(--period-color,#e84c78); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:#fff !important; font-weight:700; box-shadow:0 2px 8px rgba(232,76,120,.35); }
 .btc-period-day.today .btc-day-num{ background:var(--period-color,#e84c78); border:2px solid rgba(255,255,255,.9); box-shadow:0 0 0 3px var(--period-color,#e84c78), 0 2px 10px rgba(232,76,120,.4); }
 .btc-period-day.selected{ background:transparent; }
+/* Multi-day event bars */
+.btc-event-bar-day::after{ content:''; position:absolute; bottom:3px; height:5px; left:-3px; right:-3px; background:var(--ev-bar-c,var(--event-color)); opacity:.75; border-radius:0; z-index:2; }
+.btc-event-bar-start::after{ left:50%; border-radius:3px 0 0 3px; }
+.btc-event-bar-end::after{ right:50%; border-radius:0 3px 3px 0; }
+.btc-event-bar-start.btc-event-bar-end::after{ left:15%; right:15%; border-radius:3px; }
+/* Cal color swatches for multi-day events */
+.cal-color-row{ display:flex; align-items:center; gap:8px; padding:2px 0 4px; }
+.cal-color-label{ font-size:11px; color:var(--ink-soft); white-space:nowrap; }
+.cal-color-swatches{ display:flex; gap:5px; }
+.cal-color-swatch{ width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .15s,border-color .15s; flex:0 0 auto; }
+.cal-color-swatch.active{ border-color:var(--ink); transform:scale(1.2); }
+.cal-color-swatch:hover{ transform:scale(1.12); }
 /* Health module */
 .ci-health-card{ background:var(--chat-bg); border-radius:18px; border:1px solid var(--line); padding:16px; margin-top:14px; }
 .ci-health-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
@@ -2093,13 +2105,7 @@ textarea.mid{ min-height:90px; }
         <div class="home-qa-card" id="homeQaCard">
           <div class="home-qa-header">
             <div class="home-qa-title">✦ 今日問題</div>
-            <button class="home-qa-dice" id="homeQaDiceBtn" type="button" title="換一題">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 12a8 8 0 0 1 13.66-5.66L20 9M4 12a8 8 0 0 0 13.66 5.66L20 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <polyline points="17 6 20 9 17 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <polyline points="7 18 4 15 7 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            <button class="home-qa-dice" id="homeQaDiceBtn" type="button" title="換一題" style="font-size:20px;line-height:1;">🎲</button>
           </div>
           <div class="home-qa-text" id="homeQaText" style="cursor:pointer;">如果只能選一種食物吃一輩子，你會選什麼？</div>
           <div class="home-qa-hint">點擊問題，帶著它去找卄珩 →</div>
@@ -3008,7 +3014,22 @@ textarea.mid{ min-height:90px; }
             <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
           </div>
           <div class="cal-add-row">
-            <input type="text" id="calAddDate" placeholder="點擊選擇日期" readonly class="input-date">
+            <input type="text" id="calAddDate" placeholder="開始日期" readonly class="input-date" style="flex:1">
+            <input type="text" id="calAddEndDate" placeholder="結束日期（多日可選）" readonly class="input-date" style="flex:1;color:var(--ink-soft)">
+          </div>
+          <div class="cal-add-row" id="calColorRow" style="display:none">
+            <div class="cal-color-row">
+              <span class="cal-color-label">橫條色</span>
+              <div class="cal-color-swatches" id="calColorSwatches">
+                <div class="cal-color-swatch active" data-color="auto" style="background:var(--event-color)" title="主題色"></div>
+                <div class="cal-color-swatch" data-color="#E84C78" style="background:#E84C78" title="粉紅"></div>
+                <div class="cal-color-swatch" data-color="#3BADCC" style="background:#3BADCC" title="天藍"></div>
+                <div class="cal-color-swatch" data-color="#e08050" style="background:#e08050" title="橘橙"></div>
+                <div class="cal-color-swatch" data-color="#6db56d" style="background:#6db56d" title="草綠"></div>
+                <div class="cal-color-swatch" data-color="#9b6fc0" style="background:#9b6fc0" title="紫"></div>
+                <div class="cal-color-swatch" data-color="#c8a44a" style="background:#c8a44a" title="金黃"></div>
+              </div>
+            </div>
           </div>
           <div class="cal-add-row">
             <select id="calAddType" class="select-category"></select>
@@ -5502,6 +5523,8 @@ textarea.mid{ min-height:90px; }
   var calOvYear = new Date().getFullYear(), calOvMonth = new Date().getMonth();
   var calOvSelDay = null;
   var calAddDateVal = '';
+  var calAddEndDateVal = '';
+  var calBarColor = 'auto';
 
   /* ---- Period Calendar ---- */
   var periodCalYear = new Date().getFullYear(), periodCalMonth = new Date().getMonth();
@@ -5595,7 +5618,7 @@ textarea.mid{ min-height:90px; }
   function getAllCalItems(){
     var items = [];
     events.filter(function(e){ return e.type==='event'; }).forEach(function(e){
-      items.push({ date:e.date, title:e.title, type:'event', id:e.id });
+      items.push({ date:e.date, title:e.title, type:'event', id:e.id, endDate:e.endDate });
     });
     // Include anniversaries and birthdays (recur every year)
     events.filter(function(e){ return e.type==='anniversary'||e.type==='birthday'; }).forEach(function(e){
@@ -5661,6 +5684,26 @@ textarea.mid{ min-height:90px; }
       return ' btc-period-day'+(isBarStart?' btc-period-start':'')+(isBarEnd?' btc-period-end':'');
     }
 
+    // Pre-compute multi-day event bars
+    var eventBarMap = {}; // day -> { color }
+    var typeColorVar = { event:'--event-color', anniversary:'--birthday-color', birthday:'--birthday-color', health:'--health-color', work:'--work-color' };
+    events.filter(function(e){ return e.endDate && typeMatchesFilter(e.type, calFilter); }).forEach(function(ev){
+      var sd=parseMemDate(ev.date), ed=parseMemDate(ev.endDate); if(!sd||!ed) return;
+      for(var dd=1;dd<=daysInMon;dd++){
+        var cellDate=new Date(calOvYear,calOvMonth,dd);
+        if(cellDate>=new Date(sd.getFullYear(),sd.getMonth(),sd.getDate()) && cellDate<=new Date(ed.getFullYear(),ed.getMonth(),ed.getDate())){
+          if(!eventBarMap[dd]) eventBarMap[dd]={ color:ev.barColor&&ev.barColor!=='auto'?ev.barColor:'var('+(typeColorVar[ev.type]||'--event-color')+')', evId:ev.id };
+        }
+      }
+    });
+    function getEventBarClasses(day){
+      if(!eventBarMap[day]) return '';
+      var prev=!!eventBarMap[day-1], next=!!eventBarMap[day+1];
+      var dow=new Date(calOvYear,calOvMonth,day).getDay();
+      var isStart=!prev||dow===0, isEnd=!next||dow===6;
+      return ' btc-event-bar-day'+(isStart?' btc-event-bar-start':'')+(isEnd?' btc-event-bar-end':'');
+    }
+
     for(var i=0;i<firstDow;i++){
       var emp=document.createElement('div'); emp.className='btc-day empty'; grid.appendChild(emp);
     }
@@ -5669,7 +5712,9 @@ textarea.mid{ min-height:90px; }
       var isToday=d===today.getDate()&&calOvMonth===today.getMonth()&&calOvYear===today.getFullYear();
       var isSelected=(d===calOvSelDay);
       var periodCls=getPeriodClasses(d);
-      cell.className='btc-day'+(isToday?' today':'')+(isSelected?' selected':'')+periodCls;
+      var evBarCls=getEventBarClasses(d);
+      cell.className='btc-day'+(isToday?' today':'')+(isSelected?' selected':'')+periodCls+evBarCls;
+      if(eventBarMap[d]) cell.style.setProperty('--ev-bar-c', eventBarMap[d].color);
 
       var numEl=document.createElement('div'); numEl.className='btc-day-num'; numEl.textContent=d; cell.appendChild(numEl);
 
@@ -5725,11 +5770,18 @@ textarea.mid{ min-height:90px; }
     var dateObj=new Date(calOvYear,calOvMonth,day);
     $('calOvDayLabel').textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日（'+wdays[dateObj.getDay()]+'）';
     var items=getAllCalItems();
+    var selDate=new Date(calOvYear,calOvMonth,day); selDate.setHours(0,0,0,0);
     var filtered=items.filter(function(it){
       var d=parseMemDate(it.date); if(!d) return false;
-      // Anniversaries and birthdays recur every year — match by month+day only
       if(it.type==='anniversary'||it.type==='birthday'){
         return d.getMonth()===calOvMonth&&d.getDate()===day;
+      }
+      // Multi-day events: include if selected date falls within range
+      if(it.endDate){
+        var sd=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+        var ed=parseMemDate(it.endDate); if(!ed) return false;
+        var edN=new Date(ed.getFullYear(),ed.getMonth(),ed.getDate());
+        return selDate>=sd && selDate<=edN;
       }
       return d.getFullYear()===calOvYear&&d.getMonth()===calOvMonth&&d.getDate()===day;
     });
@@ -5748,6 +5800,25 @@ textarea.mid{ min-height:90px; }
       var info=document.createElement('div'); info.className='btc-event-info';
       var titleEl=document.createElement('div'); titleEl.className='btc-event-title'; titleEl.textContent=it.title;
       info.appendChild(titleEl);
+      // Countdown sub-line for anniversaries & birthdays
+      if(it.type==='anniversary'||it.type==='birthday'){
+        var d0=parseMemDate(it.date);
+        if(d0){
+          var todayNow=new Date(); todayNow.setHours(0,0,0,0);
+          var next=new Date(todayNow.getFullYear(),d0.getMonth(),d0.getDate()); next.setHours(0,0,0,0);
+          if(next<todayNow) next.setFullYear(todayNow.getFullYear()+1);
+          var diff=Math.round((next-todayNow)/86400000);
+          var sub=document.createElement('div'); sub.className='btc-event-sub';
+          sub.textContent = diff===0 ? '🎉 今天就是！' : '還有 '+diff+' 天';
+          info.appendChild(sub);
+        }
+      }
+      // Date range sub-line for multi-day events
+      if(it.endDate){
+        var sub2=document.createElement('div'); sub2.className='btc-event-sub';
+        sub2.textContent = it.date+' ～ '+it.endDate;
+        info.appendChild(sub2);
+      }
       row.appendChild(em); row.appendChild(info);
       if(it.id && (it.type==='event'||it.type==='anniversary')){
         var del=document.createElement('button'); del.className='btc-event-del'; del.textContent='✕';
@@ -6125,15 +6196,33 @@ textarea.mid{ min-height:90px; }
     e.stopPropagation();
     openCalendar($('calAddDate'), calAddDateVal||todayLabel(), function(str){ calAddDateVal=str; $('calAddDate').value=str; });
   });
+  $('calAddEndDate').addEventListener('click',function(e){
+    e.stopPropagation();
+    openCalendar($('calAddEndDate'), calAddEndDateVal||calAddDateVal||todayLabel(), function(str){
+      calAddEndDateVal=str; $('calAddEndDate').value=str;
+      $('calColorRow').style.display=str?'':'none';
+    });
+  });
+  $('calColorSwatches').querySelectorAll('.cal-color-swatch').forEach(function(sw){
+    sw.addEventListener('click',function(){
+      $('calColorSwatches').querySelectorAll('.cal-color-swatch').forEach(function(s){ s.classList.remove('active'); });
+      this.classList.add('active'); calBarColor=this.dataset.color;
+    });
+  });
 
   $('calAddBtn').addEventListener('click',function(){
     var title=$('calAddTitle').value.trim();
     var date=calAddDateVal||todayLabel();
     if(!title){ $('calAddTitle').focus(); return; }
     var type=$('calAddType').value;
-    events.push({ id:uid('ev'), date:date, title:title, type:type });
+    var ev={ id:uid('ev'), date:date, title:title, type:type };
+    if(calAddEndDateVal && calAddEndDateVal!==date){ ev.endDate=calAddEndDateVal; ev.barColor=calBarColor; }
+    events.push(ev);
     save(KEYS.events,events);
-    $('calAddTitle').value=''; calAddDateVal=''; $('calAddDate').value='';
+    $('calAddTitle').value=''; calAddDateVal=''; calAddEndDateVal='';
+    $('calAddDate').value=''; $('calAddEndDate').value='';
+    $('calColorRow').style.display='none'; calBarColor='auto';
+    $('calColorSwatches').querySelectorAll('.cal-color-swatch').forEach(function(s,i){ s.classList.toggle('active',i===0); });
     renderCalOvGrid(); renderDayDetail(calOvSelDay); renderAnniSection(); updateCountdown(); flashSaved();
   });
 
