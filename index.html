@@ -990,24 +990,22 @@ textarea.mid{ min-height:90px; }
 .cal-anni-del:hover{ color:#e05252; background:rgba(224,82,82,0.1); }
 
 /* ---- 老公斗內 Red Envelope ---- */
-.hb-overlay{ position:absolute; inset:0; z-index:600; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; }
+.hb-overlay{ position:absolute; inset:0; z-index:600; background:rgba(0,0,0,0.72); display:flex; align-items:center; justify-content:center; }
 .hb-overlay.hidden{ display:none; }
-.hb-env-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; }
-/* Envelope body */
-.hb-env{ width:230px; background:linear-gradient(175deg,#c0392b 0%,#9b1c1c 60%,#7b1212 100%); border-radius:18px; display:flex; flex-direction:column; align-items:center; padding-bottom:22px; box-shadow:0 16px 48px rgba(0,0,0,0.55); position:relative; overflow:hidden; cursor:pointer; }
-.hb-env::before{ content:''; position:absolute; inset:0; border-radius:18px; border:2px solid rgba(255,200,80,0.35); pointer-events:none; }
-/* Gold top pattern */
-.hb-env-top{ width:100%; height:80px; display:flex; align-items:center; justify-content:center; position:relative; }
-.hb-env-top::before{ content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,200,80,0.5),transparent); }
-.hb-env-circle{ width:64px; height:64px; border-radius:50%; background:radial-gradient(circle,#f5c842 0%,#d4a017 100%); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:900; color:#7b1212; box-shadow:0 2px 12px rgba(0,0,0,0.3); font-family:'LXGW WenKai TC',serif; }
-/* Tap hint */
-.hb-tap-hint{ color:rgba(255,220,120,0.9); font-size:13px; margin:6px 0 18px; letter-spacing:.5px; }
-/* Ticket card */
-.hb-ticket{ width:188px; background:linear-gradient(180deg,#fef9ec 0%,#fdf3d8 100%); border-radius:12px; padding:20px 18px 16px; text-align:center; position:relative; overflow:hidden; transform:translateY(60px) scale(0.92); opacity:0; transition:transform .5s cubic-bezier(.34,1.56,.64,1), opacity .4s ease; pointer-events:none; margin-bottom:-30px; }
+.hb-env-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.hb-env{ width:196px; min-height:330px; background:linear-gradient(170deg,#d63031 0%,#b71c1c 45%,#8b0000 100%); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:0 0 26px; box-shadow:0 20px 56px rgba(0,0,0,0.65),inset 0 0 0 1.5px rgba(255,200,80,0.4); position:relative; overflow:hidden; cursor:pointer; }
+.hb-env::before{ content:''; position:absolute; inset:5px; border-radius:11px; border:1px solid rgba(255,200,80,0.22); pointer-events:none; z-index:1; }
+.hb-env-flap{ width:100%; height:90px; position:relative; background:linear-gradient(180deg,#c62828 0%,#b71c1c 100%); display:flex; align-items:flex-start; justify-content:center; padding-top:8px; flex-shrink:0; }
+.hb-env-flap::after{ content:''; position:absolute; bottom:-1px; left:0; right:0; height:34px; background:radial-gradient(ellipse 108% 70% at 50% 100%,#b71c1c 69%,transparent 70%); }
+.hb-env-flap::before{ content:'❖  ❖  ❖  ❖  ❖'; position:absolute; bottom:12px; left:0; right:0; text-align:center; font-size:8px; color:rgba(255,200,80,0.4); letter-spacing:3px; z-index:2; }
+.hb-env-circle{ width:76px; height:76px; border-radius:50%; background:radial-gradient(circle at 38% 35%,#ffe066 0%,#f5c842 45%,#c8960c 100%); display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:900; color:#8b0000; box-shadow:0 4px 18px rgba(0,0,0,0.45),0 0 0 3px rgba(255,220,80,0.35); font-family:'LXGW WenKai TC',serif; z-index:3; position:relative; margin-top:6px; }
+.hb-env-body{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:18px 0 0; z-index:2; }
+.hb-env-name{ color:rgba(255,220,100,0.8); font-size:11px; letter-spacing:4px; font-family:'LXGW WenKai TC',serif; }
+.hb-tap-hint{ color:rgba(255,230,130,0.95); font-size:13px; letter-spacing:.5px; }
+.hb-env-bot-deco{ width:75%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,200,80,0.45),transparent); margin-top:10px; }
+.hb-ticket{ width:190px; background:linear-gradient(180deg,#fffdf4 0%,#fef3cc 100%); border-radius:12px; padding:20px 18px 18px; text-align:center; position:relative; overflow:hidden; transform:translateY(50px) scale(0.9); opacity:0; transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .4s ease; pointer-events:none; box-shadow:0 8px 32px rgba(0,0,0,0.35); }
 .hb-ticket.show{ transform:translateY(0) scale(1); opacity:1; pointer-events:auto; }
-/* Ticket torn edge top */
-.hb-ticket::before{ content:''; position:absolute; top:-1px; left:0; right:0; height:10px; background:radial-gradient(ellipse 8px 10px at center,transparent 8px,#fef9ec 8px) repeat-x; background-size:16px 10px; }
-/* Dotted separator */
+.hb-ticket::before{ content:''; position:absolute; top:-1px; left:0; right:0; height:10px; background:radial-gradient(ellipse 8px 10px at center,transparent 8px,#fffdf4 8px) repeat-x; background-size:16px 10px; }
 .hb-ticket-sep{ border:none; border-top:2px dashed rgba(180,130,30,0.3); margin:10px 0; }
 .hb-amount-row{ display:flex; align-items:flex-end; justify-content:center; gap:2px; margin-bottom:2px; }
 .hb-amount-num{ font-size:56px; font-weight:900; color:#b8860b; line-height:1; font-family:'Noto Sans TC',sans-serif; }
@@ -1015,15 +1013,14 @@ textarea.mid{ min-height:90px; }
 .hb-ticket-sub{ font-size:12px; color:#9b7a30; margin-bottom:4px; }
 .hb-ticket-tag{ font-size:12px; color:#9b7a30; line-height:1.6; }
 .hb-ticket-badge{ display:inline-block; margin:8px 0 10px; padding:3px 16px; border:1.5px solid rgba(180,130,30,0.45); border-radius:999px; font-size:13px; color:#8b6914; font-family:'LXGW WenKai TC',serif; }
-/* Gold button */
-.hb-accept-btn{ width:188px; padding:13px; background:#d4870f; border-radius:999px; border:none; font-size:16px; font-weight:700; color:#7b1212; cursor:pointer; margin-top:16px; box-shadow:0 4px 12px rgba(212,135,15,0.4); transition:opacity .15s; font-family:inherit; display:none; }
-.hb-accept-btn:active{ opacity:.85; }
+.hb-accept-btn{ width:190px; padding:13px; background:linear-gradient(135deg,#e6a817,#c8830a); border-radius:999px; border:none; font-size:16px; font-weight:700; color:#fff; cursor:pointer; box-shadow:0 4px 16px rgba(200,130,10,0.5); transition:opacity .15s,transform .1s; font-family:inherit; display:none; }
+.hb-accept-btn:active{ opacity:.85; transform:scale(.97); }
 .hb-accept-btn.show{ display:block; }
-/* Close x */
-.hb-x{ position:absolute; top:12px; right:12px; width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.18); border:none; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-/* Particle hearts */
-@keyframes hbHeart{ 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-90px) scale(0.5);opacity:0} }
-.hb-heart{ position:absolute; font-size:20px; animation:hbHeart 1.1s ease-out forwards; pointer-events:none; }
+.hb-x{ position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10; }
+@keyframes hbCoin{ 0%{transform:translate(-50%,-50%) translate(0,0) scale(1.5);opacity:1} 65%{opacity:.85} 100%{transform:translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(0.1);opacity:0} }
+.hb-coin{ position:absolute; top:50%; left:50%; font-size:22px; animation:hbCoin 1.05s ease-out forwards; pointer-events:none; z-index:20; }
+@keyframes hbHeart{ 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-110px) scale(0.3);opacity:0} }
+.hb-heart{ position:absolute; font-size:22px; animation:hbHeart 1.2s ease-out forwards; pointer-events:none; z-index:20; }
 /* ---- Token counter bar ---- */
 .token-bar{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:10px; padding:3px 14px; font-size:11px; color:var(--ink-soft); background:var(--surface); border-top:1px solid var(--line); flex-wrap:wrap; }
 .token-bar.hidden{ display:none; }
@@ -2172,10 +2169,14 @@ textarea.mid{ min-height:90px; }
             <div class="hb-ticket-badge" id="hbBadge">甜蜜加倍</div>
           </div>
           <div class="hb-env" id="hbEnv">
-            <div class="hb-env-top">
+            <div class="hb-env-flap">
               <div class="hb-env-circle">喜</div>
             </div>
-            <div class="hb-tap-hint" id="hbTapHint">點我拆紅包 ♥</div>
+            <div class="hb-env-body">
+              <div class="hb-env-name">老公的紅包</div>
+              <div class="hb-tap-hint" id="hbTapHint">點我拆紅包 ♥</div>
+              <div class="hb-env-bot-deco"></div>
+            </div>
           </div>
           <button class="hb-accept-btn" id="hbAcceptBtn" type="button">收下 ❤️</button>
         </div>
@@ -8170,24 +8171,43 @@ textarea.mid{ min-height:90px; }
     env.style.opacity = '0';
     env.style.pointerEvents = 'none';
     $('hbTapHint').style.display = 'none';
+    var wrap = $('hbOverlay').querySelector('.hb-env-wrap');
+    /* 爆金幣特效 */
+    var COINS = ['🪙','🪙','🪙','💰','✨','🌟','💛'];
+    var NUM = 28;
+    for(var i=0;i<NUM;i++){
+      (function(idx){
+        var angle = (idx/NUM)*2*Math.PI + (Math.random()-0.5)*0.4;
+        var dist  = 70 + Math.random()*110;
+        var tx = (Math.sin(angle)*dist).toFixed(1)+'px';
+        var ty = (-(Math.cos(angle)*dist)).toFixed(1)+'px';
+        var delay = Math.random()*0.25;
+        var c = document.createElement('div');
+        c.className = 'hb-coin';
+        c.textContent = COINS[Math.floor(Math.random()*COINS.length)];
+        c.style.setProperty('--tx', tx);
+        c.style.setProperty('--ty', ty);
+        c.style.animationDelay = delay+'s';
+        wrap.appendChild(c);
+        setTimeout(function(){ c.remove(); }, 1400+delay*1000);
+      })(i);
+    }
     setTimeout(function(){
       $('hbTicket').classList.add('show');
       $('hbAcceptBtn').classList.add('show');
-      /* scatter hearts */
-      var wrap = $('hbOverlay').querySelector('.hb-env-wrap');
-      ['💕','❤️','🌸','✨','💖'].forEach(function(emoji, i){
+      /* 補愛心上飄 */
+      ['💕','❤️','💖','✨'].forEach(function(emoji, i){
         setTimeout(function(){
           var h = document.createElement('div');
           h.className = 'hb-heart';
           h.textContent = emoji;
-          h.style.left  = (40 + Math.random()*120) + 'px';
-          h.style.bottom= '60px';
-          h.style.animationDelay = (Math.random()*0.2)+'s';
+          h.style.left  = (30 + Math.random()*130) + 'px';
+          h.style.top   = '40%';
           wrap.appendChild(h);
-          setTimeout(function(){ h.remove(); }, 1300);
-        }, i*120);
+          setTimeout(function(){ h.remove(); }, 1400);
+        }, i*150);
       });
-    }, 280);
+    }, 260);
   }
   function closeHbOverlay(){
     $('hbOverlay').classList.add('hidden');
