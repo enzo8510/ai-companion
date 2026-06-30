@@ -7811,7 +7811,7 @@ textarea.mid{ min-height:90px; }
   /* ============ With Me (Study/Work) Timer ============ */
   var WITHME_KEYS = { timer:'companion:withMe_timer', music:'companion:withMe_music', musicName:'companion:withMe_musicName' };
   var withMeTimerState = { running:false, seconds:0, intervalId:null, mode:'timer', countdownTotal:0 };
-  var withMeMusicUrl  = localStorage.getItem(WITHME_KEYS.music) || '';
+  var withMeMusicUrl  = ''; // Blob URLs don't persist; audio loaded from file each session
   var withMeMusicName = localStorage.getItem(WITHME_KEYS.musicName) || '';
 
   function updateWithMeTimerDisplay(){
@@ -7946,12 +7946,9 @@ textarea.mid{ min-height:90px; }
 
   function stopWithMeMusic(){
     var audio = $('withMeAudio');
-    audio.pause();
-    audio.currentTime = 0;
-    audio.src = '';
-    withMeMusicUrl = '';
-    withMeMusicName = '';
-    localStorage.removeItem(WITHME_KEYS.music);
+    audio.pause(); audio.currentTime = 0; audio.src = '';
+    if(withMeMusicUrl && withMeMusicUrl.startsWith('blob:')) URL.revokeObjectURL(withMeMusicUrl);
+    withMeMusicUrl = ''; withMeMusicName = '';
     localStorage.removeItem(WITHME_KEYS.musicName);
     syncMusicUI();
   }
@@ -8003,21 +8000,17 @@ textarea.mid{ min-height:90px; }
 
   $('withMeMusicInput').addEventListener('change', function(e){
     var file = e.target.files[0]; if(!file) return;
-    var fileName = file.name.replace(/\.[^.]+$/, ''); // strip extension
-    var reader = new FileReader();
-    reader.onload = function(ev){
-      withMeMusicUrl  = ev.target.result;
-      withMeMusicName = fileName;
-      localStorage.setItem(WITHME_KEYS.music, withMeMusicUrl);
-      localStorage.setItem(WITHME_KEYS.musicName, withMeMusicName);
-      var audio = $('withMeAudio');
-      audio.src = withMeMusicUrl;
-      audio.loop = true;
-      audio.play().then(syncMusicUI).catch(syncMusicUI);
-      syncMusicUI();
-      flashSaved('音樂已上傳 ✓');
-    };
-    reader.readAsDataURL(file);
+    // Revoke previous Blob URL to free memory
+    if(withMeMusicUrl && withMeMusicUrl.startsWith('blob:')) URL.revokeObjectURL(withMeMusicUrl);
+    withMeMusicUrl  = URL.createObjectURL(file);
+    withMeMusicName = file.name.replace(/\.[^.]+$/, '');
+    try{ localStorage.setItem(WITHME_KEYS.musicName, withMeMusicName); }catch(er){}
+    var audio = $('withMeAudio');
+    audio.src = withMeMusicUrl;
+    audio.loop = true;
+    audio.play().then(syncMusicUI).catch(function(){ syncMusicUI(); });
+    syncMusicUI();
+    flashSaved('音樂已載入 ✓');
     e.target.value = '';
   });
 
