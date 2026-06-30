@@ -991,9 +991,10 @@ textarea.mid{ min-height:90px; }
 .cal-anni-del:hover{ color:#e05252; background:rgba(224,82,82,0.1); }
 
 /* ---- 老公斗內 Red Envelope ---- */
-.hb-overlay{ position:absolute; inset:0; z-index:600; background:rgba(0,0,0,0.72); display:flex; align-items:center; justify-content:center; }
+.hb-overlay{ position:absolute; inset:0; z-index:600; background:rgba(0,0,0,0.72); display:flex; align-items:center; justify-content:center; padding-bottom:10%; }
 .hb-overlay.hidden{ display:none; }
 .hb-env-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.hb-env{ transition:opacity .28s ease, height .32s .22s ease, min-height .32s .22s ease, padding .32s .22s ease, margin .32s .22s ease; overflow:hidden; }
 .hb-env{ width:196px; min-height:330px; background:linear-gradient(170deg,#d63031 0%,#b71c1c 45%,#8b0000 100%); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:0 0 26px; box-shadow:0 20px 56px rgba(0,0,0,0.65),inset 0 0 0 1.5px rgba(255,200,80,0.4); position:relative; overflow:hidden; cursor:pointer; }
 .hb-env::before{ content:''; position:absolute; inset:5px; border-radius:11px; border:1px solid rgba(255,200,80,0.22); pointer-events:none; z-index:1; }
 .hb-env-flap{ width:100%; height:90px; position:relative; background:linear-gradient(180deg,#c62828 0%,#b71c1c 100%); display:flex; align-items:flex-start; justify-content:center; padding-top:8px; flex-shrink:0; }
@@ -8200,8 +8201,10 @@ textarea.mid{ min-height:90px; }
     $('hbBadge').textContent  = badge;
     $('hbTicket').classList.remove('show');
     $('hbAcceptBtn').classList.remove('show');
-    $('hbEnv').style.opacity  = '1';
-    $('hbEnv').style.pointerEvents = '';
+    var env = $('hbEnv');
+    env.style.opacity = '1'; env.style.pointerEvents = '';
+    env.style.height = ''; env.style.minHeight = '';
+    env.style.padding = ''; env.style.margin = '';
     $('hbTapHint').style.display = '';
     $('hbOverlay').classList.remove('hidden');
   }
@@ -8210,6 +8213,12 @@ textarea.mid{ min-height:90px; }
     env.style.opacity = '0';
     env.style.pointerEvents = 'none';
     $('hbTapHint').style.display = 'none';
+    setTimeout(function(){
+      env.style.height = '0';
+      env.style.minHeight = '0';
+      env.style.padding = '0';
+      env.style.margin = '0';
+    }, 240);
     var wrap = $('hbOverlay').querySelector('.hb-env-wrap');
     /* 爆金幣特效 */
     var COINS = ['🪙','🪙','🪙','💰','✨','🌟','💛'];
