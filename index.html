@@ -1804,8 +1804,9 @@ textarea.mid{ min-height:90px; }
 }
 .qa-hero-badge{
   display:inline-flex; align-items:center; gap:4px;
-  background:rgba(169,135,216,0.13); color:var(--companion);
+  background:var(--companion-soft); color:var(--qa-title-color);
   border-radius:999px; padding:4px 10px; font-size:11px; font-weight:600;
+  border:1px solid rgba(169,135,216,0.28);
 }
 .qa-asked-tag{
   background:rgba(146,176,97,0.15); color:#6a9a3c;
@@ -1849,9 +1850,10 @@ textarea.mid{ min-height:90px; }
 .qa-hist-count{ font-size:12px; color:var(--ink-soft); }
 .qa-month-nav{ display:flex; align-items:center; justify-content:center; gap:10px; }
 .qa-month-nav.hidden{ display:none; }
-.qa-month-label{ font-size:13px; font-weight:600; color:var(--companion); min-width:76px; text-align:center; }
-.qa-month-btn{ width:28px; height:28px; border-radius:50%; border:1.5px solid var(--companion-soft); background:transparent; color:var(--ink-soft); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all .15s; line-height:1; padding:0; }
-.qa-month-btn:hover:not(:disabled){ background:var(--companion-soft); color:var(--companion); border-color:var(--companion); }
+.qa-month-nav-stats{ background:var(--companion-soft); border-radius:12px; padding:7px 12px; }
+.qa-month-label{ font-size:13px; font-weight:700; color:var(--qa-title-color); min-width:76px; text-align:center; }
+.qa-month-btn{ width:28px; height:28px; border-radius:50%; border:1.5px solid rgba(169,135,216,0.3); background:transparent; color:var(--companion); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all .15s; line-height:1; padding:0; }
+.qa-month-btn:hover:not(:disabled){ background:var(--companion); color:#fff; border-color:var(--companion); }
 .qa-month-btn:disabled{ opacity:.25; cursor:default; }
 .qa-hist-list{ display:flex; flex-direction:column; gap:8px; }
 .qa-hist-item{
@@ -2847,7 +2849,12 @@ textarea.mid{ min-height:90px; }
               </div>
             </div>
 
-            <!-- Stats strip -->
+            <!-- Month nav + Stats strip -->
+            <div class="qa-month-nav qa-month-nav-stats hidden" id="qaMonthNav">
+              <button class="qa-month-btn" id="qaMonthPrev" type="button">‹</button>
+              <span class="qa-month-label" id="qaMonthLabel"></span>
+              <button class="qa-month-btn" id="qaMonthNext" type="button">›</button>
+            </div>
             <div class="qa-stats-row">
               <div class="qa-stat-box">
                 <div class="qa-stat-num" id="qaStatTotal">0</div>
@@ -2856,7 +2863,7 @@ textarea.mid{ min-height:90px; }
               <div class="qa-stat-divider"></div>
               <div class="qa-stat-box">
                 <div class="qa-stat-num" id="qaStatMonth">0</div>
-                <div class="qa-stat-lbl">本月互動</div>
+                <div class="qa-stat-lbl" id="qaStatMonthLbl">本月互動</div>
               </div>
               <div class="qa-stat-divider"></div>
               <div class="qa-stat-box">
@@ -2871,11 +2878,6 @@ textarea.mid{ min-height:90px; }
             <div class="qa-hist-header">
               <span class="qa-hist-title">問答記錄</span>
               <span class="qa-hist-count" id="qaHistCount"></span>
-            </div>
-            <div class="qa-month-nav hidden" id="qaMonthNav">
-              <button class="qa-month-btn" id="qaMonthPrev" type="button">‹</button>
-              <span class="qa-month-label" id="qaMonthLabel"></span>
-              <button class="qa-month-btn" id="qaMonthNext" type="button">›</button>
             </div>
             <div class="qa-hist-list" id="qaHistoryList"></div>
           </div>
@@ -6788,14 +6790,10 @@ textarea.mid{ min-height:90px; }
 
     // Stats
     var total = qaHistory.length;
-    var thisMonth = qaHistory.filter(function(h){
-      return h.date && h.date.slice(0,7) === today.slice(0,7);
-    }).length;
     var uniqueDays = new Set(qaHistory.map(function(h){ return h.date; })).size;
     $('qaStatTotal').textContent = total;
-    $('qaStatMonth').textContent = thisMonth;
     $('qaStatDays').textContent = uniqueDays;
-    renderQaHistoryList();
+    renderQaHistoryList(); // 內含 updateQaMonthNav，會更新月份互動數
   }
 
   var qaFilterMonth = '';
@@ -6819,11 +6817,7 @@ textarea.mid{ min-height:90px; }
   function updateQaMonthNav(){
     var months = getQaMonths();
     var nav = $('qaMonthNav');
-    if(months.length < 2){
-      nav.classList.add('hidden');
-      qaFilterMonth = months.length === 1 ? months[0] : '';
-      return;
-    }
+    if(months.length < 1){ nav.classList.add('hidden'); qaFilterMonth = ''; return; }
     nav.classList.remove('hidden');
     if(!qaFilterMonth || months.indexOf(qaFilterMonth) < 0){
       qaFilterMonth = months[months.length - 1];
@@ -6832,6 +6826,15 @@ textarea.mid{ min-height:90px; }
     $('qaMonthLabel').textContent = qaFilterMonth;
     $('qaMonthPrev').disabled = (idx <= 0);
     $('qaMonthNext').disabled = (idx >= months.length - 1);
+    // 更新「本月互動」標籤與數字
+    var m = qaFilterMonth.match(/(\d+)月/);
+    $('qaStatMonthLbl').textContent = m ? m[1] + '月互動' : '本月互動';
+    var monthCount = qaHistory.filter(function(h){
+      if(!h.date) return false;
+      var mi = h.date.indexOf('月');
+      return mi >= 0 && h.date.slice(0, mi+1) === qaFilterMonth;
+    }).length;
+    $('qaStatMonth').textContent = monthCount;
   }
 
   function renderQaHistoryList(){
