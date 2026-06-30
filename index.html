@@ -795,6 +795,7 @@ textarea.mid{ min-height:90px; }
 #thread.has-chatbg.dark-bg .bubble.her,
 #thread.has-chatbg.dark-bg .bubble.me{ color:#ffffff; }
 #thread.has-chatbg.dark-bg .bubble-time{ color:rgba(240,240,240,0.75); }
+:root[data-theme="dark"] .bubble-time{ color:rgba(190,200,220,0.6); }
 
 /* ---- Check-in calendar overlay ---- */
 .ci-cal-stats{ display:flex; gap:var(--space-md); justify-content:center; margin-bottom:var(--space-lg); }
@@ -4136,11 +4137,10 @@ textarea.mid{ min-height:90px; }
       applyAvatarToEl(av);
       row.appendChild(av);
     } else {
-      /* me (row-reverse): DOM [uav, time, bubble] → visual [bubble][time][uav] */
+      /* me (row-reverse): DOM [uav, bubble, time] → visual [time][bubble][uav] */
       var uav = document.createElement('div'); uav.className='mini-avatar-me'; uav.setAttribute('aria-hidden','true');
       applyUserAvatarToEl(uav);
       row.appendChild(uav);
-      if(timeEl) row.appendChild(timeEl);
     }
 
     var b = document.createElement('div');
@@ -4149,7 +4149,7 @@ textarea.mid{ min-height:90px; }
     else{ b.textContent = text; }
     row.appendChild(b);
 
-    if(role==='assistant' && timeEl) row.appendChild(timeEl);
+    if(timeEl) row.appendChild(timeEl);
     if(msgIndex!==undefined){
       (function(idx){
         b.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); showChatContextMenu(e, idx); });
