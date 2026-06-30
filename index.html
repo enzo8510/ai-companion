@@ -1166,6 +1166,16 @@ textarea.mid{ min-height:90px; }
   font-size:11px; color:rgba(255,255,255,0.72); text-align:center; word-break:break-all;
   min-height:14px; text-shadow:0 1px 5px rgba(0,0,0,0.5);
 }
+/* Music selection overlay */
+.wm-music-section-label{ padding:10px 16px 6px; font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.5px; border-top:1px solid var(--line); }
+.wm-music-section-label.no-border{ border-top:none; }
+.wm-track-item{ display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:12px; cursor:pointer; transition:background .15s; margin-bottom:2px; }
+.wm-track-item:hover{ background:var(--companion-soft); }
+.wm-track-item.active{ background:var(--companion-soft); }
+.wm-track-emoji{ font-size:20px; flex:0 0 auto; }
+.wm-track-name{ flex:1; font-size:14px; color:var(--ink); }
+.wm-track-status{ font-size:14px; color:var(--companion); width:18px; text-align:center; }
+.wm-music-hint{ font-size:11px; color:var(--ink-soft); text-align:center; margin-top:8px; line-height:1.6; }
 /* 計時模式選擇器 */
 .wm-mode-selector{
   position:absolute; top:24px; left:50%; transform:translateX(-50%);
@@ -2530,12 +2540,9 @@ textarea.mid{ min-height:90px; }
               <button id="withMeResetBtn" class="wm-btn" type="button">↺ 重置</button>
             </div>
             <div class="wm-btn-row">
-              <button id="withMeMusicPlayBtn" class="wm-btn" type="button">♪ 音樂</button>
+              <button id="withMeMusicSelectBtn" class="wm-btn" type="button">♪ 選擇音樂</button>
+              <button id="withMeMusicPlayBtn" class="wm-btn" type="button" style="display:none;">▶ 播放</button>
               <button id="withMeMusicStopBtn" class="wm-btn" type="button" style="display:none;">✕ 移除</button>
-              <label class="wm-btn wm-upload" title="上傳音樂">
-                <span>＋</span>
-                <input type="file" id="withMeMusicInput" accept="audio/*" style="display:none;">
-              </label>
             </div>
             <div id="withMeMusicName" class="wm-music-name"></div>
             <audio id="withMeAudio" style="display:none;"></audio>
@@ -3211,6 +3218,28 @@ textarea.mid{ min-height:90px; }
         ＋ 新增頭像
         <input type="file" id="userAvatarFile" accept="image/*" style="display:none;">
       </label>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WITH ME MUSIC OVERLAY ============ -->
+<div class="cnt-sel-overlay hidden" id="withMeMusicOverlay">
+  <div class="cnt-sel-sheet" style="max-width:340px;">
+    <div class="cnt-sel-head">
+      <div class="cnt-sel-title">🎵 選擇音樂</div>
+      <button class="icon-btn" id="withMeMusicOverlayClose" type="button">✕</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;">
+      <div class="wm-music-section-label no-border">內建音樂</div>
+      <div id="withMeBuiltinList" style="padding:0 12px 8px;"></div>
+      <div class="wm-music-section-label">自訂音樂</div>
+      <div style="padding:10px 16px 20px;">
+        <label class="toolbar-btn primary" style="cursor:pointer;text-align:center;display:block;box-sizing:border-box;">
+          ＋ 上傳音樂檔案
+          <input type="file" id="withMeMusicInput" accept="audio/*" style="display:none;">
+        </label>
+        <div class="wm-music-hint">⚠ 上傳音樂僅限本次瀏覽，重新整理後需重新上傳<br>建議 MP3 格式，大小 20 MB 以內</div>
+      </div>
     </div>
   </div>
 </div>
@@ -7809,10 +7838,19 @@ textarea.mid{ min-height:90px; }
   $('withMeBackBtn').addEventListener('click', showHome);
 
   /* ============ With Me (Study/Work) Timer ============ */
-  var WITHME_KEYS = { timer:'companion:withMe_timer', music:'companion:withMe_music', musicName:'companion:withMe_musicName' };
+  var BUILTIN_TRACKS = [
+    { id:'bt1', name:'輕柔鋼琴',      file:'music/soft-piano.mp3', emoji:'🎹' },
+    { id:'bt2', name:'白噪音 · 雨聲',  file:'music/rain.mp3',       emoji:'🌧️' },
+    { id:'bt3', name:'咖啡廳氛圍',     file:'music/cafe.mp3',        emoji:'☕' },
+    { id:'bt4', name:'夜晚爵士',       file:'music/jazz.mp3',        emoji:'🎷' },
+    { id:'bt5', name:'自然 · 森林',    file:'music/forest.mp3',      emoji:'🌿' },
+  ];
+  var WITHME_KEYS = { timer:'companion:withMe_timer', music:'companion:withMe_music', musicName:'companion:withMe_musicName', musicType:'companion:withMe_musicType', builtinTrackId:'companion:withMe_builtinTrackId' };
   var withMeTimerState = { running:false, seconds:0, intervalId:null, mode:'timer', countdownTotal:0 };
-  var withMeMusicUrl  = ''; // Blob URLs don't persist; audio loaded from file each session
-  var withMeMusicName = localStorage.getItem(WITHME_KEYS.musicName) || '';
+  var withMeMusicUrl       = '';
+  var withMeMusicName      = localStorage.getItem(WITHME_KEYS.musicName) || '';
+  var withMeMusicType      = localStorage.getItem(WITHME_KEYS.musicType) || '';
+  var withMeBuiltinTrackId = localStorage.getItem(WITHME_KEYS.builtinTrackId) || '';
 
   function updateWithMeTimerDisplay(){
     var displaySeconds;
@@ -7901,27 +7939,28 @@ textarea.mid{ min-height:90px; }
   }
 
   function syncMusicUI(){
-    var audio = $('withMeAudio');
-    var hasMusic = !!withMeMusicUrl;
+    var audio     = $('withMeAudio');
+    var hasMusic  = !!withMeMusicUrl;
     var isPlaying = hasMusic && !audio.paused;
-    var playBtn = $('withMeMusicPlayBtn');
-    var stopBtn = $('withMeMusicStopBtn');
-    // play/pause toggle on one button; stop button clears the track
+    var selectBtn = $('withMeMusicSelectBtn');
+    var playBtn   = $('withMeMusicPlayBtn');
+    var stopBtn   = $('withMeMusicStopBtn');
     if(!hasMusic){
-      playBtn.textContent = '♪ 音樂';
-      playBtn.style.display = 'flex';
-      stopBtn.style.display = 'none';
+      selectBtn.style.display = 'flex';
+      playBtn.style.display   = 'none';
+      stopBtn.style.display   = 'none';
       $('withMeMusicName').textContent = '';
-    } else if(isPlaying){
-      playBtn.textContent = '⏸ 暫停';
-      playBtn.style.display = 'flex';
-      stopBtn.style.display = 'flex';
-      $('withMeMusicName').textContent = '♫ ' + (withMeMusicName || '未知曲目');
     } else {
-      playBtn.textContent = '▶ 播放';
-      playBtn.style.display = 'flex';
-      stopBtn.style.display = 'flex';
-      $('withMeMusicName').textContent = '♪ ' + (withMeMusicName || '未知曲目');
+      selectBtn.style.display = 'none';
+      playBtn.style.display   = 'flex';
+      stopBtn.style.display   = 'flex';
+      if(isPlaying){
+        playBtn.textContent = '⏸ 暫停';
+        $('withMeMusicName').textContent = '♫ ' + (withMeMusicName || '未知曲目');
+      } else {
+        playBtn.textContent = '▶ 播放';
+        $('withMeMusicName').textContent = '♪ ' + (withMeMusicName || '未知曲目');
+      }
     }
   }
 
@@ -7949,8 +7988,51 @@ textarea.mid{ min-height:90px; }
     audio.pause(); audio.currentTime = 0; audio.src = '';
     if(withMeMusicUrl && withMeMusicUrl.startsWith('blob:')) URL.revokeObjectURL(withMeMusicUrl);
     withMeMusicUrl = ''; withMeMusicName = '';
+    withMeMusicType = ''; withMeBuiltinTrackId = '';
     localStorage.removeItem(WITHME_KEYS.musicName);
+    localStorage.removeItem(WITHME_KEYS.musicType);
+    localStorage.removeItem(WITHME_KEYS.builtinTrackId);
     syncMusicUI();
+  }
+
+  function renderBuiltinTracks(){
+    var list = $('withMeBuiltinList');
+    if(!list) return;
+    var audio = $('withMeAudio');
+    list.innerHTML = '';
+    BUILTIN_TRACKS.forEach(function(track){
+      var isActive  = withMeBuiltinTrackId === track.id && withMeMusicType === 'builtin';
+      var isPlaying = isActive && !audio.paused;
+      var item = document.createElement('div');
+      item.className = 'wm-track-item' + (isActive ? ' active' : '');
+      item.innerHTML =
+        '<span class="wm-track-emoji">' + track.emoji + '</span>' +
+        '<span class="wm-track-name">' + track.name + '</span>' +
+        '<span class="wm-track-status">' + (isPlaying ? '♫' : (isActive ? '▶' : '')) + '</span>';
+      item.addEventListener('click', function(){ selectBuiltinTrack(track.id); });
+      list.appendChild(item);
+    });
+  }
+
+  function selectBuiltinTrack(id){
+    var track = BUILTIN_TRACKS.find(function(t){ return t.id === id; });
+    if(!track) return;
+    if(withMeMusicUrl && withMeMusicUrl.startsWith('blob:')) URL.revokeObjectURL(withMeMusicUrl);
+    withMeMusicUrl       = track.file;
+    withMeMusicName      = track.name;
+    withMeMusicType      = 'builtin';
+    withMeBuiltinTrackId = id;
+    localStorage.setItem(WITHME_KEYS.musicType,      'builtin');
+    localStorage.setItem(WITHME_KEYS.builtinTrackId, id);
+    localStorage.setItem(WITHME_KEYS.musicName,      track.name);
+    var audio = $('withMeAudio');
+    audio.src  = track.file;
+    audio.loop = true;
+    audio.play()
+      .then(function(){ syncMusicUI(); renderBuiltinTracks(); })
+      .catch(function(){ syncMusicUI(); renderBuiltinTracks(); });
+    $('withMeMusicOverlay').classList.add('hidden');
+    flashSaved('♪ ' + track.name);
   }
 
   // Load saved timer state
@@ -7965,16 +8047,35 @@ textarea.mid{ min-height:90px; }
   $('withMeAudio').addEventListener('pause', syncMusicUI);
   $('withMeAudio').addEventListener('play', syncMusicUI);
 
-  // Load saved music
-  if(withMeMusicUrl) loadWithMeMusic();
+  // Auto-restore builtin track (persists via relative URL); custom blob URLs don't survive reload
+  if(withMeMusicType === 'builtin' && withMeBuiltinTrackId){
+    var _initTrack = BUILTIN_TRACKS.find(function(t){ return t.id === withMeBuiltinTrackId; });
+    if(_initTrack){
+      withMeMusicUrl  = _initTrack.file;
+      withMeMusicName = _initTrack.name;
+      loadWithMeMusic();
+    }
+  } else if(withMeMusicUrl){
+    loadWithMeMusic();
+  }
   syncMusicUI();
 
   // Event listeners
   $('withMeStartBtn').addEventListener('click', startWithMeTimer);
   $('withMePauseBtn').addEventListener('click', pauseWithMeTimer);
   $('withMeResetBtn').addEventListener('click', resetWithMeTimer);
+  $('withMeMusicSelectBtn').addEventListener('click', function(){
+    $('withMeMusicOverlay').classList.remove('hidden');
+    renderBuiltinTracks();
+  });
   $('withMeMusicPlayBtn').addEventListener('click', playWithMeMusic);
   $('withMeMusicStopBtn').addEventListener('click', stopWithMeMusic);
+  $('withMeMusicOverlayClose').addEventListener('click', function(){
+    $('withMeMusicOverlay').classList.add('hidden');
+  });
+  $('withMeMusicOverlay').addEventListener('click', function(e){
+    if(e.target === this) this.classList.add('hidden');
+  });
 
   // Mode selector buttons
   document.querySelectorAll('.wm-mode-btn').forEach(function(btn){
@@ -8000,17 +8101,22 @@ textarea.mid{ min-height:90px; }
 
   $('withMeMusicInput').addEventListener('change', function(e){
     var file = e.target.files[0]; if(!file) return;
-    // Revoke previous Blob URL to free memory
     if(withMeMusicUrl && withMeMusicUrl.startsWith('blob:')) URL.revokeObjectURL(withMeMusicUrl);
-    withMeMusicUrl  = URL.createObjectURL(file);
-    withMeMusicName = file.name.replace(/\.[^.]+$/, '');
+    withMeMusicUrl       = URL.createObjectURL(file);
+    withMeMusicName      = file.name.replace(/\.[^.]+$/, '');
+    withMeMusicType      = 'custom';
+    withMeBuiltinTrackId = '';
     try{ localStorage.setItem(WITHME_KEYS.musicName, withMeMusicName); }catch(er){}
+    localStorage.setItem(WITHME_KEYS.musicType, 'custom');
+    localStorage.removeItem(WITHME_KEYS.builtinTrackId);
     var audio = $('withMeAudio');
-    audio.src = withMeMusicUrl;
+    audio.src  = withMeMusicUrl;
     audio.loop = true;
-    audio.play().then(syncMusicUI).catch(function(){ syncMusicUI(); });
+    audio.play()
+      .then(function(){ syncMusicUI(); $('withMeMusicOverlay').classList.add('hidden'); })
+      .catch(function(){ syncMusicUI(); $('withMeMusicOverlay').classList.add('hidden'); });
     syncMusicUI();
-    flashSaved('音樂已載入 ✓');
+    flashSaved('♪ ' + withMeMusicName);
     e.target.value = '';
   });
 
