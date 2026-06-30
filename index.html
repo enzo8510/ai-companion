@@ -724,6 +724,17 @@ textarea.mid{ min-height:90px; }
 .btc-event-del{ background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:15px; padding:4px; border-radius:6px; }
 .btc-event-del:hover{ color:#e05252; background:rgba(224,82,82,.08); }
 .btc-add-section{ background:var(--chat-bg); border-radius:16px; border:1px solid var(--line); padding:14px 16px; margin-bottom:14px; }
+/* Period records section */
+.cal-period-add-form{ background:var(--surface); border-radius:12px; padding:12px; margin-bottom:10px; border:1px solid var(--line); }
+.cal-period-form-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.cal-period-form-label{ font-size:12px; color:var(--ink-soft); width:52px; flex:0 0 auto; }
+.cal-period-day-count{ font-size:12px; color:var(--companion); font-weight:600; white-space:nowrap; }
+.cal-period-record{ display:flex; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line); }
+.cal-period-record:last-child{ border-bottom:none; }
+.cal-period-record-icon{ font-size:18px; flex:0 0 auto; }
+.cal-period-record-info{ flex:1; }
+.cal-period-record-date{ font-size:13px; font-weight:600; color:var(--ink); }
+.cal-period-record-days{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
 .btc-add-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
 .btc-checkin-btn{ width:100%; padding:16px; border-radius:16px; background:var(--companion); color:#fff; border:none; font-size:16px; font-weight:700; font-family:inherit; cursor:pointer; transition:opacity .15s; margin-top:4px; }
 .btc-checkin-btn:active{ opacity:.85; }
@@ -2824,12 +2835,37 @@ textarea.mid{ min-height:90px; }
         </div>
         <div class="btc-hint" id="calOvNoSel">點選日期查看當天記錄</div>
 
-        <!-- Anniversaries -->
+        <!-- Anniversaries & Birthdays -->
         <div class="btc-add-section" style="margin-bottom:14px;">
           <div class="btc-add-title">
-            <span>🎂 紀念日</span>
+            <span>🎂 紀念日 & 生日</span>
           </div>
           <div id="calAnniList"></div>
+        </div>
+
+        <!-- Period records section -->
+        <div class="btc-add-section" style="margin-bottom:14px;">
+          <div class="btc-add-title">
+            <span>🌸 生理期記錄</span>
+            <button class="icon-btn" id="calAddPeriodBtn" type="button" title="新增生理期" style="font-size:16px;">＋</button>
+          </div>
+          <!-- Inline add/edit form -->
+          <div class="cal-period-add-form hidden" id="calPeriodAddForm">
+            <div class="cal-period-form-row">
+              <span class="cal-period-form-label">開始日期</span>
+              <input type="date" id="calPeriodStartInput" class="period-input" style="flex:1;">
+            </div>
+            <div class="cal-period-form-row">
+              <span class="cal-period-form-label">結束日期</span>
+              <input type="date" id="calPeriodEndInput" class="period-input" style="flex:1;">
+              <span id="calPeriodDayCount" class="cal-period-day-count"></span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="toolbar-btn ghost" id="calPeriodCancelBtn" type="button" style="flex:1;justify-content:center;">取消</button>
+              <button class="toolbar-btn primary" id="calPeriodSaveBtn" type="button" style="flex:1;justify-content:center;">💾 儲存</button>
+            </div>
+          </div>
+          <div id="calPeriodList"></div>
         </div>
 
         <!-- Add event section -->
@@ -3497,7 +3533,8 @@ textarea.mid{ min-height:90px; }
     theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
     dotColors:'companion:dotColors',
     chess:'companion:chess', chessHistory:'companion:chessHistory',
-    qaHistory:'companion:qaHistory'
+    qaHistory:'companion:qaHistory',
+    periodRecords:'companion:periodRecords'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -3753,6 +3790,9 @@ textarea.mid{ min-height:90px; }
       }
       if(key === KEYS.qaHistory){
         qaHistory = load(KEYS.qaHistory) || qaHistory;
+      }
+      if(key === KEYS.periodRecords){
+        periodRecords = load(KEYS.periodRecords) || periodRecords;
       }
       if(key === KEYS.avatar) avatarDataUrl = localStorage.getItem(KEYS.avatar) || '';
       if(key === KEYS.theme){
@@ -5148,15 +5188,36 @@ textarea.mid{ min-height:90px; }
 
   /* ---- Period Calendar ---- */
   var periodCalYear = new Date().getFullYear(), periodCalMonth = new Date().getMonth();
-  var periodStartDate = null, periodEndDate = null;
+  var periodStartDate = null, periodEndDate = null; // kept for period overlay compat
+  var periodRecords = []; // array of { id, start:'YYYY-MM-DD', end:'YYYY-MM-DD' }
 
   function loadPeriodData(){
-    var data = load('periodDates');
-    if(data && data.start && data.end){
-      periodStartDate = new Date(data.start);
-      periodEndDate = new Date(data.end);
+    // Load new array format
+    var arr = load(KEYS.periodRecords);
+    if(arr && Array.isArray(arr)){
+      periodRecords = arr;
+    } else {
+      // Migrate from old single-period format
+      var old = load('periodDates');
+      if(old && old.start && old.end){
+        periodRecords = [{ id:uid('pr'), start:old.start.split('T')[0], end:old.end.split('T')[0] }];
+        save(KEYS.periodRecords, periodRecords);
+      }
+    }
+    // Keep periodStartDate/periodEndDate in sync with most recent record (for overlay)
+    if(periodRecords.length){
+      var last = periodRecords[periodRecords.length-1];
+      periodStartDate = new Date(last.start.replace(/-/g,'/'));
+      periodEndDate   = new Date(last.end.replace(/-/g,'/'));
       updatePeriodDisplay();
     }
+  }
+
+  /* Check if a calendar cell (year, monthIndex, day) falls in any period record */
+  function isInAnyPeriod(y, m, d){
+    if(!periodRecords.length) return false;
+    var key = y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    return periodRecords.some(function(r){ return r.start && r.end && key>=r.start && key<=r.end; });
   }
 
   function updatePeriodDisplay(){
@@ -5216,9 +5277,20 @@ textarea.mid{ min-height:90px; }
     events.filter(function(e){ return e.type==='event'; }).forEach(function(e){
       items.push({ date:e.date, title:e.title, type:'event', id:e.id });
     });
+    // Include anniversaries and birthdays (recur every year)
+    events.filter(function(e){ return e.type==='anniversary'||e.type==='birthday'; }).forEach(function(e){
+      items.push({ date:e.date, title:e.title, type:e.type, id:e.id });
+    });
     memories.forEach(function(m){ if(m.date) items.push({ date:m.date, title:m.text.slice(0,40)+(m.text.length>40?'…':''), type:'memory' }); });
     journal.forEach(function(j, jIdx){ if(j.date) items.push({ date:j.date, title:j.content.slice(0,40)+(j.content.length>40?'…':''), type: j.mood ? 'diary' : 'journal', jIdx:jIdx }); });
     return items;
+  }
+
+  /* anni filter matches both 'anniversary' and 'birthday' event types */
+  function typeMatchesFilter(type, filter){
+    if(filter === 'all') return true;
+    if(filter === 'anni') return type === 'anniversary' || type === 'birthday';
+    return type === filter;
   }
 
   var calFilter = 'all';
@@ -5244,8 +5316,10 @@ textarea.mid{ min-height:90px; }
     var dateMap = {};
     dotItems.forEach(function(it){
       var d = parseMemDate(it.date); if(!d) return;
-      if(calFilter !== 'all' && it.type !== calFilter) return;
-      var key = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+      if(!typeMatchesFilter(it.type, calFilter)) return;
+      // Anniversaries and birthdays recur every year — use current calendar year
+      var yr = (it.type==='anniversary'||it.type==='birthday') ? calOvYear : d.getFullYear();
+      var key = yr+'-'+(d.getMonth()+1)+'-'+d.getDate();
       if(!dateMap[key]) dateMap[key] = [];
       dateMap[key].push(it);
     });
@@ -5265,12 +5339,8 @@ textarea.mid{ min-height:90px; }
       var isToday=d===today.getDate()&&calOvMonth===today.getMonth()&&calOvYear===today.getFullYear();
       var date=new Date(calOvYear,calOvMonth,d);
 
-      // Period highlight
-      var inPeriod=false;
-      if(periodStartDate&&periodEndDate){
-        var dT=date.getTime(),sT=periodStartDate.getTime(),eT=periodEndDate.getTime();
-        if(dT>=sT&&dT<=eT) inPeriod=true;
-      }
+      // Period highlight — check all period records
+      var inPeriod = isInAnyPeriod(calOvYear, calOvMonth, d);
 
       var isSelected=(d===calOvSelDay);
       cell.className='btc-day'+(isToday?' today':'')+(isSelected?' selected':'')+(inPeriod?' btc-period-day':'');
@@ -5337,12 +5407,18 @@ textarea.mid{ min-height:90px; }
     var items=getAllCalItems();
     var filtered=items.filter(function(it){
       var d=parseMemDate(it.date); if(!d) return false;
+      // Anniversaries and birthdays recur every year — match by month+day only
+      if(it.type==='anniversary'||it.type==='birthday'){
+        return d.getMonth()===calOvMonth&&d.getDate()===day;
+      }
       return d.getFullYear()===calOvYear&&d.getMonth()===calOvMonth&&d.getDate()===day;
     });
     // Also show checkin
     var dateStr=calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
     var hasCi=(checkin.history||[]).indexOf(dateStr)>=0;
     if(hasCi) filtered.unshift({ title:'每日打卡 ✓', type:'checkin', _ci:true });
+    // Show period record if this day is in a period
+    if(isInAnyPeriod(calOvYear, calOvMonth, day)) filtered.unshift({ title:'生理期中', type:'period', _period:true });
 
     if(!filtered.length){ list.innerHTML='<div class="btc-detail-empty">這天沒有記錄</div>'; return; }
     filtered.forEach(function(it){
@@ -5375,14 +5451,23 @@ textarea.mid{ min-height:90px; }
 
   function renderAnniSection(){
     var list=$('calAnniList'); list.innerHTML='';
-    var annis=events.filter(function(e){ return e.type==='anniversary'; });
-    if(!annis.length){ list.innerHTML='<div class="btc-detail-empty">尚未新增紀念日</div>'; return; }
+    var annis=events.filter(function(e){ return e.type==='anniversary'||e.type==='birthday'; });
+    if(!annis.length){ list.innerHTML='<div class="btc-detail-empty">尚未新增紀念日或生日</div>'; return; }
     var today=new Date(); today.setHours(0,0,0,0);
+    annis.sort(function(a,b){
+      var da=parseMemDate(a.date), db=parseMemDate(b.date); if(!da||!db) return 0;
+      var na=new Date(today.getFullYear(),da.getMonth(),da.getDate()); if(na<today) na.setFullYear(today.getFullYear()+1);
+      var nb=new Date(today.getFullYear(),db.getMonth(),db.getDate()); if(nb<today) nb.setFullYear(today.getFullYear()+1);
+      return na-nb;
+    });
     annis.forEach(function(e){
+      var isBday = e.type==='birthday';
       var row=document.createElement('div'); row.className='btc-event-row';
-      var em=document.createElement('div'); em.className='btc-event-emoji'; em.textContent='🎂';
+      var em=document.createElement('div'); em.className='btc-event-emoji';
+      em.textContent = isBday ? '🎂' : (e.emoji||'💝');
       var info=document.createElement('div'); info.className='btc-event-info';
-      var titleEl=document.createElement('div'); titleEl.className='btc-event-title'; titleEl.textContent=e.title;
+      var titleEl=document.createElement('div'); titleEl.className='btc-event-title';
+      titleEl.textContent = e.title + (isBday ? ' 的生日' : '');
       var d=parseMemDate(e.date);
       var sub=document.createElement('div'); sub.className='btc-event-sub';
       if(d){
@@ -5395,11 +5480,69 @@ textarea.mid{ min-height:90px; }
       var del=document.createElement('button'); del.className='btc-event-del'; del.textContent='✕';
       (function(id){ del.addEventListener('click',function(){
         events=events.filter(function(x){ return x.id!==id; });
-        save(KEYS.events,events); renderAnniSection(); updateCountdown();
+        save(KEYS.events,events); renderAnniSection(); renderCalOvGrid(); updateCountdown();
       }); })(e.id);
       row.appendChild(em); row.appendChild(info); row.appendChild(del);
       list.appendChild(row);
     });
+  }
+
+  var _editingPeriodId = null;
+
+  function renderPeriodSection(){
+    var list = $('calPeriodList'); if(!list) return;
+    list.innerHTML = '';
+    if(!periodRecords.length){
+      list.innerHTML = '<div class="btc-detail-empty">尚未新增生理期記錄</div>'; return;
+    }
+    var sorted = periodRecords.slice().sort(function(a,b){ return b.start > a.start ? 1 : -1; });
+    sorted.forEach(function(r){
+      var sd = new Date(r.start.replace(/-/g,'/')), ed = new Date(r.end.replace(/-/g,'/'));
+      var days = Math.round((ed-sd)/86400000)+1;
+      var fmt = function(d){ return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'; };
+      var row = document.createElement('div'); row.className = 'cal-period-record';
+      var icon = document.createElement('div'); icon.className = 'cal-period-record-icon'; icon.textContent = '🌸';
+      var info = document.createElement('div'); info.className = 'cal-period-record-info';
+      var dateEl = document.createElement('div'); dateEl.className = 'cal-period-record-date';
+      dateEl.textContent = fmt(sd) + ' ～ ' + fmt(ed);
+      var daysEl = document.createElement('div'); daysEl.className = 'cal-period-record-days';
+      daysEl.textContent = days + ' 天';
+      info.appendChild(dateEl); info.appendChild(daysEl);
+      var btns = document.createElement('div'); btns.style.cssText = 'display:flex;gap:4px;flex:0 0 auto;';
+      var editBtn = document.createElement('button'); editBtn.type='button'; editBtn.className='icon-btn'; editBtn.title='編輯'; editBtn.style.fontSize='14px'; editBtn.textContent='✏️';
+      var delBtn  = document.createElement('button'); delBtn.type='button';  delBtn.className='btc-event-del'; delBtn.textContent='✕';
+      (function(rec){
+        editBtn.addEventListener('click', function(){
+          _editingPeriodId = rec.id;
+          $('calPeriodStartInput').value = rec.start;
+          $('calPeriodEndInput').value   = rec.end;
+          updatePeriodDayCount();
+          $('calPeriodAddForm').classList.remove('hidden');
+          $('calPeriodAddForm').scrollIntoView({behavior:'smooth',block:'nearest'});
+        });
+        delBtn.addEventListener('click', function(){
+          if(!confirm('刪除此生理期記錄？')) return;
+          periodRecords = periodRecords.filter(function(x){ return x.id!==rec.id; });
+          save(KEYS.periodRecords, periodRecords);
+          if(periodRecords.length){
+            var last=periodRecords[periodRecords.length-1];
+            periodStartDate=new Date(last.start.replace(/-/g,'/')); periodEndDate=new Date(last.end.replace(/-/g,'/'));
+          } else { periodStartDate=null; periodEndDate=null; }
+          renderPeriodSection(); renderCalOvGrid(); updatePeriodInfoStrip();
+        });
+      })(r);
+      btns.appendChild(editBtn); btns.appendChild(delBtn);
+      row.appendChild(icon); row.appendChild(info); row.appendChild(btns);
+      list.appendChild(row);
+    });
+  }
+
+  function updatePeriodDayCount(){
+    var s=$('calPeriodStartInput').value, e=$('calPeriodEndInput').value, el=$('calPeriodDayCount');
+    if(s&&e&&s<=e){
+      var sd=new Date(s.replace(/-/g,'/')), ed=new Date(e.replace(/-/g,'/'));
+      el.textContent = (Math.round((ed-sd)/86400000)+1)+' 天';
+    } else { el.textContent=''; }
   }
 
   $('calOvPrev').addEventListener('click',function(){ calOvMonth--; if(calOvMonth<0){calOvMonth=11;calOvYear--;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
@@ -5412,14 +5555,49 @@ textarea.mid{ min-height:90px; }
   $('periodCalNext').addEventListener('click',function(){ periodCalMonth++; if(periodCalMonth>11){periodCalMonth=0;periodCalYear++;} renderPeriodCalGrid(); });
   $('periodCalClose').addEventListener('click',function(){ $('periodCalOverlay').classList.add('hidden'); });
   $('periodCalOverlay').addEventListener('click',function(e){ if(e.target===$('periodCalOverlay')) $('periodCalOverlay').classList.add('hidden'); });
-  $('periodStartDate').addEventListener('change',function(){ if(this.value) periodStartDate=new Date(this.value); updatePeriodDisplay(); renderPeriodCalGrid(); });
-  $('periodEndDate').addEventListener('change',function(){ if(this.value) periodEndDate=new Date(this.value); updatePeriodDisplay(); renderPeriodCalGrid(); });
+  $('periodStartDate').addEventListener('change',function(){ if(this.value) periodStartDate=new Date(this.value.replace(/-/g,'/')); updatePeriodDisplay(); renderPeriodCalGrid(); });
+  $('periodEndDate').addEventListener('change',function(){ if(this.value) periodEndDate=new Date(this.value.replace(/-/g,'/')); updatePeriodDisplay(); renderPeriodCalGrid(); });
   $('periodSaveBtn').addEventListener('click',function(){
     if(!periodStartDate || !periodEndDate){ alert('請選擇完整的日期範圍'); return; }
     if(periodStartDate > periodEndDate){ alert('開始日期不能晚於結束日期'); return; }
     save('periodDates', { start:periodStartDate.toISOString(), end:periodEndDate.toISOString() });
     flashSaved('生理期已保存');
     renderPeriodCalGrid();
+  });
+
+  /* ---- Inline period add/edit form (calendarView) ---- */
+  $('calAddPeriodBtn').addEventListener('click', function(){
+    _editingPeriodId = null;
+    $('calPeriodStartInput').value = '';
+    $('calPeriodEndInput').value   = '';
+    $('calPeriodDayCount').textContent = '';
+    $('calPeriodAddForm').classList.remove('hidden');
+    $('calPeriodAddForm').scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+  $('calPeriodCancelBtn').addEventListener('click', function(){
+    _editingPeriodId = null;
+    $('calPeriodAddForm').classList.add('hidden');
+  });
+  $('calPeriodStartInput').addEventListener('change', updatePeriodDayCount);
+  $('calPeriodEndInput').addEventListener('change', updatePeriodDayCount);
+  $('calPeriodSaveBtn').addEventListener('click', function(){
+    var s = $('calPeriodStartInput').value, e = $('calPeriodEndInput').value;
+    if(!s||!e){ alert('請選擇完整日期'); return; }
+    if(s>e){ alert('開始日期不能晚於結束日期'); return; }
+    if(_editingPeriodId){
+      var idx = periodRecords.findIndex(function(r){ return r.id===_editingPeriodId; });
+      if(idx>=0){ periodRecords[idx].start=s; periodRecords[idx].end=e; }
+    } else {
+      periodRecords.push({ id:uid('pr'), start:s, end:e });
+    }
+    save(KEYS.periodRecords, periodRecords);
+    // Keep legacy vars in sync
+    var last=periodRecords[periodRecords.length-1];
+    periodStartDate=new Date(last.start.replace(/-/g,'/')); periodEndDate=new Date(last.end.replace(/-/g,'/'));
+    _editingPeriodId = null;
+    $('calPeriodAddForm').classList.add('hidden');
+    renderPeriodSection(); renderCalOvGrid(); updatePeriodInfoStrip();
+    flashSaved('生理期已儲存 ✓');
   });
 
   function renderEventTypeSelect(){
@@ -5629,15 +5807,24 @@ textarea.mid{ min-height:90px; }
     renderCalOvGrid();
     renderDayDetail(null);
     renderAnniSection();
+    renderPeriodSection();
     updatePeriodInfoStrip();
   }
 
   function updatePeriodInfoStrip(){
     var strip = $('calPeriodStrip');
-    if(periodStartDate && periodEndDate){
-      var start = periodStartDate.getFullYear() + '年 ' + (periodStartDate.getMonth()+1) + '月 ' + periodStartDate.getDate() + '日';
-      var end = periodEndDate.getFullYear() + '年 ' + (periodEndDate.getMonth()+1) + '月 ' + periodEndDate.getDate() + '日';
-      $('calPeriodRange').textContent = start + ' ~ ' + end;
+    // Show the currently-active or most recent period
+    var today = new Date();
+    var active = periodRecords.find(function(r){
+      return r.start && r.end && today>=new Date(r.start.replace(/-/g,'/')) && today<=new Date(r.end.replace(/-/g,'/'));
+    });
+    var show = active || (periodRecords.length ? periodRecords[periodRecords.length-1] : null);
+    if(show){
+      var sd=new Date(show.start.replace(/-/g,'/')), ed=new Date(show.end.replace(/-/g,'/'));
+      var fmt=function(d){ return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'; };
+      var label = active ? '🌸 生理期中' : '🌸 最近記錄';
+      $('calPeriodStrip').querySelector('.period-info-label').textContent = label;
+      $('calPeriodRange').textContent = fmt(sd) + ' ～ ' + fmt(ed);
       strip.style.display = 'block';
     } else {
       strip.style.display = 'none';
