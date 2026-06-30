@@ -242,10 +242,10 @@ body{
 .bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
 .bubble.her em{ font-style:italic; opacity:.85; }
-.bubble .action{ color:rgba(26,26,46,0.48); }
-.bubble.her .action{ color:rgba(26,26,46,0.45); }
-.bubble.me .action{ color:rgba(26,26,46,0.45); }
-#thread.has-chatbg.dark-bg .bubble .action{ color:rgba(255,255,255,0.52); }
+.bubble .action{ color:rgba(26,26,46,0.62); }
+.bubble.her .action{ color:rgba(26,26,46,0.60); }
+.bubble.me .action{ color:rgba(26,26,46,0.60); }
+#thread.has-chatbg.dark-bg .bubble .action{ color:rgba(255,255,255,0.72); }
 
 .typing-row .bubble.her{ display:flex; gap:4px; align-items:center; padding:14px 16px; }
 .typing-dot{ width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:typing-bounce 1.2s ease-in-out infinite; }
@@ -1145,7 +1145,7 @@ textarea.mid{ min-height:90px; }
 /* ---- Default theme bubble text colors ---- */
 :root:not([data-theme]) .bubble.her{ color:#1a1a2e !important; }
 :root:not([data-theme]) .bubble.me{ color:#1a1a2e !important; }
-:root:not([data-theme]) .bubble .action{ color:#6D5B86 !important; }
+:root:not([data-theme]) .bubble .action{ color:rgba(26,26,46,0.62); }
 /* ---- Bubble transparency on chat background ---- */
 #thread.has-chatbg .bubble.her{ background:rgba(176,158,212,0.85); backdrop-filter:none; -webkit-backdrop-filter:none; border:none; }
 #thread.has-chatbg .bubble.me{ background:rgba(245,240,255,0.92); backdrop-filter:none; -webkit-backdrop-filter:none; border:none; }
@@ -1154,13 +1154,13 @@ textarea.mid{ min-height:90px; }
 /* Dark theme bubble colors with opacity */
 :root[data-theme="dark"] .bubble.her{ background:rgba(70,86,114,0.85); color:#ffffff; }
 :root[data-theme="dark"] .bubble.me{ background:rgba(214,218,225,0.88); color:#1A1D26; }
-:root[data-theme="dark"] .bubble .action{ color:rgba(255,255,255,0.52); }
-:root[data-theme="dark"] .bubble.her .action{ color:rgba(255,255,255,0.52); }
+:root[data-theme="dark"] .bubble .action{ color:rgba(255,255,255,0.70); }
+:root[data-theme="dark"] .bubble.her .action{ color:rgba(255,255,255,0.70); }
 :root[data-theme="dark"] .bubble.me .action{ color:rgba(26,29,38,0.48); }
 /* Dark theme with chat background override */
 :root[data-theme="dark"] #thread.has-chatbg .bubble.her{ background:rgba(70,86,114,0.85); color:#ffffff; backdrop-filter:none; border:none; }
 :root[data-theme="dark"] #thread.has-chatbg .bubble.me{ background:rgba(214,218,225,0.88); color:#1A1D26; backdrop-filter:none; border:none; }
-:root[data-theme="dark"] #thread.has-chatbg .bubble.her .action{ color:rgba(255,255,255,0.52); }
+:root[data-theme="dark"] #thread.has-chatbg .bubble.her .action{ color:rgba(255,255,255,0.70); }
 :root[data-theme="dark"] #thread.has-chatbg .bubble.me .action{ color:rgba(26,29,38,0.48); }
 /* ---- Dark theme text color improvements ---- */
 :root[data-theme="dark"] .home-name,
