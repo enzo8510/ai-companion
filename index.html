@@ -5751,6 +5751,7 @@ textarea.mid{ min-height:90px; }
       if(el) el.className = 'btc-chip' + (id===f?' active':'');
     });
     renderCalOvGrid();
+    renderDayDetail(calOvSelDay);
   }
   ['all','event','anni','period'].forEach(function(f){
     var el = $('calChip'+f.charAt(0).toUpperCase()+f.slice(1));
@@ -5830,7 +5831,7 @@ textarea.mid{ min-height:90px; }
 
       var icons=[];
       items.forEach(function(it){
-        var emojiMap={event:'📝',anni:'🎂',birthday:'🎂',health:'💪'};
+        var emojiMap={event:'📝',anniversary:'🎂',birthday:'🎂',health:'💪',diary:'📔',journal:'📝',memory:'🧠',health:'💪',work:'💼'};
         var em=emojiMap[it.type]||'📌';
         if(icons.indexOf(em)<0) icons.push(em);
       });
@@ -5873,6 +5874,7 @@ textarea.mid{ min-height:90px; }
     list.innerHTML='';
     if(day==null){ detail.style.display='none'; nosel.style.display=''; return; }
     detail.style.display='block'; nosel.style.display='none';
+    setTimeout(function(){ detail.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 60);
     var wdays=['日','一','二','三','四','五','六'];
     var dateObj=new Date(calOvYear,calOvMonth,day);
     $('calOvDayLabel').textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日（'+wdays[dateObj.getDay()]+'）';
