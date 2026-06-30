@@ -4621,7 +4621,13 @@ textarea.mid{ min-height:90px; }
       } else if(t.isQa && t.role==='user'){
         thread.appendChild(createQaCard(t.content, idx));
       } else {
-        thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
+        if(t.img){
+          var ir = document.createElement('div'); ir.className='chat-img-row';
+          var ie = document.createElement('img'); ie.src=t.img; ie.alt=''; ir.appendChild(ie);
+          thread.appendChild(ir);
+        }
+        if(t.content) thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
+        else if(!t.img)  thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
       }
     });
     scrollThread();
@@ -4753,7 +4759,7 @@ textarea.mid{ min-height:90px; }
         { type:'image_url', image_url:{ url: imgDataUrl } }
       ]});
     } else {
-      hist.forEach(function(t){ msgs.push({ role:t.role, content:t.content }); });
+      hist.forEach(function(t){ msgs.push({ role:t.role, content:t.content || (t.img ? '（附圖）' : '') }); });
     }
     var resp = await fetch(endpoint(), {
       method:'POST',
@@ -4812,7 +4818,7 @@ textarea.mid{ min-height:90px; }
     }
     var userTs = Date.now();
     if(t) thread.appendChild(bubbleRow('user', t, undefined, userTs));
-    chatHistory.push({ role:'user', content:(img&&!t?'（附圖）':t), ts:userTs });
+    chatHistory.push({ role:'user', content:t||'', img:img||null, ts:userTs });
     save(KEYS.chat, chatHistory);
     chatInput.value = '';
     setSending(true);
