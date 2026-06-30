@@ -4821,7 +4821,7 @@ textarea.mid{ min-height:90px; }
     if(memories.length){
       parts.push('\n\n# 你和江黎之間的記憶體（越後面的記憶越新、越重要，請深刻記住它們）');
       var sortedMems = memories.slice().sort(function(a,b){
-        return parseMemDate(a.date||'').getTime() - parseMemDate(b.date||'').getTime();
+        return (parseMemDate(a.date||'')||new Date(0)).getTime() - (parseMemDate(b.date||'')||new Date(0)).getTime();
       });
       sortedMems.forEach(function(m){ parts.push('- 【' + (m.date||'') + '】' + (m.text||'')); });
     }
@@ -5310,12 +5310,15 @@ textarea.mid{ min-height:90px; }
   var calPopup = null, calOnSelect = null, calYear = 0, calMonth = 0, calSelDate = null;
 
   function parseMemDate(str){
-    if(!str) return new Date();
+    if(!str) return null;
     var m = str.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
     if(m) return new Date(+m[1], +m[2]-1, +m[3]);
     m = str.match(/(\d{1,2})月(\d{1,2})日/);
     if(m){ var d=new Date(); return new Date(d.getFullYear(),+m[1]-1,+m[2]); }
-    return new Date();
+    // ISO format: 2025-06-21
+    m = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m) return new Date(+m[1], +m[2]-1, +m[3]);
+    return null;
   }
 
   function createCalendar(){
@@ -5380,7 +5383,7 @@ textarea.mid{ min-height:90px; }
   function openCalendar(triggerEl, currentDateStr, onSelect){
     createCalendar();
     calOnSelect = onSelect;
-    var d = parseMemDate(currentDateStr);
+    var d = parseMemDate(currentDateStr) || new Date();
     calYear=d.getFullYear(); calMonth=d.getMonth(); calSelDate=d;
     renderCalGrid();
     var rect = triggerEl.getBoundingClientRect();
@@ -5986,7 +5989,14 @@ textarea.mid{ min-height:90px; }
     list.innerHTML='';
     if(day==null){ detail.style.display='none'; nosel.style.display=''; return; }
     detail.style.display='block'; nosel.style.display='none';
-    setTimeout(function(){ detail.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 60);
+    setTimeout(function(){
+      var btcBody = document.querySelector('#calendarView .btc-body');
+      if(btcBody){
+        var calCard = btcBody.querySelector('.btc-cal-card');
+        var targetTop = calCard ? (calCard.offsetTop + calCard.offsetHeight + 8) : detail.offsetTop;
+        btcBody.scrollTo({ top: targetTop, behavior: 'smooth' });
+      }
+    }, 60);
     var wdays=['日','一','二','三','四','五','六'];
     var dateObj=new Date(calOvYear,calOvMonth,day);
     $('calOvDayLabel').textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日（'+wdays[dateObj.getDay()]+'）';
