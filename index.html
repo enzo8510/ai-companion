@@ -194,7 +194,7 @@ body{
   padding:5px 12px; border-radius:999px; cursor:pointer;
 }
 
-.row{ display:flex; gap:8px; max-width:88%; animation:rise .5s ease both; }
+.row{ display:flex; gap:6px; max-width:88%; animation:rise .5s ease both; align-items:flex-end; }
 .row.her{ align-self:flex-start; }
 .row.me{ align-self:flex-end; flex-direction:row-reverse; }
 @keyframes rise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
@@ -237,9 +237,7 @@ body{
   word-break:break-word;
   white-space:pre-wrap;
 }
-.bubble-time{ display:block; font-size:9px; color:rgba(26,26,46,0.38); margin-top:5px; line-height:1; }
-.bubble.me .bubble-time{ text-align:right; }
-.bubble.her .bubble-time{ text-align:left; }
+.bubble-time{ font-size:10px; color:rgba(26,26,46,0.45); white-space:nowrap; flex-shrink:0; line-height:1; padding-bottom:3px; }
 .bubble.her{ background:rgba(176,158,212,0.85); color:#1a1a2e; border-radius:18px 18px 18px 5px; }
 .bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
@@ -796,8 +794,7 @@ textarea.mid{ min-height:90px; }
 /* Dark chat background - light text */
 #thread.has-chatbg.dark-bg .bubble.her,
 #thread.has-chatbg.dark-bg .bubble.me{ color:#ffffff; }
-#thread.has-chatbg.dark-bg .bubble.her .bubble-time,
-#thread.has-chatbg.dark-bg .bubble.me .bubble-time{ color:#f0f0f0; }
+#thread.has-chatbg.dark-bg .bubble-time{ color:rgba(240,240,240,0.75); }
 
 /* ---- Check-in calendar overlay ---- */
 .ci-cal-stats{ display:flex; gap:var(--space-md); justify-content:center; margin-bottom:var(--space-lg); }
@@ -2067,7 +2064,6 @@ textarea.mid{ min-height:90px; }
             <div class="mini-avatar-me" id="rpUserAvatarPreview" style="width:22px;height:22px;flex:0 0 auto;margin:0;"></div>
             <span>我的頭像</span>
           </button>
-          <input type="file" id="userAvatarInput" accept="image/*" style="display:none;">
           <button class="lp-item" id="rpChangeBg" type="button">
             <span class="lp-item-icon">🖼</span>
             <span>更改聊天室背景</span>
@@ -3190,6 +3186,34 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
+<!-- ============ USER AVATAR GALLERY OVERLAY ============ -->
+<div class="cnt-sel-overlay hidden" id="userAvatarGalleryOverlay">
+  <div class="cnt-sel-sheet" style="max-width:340px;">
+    <div class="cnt-sel-head">
+      <div class="cnt-sel-title">🙋 我的頭像</div>
+      <button class="icon-btn" id="userAvatarOverlayClose" type="button">✕</button>
+    </div>
+    <div style="padding:14px 16px 0;display:flex;align-items:center;gap:14px;">
+      <div class="avatar-preview" id="userAvatarLargePreview"></div>
+      <button class="btn danger small" id="userAvatarClearBtn" type="button">移除頭像</button>
+    </div>
+    <div class="avatar-preset-section">
+      <div class="avatar-preset-label">預設頭像</div>
+      <div class="avatar-preset-row" id="userAvatarPresetRow">
+        <!-- 預設頭像由使用者新增後放入 user portrait/ 資料夾 -->
+      </div>
+    </div>
+    <div class="avatar-custom-label">已上傳頭像</div>
+    <div id="userAvatarGalleryWrap" style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 8px;min-height:40px;"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;">
+      <label class="toolbar-btn primary" style="cursor:pointer;text-align:center;display:block;box-sizing:border-box;">
+        ＋ 新增頭像
+        <input type="file" id="userAvatarFile" accept="image/*" style="display:none;">
+      </label>
+    </div>
+  </div>
+</div>
+
 <!-- ============ CHAT BACKGROUND OVERLAY ============ -->
 <div class="cnt-sel-overlay hidden" id="chatBgOverlay">
   <div class="cnt-sel-sheet" style="max-width:380px;">
@@ -3426,7 +3450,8 @@ textarea.mid{ min-height:90px; }
     walGallery:'companion:walGallery', walActive:'companion:walActive',
     avatarGallery:'companion:avatarGallery', avatarActive:'companion:avatarActive',
     startDate:'companion:startDate', cntTarget:'companion:cntTarget', msEmojis:'companion:msEmojis',
-    userAvatar:'companion:userAvatar', tokenStats:'companion:tokenStats',
+    userAvatar:'companion:userAvatar', userAvatarGallery:'companion:userAvatarGallery', userAvatarActive:'companion:userAvatarActive',
+    tokenStats:'companion:tokenStats',
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
     theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
     dotColors:'companion:dotColors',
@@ -3789,7 +3814,9 @@ textarea.mid{ min-height:90px; }
   var startDate   = localStorage.getItem(KEYS.startDate) || '';
   var cntTarget   = localStorage.getItem(KEYS.cntTarget) || '';
   var msEmojis    = load(KEYS.msEmojis) || {};
-  var userAvatarUrl = localStorage.getItem(KEYS.userAvatar) || '';
+  var userAvatarUrl    = localStorage.getItem(KEYS.userAvatar) || '';
+  var userAvatarGallery = load(KEYS.userAvatarGallery) || [];
+  var userAvatarActive  = localStorage.getItem(KEYS.userAvatarActive) || '';
   var tokenStats  = load(KEYS.tokenStats) || { totalIn:0, totalOut:0 };
   var walGallery  = load(KEYS.walGallery)    || [];
   var walActive   = localStorage.getItem(KEYS.walActive) || '';
@@ -4091,30 +4118,38 @@ textarea.mid{ min-height:90px; }
     var row = document.createElement('div');
     row.className = 'row ' + (role==='assistant' ? 'her' : 'me');
     if(msgIndex!==undefined) row.setAttribute('data-msg-index', msgIndex);
-    if(role==='assistant'){
-      var av = document.createElement('div'); av.className='mini-avatar'; av.setAttribute('aria-hidden','true');
-      applyAvatarToEl(av);
-      row.appendChild(av);
-    }
-    var b = document.createElement('div');
-    b.className = 'bubble ' + (role==='assistant' ? 'her' : 'me');
-    if(role==='assistant'){ b.innerHTML = parseMarkdown(text); }
-    else{ b.textContent = text; }
+
+    /* Build time element (outside bubble) */
+    var timeEl = null;
     if(ts){
       var d = new Date(ts);
       var hh = String(d.getHours()).padStart(2,'0');
       var mm = String(d.getMinutes()).padStart(2,'0');
-      var timeEl = document.createElement('span');
+      timeEl = document.createElement('span');
       timeEl.className = 'bubble-time';
       timeEl.textContent = hh + ':' + mm;
-      b.appendChild(timeEl);
     }
-    row.appendChild(b);
-    if(role!=='assistant'){
+
+    if(role==='assistant'){
+      /* her: [avatar][bubble][time] */
+      var av = document.createElement('div'); av.className='mini-avatar'; av.setAttribute('aria-hidden','true');
+      applyAvatarToEl(av);
+      row.appendChild(av);
+    } else {
+      /* me (row-reverse): DOM [uav, time, bubble] → visual [bubble][time][uav] */
       var uav = document.createElement('div'); uav.className='mini-avatar-me'; uav.setAttribute('aria-hidden','true');
       applyUserAvatarToEl(uav);
       row.appendChild(uav);
+      if(timeEl) row.appendChild(timeEl);
     }
+
+    var b = document.createElement('div');
+    b.className = 'bubble ' + (role==='assistant' ? 'her' : 'me');
+    if(role==='assistant'){ b.innerHTML = parseMarkdown(text); }
+    else{ b.textContent = text; }
+    row.appendChild(b);
+
+    if(role==='assistant' && timeEl) row.appendChild(timeEl);
     if(msgIndex!==undefined){
       (function(idx){
         b.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); showChatContextMenu(e, idx); });
@@ -6812,6 +6847,59 @@ textarea.mid{ min-height:90px; }
     renderMoodDiaryOverlay();
     $('moodDiaryOverlay').classList.remove('hidden');
   }
+  /* ============ User avatar gallery ============ */
+  function applyUserAvatarLargePreview(){
+    var el = $('userAvatarLargePreview'); if(!el) return;
+    if(userAvatarUrl){ el.style.backgroundImage='url("'+userAvatarUrl+'")'; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; }
+    else{ el.style.backgroundImage=''; }
+  }
+
+  function renderUserAvatarGallery(){
+    var wrap = $('userAvatarGalleryWrap'); if(!wrap) return; wrap.innerHTML='';
+    applyUserAvatarLargePreview();
+    userAvatarGallery.forEach(function(item){
+      var card = document.createElement('div');
+      card.style.cssText = 'position:relative;width:54px;height:54px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0;';
+      var img = document.createElement('img'); img.src = item.dataUrl;
+      img.style.cssText = 'width:54px;height:54px;border-radius:50%;object-fit:cover;object-position:center;border:2.5px solid '+(item.id===userAvatarActive?'var(--companion)':'var(--line)')+';box-sizing:border-box;display:block;';
+      img.addEventListener('click', function(){
+        userAvatarActive = item.id; localStorage.setItem(KEYS.userAvatarActive, userAvatarActive);
+        userAvatarUrl = item.dataUrl; localStorage.setItem(KEYS.userAvatar, userAvatarUrl);
+        syncAvatar(); renderUserAvatarGallery(); flashSaved();
+      });
+      var del = document.createElement('button');
+      del.style.cssText = 'position:absolute;top:-2px;right:-2px;background:#e05252;color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2;';
+      del.textContent = '✕';
+      del.addEventListener('click', function(e){ e.stopPropagation(); if(!confirm('刪除此頭像？')) return;
+        userAvatarGallery = userAvatarGallery.filter(function(x){ return x.id!==item.id; });
+        save(KEYS.userAvatarGallery, userAvatarGallery);
+        if(userAvatarActive===item.id){ userAvatarActive=''; userAvatarUrl=''; localStorage.removeItem(KEYS.userAvatarActive); localStorage.removeItem(KEYS.userAvatar); syncAvatar(); }
+        renderUserAvatarGallery();
+      });
+      card.appendChild(img); card.appendChild(del); wrap.appendChild(card);
+    });
+  }
+
+  $('userAvatarOverlayClose').addEventListener('click', function(){ $('userAvatarGalleryOverlay').classList.add('hidden'); });
+
+  $('userAvatarFile').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0]; if(!file) return;
+    compressAvatar(file, function(dataUrl){
+      var item = { id:uid('uavt'), dataUrl:dataUrl };
+      userAvatarGallery.unshift(item); if(userAvatarGallery.length>5) userAvatarGallery.pop();
+      save(KEYS.userAvatarGallery, userAvatarGallery);
+      userAvatarActive = item.id; localStorage.setItem(KEYS.userAvatarActive, userAvatarActive);
+      userAvatarUrl = dataUrl; localStorage.setItem(KEYS.userAvatar, userAvatarUrl);
+      syncAvatar(); renderUserAvatarGallery(); flashSaved();
+    }); e.target.value='';
+  });
+
+  $('userAvatarClearBtn').addEventListener('click', function(){
+    userAvatarActive=''; userAvatarUrl='';
+    localStorage.removeItem(KEYS.userAvatarActive); localStorage.removeItem(KEYS.userAvatar);
+    syncAvatar(); renderUserAvatarGallery(); flashSaved();
+  });
+
   /* ============ Token bar reset ============ */
   $('tokenReset').addEventListener('click', function(){
     tokenStats = { totalIn:0, totalOut:0 };
@@ -6826,20 +6914,8 @@ textarea.mid{ min-height:90px; }
   /* ============ User avatar upload ============ */
   $('rpChangeUserAvatar').addEventListener('click', function(){
     closeRightPanel();
-    $('userAvatarInput').click();
-  });
-  $('userAvatarInput').addEventListener('change', function(e){
-    var file = e.target.files && e.target.files[0];
-    if(!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev){
-      userAvatarUrl = ev.target.result;
-      localStorage.setItem(KEYS.userAvatar, userAvatarUrl);
-      syncAvatar();
-      flashSaved('頭像已更新');
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+    $('userAvatarGalleryOverlay').classList.remove('hidden');
+    renderUserAvatarGallery();
   });
 
   /* ============ Right panel menu items ============ */
@@ -8573,6 +8649,7 @@ textarea.mid{ min-height:90px; }
   syncHeader();
   syncAvatar();
   renderTokenBar();
+  renderUserAvatarGallery();
   fillSettings();
   fillPersona();
   renderKnowledge();
