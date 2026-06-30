@@ -4203,6 +4203,8 @@ textarea.mid{ min-height:90px; }
         if(lastSeenRemote[key] === remoteValue) return; // 跟上次一樣，跳過
         lastSeenRemote[key] = remoteValue;
         var localValue = localStorage.getItem(key);
+        // 音檔含 base64 blob，無法進 Firebase，永遠保留本地資料
+        if(key === 'companion:audioTracks') return;
         // 首次載入：本地有實質資料時以本地為準，不被雲端舊資料蓋掉
         if(firstSnapshot && localValue && localValue.length > 4 && localValue !== remoteValue){
           // 本地有資料，上傳本地版本取代雲端
@@ -4333,6 +4335,8 @@ textarea.mid{ min-height:90px; }
         var remoteValue = remoteData[key];
         if(!remoteValue || remoteValue.length > 500000) return;
         var localValue = localStorage.getItem(key);
+        // 音檔含 base64 blob，無法進 Firebase，永遠保留本地資料
+        if(key === 'companion:audioTracks'){ lastSeenRemote[key] = remoteValue; return; }
         // 設定類保留本地非空金鑰，避免被雲端空值清掉
         var valueToStore = (key === KEYS.settings) ? mergeSettingsStr(remoteValue, localValue) : remoteValue;
         lastSeenRemote[key] = remoteValue; // 標記已看過，避免即時監聽重複處理
