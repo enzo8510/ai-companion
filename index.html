@@ -2399,7 +2399,20 @@ textarea.mid{ min-height:90px; }
         <!-- 記憶體 -->
         <section class="panel" id="panel-memory">
           <h2>記憶體</h2>
-          <p class="lead">由角色依照每 10–20 則對話自動生成的記憶內容（標示「自動記憶」），越新的記憶越被重視。最多儲存 100 筆，你也可以手動新增、修改或刪除。每則最多 80 字。</p>
+          <p class="lead">由角色依照每 10–20 則對話自動生成的記憶內容（標示「自動記憶」），越新的記憶越被重視。最多儲存 50 則，你也可以手動新增、修改或刪除。每則最多 80 字。</p>
+          <div class="kb-capacity-wrap">
+            <div class="kb-capacity-header">
+              <span class="kb-capacity-label">🧠 記憶容量</span>
+              <span class="kb-capacity-status" id="memCapStatus">計算中</span>
+            </div>
+            <div class="kb-capacity-bar-bg">
+              <div class="kb-capacity-bar-fill" id="memCapFill"></div>
+            </div>
+            <div class="kb-capacity-info">
+              <span id="memCapChars">0 / 50 則・0 / 4,000 字</span>
+              <span id="memCapTokens">~0 tokens</span>
+            </div>
+          </div>
           <div class="panel-toolbar">
             <button class="toolbar-btn primary" id="memAddBtn" type="button">＋ 新增記憶</button>
           </div>
@@ -4898,7 +4911,7 @@ textarea.mid{ min-height:90px; }
         }
       });
       if(added){
-        if(memories.length > 100) memories = memories.slice(memories.length - 100);
+        if(memories.length > 50) memories = memories.slice(memories.length - 50);
         save(KEYS.memories, memories); renderMemories();
       }
     }catch(e){ console.warn('記憶整理略過：', e); }
@@ -5468,8 +5481,30 @@ textarea.mid{ min-height:90px; }
 
   /* ============ Memory panel ============ */
   var memList = $('memList');
+  var MEM_MAX = 50, MEM_MAX_CHARS = 80;
+  function updateMemCapacity(){
+    var totalChars = memories.reduce(function(s,m){ return s+(m.text||'').length; },0);
+    var maxChars = MEM_MAX * MEM_MAX_CHARS;
+    var countPct = Math.min(memories.length / MEM_MAX * 100, 100);
+    var charPct  = Math.min(totalChars / maxChars * 100, 100);
+    var pct = Math.max(countPct, charPct);
+    var estTokens = Math.round(totalChars / 1.5);
+    var fillEl = $('memCapFill'), statusEl = $('memCapStatus');
+    var charsEl = $('memCapChars'), tokensEl = $('memCapTokens');
+    if(!fillEl) return;
+    fillEl.style.width = pct.toFixed(1) + '%';
+    var level = pct < 33 ? '' : pct < 60 ? 'warn' : pct < 80 ? 'heavy' : 'over';
+    fillEl.className = 'kb-capacity-bar-fill' + (level ? ' '+level : '');
+    var labels = { '':'輕量 ✓', 'warn':'適中', 'heavy':'偏重 ⚠', 'over':'超載 ✕' };
+    statusEl.textContent = labels[level];
+    statusEl.className = 'kb-capacity-status' + (level ? ' '+level : '');
+    charsEl.textContent = memories.length + ' / ' + MEM_MAX + ' 則・' + totalChars.toLocaleString() + ' / ' + maxChars.toLocaleString() + ' 字';
+    tokensEl.textContent = '~' + estTokens.toLocaleString() + ' tokens';
+  }
+
   function renderMemories(){
     memList.innerHTML = '';
+    updateMemCapacity();
     if(!memories.length){
       memList.innerHTML = '<div class="panel-empty"><div class="empty-icon">🧠</div><div class="empty-title">還沒有記憶體</div><div class="empty-sub">聊 10–20 輪之後，AI 會自動整理並記住重要的事<br>你也能點上方按鈕手動新增</div></div>';
       return;
