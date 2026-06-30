@@ -8556,8 +8556,6 @@ textarea.mid{ min-height:90px; }
     var countEl = $('audioTrackCount');
     if(countEl) countEl.textContent = audioTracks.length + ' / ' + MAX_AUDIO_TRACKS;
     var full = audioTracks.length >= MAX_AUDIO_TRACKS;
-    var uploadBtn = $('audioUploadTrigger');
-    if(uploadBtn){ uploadBtn.disabled = full; uploadBtn.title = full ? '已達上限（'+MAX_AUDIO_TRACKS+'個）' : '上傳音檔'; }
     var filtered = audioFilter === 'all' ? audioTracks : audioTracks.filter(function(t){ return t.category === audioFilter; });
     if(!filtered.length){
       list.innerHTML = '<div class="audio-empty"><div class="audio-empty-icon">🎶</div><div class="audio-empty-text">還沒有音檔<br>點右上角＋上傳第一個</div></div>';
@@ -8821,9 +8819,9 @@ textarea.mid{ min-height:90px; }
     reader.onload = function(e){
       var title = ($('elTtsText').value.slice(0,20)||'AI 語音') + '…';
       var cat = $('elSaveCatSelect').value || 'other';
-      var track = { id:uid('el'), title:title, cat:cat, dataUrl:e.target.result, ts:Date.now() };
+      var track = { id:uid('el'), title:title, category:cat, dataUrl:e.target.result, ts:Date.now() };
       audioTracks.unshift(track);
-      save(KEYS.audioTracks, audioTracks);
+      save(AUDIO_KEY, audioTracks);
       renderAudioList();
       elHideTts();
       flashSaved('已儲存到音檔清單 ✓');
