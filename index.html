@@ -242,10 +242,10 @@ body{
 .bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
 .bubble.her em{ font-style:italic; opacity:.85; }
-.bubble .action{ color:rgba(26,26,46,0.62); }
-.bubble.her .action{ color:rgba(26,26,46,0.60); }
-.bubble.me .action{ color:rgba(26,26,46,0.60); }
-#thread.has-chatbg.dark-bg .bubble .action{ color:rgba(255,255,255,0.72); }
+.bubble .action{ color:rgba(26,26,46,0.88); }
+.bubble.her .action{ color:rgba(26,26,46,0.88); }
+.bubble.me .action{ color:rgba(26,26,46,0.88); }
+#thread.has-chatbg.dark-bg .bubble .action{ color:rgba(255,255,255,0.92); }
 
 .typing-row .bubble.her{ display:flex; gap:4px; align-items:center; padding:14px 16px; }
 .typing-dot{ width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:typing-bounce 1.2s ease-in-out infinite; }
@@ -1145,7 +1145,7 @@ textarea.mid{ min-height:90px; }
 /* ---- Default theme bubble text colors ---- */
 :root:not([data-theme]) .bubble.her{ color:#1a1a2e !important; }
 :root:not([data-theme]) .bubble.me{ color:#1a1a2e !important; }
-:root:not([data-theme]) .bubble .action{ color:rgba(26,26,46,0.62); }
+:root:not([data-theme]) .bubble .action{ color:rgba(26,26,46,0.88); }
 /* ---- Bubble transparency on chat background ---- */
 #thread.has-chatbg .bubble.her{ background:rgba(176,158,212,0.85); backdrop-filter:none; -webkit-backdrop-filter:none; border:none; }
 #thread.has-chatbg .bubble.me{ background:rgba(245,240,255,0.92); backdrop-filter:none; -webkit-backdrop-filter:none; border:none; }
@@ -1154,14 +1154,14 @@ textarea.mid{ min-height:90px; }
 /* Dark theme bubble colors with opacity */
 :root[data-theme="dark"] .bubble.her{ background:rgba(70,86,114,0.85); color:#ffffff; }
 :root[data-theme="dark"] .bubble.me{ background:rgba(214,218,225,0.88); color:#1A1D26; }
-:root[data-theme="dark"] .bubble .action{ color:rgba(255,255,255,0.70); }
-:root[data-theme="dark"] .bubble.her .action{ color:rgba(255,255,255,0.70); }
-:root[data-theme="dark"] .bubble.me .action{ color:rgba(26,29,38,0.48); }
+:root[data-theme="dark"] .bubble .action{ color:rgba(255,255,255,0.88); }
+:root[data-theme="dark"] .bubble.her .action{ color:rgba(255,255,255,0.88); }
+:root[data-theme="dark"] .bubble.me .action{ color:rgba(26,29,38,0.78); }
 /* Dark theme with chat background override */
 :root[data-theme="dark"] #thread.has-chatbg .bubble.her{ background:rgba(70,86,114,0.85); color:#ffffff; backdrop-filter:none; border:none; }
 :root[data-theme="dark"] #thread.has-chatbg .bubble.me{ background:rgba(214,218,225,0.88); color:#1A1D26; backdrop-filter:none; border:none; }
-:root[data-theme="dark"] #thread.has-chatbg .bubble.her .action{ color:rgba(255,255,255,0.70); }
-:root[data-theme="dark"] #thread.has-chatbg .bubble.me .action{ color:rgba(26,29,38,0.48); }
+:root[data-theme="dark"] #thread.has-chatbg .bubble.her .action{ color:rgba(255,255,255,0.88); }
+:root[data-theme="dark"] #thread.has-chatbg .bubble.me .action{ color:rgba(26,29,38,0.78); }
 /* ---- Dark theme text color improvements ---- */
 :root[data-theme="dark"] .home-name,
 :root[data-theme="dark"] .home-tagline,
@@ -1230,8 +1230,8 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="green"] .diary-note-delete{ color:#6A9478; }
 :root[data-theme="green"] .diary-note-delete:hover{ color:#e05252; }
 :root[data-theme="green"] .bubble.me{ background:rgba(217,225,214,0.88); color:#1E3A2A; }
-:root[data-theme="green"] .bubble.her .action{ color:rgba(133,159,88,1); }
-:root[data-theme="green"] .bubble.me .action{ color:#2A5A3A; opacity:.85; }
+:root[data-theme="green"] .bubble.her .action{ color:#3A5E15; }
+:root[data-theme="green"] .bubble.me .action{ color:#2A5A3A; opacity:.9; }
 /* Pink theme with chat background */
 :root[data-theme="pink"] #thread.has-chatbg .bubble.her{ background:rgba(215,130,168,0.82); color:#2D0F1E; backdrop-filter:none; border:none; }
 :root[data-theme="pink"] #thread.has-chatbg .bubble.me{ background:rgba(255,255,255,0.92); color:#4A2535; backdrop-filter:none; border:none; }
@@ -1241,8 +1241,8 @@ textarea.mid{ min-height:90px; }
 /* Green theme with chat background */
 :root[data-theme="green"] #thread.has-chatbg .bubble.her{ background:rgba(146,176,97,0.85); color:#1A2E18; backdrop-filter:none; border:none; }
 :root[data-theme="green"] #thread.has-chatbg .bubble.me{ background:rgba(217,225,214,0.88); color:#1E3A2A; backdrop-filter:none; border:none; }
-:root[data-theme="green"] #thread.has-chatbg .bubble.her .action{ color:rgba(185,230,140,0.92); }
-:root[data-theme="green"] #thread.has-chatbg .bubble.me .action{ color:#2A5A3A; opacity:.85; }
+:root[data-theme="green"] #thread.has-chatbg .bubble.her .action{ color:#3A5E15; }
+:root[data-theme="green"] #thread.has-chatbg .bubble.me .action{ color:#2A5A3A; opacity:.9; }
 /* Pink theme action text with chat background */
 :root[data-theme="pink"] #thread.has-chatbg .bubble.her .action{ color:#3A1525; opacity:.85; }
 :root[data-theme="pink"] #thread.has-chatbg .bubble.me .action{ color:#2A1520; opacity:.8; }
@@ -1252,8 +1252,8 @@ textarea.mid{ min-height:90px; }
 /* Default theme with chat background */
 #thread.has-chatbg .bubble.her{ color:#1a1a2e; }
 #thread.has-chatbg .bubble.me{ color:#1a1a2e; }
-#thread.has-chatbg .bubble.her .action{ color:#6D5B86; opacity:.85; }
-#thread.has-chatbg .bubble.me .action{ color:#6D5B86; opacity:.85; }
+#thread.has-chatbg .bubble.her .action{ color:#2D1A4E; opacity:1; }
+#thread.has-chatbg .bubble.me .action{ color:#2D1A4E; opacity:1; }
 /* ---- With Me view（沉浸式專注頁）---- */
 #withMeBody{ background:#1a1430; }
 #withMeBody #withMeBgImage{ opacity:0.85; filter:brightness(0.78) saturate(1.05); }
@@ -2283,20 +2283,16 @@ textarea.mid{ min-height:90px; }
               <optgroup label="✦ Gemini（Google AI Studio）">
                 <option value="g-2.5-flash">Gemini 2.5 Flash ⚡（推薦）</option>
                 <option value="g-2.0-flash">Gemini 2.0 Flash</option>
-                <option value="g-1.5-pro">Gemini 1.5 Pro</option>
                 <option value="g-2.5-pro">Gemini 2.5 Pro 💎</option>
               </optgroup>
               <optgroup label="◈ Groq（超快）">
                 <option value="q-70b">Llama 3.3 70B</option>
                 <option value="q-8b">Llama 3.1 8B ⚡</option>
-                <option value="q-mix">Mixtral 8x7B</option>
               </optgroup>
               <optgroup label="◆ Claude（Anthropic via OpenRouter）">
                 <option value="c-sonnet">Claude Sonnet 4.5 ⚖️（推薦）</option>
                 <option value="c-haiku">Claude Haiku 4.5 ⚡</option>
                 <option value="c-opus">Claude Opus 4.5 💎</option>
-                <option value="c-sonnet35">Claude 3.5 Sonnet</option>
-                <option value="c-haiku35">Claude 3.5 Haiku</option>
               </optgroup>
               <optgroup label="⚙ 進階">
                 <option value="custom">自訂設定…</option>
@@ -2353,6 +2349,7 @@ textarea.mid{ min-height:90px; }
           <div class="hint" id="claudeHint" style="display:none;margin-top:6px;">
             Claude 模型透過 <b>OpenRouter</b> 中轉，請至 <b>openrouter.ai</b> 註冊並取得 API 金鑰（sk-or- 開頭）。OpenRouter 採用量計費，新帳號通常有免費額度可試用。
           </div>
+          <div id="modelLimitHint" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.7;"></div>
         </section>
 
         <!-- 人格設定 -->
@@ -3856,16 +3853,12 @@ textarea.mid{ min-height:90px; }
   var SERVICE_PRESETS = {
     'g-2.5-flash': { svc:'gemini', model:'gemini-2.5-flash',                    url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
     'g-2.0-flash': { svc:'gemini', model:'gemini-2.0-flash',                    url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
-    'g-1.5-pro':   { svc:'gemini', model:'gemini-1.5-pro',                      url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
     'g-2.5-pro':   { svc:'gemini', model:'gemini-2.5-pro',                      url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
     'q-70b':       { svc:'groq',   model:'llama-3.3-70b-versatile',             url:'https://api.groq.com/openai/v1' },
     'q-8b':        { svc:'groq',   model:'llama-3.1-8b-instant',                url:'https://api.groq.com/openai/v1' },
-    'q-mix':       { svc:'groq',   model:'mixtral-8x7b-32768',                  url:'https://api.groq.com/openai/v1' },
     'c-sonnet':    { svc:'claude', model:'anthropic/claude-sonnet-4-5',          url:'https://openrouter.ai/api/v1' },
     'c-haiku':     { svc:'claude', model:'anthropic/claude-haiku-4-5',           url:'https://openrouter.ai/api/v1' },
     'c-opus':      { svc:'claude', model:'anthropic/claude-opus-4-5',            url:'https://openrouter.ai/api/v1' },
-    'c-sonnet35':  { svc:'claude', model:'anthropic/claude-3.5-sonnet',          url:'https://openrouter.ai/api/v1' },
-    'c-haiku35':   { svc:'claude', model:'anthropic/claude-3.5-haiku',           url:'https://openrouter.ai/api/v1' },
     'custom':      { svc:'custom', model:'', url:'' }
   };
   var DEFAULT_PERSONA = { name:'卄珩', statusLine:'在線・少將・記得你說過的每一句話', systemPrompt:DEFAULT_SYSTEM_PROMPT, replyRules:'', backgroundSettings:'' };
@@ -4623,7 +4616,7 @@ textarea.mid{ min-height:90px; }
     }
     return row;
   }
-  function scrollThread(){ var last = thread.lastElementChild; if(last) last.scrollIntoView({ behavior:smooth(), block:'end' }); }
+  function scrollThread(instant){ if(instant){ thread.scrollTop = thread.scrollHeight; } else { var last = thread.lastElementChild; if(last) last.scrollIntoView({ behavior:smooth(), block:'end' }); } }
 
   function renderThread(){
     thread.innerHTML = '';
@@ -4656,7 +4649,7 @@ textarea.mid{ min-height:90px; }
         else if(!t.img)  thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
       }
     });
-    scrollThread();
+    setTimeout(function(){ scrollThread(true); }, 0);
   }
 
   /* ============ Chat context menu ============ */
@@ -4773,9 +4766,27 @@ textarea.mid{ min-height:90px; }
 
   function endpoint(){ return (settings.baseUrl || DEFAULT_SETTINGS.baseUrl).replace(/\/+$/,'') + '/chat/completions'; }
 
+  function estimateTokens(text){
+    return Math.ceil((text||'').length / 2.5);
+  }
+  function truncateHistory(hist, maxTok){
+    maxTok = maxTok || 6000;
+    var out = [], used = 0;
+    for(var i = hist.length-1; i >= 0; i--){
+      var t = estimateTokens(hist[i].content||'');
+      if(used + t > maxTok && out.length > 0) break;
+      out.unshift(hist[i]);
+      used += t;
+    }
+    return out;
+  }
+
   async function callAI(imgDataUrl){
-    var msgs = [{ role:'system', content: buildSystemPrompt() }];
-    var hist = chatHistory.slice();
+    var systemPrompt = buildSystemPrompt();
+    var sysTok = estimateTokens(systemPrompt);
+    var histBudget = Math.max(800, 10000 - sysTok); // total cap ~10600 + 600 output < 12000
+    var msgs = [{ role:'system', content: systemPrompt }];
+    var hist = truncateHistory(chatHistory.slice(), histBudget);
     if(imgDataUrl && hist.length){
       // All but the last user message use text-only; last gets image array
       hist.slice(0,-1).forEach(function(t){ msgs.push({ role:t.role, content:t.content }); });
@@ -4948,6 +4959,29 @@ textarea.mid{ min-height:90px; }
       else if(p.svc === 'groq'){ badge.className='preset-svc-badge groq'; badge.textContent='◈ Groq'; }
       else if(p.svc === 'claude'){ badge.className='preset-svc-badge claude'; badge.textContent='◆ Claude'; }
       if($('claudeHint')) $('claudeHint').style.display = p.svc==='claude' ? '' : 'none';
+      var limitHint = $('modelLimitHint');
+      if(limitHint){
+        var hints = {
+          'g-2.5-flash': { bg:'#EAF4E8', border:'#92B061', text:'#2A5A1A', msg:'<b>✦ Gemini 2.5 Flash（推薦日常使用）</b><br>免費方案：每分鐘 100 萬 tokens、100 萬上下文視窗。限制極寬鬆，長對話不容易出錯。免費額度每天自動重置。' },
+          'g-2.0-flash': { bg:'#EAF4E8', border:'#92B061', text:'#2A5A1A', msg:'<b>✦ Gemini 2.0 Flash</b><br>免費方案：每分鐘 100 萬 tokens、100 萬上下文視窗。速度快，限制寬鬆，適合日常使用。' },
+          'g-2.5-pro':   { bg:'#EAF4E8', border:'#92B061', text:'#2A5A1A', msg:'<b>✦ Gemini 2.5 Pro 💎（最強）</b><br>免費方案：100 萬上下文視窗，每分鐘 25 次請求。能力最強，免費額度限制較多，適合偶爾深度對話。' },
+          'q-70b':       { bg:'#FFF4E6', border:'#E8A040', text:'#7A4010', msg:'<b>◈ Llama 3.3 70B（Groq）</b><br>免費方案：每分鐘上限 <b>12,000 tokens</b>。對話記錄長了容易超限（出現 413 錯誤）。程式已自動截斷歷史記錄，但若後台設定內容很多仍可能觸發限制。<br>→ 如常出現錯誤，建議改用 <b>Llama 3.1 8B</b> 或 <b>Gemini</b>。' },
+          'q-8b':        { bg:'#FFF4E6', border:'#E8A040', text:'#7A4010', msg:'<b>◈ Llama 3.1 8B ⚡（Groq 較穩定）</b><br>免費方案：每分鐘上限 <b>20,000 tokens</b>，比 70B 寬鬆許多。速度更快，對話長了也比較不容易超限。能力略遜於 70B，但日常聊天差異不大。' },
+          'c-sonnet':    { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Sonnet 4.5（OpenRouter）</b><br>按量計費，無嚴格 TPM 限制。200k 上下文視窗，智能與速度平衡佳。需至 openrouter.ai 加值後使用。' },
+          'c-haiku':     { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Haiku 4.5 ⚡（OpenRouter）</b><br>按量計費，無嚴格 TPM 限制。Claude 系列中速度最快、費用最低，適合高頻互動。' },
+          'c-opus':      { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Opus 4.5 💎（OpenRouter）</b><br>按量計費，無嚴格 TPM 限制。Claude 系列最強模型，費用也最高，適合需要深度理解的對話。' }
+        };
+        var h = hints[pid];
+        if(h){
+          limitHint.style.display = '';
+          limitHint.style.background = h.bg;
+          limitHint.style.borderLeft = '3px solid ' + h.border;
+          limitHint.style.color = h.text;
+          limitHint.innerHTML = h.msg;
+        } else {
+          limitHint.style.display = 'none';
+        }
+      }
       var keyLabel = { gemini:'Gemini API 金鑰', groq:'Groq API 金鑰', claude:'OpenRouter API 金鑰' };
       $('apiKeyLabel').textContent = keyLabel[p.svc] || 'API 金鑰';
       var placeholder = { gemini:'貼上你的 Gemini 金鑰（AQ. 開頭）', groq:'貼上你的 Groq 金鑰（gsk_ 開頭）', claude:'貼上 OpenRouter 金鑰（sk-or- 開頭）' };
