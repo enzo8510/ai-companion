@@ -242,9 +242,10 @@ body{
 .bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
 .bubble.her em{ font-style:italic; opacity:.85; }
-.bubble .action{ color:#6D5B86; }
-.bubble.her .action{ color:#6D5B86; opacity:.85; }
-.bubble.me .action{ color:#6D5B86; opacity:.85; }
+.bubble .action{ color:rgba(26,26,46,0.45); font-style:italic; }
+.bubble.her .action{ color:rgba(26,26,46,0.42); font-style:italic; }
+.bubble.me .action{ color:rgba(26,26,46,0.42); font-style:italic; }
+#thread.has-chatbg.dark-bg .bubble .action{ color:rgba(255,255,255,0.48); font-style:italic; }
 
 .typing-row .bubble.her{ display:flex; gap:4px; align-items:center; padding:14px 16px; }
 .typing-dot{ width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:typing-bounce 1.2s ease-in-out infinite; }
@@ -4586,8 +4587,7 @@ textarea.mid{ min-height:90px; }
 
     var b = document.createElement('div');
     b.className = 'bubble ' + (role==='assistant' ? 'her' : 'me');
-    if(role==='assistant'){ b.innerHTML = parseMarkdown(text); }
-    else{ b.textContent = text; }
+    b.innerHTML = parseMarkdown(text||'');
     row.appendChild(b);
 
     if(timeEl) row.appendChild(timeEl);
