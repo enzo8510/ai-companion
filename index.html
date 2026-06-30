@@ -258,25 +258,33 @@ body{
 .composer{
   flex:0 0 auto;
   display:flex;
-  align-items:center;
+  align-items:flex-end;
   gap:8px;
   padding:10px 12px;
   background:var(--surface);
   border-top:1px solid rgba(91,74,66,0.08);
 }
-.composer input{
+.composer textarea{
   flex:1;
   border:1px solid rgba(91,74,66,0.15);
   background:var(--chat-bg);
-  border-radius:999px;
+  border-radius:18px;
   padding:10px 16px;
   font-size:14px;
   font-family:inherit;
   color:var(--ink);
   outline:none;
+  resize:none;
+  line-height:1.55;
+  min-height:40px;
+  max-height:120px;
+  overflow-y:auto;
+  scrollbar-width:none;
+  display:block;
 }
-.composer input::placeholder{ color:var(--ink-soft); }
-.composer input:focus-visible{ border-color:var(--companion); }
+.composer textarea::-webkit-scrollbar{ display:none; }
+.composer textarea::placeholder{ color:var(--ink-soft); }
+.composer textarea:focus-visible{ border-color:var(--companion); }
 .send-btn{
   width:38px; height:38px; border-radius:50%; border:none;
   background:var(--companion); color:#fff; font-size:15px; cursor:pointer;
@@ -1146,14 +1154,14 @@ textarea.mid{ min-height:90px; }
 /* Dark theme bubble colors with opacity */
 :root[data-theme="dark"] .bubble.her{ background:rgba(70,86,114,0.85); color:#ffffff; }
 :root[data-theme="dark"] .bubble.me{ background:rgba(214,218,225,0.88); color:#1A1D26; }
-:root[data-theme="dark"] .bubble .action{ color:#2A2D3E; }
-:root[data-theme="dark"] .bubble.her .action{ color:#1A1D26; opacity:.85; }
-:root[data-theme="dark"] .bubble.me .action{ color:#2A2D3E; opacity:.8; }
+:root[data-theme="dark"] .bubble .action{ color:rgba(255,255,255,0.52); }
+:root[data-theme="dark"] .bubble.her .action{ color:rgba(255,255,255,0.52); }
+:root[data-theme="dark"] .bubble.me .action{ color:rgba(26,29,38,0.48); }
 /* Dark theme with chat background override */
 :root[data-theme="dark"] #thread.has-chatbg .bubble.her{ background:rgba(70,86,114,0.85); color:#ffffff; backdrop-filter:none; border:none; }
 :root[data-theme="dark"] #thread.has-chatbg .bubble.me{ background:rgba(214,218,225,0.88); color:#1A1D26; backdrop-filter:none; border:none; }
-:root[data-theme="dark"] #thread.has-chatbg .bubble.her .action{ color:#1A1D26; opacity:.85; }
-:root[data-theme="dark"] #thread.has-chatbg .bubble.me .action{ color:#2A2D3E; opacity:.8; }
+:root[data-theme="dark"] #thread.has-chatbg .bubble.her .action{ color:rgba(255,255,255,0.52); }
+:root[data-theme="dark"] #thread.has-chatbg .bubble.me .action{ color:rgba(26,29,38,0.48); }
 /* ---- Dark theme text color improvements ---- */
 :root[data-theme="dark"] .home-name,
 :root[data-theme="dark"] .home-tagline,
@@ -1200,7 +1208,7 @@ textarea.mid{ min-height:90px; }
 /* Brown theme bubble colors */
 :root[data-theme="brown"] .bubble.her{ background:rgba(169,123,71,0.85); color:#ffffff; }
 :root[data-theme="brown"] .bubble.me{ background:rgba(255,236,204,0.92); color:#3D2B1A; }
-:root[data-theme="brown"] .bubble.her .action{ color:#C0A880; opacity:.85; }
+:root[data-theme="brown"] .bubble.her .action{ color:rgba(255,245,220,0.62); }
 :root[data-theme="brown"] .bubble.me .action{ color:#8B7A6A; opacity:.8; }
 /* Brown theme diary note */
 :root[data-theme="brown"] .diary-note{ background-color:#f8f2ec; border-left-color:#a07850; }
@@ -2199,7 +2207,7 @@ textarea.mid{ min-height:90px; }
       </div>
 
       <div class="composer">
-        <input type="text" id="chatInput" placeholder="跟卄珩說點什麼…" autocomplete="off" aria-label="跟卄珩說話">
+        <textarea id="chatInput" placeholder="跟卄珩說點什麼…" autocomplete="off" aria-label="跟卄珩說話" rows="1"></textarea>
         <button class="send-btn" id="sendBtn" aria-label="送出">➤</button>
       </div>
 
@@ -4838,7 +4846,7 @@ textarea.mid{ min-height:90px; }
     if(t) thread.appendChild(bubbleRow('user', t, undefined, userTs));
     chatHistory.push({ role:'user', content:t||'', img:img||null, ts:userTs });
     save(KEYS.chat, chatHistory);
-    chatInput.value = '';
+    chatInput.value = ''; chatInput.style.height='auto';
     setSending(true);
     showTyping();
     scrollThread();
@@ -4867,7 +4875,13 @@ textarea.mid{ min-height:90px; }
   }
 
   sendBtn.addEventListener('click', function(){ sendMessage(chatInput.value); });
-  chatInput.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); sendMessage(chatInput.value); } });
+  chatInput.addEventListener('keydown', function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(chatInput.value); }
+  });
+  chatInput.addEventListener('input', function(){
+    this.style.height='auto';
+    this.style.height=Math.min(this.scrollHeight,120)+'px';
+  });
 
   /* ============ Auto memory extraction ============ */
   var turnsSinceMemory = 0;
