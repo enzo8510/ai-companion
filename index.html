@@ -8725,16 +8725,28 @@ textarea.mid{ min-height:90px; }
 
   // Check usage
   $('elCheckUsageBtn').addEventListener('click', async function(){
-    var key = ($('elApiKeyInput').value.trim()) || settings.elKey;
-    if(!key){ $('elUsageStatus').textContent = '請先填入 API Key。'; return; }
+    // Prefer saved settings key; fall back to whatever is currently in the input
+    var key = settings.elKey || $('elApiKeyInput').value.trim();
+    if(!key){ $('elUsageStatus').textContent = '請先填入並儲存 API Key。'; return; }
     $('elUsageStatus').textContent = '查詢中…';
     $('elUsageWrap').style.display = 'none';
     try{
+      // Try /v1/user/subscription first, fall back to /v1/user
       var r = await fetch('https://api.elevenlabs.io/v1/user/subscription', {
         headers:{ 'xi-api-key': key }
       });
-      if(!r.ok) throw new Error('HTTP ' + r.status);
-      var d = await r.json();
+      var d;
+      if(r.ok){
+        d = await r.json();
+      } else {
+        // Fallback: GET /v1/user and read from d.subscription
+        var r2 = await fetch('https://api.elevenlabs.io/v1/user', {
+          headers:{ 'xi-api-key': key }
+        });
+        if(!r2.ok) throw new Error('HTTP ' + r2.status);
+        var u = await r2.json();
+        d = u.subscription || u;
+      }
       var used = d.character_count || 0;
       var limit = d.character_limit || 1;
       var pct = Math.min(100, Math.round(used / limit * 100));
