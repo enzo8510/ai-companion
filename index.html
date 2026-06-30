@@ -3872,7 +3872,8 @@ textarea.mid{ min-height:90px; }
     chess:'companion:chess', chessHistory:'companion:chessHistory',
     qaHistory:'companion:qaHistory',
     periodRecords:'companion:periodRecords',
-    healthLog:'companion:healthLog'
+    healthLog:'companion:healthLog',
+    orBalance:'companion:orBalance'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -4968,6 +4969,29 @@ textarea.mid{ min-height:90px; }
     else{ f.type='password'; this.textContent='顯示金鑰'; }
   });
 
+  function applyOrBalanceUI(cached, isLive){
+    var orBalEl = $('orBalance');
+    var tbItem = $('tokenBalanceItem');
+    var tbSep  = $('tokenBalanceSep');
+    if(!cached){ orBalEl.style.display='none'; return; }
+    var usage = cached.usage || 0;
+    var limit = cached.limit;
+    var usageStr = '$' + usage.toFixed(4);
+    var timeStr = cached.updatedAt ? '（' + cached.updatedAt + (isLive ? '' : '・離線快取') + '）' : '';
+    orBalEl.style.display='flex';
+    if(limit != null){
+      var remaining = limit - usage;
+      var remStr = '$' + remaining.toFixed(4);
+      orBalEl.innerHTML = '💳 剩餘額度：<b>'+remStr+'</b> <span class="or-bal-used">｜ 已用：'+usageStr+' ／ 共 $'+limit.toFixed(2)+'</span><span class="or-bal-used" style="margin-left:4px">'+timeStr+'</span>';
+      tbItem.style.display=''; tbSep.style.display='';
+      $('tokenBalance').textContent = remStr;
+    } else {
+      orBalEl.innerHTML = '💳 已用量：<b>'+usageStr+'</b> <span class="or-bal-used">（無上限）'+timeStr+'</span>';
+      tbItem.style.display=''; tbSep.style.display='';
+      $('tokenBalance').textContent = '已用 '+usageStr;
+    }
+  }
+
   function fetchOrBalance(){
     var key = settings.apiKey || '';
     var isOr = key.startsWith('sk-or-');
@@ -4975,27 +4999,26 @@ textarea.mid{ min-height:90px; }
     var tbItem = $('tokenBalanceItem');
     var tbSep  = $('tokenBalanceSep');
     if(!isOr){ orBalEl.style.display='none'; tbItem.style.display='none'; tbSep.style.display='none'; return; }
-    orBalEl.style.display='flex'; orBalEl.innerHTML='💳 查詢餘額中…';
+    // 先顯示快取
+    var cached = load(KEYS.orBalance);
+    if(cached){ applyOrBalanceUI(cached, false); }
+    else { orBalEl.style.display='flex'; orBalEl.innerHTML='💳 查詢餘額中…'; }
+    // 再拉最新
     fetch('https://openrouter.ai/api/v1/auth/key', {
       headers:{ 'Authorization':'Bearer '+key }
     }).then(function(r){ return r.json(); }).then(function(d){
       var data = d && d.data ? d.data : d;
-      var usage = parseFloat(data.usage || 0);
-      var limit = data.limit != null ? parseFloat(data.limit) : null;
-      var remaining = limit != null ? (limit - usage) : null;
-      var usageStr = '$' + usage.toFixed(4);
-      if(remaining != null){
-        var remStr = '$' + remaining.toFixed(4);
-        orBalEl.innerHTML = '💳 剩餘額度：<b>'+remStr+'</b> <span class="or-bal-used">｜ 已用：'+usageStr+' ／ 共 $'+limit.toFixed(2)+'</span>';
-        tbItem.style.display=''; tbSep.style.display='';
-        $('tokenBalance').textContent = remStr;
-      } else {
-        orBalEl.innerHTML = '💳 已用量：<b>'+usageStr+'</b> <span class="or-bal-used">（無用量上限）</span>';
-        tbItem.style.display=''; tbSep.style.display='';
-        $('tokenBalance').textContent = '已用 '+usageStr;
-      }
+      var now = new Date();
+      var timeLabel = (now.getMonth()+1)+'/'+ now.getDate()+' '+now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+      var rec = {
+        usage: parseFloat(data.usage || 0),
+        limit: data.limit != null ? parseFloat(data.limit) : null,
+        updatedAt: timeLabel
+      };
+      save(KEYS.orBalance, rec);
+      applyOrBalanceUI(rec, true);
     }).catch(function(){
-      orBalEl.innerHTML = '💳 餘額查詢失敗';
+      if(!cached) orBalEl.innerHTML = '💳 餘額查詢失敗';
     });
   }
 
