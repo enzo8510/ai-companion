@@ -2609,7 +2609,6 @@ textarea.mid{ min-height:90px; }
         <span id="audioTrackCount" style="font-size:11px;color:var(--ink-soft);margin-right:4px;"></span>
         <button class="icon-btn" id="elTtsBtn" type="button" title="AI 語音生成" style="font-size:16px;margin-right:2px;">✨</button>
         <button class="icon-btn" id="elSettingsBtn" type="button" title="ElevenLabs 設定" style="font-size:16px;margin-right:2px;">⚙</button>
-        <button class="audio-upload-btn" id="audioUploadTrigger" type="button" title="上傳音檔">＋</button>
         <input type="file" id="audioFileInput" accept="audio/*" style="display:none;">
       </div>
 
@@ -2631,7 +2630,40 @@ textarea.mid{ min-height:90px; }
               <label class="el-label">Voice ID</label>
               <input type="text" id="elVoiceInput" class="el-input" placeholder="貼上 Voice ID（從 elevenlabs.io 複製）">
             </div>
+
+            <!-- Voice quality sliders -->
+            <div class="field" style="margin-top:14px;">
+              <label class="el-label" style="display:flex;justify-content:space-between;">
+                <span>穩定度（Stability）</span>
+                <span id="elStabilityVal" style="color:var(--companion);font-weight:600;">0.30</span>
+              </label>
+              <p class="el-hint" style="margin:2px 0 6px;">數值越低語音越有起伏感情，越高越平穩但偏機器感</p>
+              <input type="range" id="elStabilitySlider" min="0" max="1" step="0.05" value="0.3" style="width:100%;accent-color:var(--companion);">
+            </div>
+            <div class="field">
+              <label class="el-label" style="display:flex;justify-content:space-between;">
+                <span>風格誇張度（Style）</span>
+                <span id="elStyleVal" style="color:var(--companion);font-weight:600;">0.50</span>
+              </label>
+              <p class="el-hint" style="margin:2px 0 6px;">數值越高語調變化越豐富，但過高可能不穩定</p>
+              <input type="range" id="elStyleSlider" min="0" max="1" step="0.05" value="0.5" style="width:100%;accent-color:var(--companion);">
+            </div>
+
             <button class="btn" id="elSettingsSave" type="button" style="width:100%;margin-top:8px;">儲存設定</button>
+
+            <!-- Usage display -->
+            <div id="elUsageWrap" style="margin-top:14px;padding:12px;background:var(--surface);border-radius:12px;border:1px solid var(--line);display:none;">
+              <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;">本月字符用量</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="flex:1;background:var(--line);border-radius:99px;height:8px;overflow:hidden;">
+                  <div id="elUsageBar" style="height:100%;background:var(--companion);border-radius:99px;width:0%;transition:width .4s;"></div>
+                </div>
+                <span id="elUsageText" style="font-size:12px;color:var(--ink-soft);white-space:nowrap;"></span>
+              </div>
+            </div>
+            <button class="btn ghost small" id="elCheckUsageBtn" type="button" style="width:100%;margin-top:8px;">📊 查看用量</button>
+            <div id="elUsageStatus" style="font-size:12px;color:var(--ink-soft);text-align:center;min-height:16px;margin-top:4px;"></div>
+
             <div class="el-hint" style="margin-top:10px;">💡 支援多語言模型（eleven_multilingual_v2），中文語音請選擇支援中文的聲音。</div>
           </div>
         </div>
@@ -8569,13 +8601,20 @@ textarea.mid{ min-height:90px; }
     if(idx>=0&&idx<audioTracks.length-1) toggleAudioPlay(audioTracks[idx+1].id);
   });
 
-  // Upload
   /* ============ ElevenLabs TTS ============ */
   var elGeneratedBlob = null;
 
   function elShowSettings(){
     $('elApiKeyInput').value  = settings.elKey   || '';
     $('elVoiceInput').value   = settings.elVoice || '';
+    var stab = settings.elStability != null ? settings.elStability : 0.3;
+    var styl = settings.elStyle     != null ? settings.elStyle     : 0.5;
+    $('elStabilitySlider').value = stab;
+    $('elStabilityVal').textContent = stab.toFixed(2);
+    $('elStyleSlider').value = styl;
+    $('elStyleVal').textContent = styl.toFixed(2);
+    $('elUsageWrap').style.display = 'none';
+    $('elUsageStatus').textContent = '';
     $('elSettingsOverlay').classList.remove('hidden');
   }
   function elHideSettings(){ $('elSettingsOverlay').classList.add('hidden'); }
@@ -8592,6 +8631,14 @@ textarea.mid{ min-height:90px; }
     return (text||'').replace(/\*[^*\n]+\*/g,'').replace(/\s+/g,' ').trim();
   }
 
+  // Slider live preview
+  $('elStabilitySlider').addEventListener('input', function(){
+    $('elStabilityVal').textContent = parseFloat(this.value).toFixed(2);
+  });
+  $('elStyleSlider').addEventListener('input', function(){
+    $('elStyleVal').textContent = parseFloat(this.value).toFixed(2);
+  });
+
   $('elSettingsBtn').addEventListener('click', elShowSettings);
   $('elSettingsClose').addEventListener('click', elHideSettings);
   $('elTtsBtn').addEventListener('click', function(){
@@ -8601,11 +8648,37 @@ textarea.mid{ min-height:90px; }
   $('elTtsClose').addEventListener('click', elHideTts);
 
   $('elSettingsSave').addEventListener('click', function(){
-    settings.elKey   = $('elApiKeyInput').value.trim();
-    settings.elVoice = $('elVoiceInput').value.trim();
+    settings.elKey        = $('elApiKeyInput').value.trim();
+    settings.elVoice      = $('elVoiceInput').value.trim();
+    settings.elStability  = parseFloat($('elStabilitySlider').value);
+    settings.elStyle      = parseFloat($('elStyleSlider').value);
     save(KEYS.settings, settings);
     elHideSettings();
     flashSaved();
+  });
+
+  // Check usage
+  $('elCheckUsageBtn').addEventListener('click', async function(){
+    var key = ($('elApiKeyInput').value.trim()) || settings.elKey;
+    if(!key){ $('elUsageStatus').textContent = '請先填入 API Key。'; return; }
+    $('elUsageStatus').textContent = '查詢中…';
+    $('elUsageWrap').style.display = 'none';
+    try{
+      var r = await fetch('https://api.elevenlabs.io/v1/user/subscription', {
+        headers:{ 'xi-api-key': key }
+      });
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      var d = await r.json();
+      var used = d.character_count || 0;
+      var limit = d.character_limit || 1;
+      var pct = Math.min(100, Math.round(used / limit * 100));
+      $('elUsageBar').style.width = pct + '%';
+      $('elUsageText').textContent = used.toLocaleString() + ' / ' + limit.toLocaleString() + ' 字';
+      $('elUsageWrap').style.display = 'block';
+      $('elUsageStatus').textContent = '剩餘 ' + (limit - used).toLocaleString() + ' 字（' + (100 - pct) + '%）';
+    } catch(err){
+      $('elUsageStatus').textContent = '查詢失敗：' + err.message;
+    }
   });
 
   $('elFillLastReply').addEventListener('click', function(){
@@ -8623,6 +8696,8 @@ textarea.mid{ min-height:90px; }
     if(!text){ $('elTtsStatus').textContent = '請輸入文字。'; return; }
     if(!settings.elKey){ $('elTtsStatus').textContent = '請先設定 ElevenLabs API Key。'; elShowSettings(); return; }
     var voiceId = settings.elVoice || '21m00Tcm4TlvDq8ikWAM';
+    var stability = settings.elStability != null ? settings.elStability : 0.3;
+    var style     = settings.elStyle     != null ? settings.elStyle     : 0.5;
     var btn = this; btn.disabled = true;
     $('elTtsStatus').textContent = '生成中…';
     $('elAudioWrap').classList.add('hidden');
@@ -8630,7 +8705,16 @@ textarea.mid{ min-height:90px; }
       var resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voiceId, {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'xi-api-key': settings.elKey },
-        body: JSON.stringify({ text:text, model_id:'eleven_multilingual_v2', voice_settings:{ stability:0.5, similarity_boost:0.75 } })
+        body: JSON.stringify({
+          text: text,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            stability: stability,
+            similarity_boost: 0.75,
+            style: style,
+            use_speaker_boost: true
+          }
+        })
       });
       if(!resp.ok){ var e=await resp.text(); throw new Error('ElevenLabs 錯誤 '+resp.status+': '+e.slice(0,120)); }
       elGeneratedBlob = await resp.blob();
@@ -8661,7 +8745,6 @@ textarea.mid{ min-height:90px; }
     reader.readAsDataURL(elGeneratedBlob);
   });
 
-  $('audioUploadTrigger').addEventListener('click', function(){ if(!this.disabled) $('audioFileInput').click(); });
   $('audioFileInput').addEventListener('change', function(e){
     var file = e.target.files[0]; if(!file) return;
     e.target.value = '';
