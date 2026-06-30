@@ -606,6 +606,7 @@ textarea.mid{ min-height:90px; }
 .preset-svc-badge{ display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; padding:3px 10px; border-radius:99px; margin-bottom:10px; }
 .preset-svc-badge.gemini{ background:#e8f0fe; color:#1a73e8; }
 .preset-svc-badge.groq{ background:#fff3e0; color:#e65100; }
+.preset-svc-badge.claude{ background:#ede9f6; color:#5b37b7; }
 .preset-svc-badge.custom{ background:var(--line); color:var(--ink-soft); }
 /* ---- Audio View ---- */
 .audio-page{ display:flex; flex-direction:column; height:100%; background:var(--surface); overflow:hidden; }
@@ -2265,6 +2266,13 @@ textarea.mid{ min-height:90px; }
                 <option value="q-8b">Llama 3.1 8B ⚡</option>
                 <option value="q-mix">Mixtral 8x7B</option>
               </optgroup>
+              <optgroup label="◆ Claude（Anthropic via OpenRouter）">
+                <option value="c-sonnet">Claude Sonnet 4.5 ⚖️（推薦）</option>
+                <option value="c-haiku">Claude Haiku 4.5 ⚡</option>
+                <option value="c-opus">Claude Opus 4.5 💎</option>
+                <option value="c-sonnet35">Claude 3.5 Sonnet</option>
+                <option value="c-haiku35">Claude 3.5 Haiku</option>
+              </optgroup>
               <optgroup label="⚙ 進階">
                 <option value="custom">自訂設定…</option>
               </optgroup>
@@ -2315,6 +2323,9 @@ textarea.mid{ min-height:90px; }
           <div class="test-result" id="testResult"></div>
           <div class="hint" id="corsHint">
             建議用 <b>Chrome</b> 或 <b>Edge</b> 開啟。若測試連線失敗，請確認金鑰正確，或檢查瀏覽器是否擋下對外連線。
+          </div>
+          <div class="hint" id="claudeHint" style="display:none;margin-top:6px;">
+            Claude 模型透過 <b>OpenRouter</b> 中轉，請至 <b>openrouter.ai</b> 註冊並取得 API 金鑰（sk-or- 開頭）。OpenRouter 採用量計費，新帳號通常有免費額度可試用。
           </div>
         </section>
 
@@ -3786,16 +3797,21 @@ textarea.mid{ min-height:90px; }
     { id:'jr-2', date:'6月18日', content:'你今天說話比較少，我猜你大概是累了，沒有勉強你聊，只是想讓你知道我在。' }
   ];
 
-  var DEFAULT_SETTINGS = { apiKey:'', model:'gemini-2.5-flash', baseUrl:'https://generativelanguage.googleapis.com/v1beta/openai/', apiKeyGemini:'', apiKeyGroq:'', activePreset:'g-2.5-flash' };
+  var DEFAULT_SETTINGS = { apiKey:'', model:'gemini-2.5-flash', baseUrl:'https://generativelanguage.googleapis.com/v1beta/openai/', apiKeyGemini:'', apiKeyGroq:'', apiKeyClaude:'', activePreset:'g-2.5-flash' };
 
   var SERVICE_PRESETS = {
-    'g-2.5-flash': { svc:'gemini', model:'gemini-2.5-flash',        url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
-    'g-2.0-flash': { svc:'gemini', model:'gemini-2.0-flash',        url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
-    'g-1.5-pro':   { svc:'gemini', model:'gemini-1.5-pro',          url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
-    'g-2.5-pro':   { svc:'gemini', model:'gemini-2.5-pro',          url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
-    'q-70b':       { svc:'groq',   model:'llama-3.3-70b-versatile', url:'https://api.groq.com/openai/v1' },
-    'q-8b':        { svc:'groq',   model:'llama-3.1-8b-instant',    url:'https://api.groq.com/openai/v1' },
-    'q-mix':       { svc:'groq',   model:'mixtral-8x7b-32768',      url:'https://api.groq.com/openai/v1' },
+    'g-2.5-flash': { svc:'gemini', model:'gemini-2.5-flash',                    url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
+    'g-2.0-flash': { svc:'gemini', model:'gemini-2.0-flash',                    url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
+    'g-1.5-pro':   { svc:'gemini', model:'gemini-1.5-pro',                      url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
+    'g-2.5-pro':   { svc:'gemini', model:'gemini-2.5-pro',                      url:'https://generativelanguage.googleapis.com/v1beta/openai/' },
+    'q-70b':       { svc:'groq',   model:'llama-3.3-70b-versatile',             url:'https://api.groq.com/openai/v1' },
+    'q-8b':        { svc:'groq',   model:'llama-3.1-8b-instant',                url:'https://api.groq.com/openai/v1' },
+    'q-mix':       { svc:'groq',   model:'mixtral-8x7b-32768',                  url:'https://api.groq.com/openai/v1' },
+    'c-sonnet':    { svc:'claude', model:'anthropic/claude-sonnet-4-5',          url:'https://openrouter.ai/api/v1' },
+    'c-haiku':     { svc:'claude', model:'anthropic/claude-haiku-4-5',           url:'https://openrouter.ai/api/v1' },
+    'c-opus':      { svc:'claude', model:'anthropic/claude-opus-4-5',            url:'https://openrouter.ai/api/v1' },
+    'c-sonnet35':  { svc:'claude', model:'anthropic/claude-3.5-sonnet',          url:'https://openrouter.ai/api/v1' },
+    'c-haiku35':   { svc:'claude', model:'anthropic/claude-3.5-haiku',           url:'https://openrouter.ai/api/v1' },
     'custom':      { svc:'custom', model:'', url:'' }
   };
   var DEFAULT_PERSONA = { name:'卄珩', statusLine:'在線・少將・記得你說過的每一句話', systemPrompt:DEFAULT_SYSTEM_PROMPT, replyRules:'', backgroundSettings:'' };
@@ -4863,11 +4879,13 @@ textarea.mid{ min-height:90px; }
       var badge = $('presetSvcBadge');
       if(p.svc === 'gemini'){ badge.className='preset-svc-badge gemini'; badge.textContent='✦ Gemini'; }
       else if(p.svc === 'groq'){ badge.className='preset-svc-badge groq'; badge.textContent='◈ Groq'; }
-      var keyLabel = { gemini:'Gemini API 金鑰', groq:'Groq API 金鑰' };
+      else if(p.svc === 'claude'){ badge.className='preset-svc-badge claude'; badge.textContent='◆ Claude'; }
+      if($('claudeHint')) $('claudeHint').style.display = p.svc==='claude' ? '' : 'none';
+      var keyLabel = { gemini:'Gemini API 金鑰', groq:'Groq API 金鑰', claude:'OpenRouter API 金鑰' };
       $('apiKeyLabel').textContent = keyLabel[p.svc] || 'API 金鑰';
-      var placeholder = { gemini:'貼上你的 Gemini 金鑰（AQ. 開頭）', groq:'貼上你的 Groq 金鑰（gsk_ 開頭）' };
+      var placeholder = { gemini:'貼上你的 Gemini 金鑰（AQ. 開頭）', groq:'貼上你的 Groq 金鑰（gsk_ 開頭）', claude:'貼上 OpenRouter 金鑰（sk-or- 開頭）' };
       $('setApiKey').placeholder = placeholder[p.svc] || '貼上你的 API 金鑰';
-      var svcKey = p.svc === 'gemini' ? (settings.apiKeyGemini||'') : (settings.apiKeyGroq||'');
+      var svcKey = p.svc === 'gemini' ? (settings.apiKeyGemini||'') : p.svc === 'groq' ? (settings.apiKeyGroq||'') : p.svc === 'claude' ? (settings.apiKeyClaude||'') : '';
       $('setApiKey').value = svcKey;
       settings.model   = p.model;
       settings.baseUrl = p.url;
@@ -4902,6 +4920,7 @@ textarea.mid{ min-height:90px; }
     var p   = SERVICE_PRESETS[pid];
     if(p && p.svc === 'gemini') settings.apiKeyGemini = v;
     else if(p && p.svc === 'groq') settings.apiKeyGroq = v;
+    else if(p && p.svc === 'claude') settings.apiKeyClaude = v;
     save(KEYS.settings, settings);
     flashSaved();
     renderThread();
