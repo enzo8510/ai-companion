@@ -6032,12 +6032,6 @@ textarea.mid{ min-height:90px; }
         cell.appendChild(iconWrap);
       }
 
-      (function(day){ cell.addEventListener('click',function(){
-        calOvSelDay=day;
-        var ds=calOvYear+'年'+(calOvMonth+1)+'月'+day+'日';
-        calAddDateVal=ds; $('calAddDate').value=ds;
-        renderCalOvGrid(); renderDayDetail(day);
-      }); })(d);
       grid.appendChild(cell);
     }
 
@@ -6045,7 +6039,7 @@ textarea.mid{ min-height:90px; }
     var evThisMonth=events.filter(function(ev){
       var d=parseMemDate(ev.date); return d&&d.getFullYear()===calOvYear&&d.getMonth()===calOvMonth;
     }).length;
-    var anniCount=(anniversaries||[]).length;
+    var anniCount=events.filter(function(e){ return e.type==='anniversary'||e.type==='birthday'; }).length;
     if($('calStatEvents')) $('calStatEvents').textContent=evThisMonth;
     if($('calStatAnni'))   $('calStatAnni').textContent=anniCount;
   }
@@ -6246,6 +6240,17 @@ textarea.mid{ min-height:90px; }
 
   $('calOvPrev').addEventListener('click',function(){ calOvMonth--; if(calOvMonth<0){calOvMonth=11;calOvYear--;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
   $('calOvNext').addEventListener('click',function(){ calOvMonth++; if(calOvMonth>11){calOvMonth=0;calOvYear++;} calOvSelDay=null; renderCalOvGrid(); renderDayDetail(null); });
+  $('calOvGrid').addEventListener('click',function(e){
+    var cell=e.target.closest('.btc-day');
+    if(!cell||cell.classList.contains('empty')) return;
+    var numEl=cell.querySelector('.btc-day-num');
+    var dayNum=numEl?parseInt(numEl.textContent,10):0;
+    if(!dayNum) return;
+    calOvSelDay=dayNum;
+    calAddDateVal=calOvYear+'年'+(calOvMonth+1)+'月'+dayNum+'日';
+    var addDateEl=$('calAddDate'); if(addDateEl) addDateEl.value=calAddDateVal;
+    renderCalOvGrid(); renderDayDetail(dayNum);
+  });
   // calOverlay removed – now using full-screen calendarView
 
   /* ---- Period Calendar Events ---- */
