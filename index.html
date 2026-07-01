@@ -736,6 +736,7 @@ textarea.mid{ min-height:90px; }
 .btc-day-dot{ width:5px; height:5px; border-radius:50%; background:var(--companion); }
 .btc-day-more{ font-size:8px; color:var(--ink-soft); }
 .btc-day-detail{ background:var(--chat-bg); border-radius:16px; border:1px solid var(--line); padding:14px 16px; margin-bottom:14px; }
+.btc-detail-nosel{ font-size:13px; color:var(--ink-soft); text-align:center; padding:10px 0 6px; }
 .btc-detail-date{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:10px; }
 .btc-detail-empty{ font-size:13px; color:var(--ink-soft); text-align:center; padding:8px 0; font-style:italic; }
 .btc-event-row{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); }
@@ -3101,12 +3102,11 @@ textarea.mid{ min-height:90px; }
           <div class="btc-grid" id="calOvGrid"></div>
         </div>
 
-        <!-- Day detail -->
-        <div class="btc-day-detail" id="calOvDayDetail" style="display:none;">
-          <div class="btc-detail-date" id="calOvDayLabel"></div>
-          <div id="calOvDayList"></div>
+        <!-- Day detail (always visible, content updates on date click) -->
+        <div class="btc-day-detail" id="calOvDayDetail">
+          <div class="btc-detail-date" id="calOvDayLabel" style="display:none;"></div>
+          <div id="calOvDayList"><div class="btc-detail-nosel">📅 點選日期，查看當天記錄</div></div>
         </div>
-        <div class="btc-hint" id="calOvNoSel">點選日期查看當天記錄</div>
 
         <!-- Anniversaries & Birthdays -->
         <div class="btc-add-section" style="margin-bottom:14px;">
@@ -6053,24 +6053,17 @@ textarea.mid{ min-height:90px; }
   var TYPE_EMOJI = { event:'📝', anniversary:'🎂', birthday:'🎂', health:'💪', period:'🌸', journal:'📖' };
 
   function renderDayDetail(day){
-    var detail=$('calOvDayDetail'), nosel=$('calOvNoSel'), list=$('calOvDayList');
+    var label=$('calOvDayLabel'), list=$('calOvDayList');
     list.innerHTML='';
-    if(day==null){ detail.style.display='none'; nosel.style.display=''; return; }
-    detail.style.display='block'; nosel.style.display='none';
-    setTimeout(function(){
-      var btcBody = document.querySelector('#calendarView .btc-body');
-      if(btcBody && detail){
-        var bodyRect   = btcBody.getBoundingClientRect();
-        var detailRect = detail.getBoundingClientRect();
-        // pixels the detail is currently below the visible top of btcBody
-        var offset = detailRect.top - bodyRect.top;
-        var targetTop = btcBody.scrollTop + offset - 8;
-        btcBody.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
-      }
-    }, 80);
+    if(day==null){
+      label.style.display='none';
+      list.innerHTML='<div class="btc-detail-nosel">📅 點選日期，查看當天記錄</div>';
+      return;
+    }
+    label.style.display='';
     var wdays=['日','一','二','三','四','五','六'];
     var dateObj=new Date(calOvYear,calOvMonth,day);
-    $('calOvDayLabel').textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日（'+wdays[dateObj.getDay()]+'）';
+    label.textContent = calOvYear+'年'+(calOvMonth+1)+'月'+day+'日（'+wdays[dateObj.getDay()]+'）';
     var items=getAllCalItems();
     var selDate=new Date(calOvYear,calOvMonth,day); selDate.setHours(0,0,0,0);
     var filtered=items.filter(function(it){
