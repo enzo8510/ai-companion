@@ -3992,7 +3992,6 @@ textarea.mid{ min-height:90px; }
     { id:'event', label:'行程事項', emoji:'📅', group:'生活事項' },
     { id:'birthday', label:'生日', emoji:'🎂', group:'生活事項' },
     { id:'anniversary', label:'紀念日', emoji:'💝', group:'生活事項' },
-    { id:'period', label:'生理期', emoji:'🌸', group:'健康狀態' },
     { id:'health', label:'健身', emoji:'💪', group:'健康狀態' },
     { id:'diary', label:'日記', emoji:'📔', group:'日記記錄' },
     { id:'journal', label:'日誌', emoji:'📝', group:'日記記錄' },
@@ -4402,6 +4401,7 @@ textarea.mid{ min-height:90px; }
   var chatBgActive  = localStorage.getItem(KEYS.chatBgActive) || '';
   var currentTheme  = localStorage.getItem(KEYS.theme) || '';
   var eventTypes    = load(KEYS.eventTypes) || clone(DEFAULT_EVENT_TYPES);
+  eventTypes = eventTypes.filter(function(t){ return t.id !== 'period'; });
   var starState     = load(KEYS.star) || { hunger:80, mood:80, clothes:0, lastFedTime: Date.now(), lastPetTime: Date.now() };
   if(!starState.lastFedTime) starState.lastFedTime = Date.now();
   if(!starState.lastPetTime) starState.lastPetTime = Date.now();
