@@ -5907,14 +5907,11 @@ textarea.mid{ min-height:90px; }
 
   function getAllCalItems(){
     var items = [];
-    events.filter(function(e){ return e.type==='event'; }).forEach(function(e){
-      items.push({ date:e.date, title:e.title, type:'event', id:e.id, endDate:e.endDate });
+    // All calendar events except period (period shown via isInAnyPeriod separately)
+    events.filter(function(e){ return e.type!=='period'; }).forEach(function(e){
+      items.push({ date:e.date, title:e.title, type:e.type, id:e.id, endDate:e.endDate });
     });
-    // Include anniversaries and birthdays (recur every year)
-    events.filter(function(e){ return e.type==='anniversary'||e.type==='birthday'; }).forEach(function(e){
-      items.push({ date:e.date, title:e.title, type:e.type, id:e.id });
-    });
-    memories.forEach(function(m){ if(m.date) items.push({ date:m.date, title:m.text.slice(0,40)+(m.text.length>40?'…':''), type:'memory' }); });
+    // Journal/diary only — memories excluded per user preference
     journal.forEach(function(j, jIdx){ if(j.date) items.push({ date:j.date, title:j.content.slice(0,40)+(j.content.length>40?'…':''), type: j.mood ? 'diary' : 'journal', jIdx:jIdx }); });
     return items;
   }
@@ -6109,7 +6106,7 @@ textarea.mid{ min-height:90px; }
         info.appendChild(sub2);
       }
       row.appendChild(em); row.appendChild(info);
-      if(it.id && (it.type==='event'||it.type==='anniversary')){
+      if(it.id){
         var del=document.createElement('button'); del.className='btc-event-del'; del.textContent='✕';
         (function(id){ del.addEventListener('click',function(){
           events=events.filter(function(x){ return x.id!==id; });
