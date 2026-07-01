@@ -6561,6 +6561,7 @@ textarea.mid{ min-height:90px; }
   }
 
   function updatePeriodInfoStrip(){
+    $('calPeriodStrip').style.display='none'; return;
     var strip = $('calPeriodStrip');
     var today = new Date(); today.setHours(0,0,0,0);
     var active = periodRecords.find(function(r){
