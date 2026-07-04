@@ -2079,6 +2079,9 @@ textarea.mid{ min-height:90px; }
 .scene-card-meta.has-bg{ color:rgba(255,255,255,0.75); }
 .scene-card-meta.no-bg{ color:var(--ink-soft); }
 .scene-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:40px 0; }
+.scene-opening-wrap{ padding:28px 20px 16px; text-align:center; }
+.scene-opening-divider{ color:var(--ink-soft); font-size:15px; letter-spacing:6px; margin-bottom:16px; }
+.scene-opening-text{ color:var(--ink); font-size:14px; line-height:2; white-space:pre-wrap; text-align:left; }
 /* Scene background image upload */
 .scene-bg-upload{ border:2px dashed var(--line); border-radius:12px; padding:16px; text-align:center; cursor:pointer; color:var(--ink-soft); font-size:13px; transition:border-color .15s; position:relative; overflow:hidden; }
 .scene-bg-upload:hover{ border-color:var(--companion); }
@@ -4884,12 +4887,17 @@ textarea.mid{ min-height:90px; }
     thread.innerHTML = '';
     var sc = getActiveScene();
     if(sc){
-      // Scene mode: show scene opening if history is empty
+      // Scene mode header note
       var note = document.createElement('div'); note.className='system-note';
       note.textContent = '🌼 ' + sc.name + '・此對話為獨立場景，不影響主線';
       thread.appendChild(note);
-      if(sc.history.length === 0 && sc.opening && sc.opening.trim()){
-        thread.appendChild(bubbleRow('assistant', sc.opening.trim()));
+      // Show opening as narrative prose (not a chat bubble)
+      if(sc.opening && sc.opening.trim()){
+        var wrap = document.createElement('div'); wrap.className='scene-opening-wrap';
+        var div = document.createElement('div'); div.className='scene-opening-divider'; div.textContent='***';
+        var txt = document.createElement('div'); txt.className='scene-opening-text'; txt.textContent=sc.opening.trim();
+        wrap.appendChild(div); wrap.appendChild(txt);
+        thread.appendChild(wrap);
       }
     } else {
       // Main chat greeting (display only, not part of API history)
@@ -5027,6 +5035,9 @@ textarea.mid{ min-height:90px; }
       }
       if(sc.goal && sc.goal.trim()){
         parts.push('\n\n# 劇情目標\n' + sc.goal.trim());
+      }
+      if(sc.opening && sc.opening.trim()){
+        parts.push('\n\n# 開場情況（以下是場景的開場敘述，請從此情境接續推進故事）\n' + sc.opening.trim());
       }
       parts.push('\n\n# 【場景模式】此對話為獨立場景，內容不影響你與她的主線記憶。請盡情投入這個情境。');
     } else {
@@ -8530,10 +8541,15 @@ textarea.mid{ min-height:90px; }
   }
 
   function applySceneBg(dataUrl){
-    var front = document.getElementById('frontView');
-    if(!front) return;
-    if(dataUrl){ front.style.backgroundImage='url('+dataUrl+')'; front.style.backgroundSize='cover'; front.style.backgroundPosition='center'; }
-    else { front.style.backgroundImage=''; }
+    var t = $('thread'); if(!t) return;
+    if(dataUrl){
+      t.style.backgroundImage='url('+dataUrl+')';
+      t.style.backgroundSize='cover';
+      t.style.backgroundPosition='center';
+      t.classList.add('has-chatbg');
+    } else {
+      applyChatBg(); // restore main chat bg
+    }
   }
 
   function enterScene(id){
@@ -8541,21 +8557,18 @@ textarea.mid{ min-height:90px; }
     var sc = getActiveScene(); if(!sc) return;
     $('sceneBannerName').textContent = sc.name;
     $('sceneBanner').classList.remove('hidden');
-    // Save current chat bg and apply scene bg
-    sceneOrigChatBg = document.getElementById('frontView') ? (document.getElementById('frontView').style.backgroundImage||'') : '';
-    applySceneBg(sc.bgImage || null);
     renderThread();
+    // Apply scene bg after thread is rendered
+    applySceneBg(sc.bgImage || null);
     scrollThread(true);
     closeRightPanel();
   }
 
   function exitScene(){
-    // Restore original chat bg
-    var front = document.getElementById('frontView');
-    if(front){ front.style.backgroundImage = sceneOrigChatBg; front.style.backgroundSize=''; front.style.backgroundPosition=''; }
     activeSceneId = null;
     $('sceneBanner').classList.add('hidden');
     renderThread();
+    applyChatBg(); // restore main chat bg
     scrollThread(true);
   }
 
