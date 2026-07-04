@@ -2082,6 +2082,8 @@ textarea.mid{ min-height:90px; }
 .scene-opening-wrap{ padding:28px 20px 16px; text-align:center; }
 .scene-opening-divider{ color:var(--ink-soft); font-size:15px; letter-spacing:6px; margin-bottom:16px; }
 .scene-opening-text{ color:var(--ink); font-size:14px; line-height:2; white-space:pre-wrap; text-align:left; }
+.scene-opening-wrap.dark-bg .scene-opening-divider{ color:rgba(255,255,255,0.5); }
+.scene-opening-wrap.dark-bg .scene-opening-text{ color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.6); }
 /* Scene background image upload */
 .scene-bg-upload{ border:2px dashed var(--line); border-radius:12px; padding:16px; text-align:center; cursor:pointer; color:var(--ink-soft); font-size:13px; transition:border-color .15s; position:relative; overflow:hidden; }
 .scene-bg-upload:hover{ border-color:var(--companion); }
@@ -4905,6 +4907,12 @@ textarea.mid{ min-height:90px; }
         var txt = document.createElement('div'); txt.className='scene-opening-text'; txt.textContent=sc.opening.trim();
         wrap.appendChild(div); wrap.appendChild(txt);
         thread.appendChild(wrap);
+        // Auto-detect bg brightness and apply text color
+        if(sc.bgImage){
+          detectImageBrightness(sc.bgImage, function(isDark){
+            if(isDark) wrap.classList.add('dark-bg');
+          });
+        }
       }
     } else {
       // Main chat greeting (display only, not part of API history)
