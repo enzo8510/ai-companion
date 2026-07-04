@@ -2029,6 +2029,19 @@ textarea.mid{ min-height:90px; }
 .scene-sys-note.dark-bg{ color:rgba(255,255,255,0.88); background:rgba(0,0,0,0.50); }
 .scene-end-chip{ align-self:center; cursor:pointer; font-size:12px; color:var(--ink-soft); background:rgba(var(--companion-soft-rgb,210,230,210),0.55); border:1px solid var(--line); padding:4px 16px; border-radius:20px; letter-spacing:.3px; transition:background .15s,color .15s; }
 .scene-end-chip:hover{ background:rgba(var(--companion-soft-rgb,210,230,210),0.85); color:var(--ink); }
+/* ---- Magic view ---- */
+.magic-body{ flex:1; overflow-y:auto; padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-md); }
+.magic-intro{ font-size:13px; color:var(--ink-soft); text-align:center; padding:4px 0 8px; }
+.magic-list{ display:flex; flex-direction:column; gap:var(--space-md); }
+.magic-card{ background:var(--surface); border:1.5px solid var(--line); border-radius:14px; padding:var(--space-md) var(--space-lg); cursor:pointer; transition:border-color .15s,box-shadow .15s; }
+.magic-card:hover{ border-color:var(--companion); box-shadow:0 4px 14px var(--companion-shadow); }
+.magic-card-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+.magic-card-content{ font-size:12px; color:var(--ink-soft); line-height:1.7; white-space:pre-wrap; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.magic-card-footer{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+.magic-card-date{ font-size:11px; color:var(--ink-soft); }
+.magic-card-del{ background:none; border:none; color:var(--ink-soft); font-size:16px; cursor:pointer; padding:2px 6px; border-radius:6px; transition:color .15s; }
+.magic-card-del:hover{ color:#e05252; }
+.magic-empty{ text-align:center; color:var(--ink-soft); font-size:14px; padding:60px 20px; line-height:2; }
 /* Scene background image upload */
 .scene-bg-upload{ border:2px dashed var(--line); border-radius:12px; padding:16px; text-align:center; cursor:pointer; color:var(--ink-soft); font-size:13px; transition:border-color .15s; position:relative; overflow:hidden; }
 .scene-bg-upload:hover{ border-color:var(--companion); }
@@ -2182,8 +2195,9 @@ textarea.mid{ min-height:90px; }
       <div class="chat-toolbar">
         <button class="chat-tool-btn" id="imgUploadBtn" type="button">🏕️ 上傳圖片</button>
         <button class="chat-tool-btn" id="chatDiaryBtn" type="button">📓 今日日記</button>
-        <button class="chat-tool-btn" id="hbBtn" type="button" style="color:#c0392b;border-color:rgba(192,57,43,0.35);">💌 老公斗內</button>
+        <button class="chat-tool-btn" id="hbBtn" type="button">💌 老公斗內</button>
         <button class="chat-tool-btn" id="chatSceneBtn" type="button">🌼 場景</button>
+        <button class="chat-tool-btn" id="chatMagicSaveBtn" type="button">🪄 咒語儲存</button>
         <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
       </div>
 
@@ -2864,6 +2878,20 @@ textarea.mid{ min-height:90px; }
           </div>
 
         </div>
+      </div>
+    </div>
+
+
+    <!-- ============ MAGIC VIEW ============ -->
+    <div class="view hidden" id="magicView">
+      <div class="social-hdr">
+        <button class="icon-btn" id="magicBackBtn" type="button" style="font-size:18px;">←</button>
+        <span class="social-hdr-title">🪄 魔法咒語</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="magic-body" id="magicBody">
+        <div class="magic-intro">儲存對話中珍貴的回應，隨時取用或重溫。</div>
+        <div class="magic-list" id="magicList"></div>
       </div>
     </div>
 
@@ -4454,7 +4482,7 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','audioView','withMeView','calendarView','todayQaView','checkinView'];
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','audioView','withMeView','magicView','calendarView','todayQaView','checkinView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
     try{ sessionStorage.setItem('companion:activeView', id); } catch(e){}
@@ -9840,6 +9868,55 @@ textarea.mid{ min-height:90px; }
     e.target.value = '';
   });
 
+
+  /* ============ 魔法咒語 ============ */
+  var MAGIC_KEY = 'companion:magic';
+  var magicSpells = [];
+  function magicLoad(){ magicSpells = load(MAGIC_KEY) || []; }
+  function magicSave(){ save(MAGIC_KEY, magicSpells); }
+  function showMagic(){ magicLoad(); renderMagicList(); showOnly('magicView'); }
+  function renderMagicList(){
+    var el = $('magicList'); if(!el) return;
+    el.innerHTML = '';
+    if(!magicSpells.length){
+      var emp = document.createElement('div'); emp.className='magic-empty';
+      emp.innerHTML = '還沒有咒語。<br>在聊天室點「🪄 咒語儲存」<br>把喜歡的回應存到這裡。';
+      el.appendChild(emp); return;
+    }
+    magicSpells.forEach(function(sp, i){
+      var card = document.createElement('div'); card.className='magic-card';
+      var title = document.createElement('div'); title.className='magic-card-title'; title.textContent=sp.title||'咒語';
+      var body = document.createElement('div'); body.className='magic-card-content'; body.textContent=sp.content||'';
+      var footer = document.createElement('div'); footer.className='magic-card-footer';
+      var date = document.createElement('span'); date.className='magic-card-date';
+      date.textContent = sp.savedAt ? new Date(sp.savedAt).toLocaleDateString('zh-TW') : '';
+      var del = document.createElement('button'); del.className='magic-card-del'; del.type='button'; del.textContent='🗑';
+      del.addEventListener('click', function(e){ e.stopPropagation(); if(confirm('刪除這個咒語？')){ magicSpells.splice(i,1); magicSave(); renderMagicList(); } });
+      footer.appendChild(date); footer.appendChild(del);
+      card.appendChild(title); card.appendChild(body); card.appendChild(footer);
+      card.addEventListener('click', function(e){ if(e.target===del||del.contains(e.target)) return;
+        var inp=$('chatInput'); if(inp){ inp.value=sp.content; inp.dispatchEvent(new Event('input')); showOnly('frontView'); }
+      });
+      el.appendChild(card);
+    });
+  }
+  function saveLastAiMessage(){
+    var hist = getActiveHistory();
+    var last = null;
+    for(var i=hist.length-1;i>=0;i--){ if(hist[i].role==='assistant'&&!hist[i].type){ last=hist[i]; break; } }
+    if(!last||!last.content){ alert('沒有可以儲存的回應，請先讓他說點什麼。'); return; }
+    var firstLine = last.content.replace(/^\s+/,'').split(/[\r\n「」『』]/)[0].slice(0,28) || '咒語';
+    magicLoad();
+    magicSpells.unshift({ id:uid('magic'), title:firstLine, content:last.content, savedAt:Date.now() });
+    magicSave();
+    flashSaved('✨ 咒語已儲存');
+    showMagic();
+  }
+  magicLoad();
+  $('homeChessBtn').addEventListener('click', showMagic);
+  $('magicBackBtn').addEventListener('click', showHome);
+  $('chatMagicSaveBtn').addEventListener('click', saveLastAiMessage);
+
   /* ============ Backup ============ */
   function openBackupOverlay(){
     $('backupLocalResult').classList.add('hidden');
@@ -10069,6 +10146,7 @@ textarea.mid{ min-height:90px; }
       socialView:   showSocial,
       audioView:    openAudioView,
       withMeView:   showWithMe,
+      magicView:    showMagic,
       calendarView: showCalendarView,
       todayQaView:  showTodayQa,
       checkinView:  openCheckinView,
@@ -10079,6 +10157,9 @@ textarea.mid{ min-height:90px; }
 </script>
 </body>
 </html>
+
+
+
 
 
 
