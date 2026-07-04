@@ -2064,6 +2064,10 @@ textarea.mid{ min-height:90px; }
 .scene-sys-note.dark-bg{ color:rgba(255,255,255,0.88); background:rgba(0,0,0,0.50); }
 .scene-end-chip{ align-self:center; cursor:pointer; font-size:12px; color:var(--ink-soft); background:rgba(var(--companion-soft-rgb,210,230,210),0.55); border:1px solid var(--line); padding:4px 16px; border-radius:20px; letter-spacing:.3px; transition:background .15s,color .15s; }
 .scene-end-chip:hover{ background:rgba(var(--companion-soft-rgb,210,230,210),0.85); color:var(--ink); }
+/* ---- Date divider ---- */
+.chat-date-divider{ align-self:stretch; display:flex; align-items:center; gap:10px; margin:10px 0 4px; padding:0 4px; }
+.chat-date-divider::before,.chat-date-divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+.chat-date-divider-label{ font-size:11px; color:var(--ink-soft); white-space:nowrap; letter-spacing:.4px; padding:2px 6px; background:var(--bg); border-radius:8px; }
 /* ---- Magic view ---- */
 .magic-body{ flex:1; overflow-y:auto; padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-md); }
 .magic-intro{ font-size:13px; color:var(--ink-soft); text-align:center; padding:4px 0 8px; }
@@ -4935,6 +4939,21 @@ textarea.mid{ min-height:90px; }
       }
     }
 
+    var lastDateStr = '';
+    function insertDateDividerIfNeeded(ts){
+      if(!ts) return;
+      var d = new Date(ts);
+      var dateStr = d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+      if(dateStr === lastDateStr) return;
+      lastDateStr = dateStr;
+      var days = ['日','一','二','三','四','五','六'];
+      var label = (d.getMonth()+1) + '月' + d.getDate() + '日　週' + days[d.getDay()];
+      var div = document.createElement('div'); div.className='chat-date-divider';
+      var span = document.createElement('span'); span.className='chat-date-divider-label'; span.textContent=label;
+      div.appendChild(span);
+      thread.appendChild(div);
+    }
+
     getActiveHistory().forEach(function(t, idx){
       if(t.type === 'scene-end'){
         var chip = document.createElement('div'); chip.className='scene-end-chip';
@@ -4942,6 +4961,7 @@ textarea.mid{ min-height:90px; }
         chip.addEventListener('click', openSceneList);
         thread.appendChild(chip); return;
       }
+      insertDateDividerIfNeeded(t.ts);
       if(t.isDiary && t.role==='user'){
         thread.appendChild(createDiaryCard(t.content, t.mood, t.diaryDate, idx));
       } else if(t.isQa && t.role==='user'){
