@@ -4578,7 +4578,12 @@ textarea.mid{ min-height:90px; }
     try{ sessionStorage.setItem('companion:activeView', id); } catch(e){}
   }
   function showHome(){ showOnly('homeView'); }
-  function showFront(){ showOnly('frontView'); }
+  function showFront(){
+    showOnly('frontView');
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ scrollThread(true); });
+    });
+  }
   function showAdmin(){ showOnly('adminView'); }
   function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); updateFeedingStatus(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
 
@@ -4902,7 +4907,9 @@ textarea.mid{ min-height:90px; }
         else if(!t.img)  thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
       }
     });
-    setTimeout(function(){ scrollThread(true); }, 0);
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ scrollThread(true); });
+    });
   }
 
   /* ============ Chat context menu ============ */
