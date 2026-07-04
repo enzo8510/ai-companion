@@ -2388,6 +2388,18 @@ textarea.mid{ min-height:90px; }
             Claude 模型透過 <b>OpenRouter</b> 中轉，請至 <b>openrouter.ai</b> 註冊並取得 API 金鑰（sk-or- 開頭）。OpenRouter 採用量計費，新帳號通常有免費額度可試用。
           </div>
           <div id="modelLimitHint" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.7;"></div>
+
+          <!-- 修改密碼 -->
+          <div class="field" style="margin-top:24px;border-top:1px solid var(--line);padding-top:20px;">
+            <label>🔒 修改登入密碼</label>
+            <input type="password" id="pwdCurrent" placeholder="目前密碼" style="margin-bottom:8px;">
+            <input type="password" id="pwdNew" placeholder="新密碼（至少 4 字元）" style="margin-bottom:8px;">
+            <input type="password" id="pwdConfirm" placeholder="確認新密碼">
+            <div class="btn-row" style="margin-top:8px;">
+              <button class="btn" id="pwdChangeBtn" type="button">更新密碼</button>
+            </div>
+            <div id="pwdMsg" style="font-size:13px;min-height:18px;margin-top:6px;text-align:center;"></div>
+          </div>
         </section>
 
         <!-- 人格設定 -->
@@ -3900,13 +3912,16 @@ textarea.mid{ min-height:90px; }
   'use strict';
 
   /* ============ Login gate ============ */
-  var LOGIN_PWD = '860818'; // ← 在這裡修改密碼
+  var LOGIN_PWD_DEFAULT = '860818';
   var AUTH_KEY  = 'ai_auth_v1';
+  var PWD_KEY   = 'companion:customPwd';
+  function getLoginPwd(){ return localStorage.getItem(PWD_KEY) || LOGIN_PWD_DEFAULT; }
   function authToken(p){ return btoa(p + ':ai-companion'); }
   function checkLogin(){
     var lv = document.getElementById('loginView');
     if(!lv) return;
-    if(localStorage.getItem(AUTH_KEY) === authToken(LOGIN_PWD)){
+    var pwd = getLoginPwd();
+    if(localStorage.getItem(AUTH_KEY) === authToken(pwd)){
       lv.classList.add('hidden'); return;
     }
     lv.classList.remove('hidden');
@@ -3915,8 +3930,9 @@ textarea.mid{ min-height:90px; }
     var err = document.getElementById('loginErr');
     var tog = document.getElementById('loginToggle');
     function tryLogin(){
-      if(inp.value === LOGIN_PWD){
-        localStorage.setItem(AUTH_KEY, authToken(LOGIN_PWD));
+      var p = getLoginPwd();
+      if(inp.value === p){
+        localStorage.setItem(AUTH_KEY, authToken(p));
         lv.classList.add('hidden');
       } else {
         err.textContent = '密碼錯誤，請再試一次';
@@ -5214,6 +5230,22 @@ textarea.mid{ min-height:90px; }
   });
   $('setBaseUrl').addEventListener('change', function(){
     settings.baseUrl = this.value.trim(); save(KEYS.settings, settings); flashSaved();
+  });
+
+  $('pwdChangeBtn').addEventListener('click', function(){
+    var cur = $('pwdCurrent').value;
+    var nw  = $('pwdNew').value;
+    var cf  = $('pwdConfirm').value;
+    var msg = $('pwdMsg');
+    var currentPwd = getLoginPwd();
+    if(cur !== currentPwd){ msg.style.color='#e05252'; msg.textContent='目前密碼不正確'; setTimeout(function(){ msg.textContent=''; },2500); return; }
+    if(nw.length < 4){ msg.style.color='#e05252'; msg.textContent='新密碼至少需要 4 個字元'; setTimeout(function(){ msg.textContent=''; },2500); return; }
+    if(nw !== cf){ msg.style.color='#e05252'; msg.textContent='兩次輸入的新密碼不一致'; setTimeout(function(){ msg.textContent=''; },2500); return; }
+    localStorage.setItem(PWD_KEY, nw);
+    localStorage.setItem(AUTH_KEY, authToken(nw));
+    $('pwdCurrent').value=''; $('pwdNew').value=''; $('pwdConfirm').value='';
+    msg.style.color='var(--companion)'; msg.textContent='✓ 密碼已更新';
+    setTimeout(function(){ msg.textContent=''; },3000);
   });
 
   $('toggleKeyBtn').addEventListener('click', function(){
