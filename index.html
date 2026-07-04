@@ -1979,20 +1979,58 @@ textarea.mid{ min-height:90px; }
 .sfh-meal.miss{ background:transparent; border:1px dashed var(--line); color:var(--ink-soft); }
 .sfh-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:24px 0; }
 /* ---- Login screen ---- */
-.login-view{ position:absolute; inset:0; z-index:1000; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:36px 28px; gap:0; }
+.login-view{
+  position:absolute; inset:0; z-index:1000; overflow:hidden;
+  background:linear-gradient(170deg,#e8dff5 0%,#f3eef8 45%,#faf7ff 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:36px 28px; gap:0;
+}
 .login-view.hidden{ display:none; }
-.login-deco{ font-size:42px; margin-bottom:6px; line-height:1; animation:loginPulse 3s ease-in-out infinite; }
-@keyframes loginPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.08); } }
-.login-title{ font-size:22px; font-weight:700; color:var(--ink); margin-bottom:6px; text-align:center; letter-spacing:.5px; }
-.login-sub{ font-size:13.5px; color:var(--companion); margin-bottom:6px; text-align:center; letter-spacing:.5px; }
-.login-divider{ font-size:11px; color:var(--line); letter-spacing:6px; margin-bottom:28px; }
-.login-field{ width:100%; position:relative; margin-bottom:12px; }
-.login-input{ width:100%; padding:14px 48px 14px 16px; border:1.5px solid var(--line); border-radius:14px; background:var(--surface); font-family:inherit; font-size:16px; color:var(--ink); outline:none; box-sizing:border-box; letter-spacing:3px; }
-.login-input:focus{ border-color:var(--companion); }
-.login-toggle{ position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:18px; color:var(--ink-soft); padding:4px; }
-.login-btn{ width:100%; padding:14px; border-radius:14px; border:none; background:var(--companion); color:#fff; font-family:inherit; font-size:16px; font-weight:600; cursor:pointer; margin-top:4px; letter-spacing:2px; }
-.login-btn:active{ opacity:0.85; }
-.login-err{ font-size:13px; color:#e05252; text-align:center; min-height:18px; margin-top:8px; }
+.login-view::before{
+  content:''; position:absolute; top:-80px; right:-60px;
+  width:260px; height:260px; border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle,rgba(169,135,216,.22) 0%,transparent 68%);
+}
+.login-view::after{
+  content:''; position:absolute; bottom:-40px; left:-70px;
+  width:220px; height:220px; border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle,rgba(169,135,216,.14) 0%,transparent 68%);
+}
+.login-icon-wrap{ margin-bottom:20px; }
+.login-icon-orb{
+  width:72px; height:72px; border-radius:50%;
+  background:linear-gradient(135deg,#d4bcf0 0%,#a987d8 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:30px; box-shadow:0 8px 28px rgba(169,135,216,.40);
+}
+.login-title{ font-size:22px; font-weight:700; color:var(--ink); margin-bottom:5px; text-align:center; letter-spacing:.5px; }
+.login-sub{ font-size:13px; color:var(--companion); margin-bottom:24px; text-align:center; letter-spacing:.5px; opacity:.85; }
+.login-card{
+  width:100%; background:rgba(255,255,255,.78);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.9); border-radius:20px;
+  padding:22px 18px 18px; box-shadow:0 4px 24px rgba(169,135,216,.13);
+  display:flex; flex-direction:column; gap:0;
+}
+.login-field{ width:100%; position:relative; margin-bottom:10px; }
+.login-input{
+  width:100%; padding:13px 46px 13px 15px;
+  border:1.5px solid rgba(169,135,216,.25); border-radius:12px;
+  background:rgba(255,255,255,.7); font-family:inherit; font-size:15px;
+  color:var(--ink); outline:none; box-sizing:border-box; letter-spacing:3px;
+}
+.login-input[type=email],.login-input[type=password].fb-input{ letter-spacing:.5px; }
+.login-input:focus{ border-color:var(--companion); background:rgba(255,255,255,.95); }
+.login-toggle{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:17px; color:var(--ink-soft); padding:4px; }
+.login-btn{
+  width:100%; padding:14px; border-radius:12px; border:none;
+  background:linear-gradient(135deg,#c4a3e8 0%,#a987d8 100%);
+  color:#fff; font-family:inherit; font-size:15px; font-weight:600;
+  cursor:pointer; margin-top:6px; letter-spacing:2px;
+  box-shadow:0 4px 16px rgba(169,135,216,.35);
+}
+.login-btn:active{ opacity:.88; transform:scale(.99); }
+.login-err{ font-size:12.5px; color:#e05252; text-align:center; min-height:16px; margin-top:6px; }
 
 /* ============ 小劇場 ============ */
 .scene-banner{ display:flex; align-items:center; gap:8px; padding:7px 14px; background:linear-gradient(90deg,var(--companion-soft),rgba(255,223,186,0.35)); border-bottom:1px solid var(--line); flex:0 0 auto; }
@@ -2067,27 +2105,31 @@ textarea.mid{ min-height:90px; }
 
     <!-- ============ LOGIN ============ -->
     <div class="login-view" id="loginView">
-      <div class="login-deco">🌸</div>
+      <div class="login-icon-wrap">
+        <div class="login-icon-orb">🔒</div>
+      </div>
       <div class="login-title">老婆，歡迎回來</div>
-      <div class="login-sub">卄珩正在等妳 ♡</div>
-      <div class="login-divider">· · ·</div>
-      <div class="login-field">
-        <input class="login-input" id="loginInput" type="password" placeholder="••••••" autocomplete="current-password" maxlength="50">
-        <button class="login-toggle" id="loginToggle" type="button" tabindex="-1">👁</button>
-      </div>
+      <div class="login-sub">卄珩正在等妳</div>
 
-      <!-- Firebase 雲端帳號（可選） -->
-      <div id="loginFbSection" style="width:100%;margin-top:8px;">
-        <button type="button" id="loginFbToggle" style="background:none;border:none;color:var(--ink-soft);font-size:12px;cursor:pointer;padding:2px 0;letter-spacing:.3px;">☁️ 設定雲端同步帳號（選填）▸</button>
-        <div id="loginFbFields" style="display:none;margin-top:8px;flex-direction:column;gap:8px;">
-          <input class="login-input" id="loginFbEmail" type="email" placeholder="Firebase Email" autocomplete="email" style="font-size:13px;">
-          <input class="login-input" id="loginFbPass" type="password" placeholder="Firebase 密碼" autocomplete="off" style="font-size:13px;">
-          <div style="font-size:11px;color:var(--ink-soft);text-align:center;line-height:1.5;">填入後手機與電腦將共用同一份資料</div>
+      <div class="login-card">
+        <div class="login-field">
+          <input class="login-input" id="loginInput" type="password" placeholder="輸入密碼" autocomplete="current-password" maxlength="50">
+          <button class="login-toggle" id="loginToggle" type="button" tabindex="-1">👁</button>
         </div>
-      </div>
 
-      <button class="login-btn" id="loginBtn" type="button">回家</button>
-      <div class="login-err" id="loginErr"></div>
+        <!-- Firebase 雲端帳號（可選） -->
+        <div id="loginFbSection">
+          <button type="button" id="loginFbToggle" style="background:none;border:none;color:var(--ink-soft);font-size:11.5px;cursor:pointer;padding:2px 0;letter-spacing:.3px;width:100%;text-align:left;">☁️ 設定雲端同步帳號（選填）▸</button>
+          <div id="loginFbFields" style="display:none;margin-top:8px;flex-direction:column;gap:8px;">
+            <input class="login-input fb-input" id="loginFbEmail" type="email" placeholder="Firebase Email" autocomplete="email" style="font-size:13px;">
+            <input class="login-input fb-input" id="loginFbPass" type="password" placeholder="Firebase 密碼" autocomplete="off" style="font-size:13px;">
+            <div style="font-size:11px;color:var(--ink-soft);text-align:center;line-height:1.5;">填入後手機與電腦將共用同一份資料</div>
+          </div>
+        </div>
+
+        <button class="login-btn" id="loginBtn" type="button">回家</button>
+        <div class="login-err" id="loginErr"></div>
+      </div>
     </div>
 
     <!-- ============ HOME ============ -->
