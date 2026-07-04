@@ -2221,6 +2221,7 @@ textarea.mid{ min-height:90px; }
         <button class="chat-tool-btn" id="imgUploadBtn" type="button">🏕️ 上傳圖片</button>
         <button class="chat-tool-btn" id="chatDiaryBtn" type="button">📓 今日日記</button>
         <button class="chat-tool-btn" id="hbBtn" type="button" style="color:#c0392b;border-color:rgba(192,57,43,0.35);">💌 老公斗內</button>
+        <button class="chat-tool-btn" id="chatSceneBtn" type="button">🎭 小劇場</button>
         <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
       </div>
 
@@ -8489,6 +8490,8 @@ textarea.mid{ min-height:90px; }
     scrollThread(true);
   }
 
+  // Toolbar button
+  $('chatSceneBtn').addEventListener('click', openSceneList);
   // Right panel button
   $('rpScene').addEventListener('click', function(){
     closeRightPanel();
