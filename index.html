@@ -2208,7 +2208,7 @@ textarea.mid{ min-height:90px; }
 
       <!-- Scene mode banner -->
       <div class="scene-banner hidden" id="sceneBanner">
-        <span class="scene-banner-icon">🎭</span>
+        <span class="scene-banner-icon">🌼</span>
         <span class="scene-banner-name" id="sceneBannerName"></span>
         <button class="scene-banner-edit" id="sceneBannerEdit" type="button">編輯</button>
         <button class="scene-banner-exit" id="sceneBannerExit" type="button">退出劇場</button>
@@ -2233,7 +2233,7 @@ textarea.mid{ min-height:90px; }
         <button class="chat-tool-btn" id="imgUploadBtn" type="button">🏕️ 上傳圖片</button>
         <button class="chat-tool-btn" id="chatDiaryBtn" type="button">📓 今日日記</button>
         <button class="chat-tool-btn" id="hbBtn" type="button" style="color:#c0392b;border-color:rgba(192,57,43,0.35);">💌 老公斗內</button>
-        <button class="chat-tool-btn" id="chatSceneBtn" type="button">🎭 小劇場</button>
+        <button class="chat-tool-btn" id="chatSceneBtn" type="button">🌼 場景</button>
         <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
       </div>
 
@@ -2305,8 +2305,8 @@ textarea.mid{ min-height:90px; }
             <span>更改介面顏色</span>
           </button>
           <button class="lp-item" id="rpScene" type="button">
-            <span class="lp-item-icon">🎭</span>
-            <span>小劇場</span>
+            <span class="lp-item-icon">🌼</span>
+            <span>場景</span>
           </button>
           <hr class="lp-divider">
           <button class="lp-item" id="rpDownload" type="button">
@@ -3507,7 +3507,7 @@ textarea.mid{ min-height:90px; }
     <div class="scene-overlay hidden" id="sceneListOverlay">
       <div class="scene-ov-head">
         <button class="scene-ov-back" id="sceneListClose" type="button">‹</button>
-        <span class="scene-ov-title">🎭 小劇場</span>
+        <span class="scene-ov-title">🌼 場景</span>
         <button class="scene-ov-action" id="sceneNewBtn" type="button">+ 新增</button>
       </div>
       <div class="scene-ov-body" id="sceneListBody"></div>
@@ -4886,7 +4886,7 @@ textarea.mid{ min-height:90px; }
     if(sc){
       // Scene mode: show scene opening if history is empty
       var note = document.createElement('div'); note.className='system-note';
-      note.textContent = '🎭 ' + sc.name + '・此對話為獨立劇場，不影響主線';
+      note.textContent = '🌼 ' + sc.name + '・此對話為獨立場景，不影響主線';
       thread.appendChild(note);
       if(sc.history.length === 0 && sc.opening && sc.opening.trim()){
         thread.appendChild(bubbleRow('assistant', sc.opening.trim()));
@@ -5028,7 +5028,7 @@ textarea.mid{ min-height:90px; }
       if(sc.goal && sc.goal.trim()){
         parts.push('\n\n# 劇情目標\n' + sc.goal.trim());
       }
-      parts.push('\n\n# 【小劇場模式】此對話為獨立劇場，內容不影響你與她的主線記憶。請盡情投入這個情境。');
+      parts.push('\n\n# 【場景模式】此對話為獨立場景，內容不影響你與她的主線記憶。請盡情投入這個情境。');
     } else {
       if(persona.backgroundSettings && persona.backgroundSettings.trim()){
         parts.push('\n\n# 背景設定\n' + persona.backgroundSettings.trim());
