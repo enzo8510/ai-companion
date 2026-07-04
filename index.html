@@ -2072,6 +2072,17 @@ textarea.mid{ min-height:90px; }
         <input class="login-input" id="loginInput" type="password" placeholder="••••••" autocomplete="current-password" maxlength="50">
         <button class="login-toggle" id="loginToggle" type="button" tabindex="-1">👁</button>
       </div>
+
+      <!-- Firebase 雲端帳號（可選） -->
+      <div id="loginFbSection" style="width:100%;margin-top:8px;">
+        <button type="button" id="loginFbToggle" style="background:none;border:none;color:var(--ink-soft);font-size:12px;cursor:pointer;padding:2px 0;letter-spacing:.3px;">☁️ 設定雲端同步帳號（選填）▸</button>
+        <div id="loginFbFields" style="display:none;margin-top:8px;display:flex;flex-direction:column;gap:8px;">
+          <input class="login-input" id="loginFbEmail" type="email" placeholder="Firebase Email" autocomplete="email" style="font-size:13px;">
+          <input class="login-input" id="loginFbPass" type="password" placeholder="Firebase 密碼" autocomplete="off" style="font-size:13px;">
+          <div style="font-size:11px;color:var(--ink-soft);text-align:center;line-height:1.5;">填入後手機與電腦將共用同一份資料</div>
+        </div>
+      </div>
+
       <button class="login-btn" id="loginBtn" type="button">進入</button>
       <div class="login-err" id="loginErr"></div>
     </div>
@@ -2399,6 +2410,19 @@ textarea.mid{ min-height:90px; }
               <button class="btn" id="pwdChangeBtn" type="button">更新密碼</button>
             </div>
             <div id="pwdMsg" style="font-size:13px;min-height:18px;margin-top:6px;text-align:center;"></div>
+          </div>
+
+          <!-- Firebase 帳號登入 -->
+          <div class="field" style="margin-top:24px;border-top:1px solid var(--line);padding-top:20px;">
+            <label>☁️ Firebase 雲端帳號</label>
+            <p style="font-size:12px;color:var(--ink-soft);margin:4px 0 10px;">設定後，此裝置改用固定帳號同步資料，手機與電腦共用同一份資料。</p>
+            <input type="email" id="fbEmailInput" placeholder="Firebase 帳號 Email" style="margin-bottom:8px;">
+            <input type="password" id="fbPassInput" placeholder="Firebase 帳號密碼">
+            <div class="btn-row" style="margin-top:8px;">
+              <button class="btn" id="fbCredSaveBtn" type="button">儲存並重新連線</button>
+              <button class="btn" id="fbCredClearBtn" type="button" style="background:var(--surface);color:var(--ink-soft);border:1px solid var(--line);">清除設定</button>
+            </div>
+            <div id="fbCredMsg" style="font-size:13px;min-height:18px;margin-top:6px;text-align:center;"></div>
           </div>
         </section>
 
@@ -3929,9 +3953,40 @@ textarea.mid{ min-height:90px; }
     var btn = document.getElementById('loginBtn');
     var err = document.getElementById('loginErr');
     var tog = document.getElementById('loginToggle');
+    /* Firebase 欄位展開切換 */
+    var fbToggleBtn = document.getElementById('loginFbToggle');
+    var fbFields    = document.getElementById('loginFbFields');
+    var fbOpen = false;
+    if(fbToggleBtn && fbFields){
+      /* 若已有儲存的帳號，預設展開並顯示 */
+      if(localStorage.getItem('companion:fbEmail')){
+        fbOpen = true;
+        fbFields.style.display = 'flex';
+        fbToggleBtn.textContent = '☁️ 設定雲端同步帳號（選填）▾';
+        var savedEmail = localStorage.getItem('companion:fbEmail');
+        var fbE = document.getElementById('loginFbEmail');
+        var fbP = document.getElementById('loginFbPass');
+        if(fbE) fbE.value = savedEmail;
+        if(fbP) fbP.value = '••••••••';
+      }
+      fbToggleBtn.addEventListener('click', function(){
+        fbOpen = !fbOpen;
+        fbFields.style.display = fbOpen ? 'flex' : 'none';
+        fbToggleBtn.textContent = fbOpen
+          ? '☁️ 設定雲端同步帳號（選填）▾'
+          : '☁️ 設定雲端同步帳號（選填）▸';
+      });
+    }
     function tryLogin(){
       var p = getLoginPwd();
       if(inp.value === p){
+        /* 若 Firebase 欄位有填，一起儲存 */
+        var fbE = document.getElementById('loginFbEmail');
+        var fbP = document.getElementById('loginFbPass');
+        if(fbE && fbP && fbE.value.trim() && fbP.value && fbP.value !== '••••••••'){
+          localStorage.setItem('companion:fbEmail', fbE.value.trim());
+          localStorage.setItem('companion:fbPass', fbP.value);
+        }
         localStorage.setItem(AUTH_KEY, authToken(p));
         lv.classList.add('hidden');
       } else {
@@ -4090,43 +4145,51 @@ textarea.mid{ min-height:90px; }
 
   function _fbDoAuth(){
     if(_fbAuthDone) return;
-    // 確認 firebase.auth SDK 有載入
     if(typeof firebase.auth !== 'function'){
       console.error('✗ firebase-auth.js 未載入');
       return;
     }
-    firebase.auth().signInAnonymously().then(function(){
-      console.log('✓ Firebase 匿名登入成功');
+    var fbEmail = localStorage.getItem('companion:fbEmail');
+    var fbPass  = localStorage.getItem('companion:fbPass');
+    function _fbOnAuthed(){
       _fbAuthDone = true;
-      // 自動鎖定主人 UID：第一次登入時寫入，之後只有同 UID 能存取
-      var myUid = firebase.auth().currentUser.uid;
-      database.ref('_owner').once('value').then(function(snap){
-        if(!snap.exists()){
-          database.ref('_owner').set(myUid).then(function(){
-            console.log('✓ 已認領資料庫擁有權 UID:', myUid);
-          });
-        } else if(snap.val() !== myUid){
-          console.error('✗ UID 不符，無權存取此資料庫');
-          isFirebaseReady = false;
-          return;
-        }
-      }).catch(function(){});
       database.ref('.info/connected').on('value', function(snap){
         var connected = snap.val() === true;
         isFirebaseReady = connected;
         if(connected){
           console.log('✓ Firebase 已連接');
-          setupAutoSync();          // 第一次：建立監聽、啟動同步
-          flushPendingUploads();    // 每次重連：沖刷斷線期間累積的佇列
+          setupAutoSync();
+          flushPendingUploads();
         } else {
           console.warn('⚠ Firebase 連接中斷，資料暫存本地');
         }
       });
-    }).catch(function(err){
-      console.error('✗ Firebase 匿名登入失敗:', err.message,
-        '| 請確認 Firebase Console → Authentication → 匿名登入已啟用');
-      setTimeout(_fbDoAuth, 4000); // 4 秒後重試
-    });
+    }
+    if(fbEmail && fbPass){
+      firebase.auth().signInWithEmailAndPassword(fbEmail, fbPass)
+        .then(function(){
+          console.log('✓ Firebase 帳號登入成功 UID:', firebase.auth().currentUser.uid);
+          _fbOnAuthed();
+        })
+        .catch(function(err){
+          console.error('✗ Firebase 帳號登入失敗:', err.message);
+          firebase.auth().signInAnonymously().then(function(){
+            console.log('✓ Firebase 匿名登入（備用）');
+            _fbOnAuthed();
+          }).catch(function(e){
+            console.error('✗ Firebase 備用登入失敗:', e.message);
+            setTimeout(_fbDoAuth, 4000);
+          });
+        });
+    } else {
+      firebase.auth().signInAnonymously().then(function(){
+        console.log('✓ Firebase 匿名登入成功');
+        _fbOnAuthed();
+      }).catch(function(err){
+        console.error('✗ Firebase 匿名登入失敗:', err.message);
+        setTimeout(_fbDoAuth, 4000);
+      });
+    }
   }
 
   function initializeFirebase(){
@@ -5258,6 +5321,34 @@ textarea.mid{ min-height:90px; }
     msg.style.color='var(--companion)'; msg.textContent='✓ 密碼已更新';
     setTimeout(function(){ msg.textContent=''; },3000);
   });
+
+  /* Firebase 帳號設定 */
+  (function(){
+    var em = $('fbEmailInput'), pw = $('fbPassInput'), msg = $('fbCredMsg');
+    var saved = localStorage.getItem('companion:fbEmail');
+    if(saved){ em.value = saved; pw.value = '••••••••'; }
+    $('fbCredSaveBtn').addEventListener('click', function(){
+      var e = em.value.trim(), p = pw.value;
+      if(!e || !e.includes('@')){ msg.style.color='#e05252'; msg.textContent='請輸入有效的 Email'; setTimeout(function(){ msg.textContent=''; },2500); return; }
+      if(!p || p==='••••••••'){ msg.style.color='#e05252'; msg.textContent='請輸入密碼'; setTimeout(function(){ msg.textContent=''; },2500); return; }
+      localStorage.setItem('companion:fbEmail', e);
+      localStorage.setItem('companion:fbPass', p);
+      msg.style.color='var(--companion)'; msg.textContent='✓ 已儲存，重新連線中…';
+      _fbAuthDone = false;
+      isFirebaseReady = false;
+      setTimeout(function(){
+        _fbDoAuth();
+        msg.textContent='';
+      }, 800);
+    });
+    $('fbCredClearBtn').addEventListener('click', function(){
+      localStorage.removeItem('companion:fbEmail');
+      localStorage.removeItem('companion:fbPass');
+      em.value=''; pw.value='';
+      msg.style.color='var(--ink-soft)'; msg.textContent='已清除，下次將使用匿名登入';
+      setTimeout(function(){ msg.textContent=''; },3000);
+    });
+  })();
 
   $('toggleKeyBtn').addEventListener('click', function(){
     var f = $('setApiKey');
