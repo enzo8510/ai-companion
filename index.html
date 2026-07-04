@@ -5018,16 +5018,12 @@ textarea.mid{ min-height:90px; }
   $('msgEditBtn').addEventListener('click', function(){
     if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
       var msg = chatHistory[currentMsgIndex];
-      if(msg.role==='user'){
-        var newText = prompt('編輯訊息：', msg.content);
-        if(newText!==null && newText!==msg.content){
-          msg.content = newText;
-          save(KEYS.chat, chatHistory);
-          renderThread();
-          flashSaved('已編輯 ✓');
-        }
-      } else {
-        alert('只能編輯自己的訊息');
+      var newText = prompt('編輯訊息：', msg.content);
+      if(newText!==null && newText!==msg.content){
+        msg.content = newText;
+        save(KEYS.chat, chatHistory);
+        renderThread();
+        flashSaved('已編輯 ✓');
       }
     }
     hideChatContextMenu();
