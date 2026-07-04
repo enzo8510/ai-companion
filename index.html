@@ -4098,6 +4098,19 @@ textarea.mid{ min-height:90px; }
     firebase.auth().signInAnonymously().then(function(){
       console.log('✓ Firebase 匿名登入成功');
       _fbAuthDone = true;
+      // 自動鎖定主人 UID：第一次登入時寫入，之後只有同 UID 能存取
+      var myUid = firebase.auth().currentUser.uid;
+      database.ref('_owner').once('value').then(function(snap){
+        if(!snap.exists()){
+          database.ref('_owner').set(myUid).then(function(){
+            console.log('✓ 已認領資料庫擁有權 UID:', myUid);
+          });
+        } else if(snap.val() !== myUid){
+          console.error('✗ UID 不符，無權存取此資料庫');
+          isFirebaseReady = false;
+          return;
+        }
+      }).catch(function(){});
       database.ref('.info/connected').on('value', function(snap){
         var connected = snap.val() === true;
         isFirebaseReady = connected;
