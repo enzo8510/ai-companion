@@ -1067,6 +1067,19 @@ textarea.mid{ min-height:90px; }
 .chat-context-menu.hidden{ display:none; }
 .context-menu-item{ display:block; width:100%; padding:10px 16px; border:none; background:none; color:var(--ink); font-size:13px; text-align:left; cursor:pointer; font-family:inherit; transition:background-color .1s; }
 .context-menu-item:hover{ background-color:var(--companion-soft); color:var(--companion); }
+/* ---- Edit message modal ---- */
+.edit-msg-overlay{ position:absolute; inset:0; z-index:1200; background:rgba(30,36,52,0.38); display:flex; align-items:center; justify-content:center; padding:20px; }
+.edit-msg-overlay.hidden{ display:none; }
+.edit-msg-card{ background:var(--surface); border-radius:18px; width:100%; max-width:340px; box-shadow:0 8px 32px rgba(0,0,0,0.15); overflow:hidden; }
+.edit-msg-hdr{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid var(--line); }
+.edit-msg-title{ font-size:14px; font-weight:600; color:var(--ink); }
+.edit-msg-close{ background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer; padding:2px 4px; line-height:1; }
+.edit-msg-body{ padding:14px 16px; }
+.edit-msg-textarea{ width:100%; min-height:120px; max-height:260px; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font-family:inherit; font-size:14px; color:var(--ink); background:var(--bg); outline:none; resize:none; box-sizing:border-box; line-height:1.6; }
+.edit-msg-textarea:focus{ border-color:var(--companion); }
+.edit-msg-footer{ display:flex; gap:8px; padding:0 16px 16px; }
+.edit-msg-save{ flex:1; padding:11px; border-radius:12px; border:none; background:var(--companion); color:#fff; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+.edit-msg-cancel{ padding:11px 16px; border-radius:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-family:inherit; font-size:14px; cursor:pointer; }
 .context-menu-item.delete{ color:#D4678A; }
 .context-menu-item.delete:hover{ background-color:rgba(212,103,138,0.15); color:#D4678A; }
 .img-pending-wrap{ flex:0 0 auto; display:flex; align-items:center; gap:var(--space-md); padding:var(--space-sm) var(--space-md) 0; background:var(--surface); }
@@ -2239,6 +2252,23 @@ textarea.mid{ min-height:90px; }
         <button class="context-menu-item" id="msgCopyBtn" type="button">📋 複製</button>
         <button class="context-menu-item" id="msgEditBtn" type="button">✏️ 編輯</button>
         <button class="context-menu-item delete" id="msgDeleteBtn" type="button">🗑️ 刪除</button>
+      </div>
+
+      <!-- Edit message modal -->
+      <div class="edit-msg-overlay hidden" id="editMsgOverlay">
+        <div class="edit-msg-card">
+          <div class="edit-msg-hdr">
+            <span class="edit-msg-title">✏️ 編輯訊息</span>
+            <button class="edit-msg-close" id="editMsgClose" type="button">✕</button>
+          </div>
+          <div class="edit-msg-body">
+            <textarea class="edit-msg-textarea" id="editMsgTextarea" rows="5"></textarea>
+          </div>
+          <div class="edit-msg-footer">
+            <button class="edit-msg-cancel" id="editMsgCancel" type="button">取消</button>
+            <button class="edit-msg-save" id="editMsgSave" type="button">儲存</button>
+          </div>
+        </div>
       </div>
 
       <div class="img-pending-wrap hidden" id="imgPendingWrap">
@@ -5018,15 +5048,30 @@ textarea.mid{ min-height:90px; }
   $('msgEditBtn').addEventListener('click', function(){
     if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
       var msg = chatHistory[currentMsgIndex];
-      var newText = prompt('編輯訊息：', msg.content);
-      if(newText!==null && newText!==msg.content){
-        msg.content = newText;
+      $('editMsgTextarea').value = msg.content || '';
+      $('editMsgOverlay').classList.remove('hidden');
+      setTimeout(function(){ $('editMsgTextarea').focus(); }, 80);
+    }
+    hideChatContextMenu();
+  });
+
+  function closeEditModal(){ $('editMsgOverlay').classList.add('hidden'); }
+  $('editMsgClose').addEventListener('click', closeEditModal);
+  $('editMsgCancel').addEventListener('click', closeEditModal);
+  $('editMsgOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeEditModal();
+  });
+  $('editMsgSave').addEventListener('click', function(){
+    if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
+      var newText = $('editMsgTextarea').value;
+      if(newText !== chatHistory[currentMsgIndex].content){
+        chatHistory[currentMsgIndex].content = newText;
         save(KEYS.chat, chatHistory);
         renderThread();
         flashSaved('已編輯 ✓');
       }
     }
-    hideChatContextMenu();
+    closeEditModal();
   });
 
   $('msgDeleteBtn').addEventListener('click', function(){
