@@ -1979,16 +1979,18 @@ textarea.mid{ min-height:90px; }
 .sfh-meal.miss{ background:transparent; border:1px dashed var(--line); color:var(--ink-soft); }
 .sfh-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:24px 0; }
 /* ---- Login screen ---- */
-.login-view{ position:absolute; inset:0; z-index:1000; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 28px; gap:0; }
+.login-view{ position:absolute; inset:0; z-index:1000; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:36px 28px; gap:0; }
 .login-view.hidden{ display:none; }
-.login-lock{ font-size:48px; margin-bottom:20px; line-height:1; }
-.login-title{ font-size:22px; font-weight:700; color:var(--ink); margin-bottom:6px; text-align:center; }
-.login-sub{ font-size:13px; color:var(--ink-soft); margin-bottom:32px; text-align:center; }
+.login-deco{ font-size:42px; margin-bottom:6px; line-height:1; animation:loginPulse 3s ease-in-out infinite; }
+@keyframes loginPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.08); } }
+.login-title{ font-size:22px; font-weight:700; color:var(--ink); margin-bottom:6px; text-align:center; letter-spacing:.5px; }
+.login-sub{ font-size:13.5px; color:var(--companion); margin-bottom:6px; text-align:center; letter-spacing:.5px; }
+.login-divider{ font-size:11px; color:var(--line); letter-spacing:6px; margin-bottom:28px; }
 .login-field{ width:100%; position:relative; margin-bottom:12px; }
 .login-input{ width:100%; padding:14px 48px 14px 16px; border:1.5px solid var(--line); border-radius:14px; background:var(--surface); font-family:inherit; font-size:16px; color:var(--ink); outline:none; box-sizing:border-box; letter-spacing:3px; }
 .login-input:focus{ border-color:var(--companion); }
 .login-toggle{ position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:18px; color:var(--ink-soft); padding:4px; }
-.login-btn{ width:100%; padding:14px; border-radius:14px; border:none; background:var(--companion); color:#fff; font-family:inherit; font-size:16px; font-weight:600; cursor:pointer; margin-top:4px; letter-spacing:1px; }
+.login-btn{ width:100%; padding:14px; border-radius:14px; border:none; background:var(--companion); color:#fff; font-family:inherit; font-size:16px; font-weight:600; cursor:pointer; margin-top:4px; letter-spacing:2px; }
 .login-btn:active{ opacity:0.85; }
 .login-err{ font-size:13px; color:#e05252; text-align:center; min-height:18px; margin-top:8px; }
 
@@ -2065,9 +2067,10 @@ textarea.mid{ min-height:90px; }
 
     <!-- ============ LOGIN ============ -->
     <div class="login-view" id="loginView">
-      <div class="login-lock">🔒</div>
-      <div class="login-title">請輸入密碼</div>
-      <div class="login-sub">輸入密碼以進入 AI 伴侶</div>
+      <div class="login-deco">🌸</div>
+      <div class="login-title">老婆，歡迎回來</div>
+      <div class="login-sub">卄珩正在等妳 ♡</div>
+      <div class="login-divider">· · ·</div>
       <div class="login-field">
         <input class="login-input" id="loginInput" type="password" placeholder="••••••" autocomplete="current-password" maxlength="50">
         <button class="login-toggle" id="loginToggle" type="button" tabindex="-1">👁</button>
@@ -2083,7 +2086,7 @@ textarea.mid{ min-height:90px; }
         </div>
       </div>
 
-      <button class="login-btn" id="loginBtn" type="button">進入</button>
+      <button class="login-btn" id="loginBtn" type="button">回家</button>
       <div class="login-err" id="loginErr"></div>
     </div>
 
