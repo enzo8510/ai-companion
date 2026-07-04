@@ -2462,6 +2462,13 @@ textarea.mid{ min-height:90px; }
             </label>
             <textarea id="perReplyRules" class="tall" maxlength="700" placeholder="例如：語氣簡短自然、每次 1 到 3 句話…"></textarea>
           </div>
+          <div class="field">
+            <label style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span>回覆格式規則 <span class="sub">（每次回覆必須遵守的格式與行為限制）</span></span>
+              <span class="sub" id="perFormatRulesCount">0 / 700</span>
+            </label>
+            <textarea id="perFormatRules" class="tall" maxlength="700" placeholder="例如：每次回覆不超過 150 字、用 *動作* 描述肢體語言、不使用括號…"></textarea>
+          </div>
         </section>
 
         <!-- 事件 -->
@@ -4114,7 +4121,7 @@ textarea.mid{ min-height:90px; }
     'c-opus':      { svc:'claude', model:'anthropic/claude-opus-4-5',            url:'https://openrouter.ai/api/v1' },
     'custom':      { svc:'custom', model:'', url:'' }
   };
-  var DEFAULT_PERSONA = { name:'卄珩', statusLine:'在線・少將・記得你說過的每一句話', systemPrompt:DEFAULT_SYSTEM_PROMPT, replyRules:'', backgroundSettings:'' };
+  var DEFAULT_PERSONA = { name:'卄珩', statusLine:'在線・少將・記得你說過的每一句話', systemPrompt:DEFAULT_SYSTEM_PROMPT, replyRules:'', backgroundSettings:'', formatRules:'' };
   var DEFAULT_EVENT_TYPES = [
     { id:'event', label:'行程事項', emoji:'📅', group:'生活事項' },
     { id:'birthday', label:'生日', emoji:'🎂', group:'生活事項' },
@@ -5026,7 +5033,10 @@ textarea.mid{ min-height:90px; }
     var sc = getActiveScene();
     var parts = [ persona.systemPrompt || '' ];
     if(persona.replyRules && persona.replyRules.trim()){
-      parts.push('\n\n# 【必須遵守的回覆規則】\n以下規則優先級最高，每一次回覆都必須完全遵守，不得違反：\n' + persona.replyRules.trim());
+      parts.push('\n\n# 說話風格與習慣\n' + persona.replyRules.trim());
+    }
+    if(persona.formatRules && persona.formatRules.trim()){
+      parts.push('\n\n# 【必須遵守的回覆格式規則】\n以下規則優先級最高，每一次回覆都必須完全遵守，不得違反：\n' + persona.formatRules.trim());
     }
     if(sc){
       // Scene mode: replace background with scene setting, skip memories
@@ -5450,7 +5460,7 @@ textarea.mid{ min-height:90px; }
     cnt.textContent=len+' / '+max;
     cnt.style.color=len>=max?'#e05252':len>=600?'#c8933a':'';
   }
-  ['perPrompt','perBackground','perReplyRules'].forEach(function(id){
+  ['perPrompt','perBackground','perReplyRules','perFormatRules'].forEach(function(id){
     var countId=id+'Count';
     var el=$(id); if(!el) return;
     el.addEventListener('input',function(){ updatePerCount(id,countId); });
@@ -5461,9 +5471,11 @@ textarea.mid{ min-height:90px; }
     $('perPrompt').value = persona.systemPrompt || '';
     $('perBackground').value = persona.backgroundSettings || '';
     $('perReplyRules').value = persona.replyRules || '';
+    $('perFormatRules').value = persona.formatRules || '';
     updatePerCount('perPrompt','perPromptCount');
     updatePerCount('perBackground','perBackgroundCount');
     updatePerCount('perReplyRules','perReplyRulesCount');
+    updatePerCount('perFormatRules','perFormatRulesCount');
   }
   function bindPersona(id, key){
     $(id).addEventListener('change', function(){
@@ -5473,7 +5485,7 @@ textarea.mid{ min-height:90px; }
     });
   }
   bindPersona('perName','name'); bindPersona('perStatus','statusLine'); bindPersona('perPrompt','systemPrompt');
-  bindPersona('perBackground','backgroundSettings'); bindPersona('perReplyRules','replyRules');
+  bindPersona('perBackground','backgroundSettings'); bindPersona('perReplyRules','replyRules'); bindPersona('perFormatRules','formatRules');
   var PRESET_AVATARS = [
     'head portrait/頭像01.jpg',
     'head portrait/頭像02.png',
