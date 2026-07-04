@@ -2084,7 +2084,8 @@ textarea.mid{ min-height:90px; }
 .scene-opening-text{ color:var(--ink); font-size:14px; line-height:2.1; white-space:pre-wrap; text-align:center; text-shadow:0 0 12px rgba(255,255,255,0.6), 0 1px 3px rgba(0,0,0,0.15); }
 .scene-opening-wrap.dark-bg .scene-opening-divider{ color:rgba(255,255,255,0.55); text-shadow:0 0 10px rgba(0,0,0,0.5); }
 .scene-opening-wrap.dark-bg .scene-opening-text{ color:#fff; text-shadow:0 0 16px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.8); }
-.scene-sys-note{ align-self:center; font-size:11.5px; color:var(--ink-soft); background:linear-gradient(90deg,rgba(var(--companion-soft-rgb,210,230,210),0.45),rgba(255,223,186,0.25)); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); padding:5px 14px; border-radius:20px; letter-spacing:.3px; }
+.scene-sys-note{ align-self:center; font-size:11.5px; color:var(--ink-soft); background:linear-gradient(90deg,rgba(var(--companion-soft-rgb,210,230,210),0.72),rgba(255,223,186,0.55)); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:5px 14px; border-radius:20px; letter-spacing:.3px; }
+.scene-sys-note.dark-bg{ color:rgba(255,255,255,0.85); background:rgba(0,0,0,0.45); }
 /* Scene background image upload */
 .scene-bg-upload{ border:2px dashed var(--line); border-radius:12px; padding:16px; text-align:center; cursor:pointer; color:var(--ink-soft); font-size:13px; transition:border-color .15s; position:relative; overflow:hidden; }
 .scene-bg-upload:hover{ border-color:var(--companion); }
@@ -4901,6 +4902,7 @@ textarea.mid{ min-height:90px; }
       var note = document.createElement('div'); note.className='scene-sys-note';
       note.textContent = '此對話為獨立場景，不影響主線';
       thread.appendChild(note);
+      if(sc.bgImage){ detectImageBrightness(sc.bgImage, function(isDark){ if(isDark) note.classList.add('dark-bg'); }); }
       // Show opening as narrative prose (not a chat bubble)
       if(sc.opening && sc.opening.trim()){
         var wrap = document.createElement('div'); wrap.className='scene-opening-wrap';
