@@ -2050,6 +2050,38 @@ textarea.mid{ min-height:90px; }
 .login-btn{ width:100%; padding:14px; border-radius:14px; border:none; background:var(--companion); color:#fff; font-family:inherit; font-size:16px; font-weight:600; cursor:pointer; margin-top:4px; letter-spacing:1px; }
 .login-btn:active{ opacity:0.85; }
 .login-err{ font-size:13px; color:#e05252; text-align:center; min-height:18px; margin-top:8px; }
+
+/* ============ 小劇場 ============ */
+.scene-banner{ display:flex; align-items:center; gap:8px; padding:7px 14px; background:linear-gradient(90deg,var(--companion-soft),rgba(255,223,186,0.35)); border-bottom:1px solid var(--line); flex:0 0 auto; }
+.scene-banner.hidden{ display:none; }
+.scene-banner-icon{ font-size:16px; }
+.scene-banner-name{ flex:1; font-size:13px; font-weight:600; color:var(--ink); }
+.scene-banner-edit{ font-size:12px; color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:6px; }
+.scene-banner-exit{ font-size:12px; color:var(--companion); background:none; border:1px solid var(--companion); cursor:pointer; padding:3px 10px; border-radius:12px; margin-left:auto; }
+.scene-overlay{ position:absolute; inset:0; z-index:350; background:var(--bg); display:flex; flex-direction:column; }
+.scene-overlay.hidden{ display:none; }
+.scene-ov-head{ display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.scene-ov-back{ font-size:24px; line-height:1; color:var(--ink); background:none; border:none; padding:0 10px 0 0; cursor:pointer; }
+.scene-ov-title{ flex:1; text-align:center; font-size:16px; font-weight:600; color:var(--ink); }
+.scene-ov-action{ font-size:15px; font-weight:600; color:var(--companion); background:none; border:none; cursor:pointer; padding:0; }
+.scene-ov-body{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.scene-ov-foot{ padding:12px 16px; border-top:1px solid var(--line); display:flex; gap:8px; }
+.scene-card{ background:var(--surface); border:1.5px solid var(--line); border-radius:14px; padding:14px 16px; cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+.scene-card:hover{ border-color:var(--companion); box-shadow:0 2px 10px rgba(180,120,80,0.10); }
+.scene-card-name{ font-size:15px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+.scene-card-preview{ font-size:12px; color:var(--ink-soft); line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.scene-card-meta{ font-size:11px; color:var(--ink-soft); margin-top:6px; display:flex; gap:10px; }
+.scene-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:40px 0; }
+.scene-editor-field{ margin-bottom:14px; }
+.scene-editor-field label{ display:flex; justify-content:space-between; align-items:baseline; font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:6px; }
+.scene-editor-field input, .scene-editor-field textarea{ width:100%; box-sizing:border-box; border:1.5px solid var(--line); border-radius:10px; padding:9px 12px; font-size:14px; font-family:inherit; background:var(--bg); color:var(--ink); outline:none; resize:vertical; }
+.scene-editor-field textarea{ min-height:90px; line-height:1.6; }
+.scene-editor-field textarea.tall{ min-height:160px; }
+.scene-editor-field input:focus, .scene-editor-field textarea:focus{ border-color:var(--companion); }
+.scene-del-btn{ font-size:13px; color:#e05252; background:none; border:1px solid #e05252; border-radius:12px; padding:4px 14px; cursor:pointer; }
+:root[data-theme="dark"] .scene-overlay{ background:var(--bg); }
+:root[data-theme="dark"] .scene-ov-head{ background:var(--surface); }
+:root[data-theme="dark"] .scene-editor-field input,:root[data-theme="dark"] .scene-editor-field textarea{ color:var(--ink); background:var(--bg); }
 </style>
 </head>
 <body>
@@ -2162,6 +2194,14 @@ textarea.mid{ min-height:90px; }
         <button id="openAdminBtn" style="display:none;" aria-hidden="true">⚙</button>
       </div>
 
+      <!-- Scene mode banner -->
+      <div class="scene-banner hidden" id="sceneBanner">
+        <span class="scene-banner-icon">🎭</span>
+        <span class="scene-banner-name" id="sceneBannerName"></span>
+        <button class="scene-banner-edit" id="sceneBannerEdit" type="button">編輯</button>
+        <button class="scene-banner-exit" id="sceneBannerExit" type="button">退出劇場</button>
+      </div>
+
       <div class="chat-thread" id="thread"></div>
 
       <!-- Chat message context menu -->
@@ -2250,6 +2290,10 @@ textarea.mid{ min-height:90px; }
           <button class="lp-item" id="rpColorTheme" type="button">
             <span class="lp-item-icon">🎨</span>
             <span>更改介面顏色</span>
+          </button>
+          <button class="lp-item" id="rpScene" type="button">
+            <span class="lp-item-icon">🎭</span>
+            <span>小劇場</span>
           </button>
           <hr class="lp-divider">
           <button class="lp-item" id="rpDownload" type="button">
@@ -3446,6 +3490,48 @@ textarea.mid{ min-height:90px; }
       </div>
     </div>
 
+    <!-- ============ 小劇場 LIST ============ -->
+    <div class="scene-overlay hidden" id="sceneListOverlay">
+      <div class="scene-ov-head">
+        <button class="scene-ov-back" id="sceneListClose" type="button">‹</button>
+        <span class="scene-ov-title">🎭 小劇場</span>
+        <button class="scene-ov-action" id="sceneNewBtn" type="button">+ 新增</button>
+      </div>
+      <div class="scene-ov-body" id="sceneListBody"></div>
+    </div>
+
+    <!-- ============ 小劇場 EDITOR ============ -->
+    <div class="scene-overlay hidden" id="sceneEditorOverlay">
+      <div class="scene-ov-head">
+        <button class="scene-ov-back" id="sceneEditorClose" type="button">‹</button>
+        <span class="scene-ov-title" id="sceneEditorTitle">新增劇場</span>
+        <button class="scene-ov-action" id="sceneEditorSave" type="button">儲存</button>
+      </div>
+      <div class="scene-ov-body">
+        <div class="scene-editor-field">
+          <label>劇場名稱</label>
+          <input type="text" id="sceneEditorName" maxlength="30" placeholder="例：開心世界線">
+        </div>
+        <div class="scene-editor-field">
+          <label>
+            <span>場景設定 <span class="sub">（世界觀、氛圍、時空背景）</span></span>
+            <span class="sub" id="sceneSettingCount">0 / 300</span>
+          </label>
+          <textarea id="sceneEditorSetting" maxlength="300" placeholder="例：現在是和平年代，卄珩早早退役，在城市裡開了一間小咖啡館…"></textarea>
+        </div>
+        <div class="scene-editor-field">
+          <label>
+            <span>開場白 <span class="sub">（劇場開始時 AI 說的第一句話）</span></span>
+            <span class="sub" id="sceneOpeningCount">0 / 700</span>
+          </label>
+          <textarea id="sceneEditorOpening" class="tall" maxlength="700" placeholder="例：*把咖啡推過來* 「你今天怎麼這麼晚？」"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;padding-top:4px;" id="sceneDelRow">
+          <button class="scene-del-btn hidden" id="sceneEditorDel" type="button">刪除此劇場</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -4027,7 +4113,8 @@ textarea.mid{ min-height:90px; }
     qaHistory:'companion:qaHistory',
     periodRecords:'companion:periodRecords',
     healthLog:'companion:healthLog',
-    orBalance:'companion:orBalance'
+    orBalance:'companion:orBalance',
+    scenes:'companion:scenes'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -4409,6 +4496,11 @@ textarea.mid{ min-height:90px; }
   var chatBgGallery = load(KEYS.chatBgGallery) || [];
   var chatBgActive  = localStorage.getItem(KEYS.chatBgActive) || '';
   var currentTheme  = localStorage.getItem(KEYS.theme) || '';
+  var scenes        = load(KEYS.scenes) || [];
+  var activeSceneId = null; // null = main chat
+  function getActiveScene(){ return activeSceneId ? scenes.find(function(s){ return s.id===activeSceneId; }) || null : null; }
+  function getActiveHistory(){ var sc=getActiveScene(); return sc ? sc.history : chatHistory; }
+  function saveActiveHistory(){ var sc=getActiveScene(); if(sc){ sc.updatedAt=Date.now(); save(KEYS.scenes,scenes); } else { save(KEYS.chat,chatHistory); } }
   var eventTypes    = load(KEYS.eventTypes) || clone(DEFAULT_EVENT_TYPES);
   eventTypes = eventTypes.filter(function(t){ return t.id !== 'period'; });
   var starState     = load(KEYS.star) || { hunger:80, mood:80, clothes:0, lastFedTime: Date.now(), lastPetTime: Date.now() };
@@ -4761,21 +4853,31 @@ textarea.mid{ min-height:90px; }
 
   function renderThread(){
     thread.innerHTML = '';
-    // greeting (display only, not part of API history)
-    thread.appendChild(bubbleRow('assistant', '你來了。'));
-    thread.appendChild(bubbleRow('assistant', '想跟我說什麼都可以，我在。'));
-
-    if(!settings.apiKey){
-      var note = document.createElement('div');
-      note.className = 'system-note';
-      note.innerHTML = '還沒設定 API 金鑰，我暫時沒辦法回話。點右上角 ⚙ 進入後台「連線設定」填入金鑰，就能開始對話了。<br>';
-      var go = document.createElement('button'); go.type='button'; go.textContent='前往設定';
-      go.addEventListener('click', function(){ showAdmin(); selectTab('settings'); });
-      note.appendChild(go);
+    var sc = getActiveScene();
+    if(sc){
+      // Scene mode: show scene opening if history is empty
+      var note = document.createElement('div'); note.className='system-note';
+      note.textContent = '🎭 ' + sc.name + '・此對話為獨立劇場，不影響主線';
       thread.appendChild(note);
+      if(sc.history.length === 0 && sc.opening && sc.opening.trim()){
+        thread.appendChild(bubbleRow('assistant', sc.opening.trim()));
+      }
+    } else {
+      // Main chat greeting (display only, not part of API history)
+      thread.appendChild(bubbleRow('assistant', '你來了。'));
+      thread.appendChild(bubbleRow('assistant', '想跟我說什麼都可以，我在。'));
+      if(!settings.apiKey){
+        var note2 = document.createElement('div');
+        note2.className = 'system-note';
+        note2.innerHTML = '還沒設定 API 金鑰，我暫時沒辦法回話。點右上角 ⚙ 進入後台「連線設定」填入金鑰，就能開始對話了。<br>';
+        var go = document.createElement('button'); go.type='button'; go.textContent='前往設定';
+        go.addEventListener('click', function(){ showAdmin(); selectTab('settings'); });
+        note2.appendChild(go);
+        thread.appendChild(note2);
+      }
     }
 
-    chatHistory.forEach(function(t, idx){
+    getActiveHistory().forEach(function(t, idx){
       if(t.isDiary && t.role==='user'){
         thread.appendChild(createDiaryCard(t.content, t.mood, t.diaryDate, idx));
       } else if(t.isQa && t.role==='user'){
@@ -4884,23 +4986,32 @@ textarea.mid{ min-height:90px; }
 
   /* ============ Build system prompt ============ */
   function buildSystemPrompt(){
+    var sc = getActiveScene();
     var parts = [ persona.systemPrompt || '' ];
     if(persona.replyRules && persona.replyRules.trim()){
       parts.push('\n\n# 【必須遵守的回覆規則】\n以下規則優先級最高，每一次回覆都必須完全遵守，不得違反：\n' + persona.replyRules.trim());
     }
-    if(persona.backgroundSettings && persona.backgroundSettings.trim()){
-      parts.push('\n\n# 背景設定\n' + persona.backgroundSettings.trim());
-    }
-    if(knowledge.length){
-      parts.push('\n\n# 你的詳細設定資料（請依此保持人設一致）');
-      knowledge.forEach(function(k){ parts.push('\n## ' + (k.filename||'資料') + '\n' + (k.content||'')); });
-    }
-    if(memories.length){
-      parts.push('\n\n# 你和江黎之間的記憶體（越後面的記憶越新、越重要，請深刻記住它們）');
-      var sortedMems = memories.slice().sort(function(a,b){
-        return (parseMemDate(a.date||'')||new Date(0)).getTime() - (parseMemDate(b.date||'')||new Date(0)).getTime();
-      });
-      sortedMems.forEach(function(m){ parts.push('- 【' + (m.date||'') + '】' + (m.text||'')); });
+    if(sc){
+      // Scene mode: replace background with scene setting, skip memories
+      if(sc.setting && sc.setting.trim()){
+        parts.push('\n\n# 本次劇場設定（此世界觀取代平時的背景，請完全進入此情境）\n' + sc.setting.trim());
+      }
+      parts.push('\n\n# 【小劇場模式】此對話為獨立劇場，內容不影響你與她的主線記憶。請盡情投入這個情境。');
+    } else {
+      if(persona.backgroundSettings && persona.backgroundSettings.trim()){
+        parts.push('\n\n# 背景設定\n' + persona.backgroundSettings.trim());
+      }
+      if(knowledge.length){
+        parts.push('\n\n# 你的詳細設定資料（請依此保持人設一致）');
+        knowledge.forEach(function(k){ parts.push('\n## ' + (k.filename||'資料') + '\n' + (k.content||'')); });
+      }
+      if(memories.length){
+        parts.push('\n\n# 你和江黎之間的記憶體（越後面的記憶越新、越重要，請深刻記住它們）');
+        var sortedMems = memories.slice().sort(function(a,b){
+          return (parseMemDate(a.date||'')||new Date(0)).getTime() - (parseMemDate(b.date||'')||new Date(0)).getTime();
+        });
+        sortedMems.forEach(function(m){ parts.push('- 【' + (m.date||'') + '】' + (m.text||'')); });
+      }
     }
     return parts.join('\n');
   }
@@ -4927,7 +5038,7 @@ textarea.mid{ min-height:90px; }
     var sysTok = estimateTokens(systemPrompt);
     var histBudget = Math.max(800, 10000 - sysTok); // total cap ~10600 + 600 output < 12000
     var msgs = [{ role:'system', content: systemPrompt }];
-    var hist = truncateHistory(chatHistory.slice(), histBudget);
+    var hist = truncateHistory(getActiveHistory().slice(), histBudget);
     if(imgDataUrl && hist.length){
       // All but the last user message use text-only; last gets image array
       hist.slice(0,-1).forEach(function(t){ msgs.push({ role:t.role, content:t.content }); });
@@ -4996,8 +5107,8 @@ textarea.mid{ min-height:90px; }
     }
     var userTs = Date.now();
     if(t) thread.appendChild(bubbleRow('user', t, undefined, userTs));
-    chatHistory.push({ role:'user', content:t||'', img:img||null, ts:userTs });
-    save(KEYS.chat, chatHistory);
+    getActiveHistory().push({ role:'user', content:t||'', img:img||null, ts:userTs });
+    saveActiveHistory();
     chatInput.value = ''; chatInput.style.height='auto';
     setSending(true);
     showTyping();
@@ -5008,12 +5119,12 @@ textarea.mid{ min-height:90px; }
       var replyTs = Date.now();
       hideTyping();
       thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
-      chatHistory.push({ role:'assistant', content:reply, ts:replyTs });
-      save(KEYS.chat, chatHistory);
+      getActiveHistory().push({ role:'assistant', content:reply, ts:replyTs });
+      saveActiveHistory();
       updateTokenBar(result.usage);
       scrollThread();
       setSending(false);
-      maybeExtractMemory();
+      if(!activeSceneId) maybeExtractMemory();
     }).catch(function(err){
       hideTyping();
       var box = document.createElement('div');
@@ -8285,6 +8396,134 @@ textarea.mid{ min-height:90px; }
     closeRightPanel();
     showAdmin();
   });
+
+  /* ============ 小劇場 ============ */
+  var sceneEditingId = null;
+
+  function openSceneList(){
+    renderSceneList();
+    $('sceneListOverlay').classList.remove('hidden');
+  }
+  function closeSceneList(){ $('sceneListOverlay').classList.add('hidden'); }
+
+  function renderSceneList(){
+    var body = $('sceneListBody');
+    body.innerHTML = '';
+    if(!scenes.length){
+      var empty = document.createElement('div'); empty.className='scene-empty';
+      empty.textContent='還沒有劇場，點右上角「+ 新增」建立第一個吧！';
+      body.appendChild(empty); return;
+    }
+    scenes.forEach(function(sc){
+      var card = document.createElement('div'); card.className='scene-card';
+      var name = document.createElement('div'); name.className='scene-card-name'; name.textContent=sc.name||'未命名劇場';
+      var preview = document.createElement('div'); preview.className='scene-card-preview';
+      preview.textContent = sc.setting ? sc.setting.slice(0,60)+'…' : '（無場景設定）';
+      var meta = document.createElement('div'); meta.className='scene-card-meta';
+      var msgCount = document.createElement('span'); msgCount.textContent='💬 '+(sc.history?sc.history.length:0)+' 則對話';
+      var editBtn = document.createElement('button');
+      editBtn.style.cssText='margin-left:auto;font-size:12px;color:var(--ink-soft);background:none;border:none;cursor:pointer;padding:2px 6px;';
+      editBtn.textContent='✏️ 編輯';
+      meta.appendChild(msgCount); meta.appendChild(editBtn);
+      card.appendChild(name); card.appendChild(preview); card.appendChild(meta);
+      card.addEventListener('click', function(e){
+        if(e.target===editBtn || editBtn.contains(e.target)){ openSceneEditor(sc.id); return; }
+        closeSceneList();
+        enterScene(sc.id);
+      });
+      editBtn.addEventListener('click', function(e){ e.stopPropagation(); openSceneEditor(sc.id); });
+      body.appendChild(card);
+    });
+  }
+
+  function openSceneEditor(id){
+    sceneEditingId = id || null;
+    var sc = id ? scenes.find(function(s){ return s.id===id; }) : null;
+    $('sceneEditorTitle').textContent = sc ? '編輯劇場' : '新增劇場';
+    $('sceneEditorName').value = sc ? (sc.name||'') : '';
+    $('sceneEditorSetting').value = sc ? (sc.setting||'') : '';
+    $('sceneEditorOpening').value = sc ? (sc.opening||'') : '';
+    $('sceneSettingCount').textContent = (sc?sc.setting||'':'').length + ' / 300';
+    $('sceneOpeningCount').textContent = (sc?sc.opening||'':'').length + ' / 700';
+    if(sc){ $('sceneEditorDel').classList.remove('hidden'); }
+    else { $('sceneEditorDel').classList.add('hidden'); }
+    $('sceneEditorOverlay').classList.remove('hidden');
+  }
+  function closeSceneEditor(){ $('sceneEditorOverlay').classList.add('hidden'); sceneEditingId=null; }
+
+  function saveSceneEditor(){
+    var name = $('sceneEditorName').value.trim();
+    if(!name){ alert('請輸入劇場名稱'); return; }
+    var setting = $('sceneEditorSetting').value;
+    var opening = $('sceneEditorOpening').value;
+    if(sceneEditingId){
+      var sc = scenes.find(function(s){ return s.id===sceneEditingId; });
+      if(sc){ sc.name=name; sc.setting=setting; sc.opening=opening; sc.updatedAt=Date.now(); }
+      // If currently in this scene, refresh banner
+      if(activeSceneId===sceneEditingId){
+        $('sceneBannerName').textContent = name;
+      }
+    } else {
+      scenes.unshift({ id:uid('scene'), name:name, setting:setting, opening:opening, history:[], createdAt:Date.now(), updatedAt:Date.now() });
+    }
+    save(KEYS.scenes, scenes);
+    closeSceneEditor();
+    renderSceneList();
+    flashSaved('劇場已儲存 ✓');
+  }
+
+  function enterScene(id){
+    activeSceneId = id;
+    var sc = getActiveScene(); if(!sc) return;
+    $('sceneBannerName').textContent = sc.name;
+    $('sceneBanner').classList.remove('hidden');
+    renderThread();
+    scrollThread(true);
+    closeRightPanel();
+  }
+
+  function exitScene(){
+    activeSceneId = null;
+    $('sceneBanner').classList.add('hidden');
+    renderThread();
+    scrollThread(true);
+  }
+
+  // Right panel button
+  $('rpScene').addEventListener('click', function(){
+    closeRightPanel();
+    openSceneList();
+  });
+  // Scene list controls
+  $('sceneListClose').addEventListener('click', closeSceneList);
+  $('sceneNewBtn').addEventListener('click', function(){ openSceneEditor(null); });
+  // Scene editor controls
+  $('sceneEditorClose').addEventListener('click', function(){
+    closeSceneEditor();
+  });
+  $('sceneEditorSave').addEventListener('click', saveSceneEditor);
+  $('sceneEditorDel').addEventListener('click', function(){
+    if(!sceneEditingId) return;
+    if(!confirm('確定要刪除這個劇場？對話記錄也會一起刪除。')) return;
+    if(activeSceneId===sceneEditingId) exitScene();
+    scenes = scenes.filter(function(s){ return s.id!==sceneEditingId; });
+    save(KEYS.scenes, scenes);
+    closeSceneEditor();
+    renderSceneList();
+  });
+  // Banner controls
+  $('sceneBannerExit').addEventListener('click', exitScene);
+  $('sceneBannerEdit').addEventListener('click', function(){
+    if(activeSceneId) openSceneEditor(activeSceneId);
+  });
+  // Character counters in editor
+  $('sceneEditorSetting').addEventListener('input', function(){
+    $('sceneSettingCount').textContent = this.value.length + ' / 300';
+  });
+  $('sceneEditorOpening').addEventListener('input', function(){
+    $('sceneOpeningCount').textContent = this.value.length + ' / 700';
+  });
+
   $('avatarOverlayClose').addEventListener('click', function(){ $('avatarGalleryOverlay').classList.add('hidden'); });
 
   /* ============ Color theme ============ */
