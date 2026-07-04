@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -41,7 +41,6 @@
   --space-3xl: 48px;
   /* 事件分類顏色 */
   --event-color: #a987d8;
-  --chess-board-bg: url('rect/rect-8x8_02.png');
   --birthday-color: #e08050;
   --memory-color: #5DAAA4;
   --diary-color: #1a4080;
@@ -1370,63 +1369,6 @@ textarea.mid{ min-height:90px; }
   background:rgba(255,255,255,0.92); color:#3a2f5a; border-color:#fff;
   font-weight:600;
 }
-/* ---- Chess view ---- */
-#chessView{ position:relative; }
-#chessView > .social-hdr{ z-index:10; }
-.chess-body{ flex:1; overflow-y:auto; padding:var(--space-lg) var(--space-lg) var(--space-2xl); display:flex; flex-direction:column; align-items:center; gap:var(--space-lg); }
-.chess-status{ font-size:15px; font-weight:700; color:var(--ink); text-align:center; min-height:24px; padding:var(--space-sm) var(--space-md); background:var(--chat-bg); border-radius:10px; width:100%; max-width:360px; }
-.chess-status.check{ color:#d8643c; background:rgba(216,100,60,0.1); }
-.chess-diff-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center; width:100%; max-width:360px; padding:var(--space-md); background:var(--surface); border-radius:12px; border:1px solid var(--line); }
-.chess-diff-label{ font-size:11px; color:var(--ink-soft); margin-right:0; font-weight:700; text-transform:uppercase; letter-spacing:.05em; flex:0 0 100%; text-align:center; margin-bottom:6px; }
-.chess-diff-btn{ font-size:12px; padding:var(--space-sm) var(--space-md); border-radius:8px; border:1.5px solid var(--line); background:var(--chat-bg); color:var(--ink-soft); cursor:pointer; font-family:inherit; font-weight:500; transition:all .15s; flex:1; min-width:50px; }
-.chess-diff-btn:hover{ border-color:var(--companion); color:var(--companion); background:var(--companion-soft); }
-.chess-diff-btn.active{ background:var(--companion); color:#fff; border-color:var(--companion); font-weight:700; box-shadow:0 4px 12px var(--companion-shadow); }
-.chess-board-wrap{ width:100%; max-width:min(92vw,440px); }
-.chess-board{ display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); width:100%; aspect-ratio:1; border-radius:14px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.25); border:3px solid #8B7355; background-image:var(--chess-board-bg); background-size:100% 100%; background-repeat:no-repeat; }
-.chess-sq{ position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; -webkit-user-select:none; line-height:1; background:transparent; }
-.chess-sq.light{ background:transparent; }
-.chess-sq.dark{ background:transparent; }
-.chess-sq .pc{ position:relative; z-index:2; display:flex; align-items:center; justify-content:center; width:85%; height:85%; }
-.chess-sq .pc.piece-img{ cursor:grab; }
-.chess-sq .pc.piece-img:active{ cursor:grabbing; }
-.chess-sq .pc img{ width:100%; height:100%; object-fit:contain; }
-.chess-sq.sel{ box-shadow:inset 0 0 0 3px rgba(241,188,66,0.8); }
-.chess-sq.lastmove{ background:rgba(155,199,0,0.35); }
-.chess-sq.lastmove.dark{ background:rgba(130,170,0,0.55); }
-.chess-mv-dot{ position:absolute; z-index:1; width:24%; height:24%; border-radius:50%; background:rgba(100,150,100,0.35); }
-.chess-mv-cap{ position:absolute; z-index:1; inset:10%; border-radius:50%; border:2px solid rgba(220,100,100,0.4); box-sizing:border-box; }
-.chess-captured{ font-size:0; min-height:52px; text-align:center; letter-spacing:0; line-height:1.2; color:var(--ink); word-break:break-all; display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; width:100%; max-width:360px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:var(--space-md); }
-.chess-captured img{ width:36px; height:36px; object-fit:contain; }
-.chess-board-selector{ display:flex; gap:7px; justify-content:center; width:100%; max-width:360px; }
-.chess-bg-thumb{ width:52px; height:52px; border-radius:8px; object-fit:cover; cursor:pointer; border:2.5px solid var(--line); transition:border-color .15s, transform .15s; flex:0 0 auto; }
-.chess-bg-thumb:hover{ border-color:var(--companion); transform:scale(1.08); }
-.chess-bg-thumb.active{ border-color:var(--companion); box-shadow:0 0 0 3px var(--companion-shadow); }
-.chess-actions, .chess-replay-controls{ display:flex; gap:var(--space-sm); flex-wrap:wrap; justify-content:center; width:100%; max-width:360px; }
-.chess-act-btn{ font-size:13px; padding:var(--space-md) var(--space-lg); border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer; font-family:inherit; font-weight:600; transition:all .15s; flex:1; min-width:80px; }
-.chess-act-btn:hover{ border-color:var(--companion); color:var(--companion); background:var(--companion-soft); }
-.chess-act-btn:active{ transform:scale(0.96); }
-.chess-review, .chess-replay{ position:absolute; inset:0; background:var(--bg); display:flex; flex-direction:column; z-index:5; }
-.chess-review-body{ flex:1; overflow-y:auto; padding:var(--space-lg) var(--space-lg) var(--space-2xl); }
-.chess-rev-item{ display:flex; align-items:center; gap:var(--space-md); padding:var(--space-lg); background:var(--surface); border:1.5px solid var(--line); border-radius:14px; margin-bottom:var(--space-md); cursor:pointer; transition:all .2s; }
-.chess-rev-item:hover{ border-color:var(--companion); box-shadow:0 4px 16px var(--companion-shadow); transform:translateY(-2px); }
-.chess-rev-result{ font-size:24px; flex:0 0 auto; line-height:1; }
-.chess-rev-info{ flex:1; }
-.chess-rev-title{ font-size:14px; font-weight:700; color:var(--ink); line-height:1.4; }
-.chess-rev-sub{ font-size:12px; color:var(--ink-soft); margin-top:4px; font-weight:500; }
-.chess-rev-del{ background:none; border:none; color:var(--ink-soft); font-size:18px; cursor:pointer; padding:var(--space-sm); border-radius:8px; transition:all .15s; flex:0 0 auto; }
-.chess-rev-del:hover{ color:#e05252; background:rgba(224,82,82,0.08); }
-.chess-rev-empty{ text-align:center; color:var(--ink-soft); font-size:14px; padding:60px 20px; line-height:1.8; font-weight:500; }
-.chess-stats-panel{ background:linear-gradient(135deg, var(--companion-soft), var(--surface)); border:1.5px solid var(--line); border-radius:14px; padding:var(--space-lg); margin-bottom:var(--space-lg); }
-.chess-stats-panel.hidden{ display:none; }
-.chess-stats-title{ font-size:13px; font-weight:700; color:var(--companion); text-transform:uppercase; letter-spacing:.05em; margin-bottom:var(--space-md); }
-.chess-stats-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-md); margin-bottom:var(--space-lg); }
-.chess-stat-item{ text-align:center; padding:var(--space-md); background:var(--surface); border-radius:10px; }
-.chess-stat-value{ font-size:20px; font-weight:700; color:var(--companion); line-height:1; margin-bottom:4px; }
-.chess-stat-label{ font-size:11px; color:var(--ink-soft); font-weight:600; }
-.chess-winrate-bar{ height:6px; background:rgba(0,0,0,0.08); border-radius:3px; overflow:hidden; margin-bottom:8px; }
-.chess-winrate-fill{ height:100%; background:linear-gradient(90deg, #92b061, #5daaa4); border-radius:3px; width:0%; transition:width .6s cubic-bezier(.4,0,.2,1); }
-.chess-winrate-text{ font-size:12px; color:var(--companion); font-weight:600; text-align:center; }
-:root[data-theme="dark"] .chess-diff-btn, :root[data-theme="dark"] .chess-act-btn{ background:var(--surface); color:var(--ink); }
 /* ---- Star view (full screen) ---- */
 #starView{ position:relative; overflow:hidden; background:var(--bg); }
 .star-header{ padding:14px 16px 12px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
@@ -1705,7 +1647,6 @@ textarea.mid{ min-height:90px; }
   .phone-frame{ max-width:100%; width:100%; height:100dvh; min-height:0; border-radius:0; box-shadow:none; }
   /* 4欄格子在小螢幕改為2欄，避免擠壓 */
   .star-modal-grid{ grid-template-columns:repeat(2,1fr); gap:var(--space-sm); }
-  .chess-stats-grid{ grid-template-columns:repeat(2,1fr); }
   /* 星星行動按鈕 padding 縮小 */
   .star-act-btn{ padding:var(--space-lg) var(--space-md) var(--space-md); }
   /* 行事曆 sheet 佔滿高度 */
@@ -2179,8 +2120,8 @@ textarea.mid{ min-height:90px; }
             <span class="act-label">with me</span>
           </button>
           <button class="home-action-btn" id="homeChessBtn" type="button">
-            <span class="act-icon">♟️</span>
-            <span class="act-label">西洋棋</span>
+            <span class="act-icon">🪄</span>
+            <span class="act-label">魔法咒語</span>
           </button>
         </div>
 
@@ -2922,111 +2863,6 @@ textarea.mid{ min-height:90px; }
             <audio id="withMeAudio" style="display:none;"></audio>
           </div>
 
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ CHESS VIEW ============ -->
-    <div class="view hidden" id="chessView">
-      <div class="social-hdr">
-        <button class="icon-btn" id="chessBackBtn" type="button" style="font-size:18px;">←</button>
-        <span class="social-hdr-title">♟️ 西洋棋</span>
-        <div style="width:36px;"></div>
-      </div>
-      <div class="chess-body" id="chessBody">
-
-        <!-- 狀態列 -->
-        <div class="chess-status" id="chessStatus">輪到你（白方）</div>
-
-        <!-- 難度選擇 -->
-        <div class="chess-diff-row" id="chessDiffRow">
-          <span class="chess-diff-label">電腦難度</span>
-          <button class="chess-diff-btn" data-diff="1" type="button">簡單</button>
-          <button class="chess-diff-btn" data-diff="2" type="button">普通</button>
-          <button class="chess-diff-btn" data-diff="3" type="button">困難</button>
-        </div>
-
-        <!-- 棋盤 -->
-        <div class="chess-board-wrap">
-          <div class="chess-board" id="chessBoard"></div>
-        </div>
-
-        <!-- 棋盤背景選擇 -->
-        <div class="chess-board-selector">
-          <img class="chess-bg-thumb" src="rect/rect-8x8_01.png" data-bg="rect/rect-8x8_01.png" alt="棋盤1">
-          <img class="chess-bg-thumb active" src="rect/rect-8x8_02.png" data-bg="rect/rect-8x8_02.png" alt="棋盤2">
-          <img class="chess-bg-thumb" src="rect/rect-8x8_03.png" data-bg="rect/rect-8x8_03.png" alt="棋盤3">
-          <img class="chess-bg-thumb" src="rect/rect-8x8_05.png" data-bg="rect/rect-8x8_05.png" alt="棋盤4">
-          <img class="chess-bg-thumb" src="rect/rect-8x8_06.png" data-bg="rect/rect-8x8_06.png" alt="棋盤5">
-        </div>
-
-        <!-- 已吃子 -->
-        <div class="chess-captured" id="chessCaptured"></div>
-
-        <!-- 控制按鈕 -->
-        <div class="chess-actions">
-          <button class="chess-act-btn" id="chessUndoBtn" type="button">↩ 悔棋</button>
-          <button class="chess-act-btn" id="chessNewBtn" type="button">↺ 重新開始</button>
-          <button class="chess-act-btn" id="chessResignBtn" type="button">🏳 棄局</button>
-          <button class="chess-act-btn" id="chessReviewBtn" type="button">📜 回顧</button>
-        </div>
-      </div>
-
-      <!-- 回顧戰局子畫面 -->
-      <div class="chess-review hidden" id="chessReview">
-        <div class="social-hdr">
-          <button class="icon-btn" id="chessReviewBackBtn" type="button" style="font-size:18px;">←</button>
-          <span class="social-hdr-title">📜 回顧戰局</span>
-          <div style="width:36px;"></div>
-        </div>
-        <div class="chess-review-body">
-          <div class="chess-stats-panel hidden" id="chessStatsPanel">
-            <div class="chess-stats-title">戰績統計</div>
-            <div class="chess-stats-grid">
-              <div class="chess-stat-item">
-                <div class="chess-stat-value" id="chessTotalGames">0</div>
-                <div class="chess-stat-label">總對局</div>
-              </div>
-              <div class="chess-stat-item">
-                <div class="chess-stat-value" id="chessWins">0</div>
-                <div class="chess-stat-label">勝利</div>
-              </div>
-              <div class="chess-stat-item">
-                <div class="chess-stat-value" id="chessLosses">0</div>
-                <div class="chess-stat-label">敗北</div>
-              </div>
-              <div class="chess-stat-item">
-                <div class="chess-stat-value" id="chessDraws">0</div>
-                <div class="chess-stat-label">和局</div>
-              </div>
-            </div>
-            <div class="chess-winrate-bar">
-              <div class="chess-winrate-fill" id="chessWinrateFill"></div>
-            </div>
-            <div class="chess-winrate-text" id="chessWinrateText">勝率 0%</div>
-          </div>
-          <div id="chessReviewList"></div>
-        </div>
-      </div>
-
-      <!-- 單局重播子畫面 -->
-      <div class="chess-replay hidden" id="chessReplay">
-        <div class="social-hdr">
-          <button class="icon-btn" id="chessReplayBackBtn" type="button" style="font-size:18px;">←</button>
-          <span class="social-hdr-title" id="chessReplayTitle">重播</span>
-          <div style="width:36px;"></div>
-        </div>
-        <div class="chess-body">
-          <div class="chess-status" id="chessReplayStatus"></div>
-          <div class="chess-board-wrap">
-            <div class="chess-board" id="chessReplayBoard"></div>
-          </div>
-          <div class="chess-replay-controls">
-            <button class="chess-act-btn" id="chessReplayFirst" type="button">⏮ 開始</button>
-            <button class="chess-act-btn" id="chessReplayPrev" type="button">◀ 上一步</button>
-            <button class="chess-act-btn" id="chessReplayNext" type="button">下一步 ▶</button>
-            <button class="chess-act-btn" id="chessReplayLast" type="button">最後 ⏭</button>
-          </div>
         </div>
       </div>
     </div>
@@ -4154,7 +3990,6 @@ textarea.mid{ min-height:90px; }
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
     theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
     dotColors:'companion:dotColors',
-    chess:'companion:chess', chessHistory:'companion:chessHistory',
     qaHistory:'companion:qaHistory',
     periodRecords:'companion:periodRecords',
     healthLog:'companion:healthLog',
@@ -4447,12 +4282,6 @@ textarea.mid{ min-height:90px; }
         if(typeof applyDotColors === 'function') applyDotColors();
         if(typeof renderDotColorList === 'function') renderDotColorList();
       }
-      if(key === KEYS.chess){
-        if(typeof chessLoad === 'function'){
-          chessLoad();
-          if(typeof chessRender === 'function' && !$('chessView').classList.contains('hidden')){
-            chessUpdateDiffButtons(); chessRender();
-          }
         }
       }
     } catch(e) {
@@ -4625,7 +4454,7 @@ textarea.mid{ min-height:90px; }
   }
 
   /* ============ View switching ============ */
-  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','audioView','withMeView','chessView','calendarView','todayQaView','checkinView'];
+  var ALL_VIEWS = ['homeView','frontView','adminView','starView','socialView','audioView','withMeView','calendarView','todayQaView','checkinView'];
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
     try{ sessionStorage.setItem('companion:activeView', id); } catch(e){}
@@ -8631,6 +8460,7 @@ textarea.mid{ min-height:90px; }
 
   // Toolbar button
   $('chatSceneBtn').addEventListener('click', openSceneList);
+  $('homeChessBtn').addEventListener('click', function(){ alert('🪄 魔法咒語 — 功能即將開放！'); });
   // Right panel button
   $('rpScene').addEventListener('click', function(){ closeRightPanel(); openSceneList(); });
   // Scene list controls
@@ -10010,432 +9840,6 @@ textarea.mid{ min-height:90px; }
     e.target.value = '';
   });
 
-  /* ============ 西洋棋（本地演算法，0 token）============ */
-  var KNIGHT_DELTAS=[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
-  var KING_DELTAS=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
-  var BISHOP_DIRS=[[-1,-1],[-1,1],[1,-1],[1,1]];
-  var ROOK_DIRS=[[-1,0],[1,0],[0,-1],[0,1]];
-  var QUEEN_DIRS=BISHOP_DIRS.concat(ROOK_DIRS);
-  var PIECE_VAL={P:100,N:320,B:330,R:500,Q:900,K:20000};
-  var CENTER_BONUS=[
-    [0,0,0,0,0,0,0,0],[0,2,2,2,2,2,2,0],[0,2,4,4,4,4,2,0],[0,2,4,6,6,4,2,0],
-    [0,2,4,6,6,4,2,0],[0,2,4,4,4,4,2,0],[0,2,2,2,2,2,2,0],[0,0,0,0,0,0,0,0]
-  ];
-  var PIECE_GLYPH={ wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙', bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟' };
-  var PIECE_IMAGE={ wK:'white-king.png',wQ:'white-queen.png',wR:'white-rook.png',wB:'white-bishop.png',wN:'white-knight.png',wP:'white-pawn.png', bK:'black-king.png',bQ:'black-queen.png',bR:'black-rook.png',bB:'black-bishop.png',bN:'black-knight.png',bP:'black-pawn.png' };
-
-  function inB(r,c){ return r>=0&&r<8&&c>=0&&c<8; }
-  function colOf(p){ return p?p[0]:''; }
-  function typeOf(p){ return p?p[1]:''; }
-  function chessClone(b){ return b.map(function(row){ return row.slice(); }); }
-  function chessStartBoard(){
-    var b=[]; for(var r=0;r<8;r++) b.push(['','','','','','','','']);
-    var back=['R','N','B','Q','K','B','N','R'];
-    for(var c=0;c<8;c++){ b[0][c]='b'+back[c]; b[1][c]='bP'; b[6][c]='wP'; b[7][c]='w'+back[c]; }
-    return b;
-  }
-  function chessSqName(r,c){ return 'abcdefgh'[c]+(8-r); }
-
-  function chessStepMoves(b,r,c,color,deltas,out){
-    for(var i=0;i<deltas.length;i++){ var nr=r+deltas[i][0],nc=c+deltas[i][1];
-      if(!inB(nr,nc)) continue; var tp=b[nr][nc];
-      if(!tp||colOf(tp)!==color) out.push({from:[r,c],to:[nr,nc],flags:''}); }
-  }
-  function chessSlideMoves(b,r,c,color,dirs,out){
-    for(var i=0;i<dirs.length;i++){ var nr=r+dirs[i][0],nc=c+dirs[i][1];
-      while(inB(nr,nc)){ var tp=b[nr][nc];
-        if(!tp){ out.push({from:[r,c],to:[nr,nc],flags:''}); }
-        else { if(colOf(tp)!==color) out.push({from:[r,c],to:[nr,nc],flags:''}); break; }
-        nr+=dirs[i][0]; nc+=dirs[i][1]; } }
-  }
-  function chessAddPawn(out,r,c,nr,nc,promoRow,flag){
-    if(nr===promoRow){ ['Q','R','B','N'].forEach(function(pr){ out.push({from:[r,c],to:[nr,nc],promo:pr,flags:flag}); }); }
-    else out.push({from:[r,c],to:[nr,nc],flags:flag});
-  }
-  function chessPawnMoves(state,r,c,color,out){
-    var b=state.board, dir=color==='w'?-1:1, startRow=color==='w'?6:1, promoRow=color==='w'?0:7;
-    var nr=r+dir;
-    if(inB(nr,c)&&!b[nr][c]){ chessAddPawn(out,r,c,nr,c,promoRow,'');
-      if(r===startRow&&!b[r+2*dir][c]) out.push({from:[r,c],to:[r+2*dir,c],flags:'2'}); }
-    [c-1,c+1].forEach(function(nc){ if(!inB(nr,nc)) return; var tp=b[nr][nc];
-      if(tp&&colOf(tp)!==color) chessAddPawn(out,r,c,nr,nc,promoRow,'');
-      if(state.ep&&state.ep[0]===nr&&state.ep[1]===nc) out.push({from:[r,c],to:[nr,nc],flags:'ep'}); });
-  }
-  function chessSlideHit(b,tr,tc,dirs,byColor,types){
-    for(var i=0;i<dirs.length;i++){ var r=tr+dirs[i][0],c=tc+dirs[i][1];
-      while(inB(r,c)){ var p=b[r][c];
-        if(p){ if(colOf(p)===byColor&&types.indexOf(typeOf(p))>=0) return true; break; }
-        r+=dirs[i][0]; c+=dirs[i][1]; } }
-    return false;
-  }
-  function chessAttacked(b,tr,tc,byColor){
-    var pdir=byColor==='w'?-1:1, pr=tr-pdir;
-    if(inB(pr,tc-1)&&b[pr][tc-1]===byColor+'P') return true;
-    if(inB(pr,tc+1)&&b[pr][tc+1]===byColor+'P') return true;
-    for(var i=0;i<KNIGHT_DELTAS.length;i++){ var r=tr+KNIGHT_DELTAS[i][0],c=tc+KNIGHT_DELTAS[i][1];
-      if(inB(r,c)&&b[r][c]===byColor+'N') return true; }
-    for(var i=0;i<KING_DELTAS.length;i++){ var r=tr+KING_DELTAS[i][0],c=tc+KING_DELTAS[i][1];
-      if(inB(r,c)&&b[r][c]===byColor+'K') return true; }
-    if(chessSlideHit(b,tr,tc,BISHOP_DIRS,byColor,['B','Q'])) return true;
-    if(chessSlideHit(b,tr,tc,ROOK_DIRS,byColor,['R','Q'])) return true;
-    return false;
-  }
-  function chessFindKing(b,color){ for(var r=0;r<8;r++)for(var c=0;c<8;c++) if(b[r][c]===color+'K') return [r,c]; return null; }
-  function chessInCheck(b,color){ var k=chessFindKing(b,color); if(!k) return false; return chessAttacked(b,k[0],k[1],color==='w'?'b':'w'); }
-  function chessCastleMoves(state,r,c,color,out){
-    var b=state.board, opp=color==='w'?'b':'w', row=color==='w'?7:0;
-    if(r!==row||c!==4) return; if(chessInCheck(b,color)) return;
-    if(color==='w'?state.castling.wK:state.castling.bK){
-      if(!b[row][5]&&!b[row][6]&&b[row][7]===color+'R'&&!chessAttacked(b,row,5,opp)&&!chessAttacked(b,row,6,opp))
-        out.push({from:[row,4],to:[row,6],flags:'castleK'}); }
-    if(color==='w'?state.castling.wQ:state.castling.bQ){
-      if(!b[row][3]&&!b[row][2]&&!b[row][1]&&b[row][0]===color+'R'&&!chessAttacked(b,row,3,opp)&&!chessAttacked(b,row,2,opp))
-        out.push({from:[row,4],to:[row,2],flags:'castleQ'}); }
-  }
-  function chessPseudoMoves(state,color){
-    var b=state.board,out=[];
-    for(var r=0;r<8;r++)for(var c=0;c<8;c++){ var p=b[r][c]; if(!p||colOf(p)!==color) continue; var t=typeOf(p);
-      if(t==='P') chessPawnMoves(state,r,c,color,out);
-      else if(t==='N') chessStepMoves(b,r,c,color,KNIGHT_DELTAS,out);
-      else if(t==='K'){ chessStepMoves(b,r,c,color,KING_DELTAS,out); chessCastleMoves(state,r,c,color,out); }
-      else if(t==='B') chessSlideMoves(b,r,c,color,BISHOP_DIRS,out);
-      else if(t==='R') chessSlideMoves(b,r,c,color,ROOK_DIRS,out);
-      else if(t==='Q') chessSlideMoves(b,r,c,color,QUEEN_DIRS,out); }
-    return out;
-  }
-  function chessApply(state,mv){
-    var b=chessClone(state.board);
-    var castling={wK:state.castling.wK,wQ:state.castling.wQ,bK:state.castling.bK,bQ:state.castling.bQ};
-    var from=mv.from,to=mv.to,p=b[from[0]][from[1]],color=colOf(p),type=typeOf(p),ep=null;
-    var captured=b[to[0]][to[1]];
-    b[to[0]][to[1]]=p; b[from[0]][from[1]]='';
-    if(mv.flags==='ep'){ b[from[0]][to[1]]=''; captured=(color==='w'?'b':'w')+'P'; }
-    if(mv.promo) b[to[0]][to[1]]=color+mv.promo;
-    if(mv.flags==='2') ep=[(from[0]+to[0])/2,from[1]];
-    if(mv.flags==='castleK'){ var rw=from[0]; b[rw][5]=b[rw][7]; b[rw][7]=''; }
-    if(mv.flags==='castleQ'){ var rw2=from[0]; b[rw2][3]=b[rw2][0]; b[rw2][0]=''; }
-    if(type==='K'){ if(color==='w'){castling.wK=castling.wQ=false;}else{castling.bK=castling.bQ=false;} }
-    if(from[0]===7&&from[1]===0)castling.wQ=false; if(from[0]===7&&from[1]===7)castling.wK=false;
-    if(from[0]===0&&from[1]===0)castling.bQ=false; if(from[0]===0&&from[1]===7)castling.bK=false;
-    if(to[0]===7&&to[1]===0)castling.wQ=false; if(to[0]===7&&to[1]===7)castling.wK=false;
-    if(to[0]===0&&to[1]===0)castling.bQ=false; if(to[0]===0&&to[1]===7)castling.bK=false;
-    return {board:b,castling:castling,ep:ep,captured:captured};
-  }
-  function chessLegalMoves(state,color){
-    var pseudo=chessPseudoMoves(state,color),legal=[];
-    for(var i=0;i<pseudo.length;i++){ var res=chessApply(state,pseudo[i]); if(!chessInCheck(res.board,color)) legal.push(pseudo[i]); }
-    return legal;
-  }
-  function chessEvaluate(b){
-    var s=0; for(var r=0;r<8;r++)for(var c=0;c<8;c++){ var p=b[r][c]; if(!p) continue;
-      var v=PIECE_VAL[typeOf(p)]+CENTER_BONUS[r][c]; s += colOf(p)==='w'? v : -v; }
-    return s;
-  }
-  function chessCapVal(state,mv){ var t=state.board[mv.to[0]][mv.to[1]]; return t?PIECE_VAL[typeOf(t)]:0; }
-  function chessMinimax(state,color,depth,alpha,beta){
-    var moves=chessLegalMoves(state,color);
-    if(moves.length===0){ if(chessInCheck(state.board,color)) return color==='w'?-100000-depth:100000+depth; return 0; }
-    if(depth===0) return chessEvaluate(state.board);
-    moves.sort(function(a,b){ return chessCapVal(state,b)-chessCapVal(state,a); });
-    if(color==='w'){ var best=-Infinity;
-      for(var i=0;i<moves.length;i++){ var res=chessApply(state,moves[i]);
-        var sc=chessMinimax({board:res.board,castling:res.castling,ep:res.ep},'b',depth-1,alpha,beta);
-        if(sc>best)best=sc; if(best>alpha)alpha=best; if(beta<=alpha)break; }
-      return best;
-    } else { var best2=Infinity;
-      for(var j=0;j<moves.length;j++){ var res2=chessApply(state,moves[j]);
-        var sc2=chessMinimax({board:res2.board,castling:res2.castling,ep:res2.ep},'w',depth-1,alpha,beta);
-        if(sc2<best2)best2=sc2; if(best2<beta)beta=best2; if(beta<=alpha)break; }
-      return best2;
-    }
-  }
-  function chessAIMove(state){
-    var moves=chessLegalMoves(state,'b'); if(!moves.length) return null;
-    var depth=state.difficulty||2;
-    moves.sort(function(a,b){ return chessCapVal(state,b)-chessCapVal(state,a); });
-    var bestMove=null,bestScore=Infinity;
-    for(var i=0;i<moves.length;i++){ var res=chessApply(state,moves[i]);
-      var sc=chessMinimax({board:res.board,castling:res.castling,ep:res.ep},'w',depth-1,-Infinity,Infinity);
-      sc += (Math.random()-0.5)*0.01;
-      if(sc<bestScore){ bestScore=sc; bestMove=moves[i]; } }
-    return bestMove;
-  }
-  function chessMoveSAN(state,mv){
-    if(mv.flags==='castleK') return 'O-O'; if(mv.flags==='castleQ') return 'O-O-O';
-    var p=state.board[mv.from[0]][mv.from[1]], type=typeOf(p), letter=type==='P'?'':type;
-    var cap=(state.board[mv.to[0]][mv.to[1]]||mv.flags==='ep')?'x':'-';
-    var s=letter+chessSqName(mv.from[0],mv.from[1])+cap+chessSqName(mv.to[0],mv.to[1]);
-    if(mv.promo) s+='='+mv.promo; return s;
-  }
-
-  /* ---- 遊戲狀態與存檔 ---- */
-  var chessGame=null;
-  function chessNewGame(){
-    chessGame={ board:chessStartBoard(), turn:'w', castling:{wK:true,wQ:true,bK:true,bQ:true}, ep:null,
-      moves:[], captured:{w:[],b:[]}, difficulty:chessGame?chessGame.difficulty:2, status:'playing', winner:null, sel:null, legalForSel:[] };
-    chessSave(); chessUpdateDiffButtons(); chessRender();
-  }
-  function chessSave(){ if(!chessGame) return;
-    save(KEYS.chess, { board:chessGame.board, turn:chessGame.turn, castling:chessGame.castling, ep:chessGame.ep,
-      moves:chessGame.moves, captured:chessGame.captured, difficulty:chessGame.difficulty, status:chessGame.status, winner:chessGame.winner });
-  }
-  function chessLoad(){ var g=load(KEYS.chess);
-    if(g&&g.board){
-      g.sel=null; g.legalForSel=[];
-      if(!g.status) g.status='playing';
-      if(g.winner===undefined) g.winner=null;
-      if(!g.turn) g.turn='w';
-      if(!g.difficulty) g.difficulty=2;
-      if(!g.castling) g.castling={wK:true,wQ:true,bK:true,bQ:true};
-      if(!g.moves) g.moves=[];
-      var validPieces=['wK','wQ','wR','wB','wN','wP','bK','bQ','bR','bB','bN','bP'];
-      if(!g.captured) g.captured={w:[],b:[]};
-      else {
-        g.captured.w=(g.captured.w||[]).filter(function(p){ return validPieces.indexOf(p)>=0; });
-        g.captured.b=(g.captured.b||[]).filter(function(p){ return validPieces.indexOf(p)>=0; });
-      }
-      chessGame=g; return true;
-    }
-    return false;
-  }
-  function chessApplyToGame(mv){
-    var res=chessApply(chessGame,mv);
-    var san=chessMoveSAN(chessGame,mv);
-    chessGame.board=res.board; chessGame.castling=res.castling; chessGame.ep=res.ep;
-    chessGame.turn=chessGame.turn==='w'?'b':'w';
-    if(res.captured){ chessGame.captured[colOf(res.captured)].push(res.captured); }
-    chessGame.moves.push({from:mv.from,to:mv.to,promo:mv.promo||null,flags:mv.flags||'',san:san});
-  }
-  function chessAfterMove(){
-    var color=chessGame.turn, legal=chessLegalMoves(chessGame,color);
-    if(legal.length===0){
-      if(chessInCheck(chessGame.board,color)){ chessGame.status='checkmate'; chessGame.winner=color==='w'?'b':'w'; }
-      else { chessGame.status='stalemate'; chessGame.winner=null; }
-      chessFinishGame();
-    }
-    chessSave();
-  }
-  function chessFinishGame(){
-    var hist=load(KEYS.chessHistory)||[]; var resultText,resultIcon;
-    if(chessGame.status==='checkmate'){ if(chessGame.winner==='w'){resultText='你獲勝';resultIcon='🏆';}else{resultText='電腦獲勝';resultIcon='💻';} }
-    else if(chessGame.status==='stalemate'){ resultText='和局（無子可動）';resultIcon='🤝'; }
-    else if(chessGame.status==='resigned'){ resultText='你已棄局';resultIcon='🏳'; }
-    else { resultText='對局結束';resultIcon='♟'; }
-    hist.unshift({ id:uid('chess'), date:Date.now(), result:chessGame.status, winner:chessGame.winner,
-      resultText:resultText, resultIcon:resultIcon, difficulty:chessGame.difficulty, moves:chessGame.moves });
-    if(hist.length>20) hist=hist.slice(0,20);
-    save(KEYS.chessHistory, hist);
-  }
-
-  /* ---- UI 渲染 ---- */
-  function chessFindSelMove(r,c){
-    if(!chessGame.legalForSel) return null;
-    for(var i=0;i<chessGame.legalForSel.length;i++){ var m=chessGame.legalForSel[i]; if(m.to[0]===r&&m.to[1]===c) return m; }
-    return null;
-  }
-  function chessRenderBoardInto(boardEl,board,interactive){
-    if(!boardEl) return;
-    if(!board){ boardEl.innerHTML='<div style="padding:40px;text-align:center;color:var(--ink-soft);">棋局載入中...</div>'; return; }
-    boardEl.innerHTML='';
-    var lastMv=(interactive&&chessGame&&chessGame.moves.length)?chessGame.moves[chessGame.moves.length-1]:null;
-    for(var r=0;r<8;r++)for(var c=0;c<8;c++){
-      var sq=document.createElement('div');
-      sq.className='chess-sq '+(((r+c)%2===0)?'light':'dark');
-      if(lastMv&&((lastMv.from[0]===r&&lastMv.from[1]===c)||(lastMv.to[0]===r&&lastMv.to[1]===c))) sq.classList.add('lastmove');
-      var p=board[r][c];
-      if(p){ var pc=document.createElement('div'); pc.className='pc piece-img'; var img=document.createElement('img'); img.src='chess/'+PIECE_IMAGE[p]; img.alt=p; sq.appendChild(pc); pc.appendChild(img); }
-      if(interactive){
-        if(chessGame.sel&&chessGame.sel[0]===r&&chessGame.sel[1]===c) sq.classList.add('sel');
-        if(chessGame.sel){ var mv=chessFindSelMove(r,c); if(mv){ var mk=document.createElement('div'); mk.className=board[r][c]?'chess-mv-cap':'chess-mv-dot'; sq.appendChild(mk); } }
-        (function(rr,cc){ sq.addEventListener('click',function(){ chessSquareClick(rr,cc); }); })(r,c);
-      }
-      boardEl.appendChild(sq);
-    }
-  }
-  function chessRenderCaptured(){ var el=$('chessCaptured'); if(!el||!chessGame) return; el.innerHTML=''; var allCap=chessGame.captured.b.concat(chessGame.captured.w); allCap.forEach(function(p){ var img=document.createElement('img'); img.src='chess/'+PIECE_IMAGE[p]; img.alt=p; el.appendChild(img); }); }
-  function chessUpdateStatus(override){
-    var el=$('chessStatus'); if(!el) return; el.classList.remove('check');
-    if(override){ el.textContent=override; return; }
-    if(!chessGame){ el.textContent=''; return; }
-    if(chessGame.status==='checkmate'){ el.textContent=chessGame.winner==='w'?'將死！你獲勝 🎉':'將死，電腦獲勝 💻'; return; }
-    if(chessGame.status==='stalemate'){ el.textContent='和局（無子可動）🤝'; return; }
-    if(chessGame.status==='resigned'){ el.textContent='你已棄局 🏳'; return; }
-    var inChk=chessInCheck(chessGame.board,chessGame.turn);
-    el.textContent=(chessGame.turn==='w'?'輪到你（白方）':'電腦思考中（黑方）')+(inChk?'　將軍！':'');
-    if(inChk) el.classList.add('check');
-  }
-  function chessRender(){ if(!chessGame) return; chessRenderBoardInto($('chessBoard'),chessGame.board,true); chessRenderCaptured(); chessUpdateStatus(); }
-  function chessUpdateDiffButtons(){
-    var dq=document.querySelectorAll('.chess-diff-btn');
-    Array.prototype.forEach.call(dq,function(b){ b.classList.toggle('active', parseInt(b.dataset.diff,10)===(chessGame?chessGame.difficulty:2)); });
-  }
-  function chessSquareClick(r,c){
-    if(!chessGame||chessGame.status!=='playing'||chessGame.turn!=='w') return;
-    var p=chessGame.board[r][c];
-    if(chessGame.sel){ var mv=chessFindSelMove(r,c); if(mv){ chessDoHumanMove(mv); return; } }
-    if(p&&colOf(p)==='w'){ chessGame.sel=[r,c];
-      chessGame.legalForSel=chessLegalMoves(chessGame,'w').filter(function(m){ return m.from[0]===r&&m.from[1]===c; }); chessRender(); }
-    else { chessGame.sel=null; chessGame.legalForSel=[]; chessRender(); }
-  }
-  function chessDoHumanMove(mv){
-    chessApplyToGame(mv); chessGame.sel=null; chessGame.legalForSel=[]; chessAfterMove(); chessRender();
-    if(chessGame.status==='playing') setTimeout(chessAITurn,260);
-  }
-  function chessAITurn(){
-    if(!chessGame||chessGame.status!=='playing'||chessGame.turn!=='b') return;
-    chessUpdateStatus('電腦思考中…');
-    setTimeout(function(){
-      var mv=chessAIMove(chessGame);
-      if(!mv){ chessAfterMove(); chessRender(); return; }
-      chessApplyToGame(mv); chessAfterMove(); chessRender();
-    },40);
-  }
-
-  /* ---- 回顧戰局 / 重播 ---- */
-  function chessFmtDate(ts){ var d=new Date(ts); return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
-  function chessReconstructPositions(moves){
-    var positions=[chessStartBoard()];
-    var st={board:chessStartBoard(),castling:{wK:true,wQ:true,bK:true,bQ:true},ep:null};
-    for(var i=0;i<moves.length;i++){ var res=chessApply(st,moves[i]); st={board:res.board,castling:res.castling,ep:res.ep}; positions.push(chessClone(res.board)); }
-    return positions;
-  }
-  var chessReplayState={positions:[],idx:0,moves:[]};
-  function chessRenderReplay(){
-    if(!chessReplayState.positions||!chessReplayState.positions.length){ $('chessReplayStatus').textContent='無遊戲數據'; return; }
-    var pos=chessReplayState.positions[chessReplayState.idx];
-    chessRenderBoardInto($('chessReplayBoard'),pos,false);
-    var total=chessReplayState.moves.length,label;
-    if(chessReplayState.idx===0) label='起始局面';
-    else { var mv=chessReplayState.moves[chessReplayState.idx-1]; label='第 '+chessReplayState.idx+' / '+total+' 步：'+(mv.san||''); }
-    $('chessReplayStatus').textContent=label;
-  }
-  function chessOpenReplay(game){
-    chessReplayState.moves=game.moves; chessReplayState.positions=chessReconstructPositions(game.moves); chessReplayState.idx=0;
-    $('chessReplayTitle').textContent=chessFmtDate(game.date)+'　'+(game.resultText||'');
-    $('chessReplay').classList.remove('hidden'); chessRenderReplay();
-  }
-  function chessOpenReview(){
-    var hist=load(KEYS.chessHistory)||[], list=$('chessReviewList'); list.innerHTML='';
-    var statsPan=$('chessStatsPanel');
-    if(!hist.length){
-      list.innerHTML='<div class="chess-rev-empty">還沒有對局紀錄<br>下完一盤棋後，這裡會出現可回顧的戰局</div>';
-      if(statsPan) statsPan.classList.add('hidden');
-    } else {
-      var wins=0, losses=0, draws=0;
-      hist.forEach(function(g){
-        if(g.result==='checkmate'){ if(g.winner==='w') wins++; else losses++; }
-        else if(g.result==='stalemate'){ draws++; }
-        else if(g.result==='resigned'){ losses++; }
-      });
-      var total=hist.length, winrate=total>0?Math.round(wins*100/total):0;
-      if(statsPan){
-        statsPan.classList.remove('hidden');
-        $('chessTotalGames').textContent=total;
-        $('chessWins').textContent=wins;
-        $('chessLosses').textContent=losses;
-        $('chessDraws').textContent=draws;
-        $('chessWinrateFill').style.width=winrate+'%';
-        $('chessWinrateText').textContent='勝率 '+winrate+'%';
-      }
-      hist.forEach(function(g){
-        var item=document.createElement('div'); item.className='chess-rev-item';
-        var diffName=['','簡單','普通','困難'][g.difficulty]||'普通';
-        item.innerHTML='<div class="chess-rev-result">'+(g.resultIcon||'♟')+'</div>'+
-          '<div class="chess-rev-info"><div class="chess-rev-title">'+(g.resultText||'對局')+'</div>'+
-          '<div class="chess-rev-sub">'+chessFmtDate(g.date)+' · '+g.moves.length+' 步 · '+diffName+'</div></div>';
-        var del=document.createElement('button'); del.className='chess-rev-del'; del.type='button'; del.textContent='🗑';
-        (function(id){ del.addEventListener('click',function(e){ e.stopPropagation();
-          var h=load(KEYS.chessHistory)||[]; h=h.filter(function(x){return x.id!==id;}); save(KEYS.chessHistory,h); chessOpenReview(); }); })(g.id);
-        item.appendChild(del); item.addEventListener('click',function(){ chessOpenReplay(g); });
-        list.appendChild(item);
-      });
-    }
-    $('chessReview').classList.remove('hidden');
-  }
-
-  function showChess(){
-    showOnly('chessView');
-    var review=$('chessReview'), replay=$('chessReplay');
-    if(review) review.classList.add('hidden');
-    if(replay) replay.classList.add('hidden');
-    if(!chessGame){ if(!chessLoad()) chessNewGame(); }
-    else if(chessGame){ chessUpdateDiffButtons(); chessRender(); }
-    setTimeout(function(){
-      if(chessGame&&$('chessBoard')){
-        chessUpdateDiffButtons(); chessRender();
-        if(chessGame.status==='playing'&&chessGame.turn==='b') chessAITurn();
-      }
-    }, 80);
-  }
-
-  /* ---- 事件綁定 ---- */
-  $('homeChessBtn').addEventListener('click', showChess);
-  $('chessBackBtn').addEventListener('click', showHome);
-  $('chessUndoBtn').addEventListener('click', function(){
-    if(!chessGame||chessGame.status!=='playing'||chessGame.turn!=='w') return;
-    var toRemove = chessGame.moves.length >= 2 ? 2 : chessGame.moves.length;
-    if(!toRemove){ chessUpdateStatus('沒有可悔的棋步'); return; }
-    var newMoves = chessGame.moves.slice(0, chessGame.moves.length - toRemove);
-    var st = { board:chessStartBoard(), castling:{wK:true,wQ:true,bK:true,bQ:true}, ep:null };
-    var cap = {w:[], b:[]};
-    for(var i=0;i<newMoves.length;i++){
-      var res2 = chessApply(st, newMoves[i]);
-      if(res2.captured) cap[colOf(res2.captured)].push(res2.captured);
-      st = {board:res2.board, castling:res2.castling, ep:res2.ep};
-    }
-    chessGame.board=st.board; chessGame.castling=st.castling; chessGame.ep=st.ep;
-    chessGame.moves=newMoves; chessGame.captured=cap;
-    chessGame.turn = newMoves.length%2===0?'w':'b';
-    chessGame.sel=null; chessGame.legalForSel=[];
-    chessSave(); chessRender();
-  });
-  $('chessNewBtn').addEventListener('click', function(){ if(confirm('要重新開始一盤新棋嗎？目前進度會結束。')) chessNewGame(); });
-  $('chessResignBtn').addEventListener('click', function(){
-    if(!chessGame||chessGame.status!=='playing') return;
-    if(confirm('確定棄局嗎？這盤會記為你投降。')){ chessGame.status='resigned'; chessGame.winner='b'; chessFinishGame(); chessSave(); chessRender(); }
-  });
-  $('chessReviewBtn').addEventListener('click', chessOpenReview);
-  $('chessReviewBackBtn').addEventListener('click', function(){ $('chessReview').classList.add('hidden'); });
-  $('chessReplayBackBtn').addEventListener('click', function(){ $('chessReplay').classList.add('hidden'); });
-  Array.prototype.forEach.call(document.querySelectorAll('.chess-diff-btn'),function(b){
-    b.addEventListener('click', function(){ if(!chessGame) return; chessGame.difficulty=parseInt(b.dataset.diff,10); chessUpdateDiffButtons(); chessSave(); flashSaved('難度：'+b.textContent); });
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('.chess-bg-thumb'),function(b){
-    b.addEventListener('click', function(){
-      var bgPath=b.dataset.bg;
-      document.documentElement.style.setProperty('--chess-board-bg', "url('"+bgPath+"')");
-      document.querySelectorAll('.chess-bg-thumb').forEach(function(btn){ btn.classList.remove('active'); });
-      b.classList.add('active');
-      save('chessBoardBg', bgPath);
-    });
-  });
-  (function(){
-    var bg=load('chessBoardBg')||'rect/rect-8x8_02.png';
-    if(bg==='1'||bg==='2'||bg.indexOf('rect-8x8/')===0) bg='rect/rect-8x8_02.png';
-    var el=document.querySelector('.chess-bg-thumb[data-bg="'+bg+'"]');
-    if(el) el.click(); else document.documentElement.style.setProperty('--chess-board-bg',"url('"+bg+"')");
-  })();
-  $('chessReplayFirst').addEventListener('click', function(){ chessReplayState.idx=0; chessRenderReplay(); });
-  $('chessReplayPrev').addEventListener('click', function(){ if(chessReplayState.idx>0){ chessReplayState.idx--; chessRenderReplay(); } });
-  $('chessReplayNext').addEventListener('click', function(){ if(chessReplayState.idx<chessReplayState.positions.length-1){ chessReplayState.idx++; chessRenderReplay(); } });
-  $('chessReplayLast').addEventListener('click', function(){ chessReplayState.idx=chessReplayState.positions.length-1; chessRenderReplay(); });
-  chessLoad(); // 啟動時把已存的棋局載入記憶體
-
-  $('socialComposeBtn').addEventListener('click', function(){
-    var inp = $('socialComposeInput');
-    var t = (inp.value||'').trim(); if(!t) return;
-    // Add comment to most recent post
-    if(socialPosts.length){
-      var last = socialPosts[socialPosts.length-1];
-      if(!last.comments) last.comments=[];
-      last.comments.push({ ts:Date.now(), text:t });
-      save(SOCIAL_KEY, socialPosts);
-    }
-    inp.value=''; renderSocialFeed();
-    var feed=$('socialBody'); if(feed) feed.scrollTop=feed.scrollHeight;
-  });
-  $('socialComposeInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('socialComposeBtn').click(); } });
-
   /* ============ Backup ============ */
   function openBackupOverlay(){
     $('backupLocalResult').classList.add('hidden');
@@ -10665,7 +10069,6 @@ textarea.mid{ min-height:90px; }
       socialView:   showSocial,
       audioView:    openAudioView,
       withMeView:   showWithMe,
-      chessView:    showChess,
       calendarView: showCalendarView,
       todayQaView:  showTodayQa,
       checkinView:  openCheckinView,
@@ -10676,3 +10079,7 @@ textarea.mid{ min-height:90px; }
 </script>
 </body>
 </html>
+
+
+
+
