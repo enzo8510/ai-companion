@@ -1060,8 +1060,8 @@ textarea.mid{ min-height:90px; }
 .or-balance b{ color:var(--ink); font-weight:600; }
 .or-balance .or-bal-used{ opacity:.7; font-size:11px; }
 /* ---- Chat toolbar ---- */
-.chat-toolbar{ flex:0 0 auto; display:flex; align-items:center; gap:var(--space-sm); padding:var(--space-sm) var(--space-md); background:var(--surface); border-top:1px solid var(--line); }
-.chat-tool-btn{ display:flex; align-items:center; gap:4px; background:var(--chat-bg); border:1px solid var(--line); border-radius:999px; padding:5px 11px; font-family:inherit; font-size:12px; color:var(--ink-soft); cursor:pointer; white-space:nowrap; transition:border-color .1s, color .1s; }
+.chat-toolbar{ flex:0 0 auto; display:flex; align-items:center; gap:5px; padding:6px 10px; background:var(--surface); border-top:1px solid var(--line); }
+.chat-tool-btn{ display:flex; align-items:center; gap:3px; background:var(--chat-bg); border:1px solid var(--line); border-radius:999px; padding:5px 9px; font-family:inherit; font-size:12px; color:var(--ink-soft); cursor:pointer; white-space:nowrap; transition:border-color .1s, color .1s; flex:1; justify-content:center; min-width:0; }
 .chat-tool-btn:hover{ border-color:var(--companion); color:var(--companion); }
 .chat-context-menu{ position:fixed; z-index:1000; background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); overflow:hidden; min-width:140px; }
 .chat-context-menu.hidden{ display:none; }
@@ -2207,11 +2207,11 @@ textarea.mid{ min-height:90px; }
       </div>
 
       <div class="chat-toolbar">
-        <button class="chat-tool-btn" id="imgUploadBtn" type="button">🏕️ 上傳圖片</button>
-        <button class="chat-tool-btn" id="chatDiaryBtn" type="button">📓 今日日記</button>
-        <button class="chat-tool-btn" id="hbBtn" type="button">💌 老公斗內</button>
+        <button class="chat-tool-btn" id="imgUploadBtn" type="button">🏕️ 圖片</button>
+        <button class="chat-tool-btn" id="chatDiaryBtn" type="button">📓 日記</button>
+        <button class="chat-tool-btn" id="hbBtn" type="button">💌 紅包</button>
         <button class="chat-tool-btn" id="chatSceneBtn" type="button">🌼 場景</button>
-        <button class="chat-tool-btn" id="chatMagicSaveBtn" type="button">🪄 咒語儲存</button>
+        <button class="chat-tool-btn" id="chatMagicSaveBtn" type="button">🪄 儲存</button>
         <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
       </div>
 
