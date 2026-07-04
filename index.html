@@ -2440,6 +2440,12 @@ textarea.mid{ min-height:90px; }
           </div>
           <div id="modelLimitHint" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.7;"></div>
 
+          <!-- 最大回覆長度 -->
+          <div class="field" style="margin-top:20px;">
+            <label>📝 最大回覆長度 <span class="sub">（tokens，預設 1500 ≈ 約 750 中文字）</span></label>
+            <input type="number" id="setMaxTokens" placeholder="1500" min="300" max="8000" step="100">
+          </div>
+
           <!-- 修改密碼 -->
           <div class="field" style="margin-top:24px;border-top:1px solid var(--line);padding-top:20px;">
             <label>🔒 修改登入密碼</label>
@@ -4624,7 +4630,10 @@ textarea.mid{ min-height:90px; }
       requestAnimationFrame(function(){ scrollThread(true); });
     });
   }
-  function showAdmin(){ showOnly('adminView'); }
+  function showAdmin(){
+    showOnly('adminView');
+    if($('setMaxTokens')) $('setMaxTokens').value = settings.maxTokens || 1500;
+  }
   function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); updateFeedingStatus(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
 
   function floatHeart(element){
@@ -5119,7 +5128,7 @@ textarea.mid{ min-height:90px; }
     var resp = await fetch(endpoint(), {
       method:'POST',
       headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey },
-      body: JSON.stringify({ model: settings.model || 'gpt-4o', messages: msgs, temperature: 0.85, max_tokens: 600 })
+      body: JSON.stringify({ model: settings.model || 'gpt-4o', messages: msgs, temperature: 0.85, max_tokens: settings.maxTokens || 1500 })
     });
     if(!resp.ok){
       var detail=''; try{ detail = await resp.text(); }catch(e){}
@@ -5351,6 +5360,10 @@ textarea.mid{ min-height:90px; }
   });
   $('setBaseUrl').addEventListener('change', function(){
     settings.baseUrl = this.value.trim(); save(KEYS.settings, settings); flashSaved();
+  });
+  $('setMaxTokens').addEventListener('change', function(){
+    var v = parseInt(this.value);
+    if(v >= 300 && v <= 8000){ settings.maxTokens = v; save(KEYS.settings, settings); flashSaved(); }
   });
 
   $('pwdChangeBtn').addEventListener('click', function(){
