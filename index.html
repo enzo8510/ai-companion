@@ -2086,6 +2086,8 @@ textarea.mid{ min-height:90px; }
 .scene-opening-wrap.dark-bg .scene-opening-text{ color:#fff; text-shadow:0 0 16px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.8); }
 .scene-sys-note{ align-self:center; font-size:11.5px; color:rgba(40,40,40,0.85); background:rgba(255,255,255,0.78); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:5px 14px; border-radius:20px; letter-spacing:.3px; }
 .scene-sys-note.dark-bg{ color:rgba(255,255,255,0.88); background:rgba(0,0,0,0.50); }
+.scene-end-chip{ align-self:center; cursor:pointer; font-size:12px; color:var(--ink-soft); background:rgba(var(--companion-soft-rgb,210,230,210),0.55); border:1px solid var(--line); padding:4px 16px; border-radius:20px; letter-spacing:.3px; transition:background .15s,color .15s; }
+.scene-end-chip:hover{ background:rgba(var(--companion-soft-rgb,210,230,210),0.85); color:var(--ink); }
 /* Scene background image upload */
 .scene-bg-upload{ border:2px dashed var(--line); border-radius:12px; padding:16px; text-align:center; cursor:pointer; color:var(--ink-soft); font-size:13px; transition:border-color .15s; position:relative; overflow:hidden; }
 .scene-bg-upload:hover{ border-color:var(--companion); }
@@ -4933,6 +4935,12 @@ textarea.mid{ min-height:90px; }
     }
 
     getActiveHistory().forEach(function(t, idx){
+      if(t.type === 'scene-end'){
+        var chip = document.createElement('div'); chip.className='scene-end-chip';
+        chip.textContent = '🌼 ' + (t.sceneName || '場景') + ' 已結束・點此回顧';
+        chip.addEventListener('click', openSceneList);
+        thread.appendChild(chip); return;
+      }
       if(t.isDiary && t.role==='user'){
         thread.appendChild(createDiaryCard(t.content, t.mood, t.diaryDate, idx));
       } else if(t.isQa && t.role==='user'){
@@ -5102,7 +5110,7 @@ textarea.mid{ min-height:90px; }
     var sysTok = estimateTokens(systemPrompt);
     var histBudget = Math.max(800, 10000 - sysTok); // total cap ~10600 + 600 output < 12000
     var msgs = [{ role:'system', content: systemPrompt }];
-    var hist = truncateHistory(getActiveHistory().slice(), histBudget);
+    var hist = truncateHistory(getActiveHistory().filter(function(t){ return !t.type; }), histBudget);
     if(imgDataUrl && hist.length){
       // All but the last user message use text-only; last gets image array
       hist.slice(0,-1).forEach(function(t){ msgs.push({ role:t.role, content:t.content }); });
@@ -5230,7 +5238,7 @@ textarea.mid{ min-height:90px; }
   async function extractMemories(){
     if(!settings.apiKey) return;
     try{
-      var recent = chatHistory.slice(-10).map(function(t){ return (t.role==='user'?'江黎':'卄珩') + '：' + t.content; }).join('\n');
+      var recent = chatHistory.filter(function(t){ return !t.type; }).slice(-10).map(function(t){ return (t.role==='user'?'江黎':'卄珩') + '：' + t.content; }).join('\n');
       var prompt = '以下是江黎和卄珩最近的對話。請找出其中「值得長期記住」的重要事實或情感片段（例如江黎透露的喜好、習慣、約定、重要心事、關係進展）。只挑真正重要、之後對話會想記得的，沒有就回空陣列。' +
         '請只輸出 JSON 物件，格式：{"memories":[{"date":"' + todayLabel() + '","text":"用卄珩的視角，一句話描述這件事"}]}。\n\n對話：\n' + recent;
       var resp = await fetch(endpoint(), {
@@ -8588,10 +8596,17 @@ textarea.mid{ min-height:90px; }
   }
 
   function exitScene(){
+    var sc = getActiveScene();
+    var scId = activeSceneId;
+    var scName = sc ? sc.name : '';
     activeSceneId = null;
     $('sceneBanner').classList.add('hidden');
+    if(scId){
+      chatHistory.push({ type:'scene-end', sceneId:scId, sceneName:scName, time:Date.now() });
+      save(KEYS.chat, chatHistory);
+    }
     renderThread();
-    applyChatBg(); // restore main chat bg
+    applyChatBg();
     scrollThread(true);
   }
 
@@ -8634,7 +8649,7 @@ textarea.mid{ min-height:90px; }
     renderSceneList();
   });
   // Banner controls
-  $('sceneBannerExit').addEventListener('click', exitScene);
+  $('sceneBannerExit').addEventListener('click', function(){ exitScene(); openSceneList(); });
   $('sceneBannerEdit').addEventListener('click', function(){ if(activeSceneId) openSceneEditor(activeSceneId); });
   // Character counters
   $('sceneEditorName').addEventListener('input', function(){ $('sceneNameCount').textContent=this.value.length+' / 30'; });
