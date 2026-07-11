@@ -245,6 +245,7 @@ body{
 .bubble .action{ color:rgba(26,26,46,0.88); }
 .bubble.her .action{ color:rgba(26,26,46,0.88); }
 .bubble.me .action{ color:rgba(26,26,46,0.88); }
+.math-bold{ font-family:Georgia,'Times New Roman',serif; font-weight:700; letter-spacing:.03em; }
 #thread.has-chatbg.dark-bg .bubble .action{ color:rgba(255,255,255,0.92); }
 
 .typing-row .bubble.her{ display:flex; gap:4px; align-items:center; padding:14px 16px; }
@@ -4762,17 +4763,17 @@ textarea.mid{ min-height:90px; }
   function parseMarkdown(text){
     var s = escapeHtml(text);
     // 數學粗體數字 𝟎-𝟗 (U+1D7CE-U+1D7D7, UTF-16: D835 DFCE-DFD7)
-    // 直接換算成 <strong>digit</strong>，不依賴任何外部字型
+    // 換算成一般字元後套 .math-bold（襯線粗體，模擬數學字體風格）
     s = s.replace(/\uD835[\uDFCE-\uDFD7]/g, function(m){
-      return '<strong>' + (m.charCodeAt(1) - 0xDFCE) + '</strong>';
+      return '<span class="math-bold">' + (m.charCodeAt(1) - 0xDFCE) + '</span>';
     });
     // 數學粗體大寫字母 𝐀-𝐙 (U+1D400-U+1D419, low: DC00-DC19)
     s = s.replace(/\uD835[\uDC00-\uDC19]/g, function(m){
-      return '<strong>' + String.fromCharCode(0x41 + m.charCodeAt(1) - 0xDC00) + '</strong>';
+      return '<span class="math-bold">' + String.fromCharCode(0x41 + m.charCodeAt(1) - 0xDC00) + '</span>';
     });
     // 數學粗體小寫字母 𝐚-𝐳 (U+1D41A-U+1D433, low: DC1A-DC33)
     s = s.replace(/\uD835[\uDC1A-\uDC33]/g, function(m){
-      return '<strong>' + String.fromCharCode(0x61 + m.charCodeAt(1) - 0xDC1A) + '</strong>';
+      return '<span class="math-bold">' + String.fromCharCode(0x61 + m.charCodeAt(1) - 0xDC1A) + '</span>';
     });
     s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/\*([^*\n]+)\*/g, '<span class="action">$1</span>');
