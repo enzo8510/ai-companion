@@ -5028,6 +5028,7 @@ textarea.mid{ min-height:90px; }
   /* ============ Chat context menu ============ */
   var contextMenu = $('chatContextMenu');
   var currentMsgIndex = -1;
+  var editingMsgIndex = -1;
 
   function showChatContextMenu(e, msgIndex){
     currentMsgIndex = msgIndex;
@@ -5047,9 +5048,9 @@ textarea.mid{ min-height:90px; }
   }
 
   $('msgCopyBtn').addEventListener('click', function(){
-    if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
-      var msg = chatHistory[currentMsgIndex];
-      var text = msg.content;
+    var hist = getActiveHistory();
+    if(currentMsgIndex>=0 && currentMsgIndex<hist.length){
+      var text = hist[currentMsgIndex].content;
       if(navigator.clipboard){
         navigator.clipboard.writeText(text).then(function(){
           flashSaved('已複製 ✓');
@@ -5060,27 +5061,29 @@ textarea.mid{ min-height:90px; }
   });
 
   $('msgEditBtn').addEventListener('click', function(){
-    if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
-      var msg = chatHistory[currentMsgIndex];
-      $('editMsgTextarea').value = msg.content || '';
+    var hist = getActiveHistory();
+    if(currentMsgIndex>=0 && currentMsgIndex<hist.length){
+      editingMsgIndex = currentMsgIndex;
+      $('editMsgTextarea').value = hist[editingMsgIndex].content || '';
       $('editMsgOverlay').classList.remove('hidden');
       setTimeout(function(){ $('editMsgTextarea').focus(); }, 80);
     }
     hideChatContextMenu();
   });
 
-  function closeEditModal(){ $('editMsgOverlay').classList.add('hidden'); }
+  function closeEditModal(){ $('editMsgOverlay').classList.add('hidden'); editingMsgIndex = -1; }
   $('editMsgClose').addEventListener('click', closeEditModal);
   $('editMsgCancel').addEventListener('click', closeEditModal);
   $('editMsgOverlay').addEventListener('click', function(e){
     if(e.target === this) closeEditModal();
   });
   $('editMsgSave').addEventListener('click', function(){
-    if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
+    var hist = getActiveHistory();
+    if(editingMsgIndex>=0 && editingMsgIndex<hist.length){
       var newText = $('editMsgTextarea').value;
-      if(newText !== chatHistory[currentMsgIndex].content){
-        chatHistory[currentMsgIndex].content = newText;
-        save(KEYS.chat, chatHistory);
+      if(newText !== hist[editingMsgIndex].content){
+        hist[editingMsgIndex].content = newText;
+        saveActiveHistory();
         renderThread();
         flashSaved('已編輯 ✓');
       }
@@ -5089,10 +5092,11 @@ textarea.mid{ min-height:90px; }
   });
 
   $('msgDeleteBtn').addEventListener('click', function(){
-    if(currentMsgIndex>=0 && currentMsgIndex<chatHistory.length){
+    var hist = getActiveHistory();
+    if(currentMsgIndex>=0 && currentMsgIndex<hist.length){
       if(confirm('確定要刪除這條訊息嗎？')){
-        chatHistory.splice(currentMsgIndex, 1);
-        save(KEYS.chat, chatHistory);
+        hist.splice(currentMsgIndex, 1);
+        saveActiveHistory();
         renderThread();
         flashSaved('已刪除 ✓');
       }
