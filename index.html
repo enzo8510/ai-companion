@@ -2548,6 +2548,14 @@ textarea.mid{ min-height:90px; }
             </label>
             <textarea id="perFormatRules" class="tall" maxlength="700" placeholder="例如：每次回覆不超過 150 字、用 *動作* 描述肢體語言、不使用括號…"></textarea>
           </div>
+          <div class="field">
+            <label>敘事視角 <span class="sub">（對話與動作描述使用的人稱）</span></label>
+            <select id="perNarration">
+              <option value="">不指定（由 AI 自由發揮）</option>
+              <option value="third">對話用「我」，動作描述用「他」與「你」</option>
+              <option value="first">對話與動作描述都用第一人稱「我」</option>
+            </select>
+          </div>
         </section>
 
         <!-- 事件 -->
@@ -5140,6 +5148,11 @@ textarea.mid{ min-height:90px; }
     if(persona.formatRules && persona.formatRules.trim()){
       parts.push('\n\n# 【必須遵守的回覆格式規則】\n以下規則優先級最高，每一次回覆都必須完全遵守，不得違反：\n' + persona.formatRules.trim());
     }
+    if(persona.narration === 'third'){
+      parts.push('\n\n# 【敘事視角規則（必須嚴格遵守）】\n- 你說的「對話台詞」一律使用第一人稱「我」。\n- 「動作與情境描述」（*星號內的文字*）一律使用第三人稱：描述你自己的動作時稱「他」，描述對方時稱「你」。\n- 範例：*他伸手揉了揉你的頭髮* 「我在呢。」\n- 動作描述中絕對不可出現「我」。');
+    } else if(persona.narration === 'first'){
+      parts.push('\n\n# 【敘事視角規則（必須嚴格遵守）】\n- 對話台詞與動作描述一律使用第一人稱「我」，稱對方為「你」。\n- 範例：*我伸手揉了揉你的頭髮* 「我在呢。」\n- 動作描述中絕對不可用「他」來稱呼自己。');
+    }
     if(sc){
       // Scene mode: replace background with scene setting, skip memories
       if(sc.setting && sc.setting.trim()){
@@ -5623,6 +5636,7 @@ textarea.mid{ min-height:90px; }
     $('perBackground').value = persona.backgroundSettings || '';
     $('perReplyRules').value = persona.replyRules || '';
     $('perFormatRules').value = persona.formatRules || '';
+    $('perNarration').value = persona.narration || '';
     updatePerCount('perPrompt','perPromptCount');
     updatePerCount('perBackground','perBackgroundCount');
     updatePerCount('perReplyRules','perReplyRulesCount');
@@ -5637,6 +5651,7 @@ textarea.mid{ min-height:90px; }
   }
   bindPersona('perName','name'); bindPersona('perStatus','statusLine'); bindPersona('perPrompt','systemPrompt');
   bindPersona('perBackground','backgroundSettings'); bindPersona('perReplyRules','replyRules'); bindPersona('perFormatRules','formatRules');
+  bindPersona('perNarration','narration');
   var PRESET_AVATARS = [
     'head portrait/頭像01.jpg',
     'head portrait/頭像02.png',
