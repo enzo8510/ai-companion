@@ -1678,7 +1678,7 @@ textarea.mid{ min-height:90px; }
   .composer input, .field input, .field textarea, .field select,
   .kb-editor-field input, .kb-editor-field textarea, .jr-card-body textarea, .cal-add-row input,
   .cal-add-row select, .cal-add-row textarea, .backup-field input,
-  .social-compose-input, .mem-date-input, .jr-date-input{
+  .mem-date-input, .jr-date-input{
     font-size:16px;
   }
 }
@@ -1728,12 +1728,6 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .social-action-btn{ background:var(--surface); color:var(--ink); border-color:var(--line); }
 :root[data-theme="dark"] .social-action-btn:hover{ border-color:var(--companion); color:var(--companion); background:var(--companion-soft); }
 .social-action-btn:active{ transform:translateY(0); }
-.social-compose-bar{ padding:10px 14px; background:var(--surface); border-top:1px solid var(--line); display:flex; align-items:center; gap:10px; flex:0 0 auto; }
-.social-compose-input{ flex:1; border:1px solid var(--line); border-radius:999px; padding:8px 14px; font-size:13px; font-family:inherit; color:var(--ink); background:var(--chat-bg); outline:none; }
-.social-compose-input::placeholder{ color:var(--ink-soft); }
-.social-compose-btn{ background:var(--companion); color:#fff; border:none; border-radius:999px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all .12s; }
-.social-compose-btn:hover{ box-shadow:0 2px 8px var(--companion-shadow); }
-.social-compose-btn:active{ transform:scale(0.95); }
 
 /* ---- Today QA View (redesigned) ---- */
 #todayQaView{ background:var(--bg); }
@@ -2762,10 +2756,6 @@ textarea.mid{ min-height:90px; }
           <button class="social-tab-btn" data-social-tab="media">媒體</button>
         </div>
         <div class="social-feed" id="socialFeed"></div>
-      </div>
-      <div class="social-compose-bar">
-        <input class="social-compose-input" id="socialComposeInput" placeholder="留言給卄珩…" maxlength="140">
-        <button class="social-compose-btn" id="socialComposeBtn" type="button">送出</button>
       </div>
     </div>
 
@@ -7747,6 +7737,24 @@ textarea.mid{ min-height:90px; }
     };
     reader.readAsDataURL(file);
   }
+  function compressCover(file, cb){
+    // 社群封面：壓到 450KB 以下，確保能同步到 Firebase（超過 500KB 不會上傳，會被雲端舊資料蓋掉）
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var maxW=1000, w=img.width, h=img.height;
+        if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+        var canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        var q=0.8, out=canvas.toDataURL('image/jpeg',q);
+        while(out.length>450000 && q>0.3){ q-=0.1; out=canvas.toDataURL('image/jpeg',q); }
+        cb(out);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
   function compressWallpaper(file, cb){
     var reader = new FileReader();
     reader.onload = function(e){
@@ -9639,14 +9647,13 @@ textarea.mid{ min-height:90px; }
   $('socialEditCoverBtn').addEventListener('click', function(){ $('socialCoverFileInput').click(); });
   $('socialCoverFileInput').addEventListener('change', function(e){
     var file = e.target.files[0]; if(!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev){
-      socialProfile.coverUrl = ev.target.result;
+    compressCover(file, function(dataUrl){
+      socialProfile.coverUrl = dataUrl;
       save(SOCIAL_PROFILE_KEY, socialProfile);
       syncSocialAvatar();
       flashSaved('首圖已更新 ✓');
-    };
-    reader.readAsDataURL(file);
+    });
+    e.target.value = '';
   });
 
   $('socialPostEditorClose').addEventListener('click', function(){ $('socialPostEditorOverlay').classList.add('hidden'); currentEditingPostId=null; pendingPostImageDataUrl=null; });
@@ -9860,7 +9867,7 @@ textarea.mid{ min-height:90px; }
 
   $('socialCoverInput').addEventListener('change', function(e){
     var file = e.target.files[0]; if(!file) return;
-    compressImage(file, function(dataUrl){
+    compressCover(file, function(dataUrl){
       socialProfile.coverUrl = dataUrl;
       if(socialProfile.coverPosY == null) socialProfile.coverPosY = 50;
       save(SOCIAL_PROFILE_KEY, socialProfile);
