@@ -12,7 +12,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+Math&family=Noto+Sans+Symbols+2&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap');
 /* 辰宇落雁體备用方案：使用手写风格的LXGW WenKai TC */
 
 :root{
@@ -4763,7 +4764,7 @@ textarea.mid{ min-height:90px; }
     // 數學字母數字符號 U+1D400-U+1D7FF（UTF-16: U+D835 + U+DC00-U+DFFF）
     // 直接包 span 指定字型，不依賴 CSS fallback
     s = s.replace(/\uD835[\uDC00-\uDFFF]/g, function(m){
-      return '<span style="font-family:\'Noto Sans Math\',\'Cambria Math\',\'STIX Two Math\',serif">' + m + '</span>';
+      return '<span style="font-family:\'STIX Two Math\',\'Cambria Math\',serif">' + m + '</span>';
     });
     s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/\*([^*\n]+)\*/g, '<span class="action">$1</span>');
