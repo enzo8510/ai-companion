@@ -252,6 +252,7 @@ body{
 .bubble .msg-page-tag{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; margin-top:10px; padding-top:8px; border-top:1px solid color-mix(in srgb, currentColor 22%, transparent); }
 .bubble .msg-page-tag .mpt-page{ font-size:13px; font-weight:700; letter-spacing:1px; }
 .bubble .msg-page-tag .mpt-date{ font-size:13px; font-weight:700; letter-spacing:1px; opacity:1; display:flex; align-items:center; gap:4px; }
+.bubble .msg-status-bar{ font-size:12px; font-weight:700; letter-spacing:.3px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid color-mix(in srgb, currentColor 22%, transparent); opacity:.92; }
 .bubble.her{ background:rgba(176,158,212,0.85); color:#1a1a2e; border-radius:18px 18px 18px 5px; }
 .bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
@@ -4979,6 +4980,10 @@ textarea.mid{ min-height:90px; }
     b.innerHTML = parseMarkdown(text||'');
     row.appendChild(b);
 
+    if(pageEntry && pageEntry.role==='assistant' && pageEntry.statusBar){
+      var sb = buildStatusBar(pageEntry.statusBar);
+      if(sb) b.insertBefore(sb, b.firstChild);
+    }
     if(pageEntry){
       var pt = buildPageTag(pageEntry);
       if(pt) b.appendChild(pt);
@@ -5039,6 +5044,24 @@ textarea.mid{ min-height:90px; }
     var dateEl = document.createElement('div'); dateEl.className='mpt-date'; dateEl.textContent = '📅 ' + toMathBold(dateStr);
     tag.appendChild(pageEl); tag.appendChild(dateEl);
     return tag;
+  }
+
+  /* 場景狀態列：★地點｜時間｜關係｜【時期代碼】由 AI 自己生成在回覆最開頭，這裡把它解析出來、從內文移除 */
+  var STATUS_BAR_RE = /^★\s*([^｜\n]+?)\s*｜\s*([^｜\n]+?)\s*｜\s*([^｜\n]+?)\s*｜\s*【([^】\n]+?)】[ \t]*\n+/;
+  function extractStatusBar(text){
+    if(!text) return { clean:text, statusBar:null };
+    var m = STATUS_BAR_RE.exec(text);
+    if(!m) return { clean:text, statusBar:null };
+    return {
+      clean: text.slice(m[0].length),
+      statusBar: { location:m[1].trim(), time:m[2].trim(), relationship:m[3].trim(), phase:m[4].trim() }
+    };
+  }
+  function buildStatusBar(statusBar){
+    if(!statusBar) return null;
+    var el = document.createElement('div'); el.className = 'msg-status-bar';
+    el.textContent = '★ ' + statusBar.location + '｜' + statusBar.time + '｜' + statusBar.relationship + '｜【' + statusBar.phase + '】';
+    return el;
   }
 
   function renderThread(){
@@ -5240,6 +5263,7 @@ textarea.mid{ min-height:90px; }
     } else if(persona.narration === 'first'){
       parts.push('\n\n# 【敘事視角規則（必須嚴格遵守）】\n- 對話台詞與動作描述一律使用第一人稱「我」，稱對方為「你」。\n- 範例：*我伸手揉了揉你的頭髮* 「我在呢。」\n- 動作描述中絕對不可用「他」來稱呼自己。');
     }
+    parts.push('\n\n# 【場景狀態列格式（每次回覆最開頭必須包含，只能出現一次）】\n在每一次回覆的最開頭，先單獨一行輸出目前的場景狀態，格式如下，接著空一行才開始正式對話內容：\n★地點｜時間｜關係｜【時期代碼】\n範例：★客廳｜10:45｜夫妻｜【PH-04-B】\n- 地點：依當下情境合理判斷（如：客廳、臥室、公司、餐廳…）\n- 時間：24小時制 HH:MM，依情境自然推進，不要每次都一樣\n- 關係：你與對方目前的關係狀態（如：曖昧、戀人、夫妻…），依故事發展調整\n- 時期代碼：自訂的故事階段代碼，格式如 PH-數字-字母，可依劇情發展調整\n這一行必須完全照格式輸出，不能省略、不能加其他文字，也不能被對話內容的其他部分重複。');
     if(sc){
       // Scene mode: replace background with scene setting, skip memories
       if(sc.setting && sc.setting.trim()){
@@ -5445,10 +5469,11 @@ textarea.mid{ min-height:90px; }
     scrollThread();
 
     callAI(img).then(function(result){
-      var reply = result.text;
+      var parsed = extractStatusBar(result.text);
+      var reply = parsed.clean;
       var replyTs = Date.now();
       hideTyping();
-      var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
+      var assistantEntry = { role:'assistant', content:reply, ts:replyTs, statusBar:parsed.statusBar };
       getActiveHistory().push(assistantEntry);
       thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs, assistantEntry));
       saveActiveHistory();
@@ -7462,10 +7487,11 @@ textarea.mid{ min-height:90px; }
     renderThread();
     setSending(true); showTyping(); scrollThread();
     callAI().then(function(result){
-      var reply = result.text;
+      var parsed = extractStatusBar(result.text);
+      var reply = parsed.clean;
       var replyTs = Date.now();
       hideTyping();
-      var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
+      var assistantEntry = { role:'assistant', content:reply, ts:replyTs, statusBar:parsed.statusBar };
       chatHistory.push(assistantEntry);
       thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs, assistantEntry));
       save(KEYS.chat, chatHistory);
@@ -7694,10 +7720,11 @@ textarea.mid{ min-height:90px; }
     save(KEYS.chat, chatHistory);
     renderThread(); setSending(true); showTyping(); scrollThread();
     callAI().then(function(result){
-      var reply = result.text;
+      var parsed = extractStatusBar(result.text);
+      var reply = parsed.clean;
       var replyTs = Date.now();
       hideTyping();
-      var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
+      var assistantEntry = { role:'assistant', content:reply, ts:replyTs, statusBar:parsed.statusBar };
       chatHistory.push(assistantEntry);
       thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs, assistantEntry));
       save(KEYS.chat, chatHistory);
