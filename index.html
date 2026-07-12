@@ -513,21 +513,6 @@ textarea.mid{ min-height:90px; }
 .act-icon{ font-size:24px; line-height:1; }
 .act-label{ font-size:11px; color:var(--ink); font-weight:500; white-space:nowrap; }
 .act-streak{ font-size:10px; color:var(--companion); font-weight:600; }
-.home-qa-card{ width:100%; background:var(--surface); border:1.5px solid var(--line); border-radius:18px; padding:var(--space-lg); margin-bottom:var(--space-xl); cursor:pointer; transition:all .18s; text-align:left; font-family:inherit; box-shadow:0 2px 12px rgba(169,135,216,0.08); }
-.home-qa-card:hover{ box-shadow:0 5px 22px var(--companion-shadow); border-color:var(--companion); transform:translateY(-1px); }
-.home-qa-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-.home-qa-title{ font-size:11px; color:var(--qa-title-color); font-weight:700; letter-spacing:.06em; }
-.home-qa-refresh{ font-size:13px; color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:0; line-height:1; }
-.home-qa-dice{
-  background:none; border:none; cursor:pointer; padding:4px;
-  color:var(--ink-soft); border-radius:8px; line-height:0;
-  transition:color .15s, background .15s, transform .15s;
-  flex:0 0 auto;
-}
-.home-qa-dice:hover{ color:var(--companion); background:var(--companion-soft); transform:rotate(30deg); }
-.home-qa-dice:active{ transform:rotate(90deg) scale(0.92); }
-.home-qa-text{ font-size:14px; color:var(--ink); line-height:1.72; }
-.home-qa-hint{ font-size:11px; color:var(--ink-soft); margin-top:10px; opacity:0.8; }
 
 /* ---- Calendar Overlay ---- */
 .cal-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:flex-end; justify-content:center; }
@@ -956,8 +941,7 @@ textarea.mid{ min-height:90px; }
 .home-wal-remove{ position:absolute; top:18px; left:52px; background:rgba(255,255,255,0.72); border:none; font-size:11px; color:#a04040; cursor:pointer; padding:6px 8px; border-radius:10px; display:none; white-space:nowrap; }
 .has-wallpaper .home-wal-remove{ display:block; }
 .has-wallpaper .home-countdown-strip,
-.has-wallpaper .home-action-btn,
-.has-wallpaper .home-qa-card{
+.has-wallpaper .home-action-btn{
   background:rgba(255,255,255,0.45);
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
@@ -968,9 +952,7 @@ textarea.mid{ min-height:90px; }
 .has-wallpaper .home-enter-btn{ backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
 /* Dark wallpaper - light text */
 .has-wallpaper.dark-bg .home-name,
-.has-wallpaper.dark-bg .home-tagline,
-.has-wallpaper.dark-bg .home-qa-text,
-.has-wallpaper.dark-bg .home-qa-title{ color:#ffffff; }
+.has-wallpaper.dark-bg .home-tagline{ color:#ffffff; }
 .has-wallpaper.dark-bg .home-action-btn .act-label,
 .has-wallpaper.dark-bg .home-countdown-strip,
 .has-wallpaper.dark-bg .cnt-label,
@@ -1967,8 +1949,7 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .field textarea,
 :root[data-theme="dark"] .field select{ background:var(--bg); color:var(--ink); border-color:rgba(228,232,242,0.12); }
 :root[data-theme="dark"] .home-countdown-strip,
-:root[data-theme="dark"] .home-action-btn,
-:root[data-theme="dark"] .home-qa-card{ background:rgba(42,45,62,0.88); border-color:rgba(228,232,242,0.08); }
+:root[data-theme="dark"] .home-action-btn{ background:rgba(42,45,62,0.88); border-color:rgba(228,232,242,0.08); }
 :root[data-theme="dark"] .home-enter-btn{ background:var(--companion); color:#fff; }
 :root[data-theme="dark"] .cnt-sel-sheet,
 :root[data-theme="dark"] .cal-sheet,
@@ -1990,7 +1971,6 @@ textarea.mid{ min-height:90px; }
 .home-avatar-ring{ margin-bottom:16px; }
 .home-name{ margin-bottom:4px; }
 .home-tagline{ margin-bottom:14px; }
-.home-qa-card{ margin-bottom:14px; }
 /* ---- Check-in recent list ---- */
 .ci-recent-section{ margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
 .ci-recent-title{ font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:8px; letter-spacing:.5px; }
@@ -2231,16 +2211,6 @@ textarea.mid{ min-height:90px; }
             <span class="act-icon">🪄</span>
             <span class="act-label">魔法咒語</span>
           </button>
-        </div>
-
-        <!-- Daily Q&A card -->
-        <div class="home-qa-card" id="homeQaCard">
-          <div class="home-qa-header">
-            <div class="home-qa-title">✦ 今日問題</div>
-            <button class="home-qa-dice" id="homeQaDiceBtn" type="button" title="換一題" style="font-size:20px;line-height:1;">🎲</button>
-          </div>
-          <div class="home-qa-text" id="homeQaText" style="cursor:pointer;">如果只能選一種食物吃一輩子，你會選什麼？</div>
-          <div class="home-qa-hint">點擊問題，帶著它去找卄珩 →</div>
         </div>
 
         <button class="home-enter-btn" id="homeEnterBtn">
@@ -7359,22 +7329,7 @@ textarea.mid{ min-height:90px; }
       dailyQa.qIndex = Math.floor(Math.random() * QA_LIST.length);
       save(KEYS.dailyqa, dailyQa);
     }
-    renderQaCard();
   })();
-  function renderQaCard(){
-    $('homeQaText').textContent = QA_LIST[dailyQa.qIndex % QA_LIST.length];
-  }
-  // 骰子按鈕：換一題
-  $('homeQaDiceBtn').addEventListener('click', function(e){
-    e.stopPropagation();
-    var btn = this;
-    btn.style.transform = 'rotate(360deg)';
-    btn.style.transition = 'transform .4s ease';
-    setTimeout(function(){ btn.style.transform = ''; btn.style.transition = ''; }, 400);
-    dailyQa.qIndex = (dailyQa.qIndex + 1) % QA_LIST.length;
-    save(KEYS.dailyqa, dailyQa);
-    renderQaCard();
-  });
 
   // 點擊問題文字 → 帶問題進聊天室
   function sendQaToChat(){
@@ -7408,14 +7363,6 @@ textarea.mid{ min-height:90px; }
       thread.appendChild(box); scrollThread(); setSending(false);
     });
   }
-  $('homeQaText').addEventListener('click', sendQaToChat);
-  $('homeQaCard').addEventListener('click', function(e){
-    if(e.target.closest('#homeQaDiceBtn')) return;
-    if(e.target === $('homeQaText') || $('homeQaText').contains(e.target)) return;
-    // 點卡片其他區域也進聊天
-    sendQaToChat();
-  });
-
   // 「每日問題」網格按鈕 → 打開歷史紀錄頁
   function showTodayQa(){
     showOnly('todayQaView');
