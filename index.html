@@ -4996,6 +4996,25 @@ textarea.mid{ min-height:90px; }
   }
   function scrollThread(instant){ if(instant){ thread.scrollTop = thread.scrollHeight; } else { var last = thread.lastElementChild; if(last) last.scrollIntoView({ behavior:smooth(), block:'end' }); } }
 
+  /* 頁碼標記：僅主聊天室顯示（場景不影響主線，不編頁），頁碼＝該則訊息在主聊天記錄中的順位 */
+  function mainChatPageNumber(entry){
+    var list = chatHistory.filter(function(m){ return m.type !== 'scene-end'; });
+    var i = list.indexOf(entry);
+    return i>=0 ? i+1 : null;
+  }
+  function buildPageTag(entry){
+    if(activeSceneId || !entry || !entry.ts) return null;
+    var n = mainChatPageNumber(entry);
+    if(n===null) return null;
+    var d = new Date(entry.ts);
+    var dateStr = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+    var tag = document.createElement('div'); tag.className = 'msg-page-tag' + (entry.role==='user' ? ' me' : '');
+    var pageEl = document.createElement('div'); pageEl.className='mpt-page'; pageEl.textContent = 'P . ' + n;
+    var dateEl = document.createElement('div'); dateEl.className='mpt-date'; dateEl.textContent = '📅 ' + dateStr;
+    tag.appendChild(pageEl); tag.appendChild(dateEl);
+    return tag;
+  }
+
   function renderThread(){
     thread.innerHTML = '';
     var sc = getActiveScene();
@@ -5049,19 +5068,6 @@ textarea.mid{ min-height:90px; }
       thread.appendChild(div);
     }
 
-    var pageCounter = 0;
-    function appendPageTag(role, ts){
-      if(sc || !ts) return; // 場景模式不顯示頁碼標記
-      pageCounter++;
-      var d = new Date(ts);
-      var dateStr = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
-      var tag = document.createElement('div'); tag.className = 'msg-page-tag' + (role==='user' ? ' me' : '');
-      var pageEl = document.createElement('div'); pageEl.className='mpt-page'; pageEl.textContent = 'P . ' + pageCounter;
-      var dateEl = document.createElement('div'); dateEl.className='mpt-date'; dateEl.textContent = '📅 ' + dateStr;
-      tag.appendChild(pageEl); tag.appendChild(dateEl);
-      thread.appendChild(tag);
-    }
-
     getActiveHistory().forEach(function(t, idx){
       if(t.type === 'scene-end'){
         var chip = document.createElement('div'); chip.className='scene-end-chip';
@@ -5072,10 +5078,10 @@ textarea.mid{ min-height:90px; }
       insertDateDividerIfNeeded(t.ts);
       if(t.isDiary && t.role==='user'){
         thread.appendChild(createDiaryCard(t.content, t.mood, t.diaryDate, idx));
-        appendPageTag(t.role, t.ts);
+        var pt1 = buildPageTag(t); if(pt1) thread.appendChild(pt1);
       } else if(t.isQa && t.role==='user'){
         thread.appendChild(createQaCard(t.content, idx));
-        appendPageTag(t.role, t.ts);
+        var pt2 = buildPageTag(t); if(pt2) thread.appendChild(pt2);
       } else {
         if(t.img){
           var ir = document.createElement('div'); ir.className='chat-img-row';
@@ -5084,7 +5090,7 @@ textarea.mid{ min-height:90px; }
         }
         if(t.content) thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
         else if(!t.img)  thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
-        appendPageTag(t.role, t.ts);
+        var pt3 = buildPageTag(t); if(pt3) thread.appendChild(pt3);
       }
     });
     requestAnimationFrame(function(){
@@ -5406,8 +5412,12 @@ textarea.mid{ min-height:90px; }
       clearPendingImg();
     }
     var userTs = Date.now();
-    if(t) thread.appendChild(bubbleRow('user', t, undefined, userTs));
-    getActiveHistory().push({ role:'user', content:t||'', img:img||null, ts:userTs });
+    var userEntry = { role:'user', content:t||'', img:img||null, ts:userTs };
+    getActiveHistory().push(userEntry);
+    if(t){
+      thread.appendChild(bubbleRow('user', t, undefined, userTs));
+      var upt = buildPageTag(userEntry); if(upt) thread.appendChild(upt);
+    }
     saveActiveHistory();
     chatInput.value = ''; chatInput.style.height='auto';
     setSending(true);
@@ -5418,8 +5428,10 @@ textarea.mid{ min-height:90px; }
       var reply = result.text;
       var replyTs = Date.now();
       hideTyping();
+      var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
+      getActiveHistory().push(assistantEntry);
       thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
-      getActiveHistory().push({ role:'assistant', content:reply, ts:replyTs });
+      var apt = buildPageTag(assistantEntry); if(apt) thread.appendChild(apt);
       saveActiveHistory();
       updateTokenBar(result.usage);
       scrollThread();
@@ -7434,8 +7446,10 @@ textarea.mid{ min-height:90px; }
       var reply = result.text;
       var replyTs = Date.now();
       hideTyping();
+      var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
+      chatHistory.push(assistantEntry);
       thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
-      chatHistory.push({ role:'assistant', content:reply, ts:replyTs });
+      var apt = buildPageTag(assistantEntry); if(apt) thread.appendChild(apt);
       save(KEYS.chat, chatHistory);
       updateTokenBar(result.usage);
       var qaIdx = qaHistory.findIndex(function(h){ return h.question === q && h.date === todayLabel(); });
@@ -7665,8 +7679,10 @@ textarea.mid{ min-height:90px; }
       var reply = result.text;
       var replyTs = Date.now();
       hideTyping();
+      var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
+      chatHistory.push(assistantEntry);
       thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
-      chatHistory.push({ role:'assistant', content:reply, ts:replyTs });
+      var apt = buildPageTag(assistantEntry); if(apt) thread.appendChild(apt);
       save(KEYS.chat, chatHistory);
       updateTokenBar(result.usage);
       // save answer back to qaHistory entry
