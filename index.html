@@ -5001,6 +5001,17 @@ textarea.mid{ min-height:90px; }
   function scrollThread(instant){ if(instant){ thread.scrollTop = thread.scrollHeight; } else { var last = thread.lastElementChild; if(last) last.scrollIntoView({ behavior:smooth(), block:'end' }); } }
 
   /* 頁碼標記：只標角色（assistant）的對話，且僅主聊天室（場景不影響主線，不編頁）。頁碼＝該則訊息在角色所有發言中的順位 */
+  function toMathBold(str){
+    var out = '';
+    for(var i=0;i<str.length;i++){
+      var code = str.charCodeAt(i);
+      if(code>=65&&code<=90) out += String.fromCodePoint(0x1D400 + (code-65));      // A-Z
+      else if(code>=97&&code<=122) out += String.fromCodePoint(0x1D41A + (code-97)); // a-z
+      else if(code>=48&&code<=57) out += String.fromCodePoint(0x1D7CE + (code-48));  // 0-9
+      else out += str[i];
+    }
+    return out;
+  }
   function mainChatPageNumber(entry){
     var list = chatHistory.filter(function(m){ return m.role === 'assistant'; });
     var i = list.indexOf(entry);
@@ -5013,8 +5024,8 @@ textarea.mid{ min-height:90px; }
     var d = new Date(entry.ts);
     var dateStr = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
     var tag = document.createElement('div'); tag.className = 'msg-page-tag';
-    var pageEl = document.createElement('div'); pageEl.className='mpt-page'; pageEl.textContent = 'P . ' + n;
-    var dateEl = document.createElement('div'); dateEl.className='mpt-date'; dateEl.textContent = '📅 ' + dateStr;
+    var pageEl = document.createElement('div'); pageEl.className='mpt-page'; pageEl.textContent = toMathBold('P. ' + n);
+    var dateEl = document.createElement('div'); dateEl.className='mpt-date'; dateEl.textContent = '📅 ' + toMathBold(dateStr);
     tag.appendChild(pageEl); tag.appendChild(dateEl);
     return tag;
   }
