@@ -4191,6 +4191,18 @@ textarea.mid{ min-height:90px; }
     });
   }
 
+  function removeKeyFromFirebase(localKey){
+    // 徹底移除雲端節點（而非設成空字串），避免重新整理時被雲端舊資料復原
+    delete pendingUploads[localKey];
+    if(!isFirebaseReady || !database){
+      pendingUploads[localKey] = null; // null 代表排隊等連線後刪除
+      return;
+    }
+    database.ref('userdata/' + localKey).remove().catch(function(e){
+      console.warn('Firebase 刪除失敗:', localKey, e.message);
+    });
+  }
+
   function save(key, val){
     try{
       var strVal = JSON.stringify(val);
@@ -4321,7 +4333,9 @@ textarea.mid{ min-height:90px; }
     console.log('📤 上傳 ' + keys.length + ' 筆排隊中的數據...');
     keys.forEach(function(k){
       var v = pendingUploads[k];
-      if(v && v.length < 500000){
+      if(v === null){
+        database.ref('userdata/' + k).remove().catch(function(){});
+      } else if(v && v.length < 500000){
         database.ref('userdata/' + k).set(v).catch(function(){});
       }
     });
@@ -5713,7 +5727,7 @@ textarea.mid{ min-height:90px; }
       del.addEventListener('click',function(e){ e.stopPropagation(); if(!confirm('刪除此頭像？')) return;
         avatarGallery=avatarGallery.filter(function(x){return x.id!==item.id;});
         save(KEYS.avatarGallery,avatarGallery);
-        if(avatarActive===item.id){ avatarActive=''; avatarDataUrl=''; localStorage.removeItem(KEYS.avatarActive); localStorage.removeItem(KEYS.avatar); syncAvatar(); }
+        if(avatarActive===item.id){ avatarActive=''; avatarDataUrl=''; localStorage.removeItem(KEYS.avatarActive); localStorage.removeItem(KEYS.avatar); removeKeyFromFirebase(KEYS.avatar); syncAvatar(); }
         renderAvatarGallery(); flashSaved();
       });
       card.appendChild(img); card.appendChild(del); wrap.appendChild(card);
@@ -5733,6 +5747,7 @@ textarea.mid{ min-height:90px; }
   $('avatarClearBtn').addEventListener('click', function(){
     avatarActive=''; avatarDataUrl='';
     localStorage.removeItem(KEYS.avatarActive); localStorage.removeItem(KEYS.avatar);
+    removeKeyFromFirebase(KEYS.avatar);
     syncAvatar(); renderAvatarGallery(); flashSaved();
   });
 
@@ -7845,7 +7860,7 @@ textarea.mid{ min-height:90px; }
         del.addEventListener('click',function(e){ e.stopPropagation(); if(!confirm('刪除此張桌布？')) return;
           walGallery=walGallery.filter(function(x){return x.id!==item.id;});
           save(KEYS.walGallery,walGallery);
-          if(walActive===item.id){ walActive=''; wallpaperUrl=''; localStorage.removeItem(KEYS.walActive); localStorage.removeItem(KEYS.wallpaper); applyWallpaper(); }
+          if(walActive===item.id){ walActive=''; wallpaperUrl=''; localStorage.removeItem(KEYS.walActive); localStorage.removeItem(KEYS.wallpaper); removeKeyFromFirebase(KEYS.wallpaper); applyWallpaper(); }
           renderWalGallery();
         });
         if(isA){ var badge=document.createElement('div'); badge.style.cssText='position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:var(--companion);color:#fff;font-size:10px;padding:2px 8px;border-radius:999px;white-space:nowrap;'; badge.textContent='使用中'; card.appendChild(badge); }
@@ -7875,6 +7890,7 @@ textarea.mid{ min-height:90px; }
   $('homeWalRemove').addEventListener('click', function(){
     walActive=''; wallpaperUrl='';
     localStorage.removeItem(KEYS.walActive); localStorage.removeItem(KEYS.wallpaper);
+    removeKeyFromFirebase(KEYS.wallpaper);
     applyWallpaper();
   });
 
@@ -7924,7 +7940,7 @@ textarea.mid{ min-height:90px; }
         e.stopPropagation();
         chatBgGallery=chatBgGallery.filter(function(x){return x.id!==item.id;});
         save(KEYS.chatBgGallery,chatBgGallery);
-        if(chatBgActive===item.id){ chatBgActive=''; localStorage.removeItem(KEYS.chatBgActive); chatBgUrl=''; localStorage.removeItem(KEYS.chatBg); applyChatBg(); }
+        if(chatBgActive===item.id){ chatBgActive=''; localStorage.removeItem(KEYS.chatBgActive); chatBgUrl=''; localStorage.removeItem(KEYS.chatBg); removeKeyFromFirebase(KEYS.chatBg); applyChatBg(); }
         renderChatBgGallery();
       });
       card.appendChild(img); card.appendChild(del); grid.appendChild(card);
@@ -7936,6 +7952,7 @@ textarea.mid{ min-height:90px; }
   $('chatBgRemoveBtn').addEventListener('click',function(){
     chatBgActive=''; chatBgUrl='';
     localStorage.removeItem(KEYS.chatBgActive); localStorage.removeItem(KEYS.chatBg);
+    removeKeyFromFirebase(KEYS.chatBg);
     applyChatBg(); renderChatBgGallery(); flashSaved();
   });
   $('chatBgUploadBtn').addEventListener('click',function(){ $('chatBgFileInput').click(); });
@@ -8529,7 +8546,7 @@ textarea.mid{ min-height:90px; }
       del.addEventListener('click', function(e){ e.stopPropagation(); if(!confirm('刪除此頭像？')) return;
         userAvatarGallery = userAvatarGallery.filter(function(x){ return x.id!==item.id; });
         save(KEYS.userAvatarGallery, userAvatarGallery);
-        if(userAvatarActive===item.id){ userAvatarActive=''; userAvatarUrl=''; localStorage.removeItem(KEYS.userAvatarActive); localStorage.removeItem(KEYS.userAvatar); syncAvatar(); }
+        if(userAvatarActive===item.id){ userAvatarActive=''; userAvatarUrl=''; localStorage.removeItem(KEYS.userAvatarActive); localStorage.removeItem(KEYS.userAvatar); removeKeyFromFirebase(KEYS.userAvatar); syncAvatar(); }
         renderUserAvatarGallery();
       });
       card.appendChild(img); card.appendChild(del); wrap.appendChild(card);
@@ -8553,6 +8570,7 @@ textarea.mid{ min-height:90px; }
   $('userAvatarClearBtn').addEventListener('click', function(){
     userAvatarActive=''; userAvatarUrl='';
     localStorage.removeItem(KEYS.userAvatarActive); localStorage.removeItem(KEYS.userAvatar);
+    removeKeyFromFirebase(KEYS.userAvatar);
     syncAvatar(); renderUserAvatarGallery(); flashSaved();
   });
 
