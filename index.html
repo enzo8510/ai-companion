@@ -826,7 +826,7 @@ textarea.mid{ min-height:90px; }
 .ci-chart-tabs{ display:flex; gap:5px; margin-bottom:12px; }
 .ci-chart-tab{ padding:4px 10px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); font-size:11px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
 .ci-chart-tab.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
-.ci-bar-chart{ display:flex; align-items:flex-end; gap:3px; height:90px; padding-bottom:22px; position:relative; }
+.ci-bar-chart{ display:flex; align-items:flex-end; gap:3px; height:90px; padding-bottom:22px; position:relative; overflow:hidden; }
 .ci-bar-chart::after{ content:''; position:absolute; left:0; right:0; bottom:22px; height:1px; background:var(--line); }
 .ci-bar-wrap{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative; }
 .ci-bar-inner{ position:relative; width:100%; display:flex; align-items:flex-end; justify-content:center; flex:1; }
@@ -8234,7 +8234,10 @@ textarea.mid{ min-height:90px; }
       inner.appendChild(tip); inner.appendChild(bar);
       var dateEl=document.createElement('div');
       dateEl.className='ci-bar-date'+(day.isToday?' today-lbl':'');
-      dateEl.textContent=day.isToday?'今':(days.length<=14?day.date.getDate()+'日':(day.date.getMonth()+1)+'/'+day.date.getDate());
+      // 依區間疏化標籤，避免天數多時日期文字擠爆、溢出容器
+      var labelStep = days.length<=7 ? 1 : days.length<=14 ? 2 : 5;
+      var showLabel = day.isToday || (days.length-1-i)%labelStep===0;
+      dateEl.textContent = showLabel ? (day.isToday?'今':(days.length<=14?day.date.getDate()+'日':(day.date.getMonth()+1)+'/'+day.date.getDate())) : '';
       wrap.appendChild(inner); wrap.appendChild(dateEl);
       chart.appendChild(wrap);
     });
