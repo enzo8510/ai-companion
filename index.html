@@ -1102,14 +1102,20 @@ textarea.mid{ min-height:90px; }
 /* ---- Edit message modal ---- */
 .edit-msg-overlay{ position:absolute; inset:0; z-index:1200; background:rgba(30,36,52,0.38); display:flex; align-items:center; justify-content:center; padding:20px; }
 .edit-msg-overlay.hidden{ display:none; }
-.edit-msg-card{ background:var(--surface); border-radius:18px; width:100%; max-width:340px; box-shadow:0 8px 32px rgba(0,0,0,0.15); overflow:hidden; }
-.edit-msg-hdr{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid var(--line); }
+.edit-msg-card{ background:var(--surface); border-radius:18px; width:100%; max-width:340px; max-height:82vh; box-shadow:0 8px 32px rgba(0,0,0,0.15); overflow:hidden; display:flex; flex-direction:column; }
+.edit-msg-hdr{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid var(--line); flex:0 0 auto; }
 .edit-msg-title{ font-size:14px; font-weight:600; color:var(--ink); }
 .edit-msg-close{ background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer; padding:2px 4px; line-height:1; }
-.edit-msg-body{ padding:14px 16px; }
+.edit-msg-body{ padding:14px 16px; overflow-y:auto; flex:1 1 auto; min-height:0; }
 .edit-msg-textarea{ width:100%; height:400px; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font-family:inherit; font-size:14px; color:var(--ink); background:var(--bg); outline:none; resize:none; box-sizing:border-box; line-height:1.6; }
 .edit-msg-textarea:focus{ border-color:var(--companion); }
-.edit-msg-footer{ display:flex; gap:8px; padding:0 16px 16px; }
+.edit-msg-statusbar{ margin-bottom:12px; }
+.edit-msg-statusbar.hidden{ display:none; }
+.edit-msg-statusbar-label{ font-size:11px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; letter-spacing:.05em; text-transform:uppercase; }
+.edit-msg-statusbar-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.edit-msg-statusbar-grid input{ width:100%; border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; font-family:inherit; font-size:13px; color:var(--ink); background:var(--bg); outline:none; box-sizing:border-box; }
+.edit-msg-statusbar-grid input:focus{ border-color:var(--companion); }
+.edit-msg-footer{ display:flex; gap:8px; padding:0 16px 16px; flex:0 0 auto; }
 .edit-msg-save{ flex:1; padding:11px; border-radius:12px; border:none; background:var(--companion); color:#fff; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; }
 .edit-msg-cancel{ padding:11px 16px; border-radius:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-family:inherit; font-size:14px; cursor:pointer; }
 .context-menu-item.delete{ color:#D4678A; }
@@ -2281,6 +2287,15 @@ textarea.mid{ min-height:90px; }
             <button class="edit-msg-close" id="editMsgClose" type="button">✕</button>
           </div>
           <div class="edit-msg-body">
+            <div class="edit-msg-statusbar hidden" id="editMsgStatusBar">
+              <div class="edit-msg-statusbar-label">場景狀態列</div>
+              <div class="edit-msg-statusbar-grid">
+                <input type="text" id="editMsgLocation" placeholder="地點">
+                <input type="text" id="editMsgTime" placeholder="時間（24小時制）">
+                <input type="text" id="editMsgRelationship" placeholder="關係">
+                <input type="text" id="editMsgPhase" placeholder="時期代碼">
+              </div>
+            </div>
             <textarea class="edit-msg-textarea" id="editMsgTextarea" rows="5"></textarea>
           </div>
           <div class="edit-msg-footer">
@@ -5205,7 +5220,18 @@ textarea.mid{ min-height:90px; }
     var hist = getActiveHistory();
     if(currentMsgIndex>=0 && currentMsgIndex<hist.length){
       editingMsgIndex = currentMsgIndex;
-      $('editMsgTextarea').value = hist[editingMsgIndex].content || '';
+      var entry = hist[editingMsgIndex];
+      $('editMsgTextarea').value = entry.content || '';
+      var sbWrap = $('editMsgStatusBar');
+      if(entry.role==='assistant' && entry.statusBar){
+        sbWrap.classList.remove('hidden');
+        $('editMsgLocation').value = entry.statusBar.location || '';
+        $('editMsgTime').value = entry.statusBar.time || '';
+        $('editMsgRelationship').value = entry.statusBar.relationship || '';
+        $('editMsgPhase').value = entry.statusBar.phase || '';
+      } else {
+        sbWrap.classList.add('hidden');
+      }
       $('editMsgOverlay').classList.remove('hidden');
       setTimeout(function(){ $('editMsgTextarea').focus(); }, 80);
     }
@@ -5221,9 +5247,23 @@ textarea.mid{ min-height:90px; }
   $('editMsgSave').addEventListener('click', function(){
     var hist = getActiveHistory();
     if(editingMsgIndex>=0 && editingMsgIndex<hist.length){
+      var entry = hist[editingMsgIndex];
+      var changed = false;
       var newText = $('editMsgTextarea').value;
-      if(newText !== hist[editingMsgIndex].content){
-        hist[editingMsgIndex].content = newText;
+      if(newText !== entry.content){ entry.content = newText; changed = true; }
+      if(entry.role==='assistant' && entry.statusBar){
+        var newStatusBar = {
+          location: $('editMsgLocation').value.trim(),
+          time: $('editMsgTime').value.trim(),
+          relationship: $('editMsgRelationship').value.trim(),
+          phase: $('editMsgPhase').value.trim()
+        };
+        if(JSON.stringify(newStatusBar) !== JSON.stringify(entry.statusBar)){
+          entry.statusBar = newStatusBar;
+          changed = true;
+        }
+      }
+      if(changed){
         saveActiveHistory();
         renderThread();
         flashSaved('已編輯 ✓');
