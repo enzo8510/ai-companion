@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "AI伴侶 Preview",
-      "runtimeExecutable": "C:\\Users\\user\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
-      "runtimeArgs": ["-m", "http.server", "8000"],
+      "runtimeExecutable": "powershell.exe",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "C:\\Users\\user\\Desktop\\AI伴侶_網站\\.claude\\serve.ps1"],
       "port": 8000
     }
   ]

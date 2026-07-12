@@ -238,6 +238,10 @@ body{
   white-space:pre-wrap;
 }
 .bubble-time{ font-size:10px; color:rgba(26,26,46,0.45); white-space:nowrap; flex-shrink:0; line-height:1; padding-bottom:3px; }
+.msg-page-tag{ display:flex; flex-direction:column; align-items:flex-start; gap:3px; width:fit-content; max-width:88%; margin:-4px 0 2px 32px; padding:6px 12px; border-radius:4px 12px 12px 12px; background:var(--companion); color:#fff; box-shadow:0 2px 6px rgba(50,58,80,0.18); animation:rise .5s ease both; }
+.msg-page-tag.me{ align-self:flex-end; align-items:flex-end; margin:-4px 32px 2px 0; border-radius:12px 4px 12px 12px; }
+.msg-page-tag .mpt-page{ font-size:13px; font-weight:700; letter-spacing:1px; }
+.msg-page-tag .mpt-date{ font-size:10.5px; opacity:.9; display:flex; align-items:center; gap:4px; }
 .bubble.her{ background:rgba(176,158,212,0.85); color:#1a1a2e; border-radius:18px 18px 18px 5px; }
 .bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
@@ -5045,6 +5049,19 @@ textarea.mid{ min-height:90px; }
       thread.appendChild(div);
     }
 
+    var pageCounter = 0;
+    function appendPageTag(role, ts){
+      if(sc || !ts) return; // 場景模式不顯示頁碼標記
+      pageCounter++;
+      var d = new Date(ts);
+      var dateStr = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+      var tag = document.createElement('div'); tag.className = 'msg-page-tag' + (role==='user' ? ' me' : '');
+      var pageEl = document.createElement('div'); pageEl.className='mpt-page'; pageEl.textContent = 'P . ' + pageCounter;
+      var dateEl = document.createElement('div'); dateEl.className='mpt-date'; dateEl.textContent = '📅 ' + dateStr;
+      tag.appendChild(pageEl); tag.appendChild(dateEl);
+      thread.appendChild(tag);
+    }
+
     getActiveHistory().forEach(function(t, idx){
       if(t.type === 'scene-end'){
         var chip = document.createElement('div'); chip.className='scene-end-chip';
@@ -5055,8 +5072,10 @@ textarea.mid{ min-height:90px; }
       insertDateDividerIfNeeded(t.ts);
       if(t.isDiary && t.role==='user'){
         thread.appendChild(createDiaryCard(t.content, t.mood, t.diaryDate, idx));
+        appendPageTag(t.role, t.ts);
       } else if(t.isQa && t.role==='user'){
         thread.appendChild(createQaCard(t.content, idx));
+        appendPageTag(t.role, t.ts);
       } else {
         if(t.img){
           var ir = document.createElement('div'); ir.className='chat-img-row';
@@ -5065,6 +5084,7 @@ textarea.mid{ min-height:90px; }
         }
         if(t.content) thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
         else if(!t.img)  thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
+        appendPageTag(t.role, t.ts);
       }
     });
     requestAnimationFrame(function(){
