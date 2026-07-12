@@ -2386,6 +2386,7 @@ textarea.mid{ min-height:90px; }
         <button class="tab-btn" data-tab="persona">人格設定</button>
         <button class="tab-btn" data-tab="knowledge">事件</button>
         <button class="tab-btn" data-tab="memory">記憶體</button>
+        <button class="tab-btn" data-tab="account">帳號安全</button>
       </div>
 
       <div class="admin-body">
@@ -2476,8 +2477,15 @@ textarea.mid{ min-height:90px; }
             <input type="number" id="setMaxTokens" placeholder="1500" min="300" max="8000" step="100">
           </div>
 
+        </section>
+
+        <!-- 帳號安全 -->
+        <section class="panel" id="panel-account">
+          <h2>帳號安全</h2>
+          <p class="lead">管理登入密碼與雲端同步帳號。</p>
+
           <!-- 修改密碼 -->
-          <div class="field" style="margin-top:24px;border-top:1px solid var(--line);padding-top:20px;">
+          <div class="field">
             <label>🔒 修改登入密碼</label>
             <input type="password" id="pwdCurrent" placeholder="目前密碼" style="margin-bottom:8px;">
             <input type="password" id="pwdNew" placeholder="新密碼（至少 4 字元）" style="margin-bottom:8px;">
