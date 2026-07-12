@@ -2413,11 +2413,6 @@ textarea.mid{ min-height:90px; }
                 <option value="c-haiku">Claude Haiku 4.5 ⚡</option>
                 <option value="c-opus">Claude Opus 4.5 💎</option>
               </optgroup>
-              <optgroup label="◆ Claude（Anthropic 官方直連）">
-                <option value="a-haiku">Claude Haiku 4.5 ⚡（官方）</option>
-                <option value="a-sonnet">Claude Sonnet 4.6 ⚖️（官方）</option>
-                <option value="a-opus">Claude Opus 4.8 💎（官方）</option>
-              </optgroup>
               <optgroup label="⚙ 進階">
                 <option value="custom">自訂設定…</option>
               </optgroup>
@@ -4158,9 +4153,6 @@ textarea.mid{ min-height:90px; }
     'c-sonnet':    { svc:'claude', model:'anthropic/claude-sonnet-4-5',          url:'https://openrouter.ai/api/v1' },
     'c-haiku':     { svc:'claude', model:'anthropic/claude-haiku-4-5',           url:'https://openrouter.ai/api/v1' },
     'c-opus':      { svc:'claude', model:'anthropic/claude-opus-4-5',            url:'https://openrouter.ai/api/v1' },
-    'a-haiku':     { svc:'anthropic', model:'claude-haiku-4-5',                  url:'https://api.anthropic.com/v1' },
-    'a-sonnet':    { svc:'anthropic', model:'claude-sonnet-4-6',                 url:'https://api.anthropic.com/v1' },
-    'a-opus':      { svc:'anthropic', model:'claude-opus-4-8',                   url:'https://api.anthropic.com/v1' },
     'custom':      { svc:'custom', model:'', url:'' }
   };
   var DEFAULT_PERSONA = { name:'卄珩', statusLine:'在線・少將・記得你說過的每一句話', systemPrompt:DEFAULT_SYSTEM_PROMPT, replyRules:'', backgroundSettings:'', formatRules:'' };
@@ -4378,7 +4370,6 @@ textarea.mid{ min-height:90px; }
       if((!r.apiKeyGemini || r.apiKeyGemini === '') && l.apiKeyGemini) r.apiKeyGemini = l.apiKeyGemini;
       if((!r.apiKeyGroq   || r.apiKeyGroq   === '') && l.apiKeyGroq)   r.apiKeyGroq   = l.apiKeyGroq;
       if((!r.apiKeyClaude || r.apiKeyClaude === '') && l.apiKeyClaude) r.apiKeyClaude = l.apiKeyClaude;
-      if((!r.apiKeyAnthropic || r.apiKeyAnthropic === '') && l.apiKeyAnthropic) r.apiKeyAnthropic = l.apiKeyAnthropic;
       if((!r.activePreset || r.activePreset === '') && l.activePreset) r.activePreset = l.activePreset;
       if((!r.elKey        || r.elKey        === '') && l.elKey)        r.elKey        = l.elKey;
       if((!r.elVoice      || r.elVoice      === '') && l.elVoice)      r.elVoice      = l.elVoice;
@@ -5219,14 +5210,7 @@ textarea.mid{ min-height:90px; }
   function endpoint(){ return (settings.baseUrl || DEFAULT_SETTINGS.baseUrl).replace(/\/+$/,'') + '/chat/completions'; }
 
   function apiHeaders(){
-    var h = { 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey };
-    // Anthropic 官方 API 需要此 header 才允許瀏覽器直連（CORS）
-    if((settings.baseUrl||'').indexOf('api.anthropic.com') >= 0){
-      h['anthropic-dangerous-direct-browser-access'] = 'true';
-      h['x-api-key'] = settings.apiKey;
-      h['anthropic-version'] = '2023-06-01';
-    }
-    return h;
+    return { 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey };
   }
 
   function estimateTokens(text){
@@ -5421,7 +5405,6 @@ textarea.mid{ min-height:90px; }
       if(p.svc === 'gemini'){ badge.className='preset-svc-badge gemini'; badge.textContent='✦ Gemini'; }
       else if(p.svc === 'groq'){ badge.className='preset-svc-badge groq'; badge.textContent='◈ Groq'; }
       else if(p.svc === 'claude'){ badge.className='preset-svc-badge claude'; badge.textContent='◆ Claude'; }
-      else if(p.svc === 'anthropic'){ badge.className='preset-svc-badge claude'; badge.textContent='◆ Claude 官方'; }
       if($('claudeHint')) $('claudeHint').style.display = p.svc==='claude' ? '' : 'none';
       var limitHint = $('modelLimitHint');
       if(limitHint){
@@ -5433,10 +5416,7 @@ textarea.mid{ min-height:90px; }
           'q-8b':        { bg:'#FFF4E6', border:'#E8A040', text:'#7A4010', msg:'<b>◈ Llama 3.1 8B ⚡（Groq 較穩定）</b><br>免費方案：每分鐘上限 <b>20,000 tokens</b>，比 70B 寬鬆許多。速度更快，對話長了也比較不容易超限。能力略遜於 70B，但日常聊天差異不大。' },
           'c-sonnet':    { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Sonnet 4.5（OpenRouter）</b><br>按量計費，無嚴格 TPM 限制。200k 上下文視窗，智能與速度平衡佳。需至 openrouter.ai 加值後使用。' },
           'c-haiku':     { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Haiku 4.5 ⚡（OpenRouter）</b><br>按量計費，無嚴格 TPM 限制。Claude 系列中速度最快、費用最低，適合高頻互動。' },
-          'c-opus':      { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Opus 4.5 💎（OpenRouter）</b><br>按量計費，無嚴格 TPM 限制。Claude 系列最強模型，費用也最高，適合需要深度理解的對話。' },
-          'a-haiku':     { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Haiku 4.5 ⚡（Anthropic 官方）</b><br>使用 Anthropic 官方 API 金鑰（sk-ant- 開頭）直連，不經過中轉。Claude 系列中速度最快、費用最低，適合高頻互動。' },
-          'a-sonnet':    { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Sonnet 4.6 ⚖️（Anthropic 官方）</b><br>使用 Anthropic 官方 API 金鑰直連。智能與速度平衡佳，1M 上下文視窗，適合日常深度對話。' },
-          'a-opus':      { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Opus 4.8 💎（Anthropic 官方）</b><br>使用 Anthropic 官方 API 金鑰直連。Claude 系列最強模型，費用最高，適合需要深度理解的對話。' }
+          'c-opus':      { bg:'#EEE8F8', border:'#9B7FD4', text:'#3A1A6A', msg:'<b>◆ Claude Opus 4.5 💎（OpenRouter）</b><br>按量計費，無嚴格 TPM 限制。Claude 系列最強模型，費用也最高，適合需要深度理解的對話。' }
         };
         var h = hints[pid];
         if(h){
@@ -5449,11 +5429,11 @@ textarea.mid{ min-height:90px; }
           limitHint.style.display = 'none';
         }
       }
-      var keyLabel = { gemini:'Gemini API 金鑰', groq:'Groq API 金鑰', claude:'OpenRouter API 金鑰', anthropic:'Anthropic API 金鑰' };
+      var keyLabel = { gemini:'Gemini API 金鑰', groq:'Groq API 金鑰', claude:'OpenRouter API 金鑰' };
       $('apiKeyLabel').textContent = keyLabel[p.svc] || 'API 金鑰';
-      var placeholder = { gemini:'貼上你的 Gemini 金鑰（AQ. 開頭）', groq:'貼上你的 Groq 金鑰（gsk_ 開頭）', claude:'貼上 OpenRouter 金鑰（sk-or- 開頭）', anthropic:'貼上 Anthropic 金鑰（sk-ant- 開頭）' };
+      var placeholder = { gemini:'貼上你的 Gemini 金鑰（AQ. 開頭）', groq:'貼上你的 Groq 金鑰（gsk_ 開頭）', claude:'貼上 OpenRouter 金鑰（sk-or- 開頭）' };
       $('setApiKey').placeholder = placeholder[p.svc] || '貼上你的 API 金鑰';
-      var svcKey = p.svc === 'gemini' ? (settings.apiKeyGemini||'') : p.svc === 'groq' ? (settings.apiKeyGroq||'') : p.svc === 'claude' ? (settings.apiKeyClaude||'') : p.svc === 'anthropic' ? (settings.apiKeyAnthropic||'') : '';
+      var svcKey = p.svc === 'gemini' ? (settings.apiKeyGemini||'') : p.svc === 'groq' ? (settings.apiKeyGroq||'') : p.svc === 'claude' ? (settings.apiKeyClaude||'') : '';
       $('setApiKey').value = svcKey;
       settings.model   = p.model;
       settings.baseUrl = p.url;
@@ -5489,7 +5469,6 @@ textarea.mid{ min-height:90px; }
     if(p && p.svc === 'gemini') settings.apiKeyGemini = v;
     else if(p && p.svc === 'groq') settings.apiKeyGroq = v;
     else if(p && p.svc === 'claude') settings.apiKeyClaude = v;
-    else if(p && p.svc === 'anthropic') settings.apiKeyAnthropic = v;
     save(KEYS.settings, settings);
     flashSaved();
     renderThread();
@@ -5618,7 +5597,6 @@ textarea.mid{ min-height:90px; }
       if(p && p.svc==='gemini') settings.apiKeyGemini = settings.apiKey;
       else if(p && p.svc==='groq') settings.apiKeyGroq = settings.apiKey;
       else if(p && p.svc==='claude') settings.apiKeyClaude = settings.apiKey;
-      else if(p && p.svc==='anthropic') settings.apiKeyAnthropic = settings.apiKey;
     } else {
       settings.model   = $('setModel').value.trim();
       settings.baseUrl = $('setBaseUrl').value.trim();
