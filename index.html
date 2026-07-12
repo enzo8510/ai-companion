@@ -3082,6 +3082,7 @@ textarea.mid{ min-height:90px; }
               <div class="qa-hero-actions">
                 <button class="qa-refresh-pill" id="qaTodayRefreshBtn" type="button">🔄 換一題</button>
                 <button class="qa-ask-pill" id="qaAskBtn" type="button">✨ 問卄珩 →</button>
+                <button class="qa-ask-pill hidden" id="qaRestartRoundBtn" type="button">🔄 開始新一輪</button>
               </div>
             </div>
 
@@ -4651,7 +4652,7 @@ textarea.mid{ min-height:90px; }
   var avatarDataUrl = localStorage.getItem(KEYS.avatar) || '';
   var events      = load(KEYS.events)   || [];
   var checkin     = load(KEYS.checkin)  || { lastDate:'', streak:0, history:[] };
-  var dailyQa     = load(KEYS.dailyqa)  || { date:'', qIndex:0 };
+  var dailyQa     = load(KEYS.dailyqa)  || { date:'', qIndex:0, order:[], cursor:0 };
   var wallpaperUrl= localStorage.getItem(KEYS.wallpaper) || '';
   var startDate   = localStorage.getItem(KEYS.startDate) || '';
   var cntTarget   = localStorage.getItem(KEYS.cntTarget) || '';
@@ -7524,13 +7525,210 @@ textarea.mid{ min-height:90px; }
     '有沒有一個人，讓你覺得相遇很幸運？',
     '你現在心裡最想要的是什麼？',
     '有什麼事是你覺得只有你能理解的？',
-    '最近有沒有讓你突然想哭的事？'
+    '最近有沒有讓你突然想哭的事？',
+    '你覺得自己最大的優點是什麼？',
+    '你覺得自己最需要改進的地方是什麼？',
+    '有沒有一個外號，你特別喜歡別人這樣叫你？',
+    '你是那種容易相信別人的人嗎？',
+    '你覺得自己是內向還是外向？為什麼？',
+    '有什麼事別人常誤會你，但其實不是那樣？',
+    '你最不能忍受別人對你做的事是什麼？',
+    '如果用一種動物形容自己，你會選什麼？',
+    '你覺得自己最像家裡的誰？',
+    '有沒有什麼原則，你堅持一輩子都不會改？',
+    '你記得的第一個童年回憶是什麼？',
+    '有沒有一個地方，你每次經過都會想起某件事？',
+    '你人生中最快樂的一天是哪一天？',
+    '有沒有哪個決定，你現在回想起來覺得很幸運自己做了？',
+    '小時候你最想成為什麼樣的大人？',
+    '有沒有一次經歷讓你突然長大了？',
+    '你還記得第一次心動的感覺嗎？',
+    '有沒有一句話，某個人對你說過，你到現在都記得？',
+    '你最想回到人生的哪一個時刻？',
+    '有沒有什麼東西，你捨不得丟掉，即使沒有用了？',
+    '如果十年後回頭看現在的自己，你希望看到什麼？',
+    '你有沒有一個從小到大都沒放棄的夢想？',
+    '如果可以學會一種新技能，你想學什麼？',
+    '你希望老了以後過什麼樣的生活？',
+    '有沒有什麼事，你一直想做卻還沒開始？',
+    '如果能立刻搬到一個新城市，你會選哪裡？',
+    '你覺得五年後的自己會是什麼樣子？',
+    '有沒有一個目標，你正在偷偷努力朝它前進？',
+    '如果錢不是問題，你會想做什麼工作？',
+    '你想留給世界的東西是什麼？',
+    '今天有什麼小事讓你嘴角上揚？',
+    '你最近迷上了什麼？',
+    '有什麼味道，你聞到就會想到某個人或某段時光？',
+    '你最喜歡一天中的哪個時段？為什麼？',
+    '有沒有一個習慣，你自己都覺得有點傻，但改不掉？',
+    '你今天吃了什麼讓你覺得滿足的東西？',
+    '有沒有什麼歌單或音樂，是你心情不好時會放的？',
+    '你喜歡下雨天還是晴天？',
+    '有什麼東西是你隨身一定要帶的？',
+    '最近有沒有什麼讓你捧腹大笑的事？',
+    '如果可以擁有一種超能力，你會選什麼？',
+    '如果人生可以重新選一次職業，你會選什麼？',
+    '如果只能留一樣家電，你會留哪個？',
+    '如果可以跟歷史上任何一個人吃頓飯，你想約誰？',
+    '如果可以暫停時間一天，你會做什麼？',
+    '如果你的人生是一部電影，你覺得會是什麼類型？',
+    '如果可以交換身份過一天，你想當誰？',
+    '如果可以刪除一個記憶，你會刪掉哪個？（如果有的話）',
+    '如果可以擁有無限的一樣東西，你會選什麼？',
+    '如果世界明天就會不一樣，你今天想做什麼？',
+    '你家裡誰最了解你？',
+    '小時候誰是你最崇拜的人？',
+    '有沒有一道菜，是你想到「家」就會想到的？',
+    '你和家人之間有沒有什麼特別的傳統？',
+    '小時候你最喜歡的玩具是什麼？',
+    '有沒有一個家人說過的話，一直影響著你？',
+    '你覺得自己遺傳到家人的哪個特質？',
+    '小時候你最怕什麼？',
+    '有沒有一個節日，對你來說特別有意義？',
+    '你覺得長大後，你和家人的關係變得怎麼樣了？',
+    '你通常怎麼處理壓力？',
+    '有沒有什麼事會讓你瞬間感到平靜？',
+    '你覺得自己最近的情緒是什麼顏色？',
+    '有沒有什麼話，你很想聽到別人對你說？',
+    '你多久會允許自己真正休息一次？',
+    '有沒有什麼事，你明明很在意卻假裝不在意？',
+    '你覺得什麼時候最容易感到孤單？',
+    '有沒有一種情緒，你很不擅長表達？',
+    '你怎麼知道自己真的累了？',
+    '有沒有什麼事，一直放在你心裡沒說出口？',
+    '有沒有一個人，你一直想好好謝謝他？',
+    '你覺得自己這輩子最幸運的一件事是什麼？',
+    '有沒有什麼小事，其實你很感激但沒說出口？',
+    '你覺得擁有什麼，讓你覺得自己很富有？',
+    '有沒有一段關係，你很珍惜現在還擁有？',
+    '你會怎麼形容「被愛」的感覺？',
+    '有什麼日常的小事，你希望永遠不會改變？',
+    '你覺得自己這一年成長了什麼？',
+    '有沒有什麼事，你希望能對過去的自己說聲謝謝？',
+    '你覺得幸福最簡單的樣子是什麼？',
+    '有什麼觸感會讓你特別安心？',
+    '你喜歡什麼樣的擁抱？',
+    '有沒有一種聲音，會讓你瞬間放鬆？',
+    '你喜歡陽光曬在身上的感覺嗎？',
+    '有沒有什麼味道，會讓你食指大動？',
+    '你喜歡安靜還是有點背景音樂？',
+    '有沒有什麼場景，光用想的就會覺得很舒服？',
+    '你喜歡冷還是熱的天氣？',
+    '有沒有一種質地的衣服，你特別喜歡穿？',
+    '你覺得什麼樣的環境最容易讓你放空？',
+    '你覺得一段關係裡最重要的是什麼？',
+    '有沒有什麼事，是你希望對方能主動發現的？',
+    '你怎麼表達在乎一個人？',
+    '有沒有一種相處方式，讓你覺得特別安心？',
+    '你覺得吵架後最好的和好方式是什麼？',
+    '有沒有什麼小舉動，讓你覺得被在乎？',
+    '你喜歡對方怎麼稱呼你？',
+    '有沒有一句情話，你一直想聽卻沒說出口自己想聽？',
+    '你覺得信任是怎麼一點一滴建立起來的？',
+    '有沒有什麼事，你希望兩個人可以一起完成？',
+    '如果可以連續放假一週，你最想做的第一件事是什麼？',
+    '你有沒有什麼收藏，別人可能覺得奇怪？',
+    '有沒有一本書或一部電影，改變了你看事情的方式？',
+    '你覺得自己是慢熱還是熟得快的人？',
+    '有沒有什麼事，你堅持自己動手做，不喜歡假手他人？',
+    '你最近有沒有學到什麼新東西？',
+    '有沒有一個瞬間，你覺得「這就是我想要的生活」？',
+    '你覺得自己在什麼時候最有安全感？',
+    '有沒有一種天氣，會讓你特別想念某個人？',
+    '你會怎麼形容自己現在的心情？',
+    '有沒有什麼事，你以前很害怕，現在卻不怕了？',
+    '你最喜歡自己身上的哪個習慣？',
+    '有沒有一個地方，你覺得只要去了心情就會變好？',
+    '你覺得什麼樣的稱讚聽了會特別開心？',
+    '有沒有什麼小確幸，是你每天都會期待的？',
+    '你覺得自己是計畫型還是隨性型的人？',
+    '有沒有一次旅行，讓你印象特別深刻？',
+    '你最近有沒有想起什麼久違的回憶？',
+    '有沒有什麼事，你一直想學卻還沒開始學？',
+    '你覺得什麼樣的陪伴讓你覺得最舒服？',
+    '有沒有什麼歌，一聽前奏你就會起雞皮疙瘩？',
+    '你喜歡怎麼慶祝自己的生日？',
+    '有沒有什麼禮物，讓你收到後感動很久？',
+    '你覺得自己送禮物時最在意什麼？',
+    '有沒有一種天氣讓你特別有創作或思考的靈感？',
+    '你會怎麼安慰一個難過的人？',
+    '有沒有什麼事，你做了之後會特別有成就感？',
+    '你覺得自己面對失敗時，通常怎麼調適？',
+    '有沒有一個人，總是能讓你笑出來？',
+    '你最近有沒有想對某個人說「謝謝你」？',
+    '有沒有什麼你一直很想嘗試但還沒有勇氣做的事？',
+    '你覺得什麼時候是你最真實的樣子？',
+    '有沒有一種味道，會讓你想到小時候？',
+    '你喜歡怎麼樣的早晨開始一天？',
+    '有沒有什麼事，讓你覺得「我長大了」？',
+    '你會怎麼形容理想中的週末？',
+    '有沒有什麼小習慣，是你從家人身上學來的？',
+    '你覺得什麼樣的沉默讓你覺得舒服？',
+    '有沒有一次，你勇敢做了一件平常不敢做的事？',
+    '你最近有沒有什麼小小的煩惱？',
+    '有沒有什麼事，你希望能重來一次，好好說出口？',
+    '你覺得自己最擅長安慰別人的方式是什麼？',
+    '有沒有什麼景色，你一直記得那個瞬間？',
+    '你會怎麼形容「安心」的感覺？',
+    '有沒有一種天氣的味道，你特別喜歡？',
+    '你最近有沒有夢到什麼有趣的夢？',
+    '有沒有什麼事，讓你覺得自己被理解了？',
+    '你覺得什麼樣的關心方式，讓你覺得剛剛好？',
+    '有沒有一句話，你很想跟未來的自己說？',
+    '你覺得什麼時候最容易想起過去的事？',
+    '有沒有什麼小東西，一直被你留在身邊當作紀念？',
+    '你最喜歡跟誰聊天，為什麼？',
+    '有沒有什麼事，你其實很想被稱讚卻不好意思說？',
+    '你會怎麼形容自己看待「時間」的方式？',
+    '有沒有一個瞬間，你覺得特別幸福？',
+    '你最近有沒有特別想吃的東西？',
+    '有沒有什麼歌詞，一直很打動你？',
+    '你覺得什麼樣的天氣最適合聊心事？',
+    '有沒有一次，陌生人的善意讓你印象深刻？',
+    '你最近有沒有什麼想達成的小目標？',
+    '有沒有什麼事，你做了之後覺得自己更靠近理想中的自己？',
+    '你會怎麼形容自己最放鬆的狀態？',
+    '有沒有一種季節，你覺得最能代表你自己？',
+    '你最喜歡自己哪個階段的樣子？',
+    '有沒有什麼話，你一直很想聽到卻沒等到？',
+    '你覺得什麼樣的驚喜，會讓你特別感動？',
+    '有沒有一件事，你希望有更多時間去做？',
+    '你會怎麼形容你心裡最柔軟的那個部分？',
+    '有沒有什麼場景，讓你覺得特別浪漫？',
+    '你最近有沒有什麼想放下卻放不下的事？',
+    '有沒有什麼事，只要想到就會讓你笑出來？',
+    '你覺得自己面對改變時，通常是什麼反應？',
+    '有沒有一段時光，你希望可以永遠停留在那裡？',
+    '你會怎麼形容你理想中「被愛」的樣子？',
+    '有沒有什麼事，你今天想跟他分享，卻還沒說？'
   ];
+
+  function shuffleIndices(n){
+    var arr = [];
+    for(var i=0;i<n;i++) arr.push(i);
+    for(var i=arr.length-1;i>0;i--){
+      var j = Math.floor(Math.random() * (i+1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+  function dailyQaComplete(){
+    return !!dailyQa.order && dailyQa.cursor >= dailyQa.order.length;
+  }
   (function initDailyQa(){
+    // 題庫長度改變（例如擴充題數）時，重新洗一輪不重複抽題順序
+    if(!Array.isArray(dailyQa.order) || dailyQa.order.length !== QA_LIST.length){
+      dailyQa.order = shuffleIndices(QA_LIST.length);
+      dailyQa.cursor = 0;
+      save(KEYS.dailyqa, dailyQa);
+    }
     var today = todayLabel();
     if(dailyQa.date !== today){
       dailyQa.date = today;
-      dailyQa.qIndex = Math.floor(Math.random() * QA_LIST.length);
+      if(dailyQa.cursor < dailyQa.order.length){
+        dailyQa.qIndex = dailyQa.order[dailyQa.cursor];
+        dailyQa.cursor++;
+      }
       save(KEYS.dailyqa, dailyQa);
     }
   })();
@@ -7575,16 +7773,25 @@ textarea.mid{ min-height:90px; }
   $('homeQaHistoryBtn').addEventListener('click', showTodayQa);
 
   function renderTodayQaView(){
-    var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
-    $('qaTodayText').textContent = q;
+    var complete = dailyQaComplete();
+    $('qaTodayRefreshBtn').classList.toggle('hidden', complete);
+    $('qaAskBtn').classList.toggle('hidden', complete);
+    $('qaRestartRoundBtn').classList.toggle('hidden', !complete);
+
+    if(complete){
+      $('qaTodayText').textContent = '🎉 你已經把全部 ' + QA_LIST.length + ' 題都問過一輪了！點下方開始新的一輪。';
+      $('qaAskedTag').classList.add('hidden');
+    } else {
+      var q = QA_LIST[dailyQa.qIndex % QA_LIST.length];
+      $('qaTodayText').textContent = q;
+      // Asked tag
+      var asked = qaHistory.some(function(h){ return h.date === todayLabel(); });
+      $('qaAskedTag').classList.toggle('hidden', !asked);
+    }
 
     // Date badge
     var today = todayLabel();
     $('qaTodayDateBadge').textContent = '📅 ' + today;
-
-    // Asked tag
-    var asked = qaHistory.some(function(h){ return h.date === today; });
-    $('qaAskedTag').classList.toggle('hidden', !asked);
 
     // Stats
     var total = qaHistory.length;
@@ -7814,11 +8021,22 @@ textarea.mid{ min-height:90px; }
     if(idx < months.length - 1){ qaFilterMonth = months[idx + 1]; renderQaHistoryList(); }
   });
   $('qaTodayRefreshBtn').addEventListener('click', function(){
-    dailyQa.qIndex = (dailyQa.qIndex + 1) % QA_LIST.length;
-    save(KEYS.dailyqa, dailyQa);
-    renderTodayQaView();
+    if(dailyQa.cursor < dailyQa.order.length){
+      dailyQa.qIndex = dailyQa.order[dailyQa.cursor];
+      dailyQa.cursor++;
+      save(KEYS.dailyqa, dailyQa);
+      renderTodayQaView();
+    }
   });
   $('qaAskBtn').addEventListener('click', sendQaToChat);
+  $('qaRestartRoundBtn').addEventListener('click', function(){
+    dailyQa.order = shuffleIndices(QA_LIST.length);
+    dailyQa.qIndex = dailyQa.order[0];
+    dailyQa.cursor = 1;
+    save(KEYS.dailyqa, dailyQa);
+    renderTodayQaView();
+    flashSaved('新一輪開始 ✓');
+  });
 
   /* ============ Download Chat ============ */
   var dlMode = 'all';
