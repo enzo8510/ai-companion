@@ -5221,6 +5221,25 @@ textarea.mid{ min-height:90px; }
     return { 'Content-Type':'application/json', 'Authorization':'Bearer ' + settings.apiKey };
   }
 
+  function sleep(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
+  // 遇到暫時性錯誤（伺服器過載、限流）自動重試，避免單次抽風就整段失敗
+  var RETRYABLE_STATUS = [429, 500, 502, 503, 504];
+  async function fetchWithRetry(url, options, maxRetries, onRetry){
+    maxRetries = maxRetries==null ? 2 : maxRetries;
+    for(var attempt=0; attempt<=maxRetries; attempt++){
+      var resp, networkErr=null;
+      try{ resp = await fetch(url, options); }
+      catch(e){ networkErr = e; }
+      var shouldRetry = attempt<maxRetries && (networkErr || RETRYABLE_STATUS.indexOf(resp.status)>=0);
+      if(!shouldRetry){
+        if(networkErr) throw networkErr;
+        return resp;
+      }
+      if(onRetry) onRetry(attempt+1, maxRetries, resp ? resp.status : null);
+      await sleep(800 * Math.pow(2, attempt)); // 0.8s, 1.6s...
+    }
+  }
+
   function estimateTokens(text){
     return Math.ceil((text||'').length / 2.5);
   }
@@ -5253,11 +5272,11 @@ textarea.mid{ min-height:90px; }
     } else {
       hist.forEach(function(t){ msgs.push({ role:t.role, content:t.content || (t.img ? '（附圖）' : '') }); });
     }
-    var resp = await fetch(endpoint(), {
+    var resp = await fetchWithRetry(endpoint(), {
       method:'POST',
       headers: apiHeaders(),
       body: JSON.stringify({ model: settings.model || 'gpt-4o', messages: msgs, temperature: 0.85, max_tokens: settings.maxTokens || 1500 })
-    });
+    }, 2, function(n, total){ flashSaved('連線不穩，重試中…（'+n+'/'+total+'）'); });
     if(!resp.ok){
       var detail=''; try{ detail = await resp.text(); }catch(e){}
       throw new Error('API 回應狀態 ' + resp.status + (detail ? '：' + detail.slice(0,300) : ''));
@@ -5613,10 +5632,12 @@ textarea.mid{ min-height:90px; }
     var out = $('testResult');
     if(!settings.apiKey){ out.className='test-result err'; out.textContent='請先填入 API 金鑰。'; return; }
     out.className='test-result'; out.textContent='測試中…';
-    fetch(endpoint(), {
+    fetchWithRetry(endpoint(), {
       method:'POST',
       headers: apiHeaders(),
       body: JSON.stringify({ model:settings.model, messages:[{ role:'user', content:'回覆「OK」兩個字即可。' }], max_tokens:5 })
+    }, 2, function(n, total, status){
+      out.className='test-result'; out.textContent='連線不穩（'+(status||'網路錯誤')+'），重試中…（'+n+'/'+total+'）';
     }).then(function(r){
       if(r.ok){ out.className='test-result ok'; out.textContent='✓ 連線成功！可以回聊天室開始跟卄珩對話了。'; renderThread(); fetchOrBalance(); }
       else{ return r.text().then(function(t){ out.className='test-result err'; out.textContent='✗ 失敗（'+r.status+'）：'+t.slice(0,200); }); }
