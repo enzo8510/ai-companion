@@ -4239,11 +4239,17 @@ textarea.mid{ min-height:90px; }
     });
   }
 
+  // 是否曾被使用者明確刪除過（本機為空、又有墓碑標記），用於兩個獨立的雲端還原流程共用判斷
+  function isTombstoned(localKey){
+    return !localStorage.getItem(localKey) && !!localStorage.getItem(localKey + '__tombstone');
+  }
+
   function removeKeyFromFirebase(localKey){
     // 徹底移除雲端節點（而非設成空字串），避免重新整理時被雲端舊資料復原
     delete pendingUploads[localKey];
     // 墓碑標記：記下「使用者明確刪除過這個 key」，即使雲端刪除當下失敗/延遲，
-    // 之後同步時看到雲端還有舊資料也不會復原，而是重新嘗試刪除（見 setupRealtimeListener）
+    // 之後同步時看到雲端還有舊資料也不會復原，而是重新嘗試刪除
+    // （見 setupRealtimeListener 和 restoreFromFirebaseOnStartup 這兩個獨立的還原流程）
     localStorage.setItem(localKey + '__tombstone', String(Date.now()));
     if(!isFirebaseReady || !database){
       pendingUploads[localKey] = null; // null 代表排隊等連線後刪除
@@ -4445,7 +4451,7 @@ textarea.mid{ min-height:90px; }
         if(key === 'companion:audioTracks') return;
         // 使用者明確刪除過這個 key（本機已清空），但雲端還留著舊資料（刪除失敗/延遲）：
         // 不要復原，改成重新嘗試刪除雲端資料，直到真的成功為止
-        if(!localValue && localStorage.getItem(key + '__tombstone')){
+        if(isTombstoned(key)){
           removeKeyFromFirebase(key);
           return;
         }
@@ -4577,6 +4583,12 @@ textarea.mid{ min-height:90px; }
         var localValue = localStorage.getItem(key);
         // 音檔含 base64 blob，無法進 Firebase，永遠保留本地資料
         if(key === 'companion:audioTracks'){ lastSeenRemote[key] = remoteValue; return; }
+        // 使用者明確刪除過這個 key，但雲端還留著舊資料：不要復原，改為重新嘗試刪除
+        if(isTombstoned(key)){
+          lastSeenRemote[key] = remoteValue;
+          removeKeyFromFirebase(key);
+          return;
+        }
         // 設定類保留本地非空金鑰，避免被雲端空值清掉
         var valueToStore = (key === KEYS.settings) ? mergeSettingsStr(remoteValue, localValue) : remoteValue;
         lastSeenRemote[key] = remoteValue; // 標記已看過，避免即時監聽重複處理
