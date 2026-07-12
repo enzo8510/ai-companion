@@ -858,6 +858,40 @@ textarea.mid{ min-height:90px; }
 /* Mood buttons */
 .ci-mood-btns{ display:flex; gap:5px; flex-wrap:wrap; }
 .ci-mood-btn{ padding:5px 10px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-mood-btn:active{ transform:scale(0.94); }
+.ci-mood-chips{ display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+.ci-mood-chip{ display:flex; align-items:center; gap:4px; padding:3px 6px 3px 9px; border-radius:999px; background:var(--surface); border:1px solid var(--line); font-size:11px; color:var(--ink); }
+.ci-mood-chip-del{ background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:11px; padding:1px 3px; line-height:1; }
+.ci-mood-chip-del:hover{ color:#e05252; }
+/* Drinks */
+.ci-drink-type-btns{ display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
+.ci-drink-type-btn{ padding:5px 10px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-drink-type-btn:active{ transform:scale(0.94); background:var(--companion-soft); color:var(--companion); }
+.ci-drink-list{ display:flex; flex-direction:column; gap:6px; }
+.ci-drink-card{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:8px 10px; }
+.ci-drink-card-head{ display:flex; align-items:center; gap:7px; }
+.ci-drink-card-icon{ font-size:16px; }
+.ci-drink-card-name{ font-size:12px; font-weight:600; color:var(--ink); flex:1; }
+.ci-drink-card-time{ font-size:10px; color:var(--ink-soft); }
+.ci-drink-card-del{ background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:12px; padding:2px 5px; }
+.ci-drink-card-del:hover{ color:#e05252; }
+.ci-drink-card-tags{ display:flex; gap:4px; flex-wrap:wrap; margin-top:6px; }
+.ci-drink-tag{ padding:2px 8px; border-radius:8px; border:1.5px solid var(--line); background:var(--chat-bg); font-size:10.5px; color:var(--ink-soft); cursor:pointer; transition:all .15s; user-select:none; }
+.ci-drink-tag.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:600; }
+.ci-drink-card-photo-row{ display:flex; align-items:center; gap:8px; margin-top:6px; }
+.ci-drink-card-photo{ width:36px; height:36px; border-radius:8px; object-fit:cover; cursor:pointer; }
+.ci-drink-photo-btn{ font-size:10.5px; padding:3px 9px; border-radius:8px; border:1.5px dashed var(--line); background:none; color:var(--ink-soft); cursor:pointer; font-family:inherit; }
+/* Drink carousel in day detail */
+.ci-dm-drink-carousel{ display:flex; gap:8px; overflow-x:auto; padding:2px 0 4px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+.ci-dm-drink-card{ flex:0 0 auto; width:120px; scroll-snap-align:start; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:8px; text-align:center; }
+.ci-dm-drink-card img{ width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:6px; }
+.ci-dm-drink-card-noimg{ width:100%; height:80px; border-radius:8px; margin-bottom:6px; background:var(--chat-bg); display:flex; align-items:center; justify-content:center; font-size:28px; }
+.ci-dm-drink-card-name{ font-size:11px; font-weight:700; color:var(--ink); }
+.ci-dm-drink-card-time{ font-size:9.5px; color:var(--ink-soft); margin-bottom:4px; }
+.ci-dm-drink-card-tags{ display:flex; flex-wrap:wrap; gap:3px; justify-content:center; }
+.ci-dm-drink-card-tag{ font-size:9px; padding:1px 5px; border-radius:6px; background:var(--companion-soft); color:var(--companion); font-weight:600; }
+.btc-day-icons{ position:relative; }
+.btc-day-drink-badge{ position:absolute; top:-4px; right:-6px; font-size:8px; background:var(--surface); border-radius:999px; padding:0 3px; line-height:1.4; }
 .ci-mood-btn.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
 /* Sleep times */
 .ci-sleep-times{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
@@ -3339,6 +3373,7 @@ textarea.mid{ min-height:90px; }
                 <button class="ci-meal-tab" data-meal="lunch" type="button">☀️ 午餐</button>
                 <button class="ci-meal-tab" data-meal="dinner" type="button">🌙 晚餐</button>
                 <button class="ci-meal-tab" data-meal="snack" type="button">🍪 點心</button>
+                <button class="ci-meal-tab" data-meal="other" type="button">🍴 其他/加餐</button>
               </div>
               <div id="ciMealPanel">
                 <div class="ci-meal-eaten-row">
@@ -3352,8 +3387,25 @@ textarea.mid{ min-height:90px; }
                   <div class="ci-nutrient-tag" data-nutrient="veg">🥦 蔬菜</div>
                   <div class="ci-nutrient-tag" data-nutrient="carb">🍚 澱粉</div>
                   <div class="ci-nutrient-tag" data-nutrient="fruit">🍎 水果</div>
+                  <div class="ci-nutrient-tag" data-nutrient="junk">🍬 加工/含糖</div>
                 </div>
               </div>
+            </div>
+          </div>
+          <!-- Drinks -->
+          <div class="ci-health-row">
+            <div class="ci-health-icon">🥤</div>
+            <div class="ci-health-info">
+              <div class="ci-health-label">今日飲料</div>
+              <div class="ci-drink-type-btns" id="ciDrinkTypeBtns">
+                <button class="ci-drink-type-btn" data-type="coffee" type="button">☕ 咖啡</button>
+                <button class="ci-drink-type-btn" data-type="bubble" type="button">🧋 手搖</button>
+                <button class="ci-drink-type-btn" data-type="tea" type="button">🍵 茶</button>
+                <button class="ci-drink-type-btn" data-type="soda" type="button">🥤 汽水</button>
+                <button class="ci-drink-type-btn" data-type="other" type="button">🧃 其他</button>
+              </div>
+              <div class="ci-drink-list" id="ciDrinkList"></div>
+              <input type="file" id="ciDrinkPhotoInput" accept="image/*" style="display:none;">
             </div>
           </div>
           <!-- Water -->
@@ -3374,7 +3426,7 @@ textarea.mid{ min-height:90px; }
           <div class="ci-health-row">
             <div class="ci-health-icon">💕</div>
             <div class="ci-health-info">
-              <div class="ci-health-label">今日心情</div>
+              <div class="ci-health-label">今日心情（可點多次，記錄一整天的變化）</div>
               <div class="ci-mood-btns" id="ciMoodOpts">
                 <button class="ci-mood-btn" data-val="1" type="button">😔 很差</button>
                 <button class="ci-mood-btn" data-val="2" type="button">😕 不好</button>
@@ -3382,6 +3434,7 @@ textarea.mid{ min-height:90px; }
                 <button class="ci-mood-btn" data-val="4" type="button">🙂 不錯</button>
                 <button class="ci-mood-btn" data-val="5" type="button">😄 很棒</button>
               </div>
+              <div class="ci-mood-chips" id="ciMoodChips"></div>
             </div>
           </div>
           <!-- Poop -->
@@ -4170,7 +4223,8 @@ textarea.mid{ min-height:90px; }
     periodRecords:'companion:periodRecords',
     healthLog:'companion:healthLog',
     orBalance:'companion:orBalance',
-    scenes:'companion:scenes'
+    scenes:'companion:scenes',
+    drinks:'companion:drinks'
   };
   function load(key, fallback){
     try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
@@ -4473,6 +4527,10 @@ textarea.mid{ min-height:90px; }
       }
       if(key === KEYS.healthLog){
         healthLog = load(KEYS.healthLog) || healthLog;
+      }
+      if(key === KEYS.drinks){
+        drinks = load(KEYS.drinks) || drinks;
+        if(typeof renderDrinksToday === 'function') renderDrinksToday();
       }
       if(key === KEYS.avatar) avatarDataUrl = localStorage.getItem(KEYS.avatar) || '';
       if(key === KEYS.theme){
@@ -8039,17 +8097,30 @@ textarea.mid{ min-height:90px; }
       (function(dk){ cell.addEventListener('click',function(){ openDayDetail(dk); }); })(healthKey);
       var numEl=document.createElement('div'); numEl.className='btc-day-num'; numEl.textContent=d;
       cell.appendChild(numEl);
-      if(isDone){
+      var dayDrinkCount=drinks.filter(function(dk2){ return dk2.date===healthKey; }).length;
+      if(isDone||dayDrinkCount){
         var ic=document.createElement('div'); ic.className='btc-day-icons';
-        ic.innerHTML='<span class="btc-day-icon">🌙</span>';
+        ic.innerHTML=isDone?'<span class="btc-day-icon">🌙</span>':'';
+        if(dayDrinkCount){
+          var badge=document.createElement('span'); badge.className='btc-day-drink-badge';
+          badge.textContent='🥤'+(dayDrinkCount>1?dayDrinkCount:'');
+          ic.appendChild(badge);
+        }
         cell.appendChild(ic);
       }
       var hEntry=healthLog[healthKey];
-      if(hEntry&&(hEntry.sleep||hEntry.water||hEntry.mood)){
+      var moodValsC=getMoodVals(hEntry);
+      if(hEntry&&(hEntry.sleep||hEntry.water||moodValsC.length)){
         var dotRow=document.createElement('div'); dotRow.className='btc-day-health';
         if(hEntry.sleep){ var d1=document.createElement('div'); d1.className='btc-day-hdot'; d1.style.background='#7ec8a0'; dotRow.appendChild(d1); }
         if(hEntry.water){ var d2=document.createElement('div'); d2.className='btc-day-hdot'; d2.style.background='#74b3e0'; dotRow.appendChild(d2); }
-        if(hEntry.mood){ var d3=document.createElement('div'); d3.className='btc-day-hdot'; d3.style.background='var(--companion)'; dotRow.appendChild(d3); }
+        if(moodValsC.length){
+          var d3=document.createElement('div'); d3.className='btc-day-hdot';
+          var uniqueMoodColors=moodValsC.map(function(v){ return MOOD_COLORS[v]||'var(--companion)'; }).filter(function(c,idx,arr){ return arr.indexOf(c)===idx; });
+          if(uniqueMoodColors.length===1){ d3.style.background=uniqueMoodColors[0]; }
+          else { d3.style.width='9px'; d3.style.background='linear-gradient(90deg,'+uniqueMoodColors.join(',')+')'; }
+          dotRow.appendChild(d3);
+        }
         cell.appendChild(dotRow);
       }
       grid.appendChild(cell);
@@ -8080,13 +8151,35 @@ textarea.mid{ min-height:90px; }
   var ciChartRange = 7;
 
   function todayHealthKey(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-  function defaultMeal(){ return {eaten:false,protein:false,veg:false,carb:false,fruit:false}; }
+  function defaultMeal(){ return {eaten:false,protein:false,veg:false,carb:false,fruit:false,junk:false}; }
+  function defaultMeals(){ return {breakfast:defaultMeal(),lunch:defaultMeal(),dinner:defaultMeal(),snack:defaultMeal(),other:defaultMeal()}; }
   function getOrCreateTodayHealth(){
     var k=todayHealthKey();
-    if(!healthLog[k]) healthLog[k]={sleep:0,bedtime:'',wakeup:'',meals:{breakfast:defaultMeal(),lunch:defaultMeal(),dinner:defaultMeal(),snack:defaultMeal()},water:0,mood:0,poop:-1,period:null,note:''};
-    if(!healthLog[k].meals) healthLog[k].meals={breakfast:defaultMeal(),lunch:defaultMeal(),dinner:defaultMeal(),snack:defaultMeal()};
+    if(!healthLog[k]) healthLog[k]={sleep:0,bedtime:'',wakeup:'',meals:defaultMeals(),water:0,moods:[],poop:-1,period:null,note:''};
+    if(!healthLog[k].meals) healthLog[k].meals=defaultMeals();
+    if(!healthLog[k].meals.other) healthLog[k].meals.other=defaultMeal();
+    if(!healthLog[k].moods) healthLog[k].moods=healthLog[k].mood ? [{time:'',val:healthLog[k].mood}] : [];
     return healthLog[k];
   }
+  /* ---- Mood helpers (支援一天多筆、月曆漸層色) ---- */
+  var MOOD_COLORS = {1:'#D9636B',2:'#E0955A',3:'#C9BFE0',4:'#8FBF6E',5:'#8B6FC7'};
+  var MOOD_LABELS = {1:'😔 很差',2:'😕 不好',3:'😐 普通',4:'🙂 不錯',5:'😄 很棒'};
+  function nowTimeStr(){ var d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function getMoodVals(h){
+    if(h&&h.moods&&h.moods.length) return h.moods.map(function(m){ return m.val; });
+    if(h&&h.mood) return [h.mood];
+    return [];
+  }
+  /* ---- Drinks helpers ---- */
+  var DRINK_TYPE_META = {
+    coffee:{icon:'☕',label:'咖啡'}, bubble:{icon:'🧋',label:'手搖'}, tea:{icon:'🍵',label:'茶'},
+    soda:{icon:'🥤',label:'汽水'}, other:{icon:'🧃',label:'其他'}
+  };
+  var DRINK_TAG_META = {
+    milk:{icon:'🥛',label:'奶'}, sugar:{icon:'🍯',label:'糖'}, caffeine:{icon:'⚡',label:'咖啡因'}, boba:{icon:'🧋',label:'配料'}
+  };
+  var drinks = load(KEYS.drinks) || [];
+  function drinkPhotoKey(id){ return 'companion:drinkPhoto:'+id; }
   function isTodayInPeriod(){
     var key=todayHealthKey();
     return periodRecords.some(function(r){ return r.start && key>=r.start && (r.end ? key<=r.end : key<=key); });
@@ -8103,16 +8196,17 @@ textarea.mid{ min-height:90px; }
     });
   }
   function renderHealthCard(){
-    var h=healthLog[todayHealthKey()]||{sleep:0,bedtime:'',wakeup:'',meals:{},water:0,mood:0,poop:-1,period:null,note:''};
-    if(!h.meals) h.meals={breakfast:{},lunch:{},dinner:{},snack:{}};
+    var h=healthLog[todayHealthKey()]||{sleep:0,bedtime:'',wakeup:'',meals:{},water:0,moods:[],poop:-1,period:null,note:''};
+    if(!h.meals) h.meals={breakfast:{},lunch:{},dinner:{},snack:{},other:{}};
     $('ciSleepOpts').querySelectorAll('.ci-h-opt').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===h.sleep); });
     $('ciBedtime').value=h.bedtime||'';
     $('ciWakeup').value=h.wakeup||'';
     $('ciWaterVal').textContent=h.water||0;
-    $('ciMoodOpts').querySelectorAll('.ci-mood-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===h.mood); });
     $('ciPoopRow').querySelectorAll('.ci-poop-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===h.poop); });
     $('ciHealthNote').value=h.note||'';
     renderMealPanel(h);
+    renderMoodChips(h);
+    renderDrinksToday();
     var inPeriod=isTodayInPeriod();
     $('ciPeriodHealthSection').style.display=inPeriod?'block':'none';
     if(inPeriod){
@@ -8138,7 +8232,10 @@ textarea.mid{ min-height:90px; }
       var h=healthLog[day.key]; if(!h) return null;
       if(ciChartType==='sleep') return h.sleep||null;
       if(ciChartType==='water') return h.water||null;
-      if(ciChartType==='mood') return h.mood||null;
+      if(ciChartType==='mood'){
+        var mv=getMoodVals(h);
+        return mv.length ? Math.round((mv.reduce(function(s,x){return s+x;},0)/mv.length)*10)/10 : null;
+      }
       return null;
     });
     var maxVal=ciChartType==='sleep'?10:ciChartType==='water'?2500:5;
@@ -8153,7 +8250,7 @@ textarea.mid{ min-height:90px; }
       if(hasData){
         if(ciChartType==='sleep') tip.textContent=val+'h';
         else if(ciChartType==='water') tip.textContent=val>=1000?(val/1000).toFixed(1)+'L':val+'mL';
-        else if(ciChartType==='mood'){ var ml=['','😔','😕','😐','🙂','😄']; tip.textContent=ml[val]||''; }
+        else if(ciChartType==='mood'){ var ml=['','😔','😕','😐','🙂','😄']; tip.textContent=(ml[Math.round(val)]||'')+' '+val; }
       }
       var bar=document.createElement('div'); bar.className='ci-bar'+(day.isToday?' today':''); bar.style.height=barH+'px';
       inner.appendChild(tip); inner.appendChild(bar);
@@ -8217,10 +8314,140 @@ textarea.mid{ min-height:90px; }
     save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts();
   });
 
-  /* ---- Mood ---- */
+  /* ---- Mood（一天可新增多筆，月曆會依比例混合顯示） ---- */
+  function renderMoodChips(h){
+    var wrap=$('ciMoodChips'); if(!wrap) return;
+    wrap.innerHTML='';
+    var moods=(h&&h.moods)||[];
+    moods.forEach(function(m,i){
+      var chip=document.createElement('div'); chip.className='ci-mood-chip';
+      var label=document.createElement('span');
+      label.textContent=(m.time?m.time+' ':'')+(MOOD_LABELS[m.val]||'');
+      var del=document.createElement('button'); del.type='button'; del.className='ci-mood-chip-del'; del.textContent='✕';
+      del.addEventListener('click',function(){
+        var th=getOrCreateTodayHealth();
+        th.moods.splice(i,1);
+        save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts();
+      });
+      chip.appendChild(label); chip.appendChild(del); wrap.appendChild(chip);
+    });
+  }
   $('ciMoodOpts').querySelectorAll('.ci-mood-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); h.mood=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts(); });
+    btn.addEventListener('click',function(){
+      var h=getOrCreateTodayHealth();
+      h.moods.push({time:nowTimeStr(),val:parseInt(this.dataset.val)});
+      save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts();
+    });
   });
+
+  /* ---- Drinks（今日飲料：分類、成分標籤、可選照片） ---- */
+  function renderDrinksToday(){
+    var list=$('ciDrinkList'); if(!list) return;
+    list.innerHTML='';
+    var today=todayHealthKey();
+    var todays=drinks.filter(function(d){ return d.date===today; });
+    todays.forEach(function(entry){
+      list.appendChild(buildDrinkCard(entry, true));
+    });
+  }
+  function buildDrinkCard(entry, editable){
+    var meta=DRINK_TYPE_META[entry.type]||DRINK_TYPE_META.other;
+    var card=document.createElement('div'); card.className='ci-drink-card';
+    var head=document.createElement('div'); head.className='ci-drink-card-head';
+    var icon=document.createElement('span'); icon.className='ci-drink-card-icon'; icon.textContent=meta.icon;
+    var name=document.createElement('span'); name.className='ci-drink-card-name'; name.textContent=meta.label;
+    var time=document.createElement('span'); time.className='ci-drink-card-time'; time.textContent=entry.time||'';
+    head.appendChild(icon); head.appendChild(name); head.appendChild(time);
+    if(editable){
+      var del=document.createElement('button'); del.type='button'; del.className='ci-drink-card-del'; del.textContent='✕';
+      del.addEventListener('click',function(){
+        drinks=drinks.filter(function(x){ return x.id!==entry.id; });
+        save(KEYS.drinks,drinks);
+        if(entry.hasPhoto){ localStorage.removeItem(drinkPhotoKey(entry.id)); removeKeyFromFirebase(drinkPhotoKey(entry.id)); }
+        renderDrinksToday();
+      });
+      head.appendChild(del);
+    }
+    card.appendChild(head);
+    if(editable){
+      var tagsRow=document.createElement('div'); tagsRow.className='ci-drink-card-tags';
+      Object.keys(DRINK_TAG_META).forEach(function(tk){
+        var tm=DRINK_TAG_META[tk];
+        var tag=document.createElement('div'); tag.className='ci-drink-tag'+((entry.tags||[]).indexOf(tk)>=0?' active':'');
+        tag.textContent=tm.icon+' '+tm.label;
+        tag.addEventListener('click',function(){
+          entry.tags=entry.tags||[];
+          var idx=entry.tags.indexOf(tk);
+          if(idx>=0) entry.tags.splice(idx,1); else entry.tags.push(tk);
+          save(KEYS.drinks,drinks); renderDrinksToday();
+        });
+        tagsRow.appendChild(tag);
+      });
+      card.appendChild(tagsRow);
+      var photoRow=document.createElement('div'); photoRow.className='ci-drink-card-photo-row';
+      if(entry.hasPhoto){
+        var img=document.createElement('img'); img.className='ci-drink-card-photo';
+        img.src=localStorage.getItem(drinkPhotoKey(entry.id))||'';
+        photoRow.appendChild(img);
+      } else {
+        var pbtn=document.createElement('button'); pbtn.type='button'; pbtn.className='ci-drink-photo-btn'; pbtn.textContent='📷 加照片';
+        pbtn.addEventListener('click',function(){
+          ciDrinkPhotoTargetId=entry.id;
+          $('ciDrinkPhotoInput').click();
+        });
+        photoRow.appendChild(pbtn);
+      }
+      card.appendChild(photoRow);
+    } else {
+      if(entry.tags&&entry.tags.length){
+        var tagsRow2=document.createElement('div'); tagsRow2.className='ci-dm-drink-card-tags';
+        entry.tags.forEach(function(tk){
+          var tm=DRINK_TAG_META[tk]; if(!tm) return;
+          var t=document.createElement('span'); t.className='ci-dm-drink-card-tag'; t.textContent=tm.icon+tm.label;
+          tagsRow2.appendChild(t);
+        });
+        card.appendChild(tagsRow2);
+      }
+    }
+    return card;
+  }
+  var ciDrinkPhotoTargetId=null;
+  $('ciDrinkTypeBtns').querySelectorAll('.ci-drink-type-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var entry={ id:uid('drk'), date:todayHealthKey(), time:nowTimeStr(), type:this.dataset.type, tags:[], hasPhoto:false };
+      drinks.unshift(entry);
+      save(KEYS.drinks,drinks); renderDrinksToday(); flashSaved('已新增一杯 ✓');
+    });
+  });
+  $('ciDrinkPhotoInput').addEventListener('change',function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f||!ciDrinkPhotoTargetId) return;
+    var id=ciDrinkPhotoTargetId;
+    compressDrinkPhoto(f,function(dataUrl){
+      localStorage.setItem(drinkPhotoKey(id),dataUrl);
+      pushKeyToFirebase(drinkPhotoKey(id),dataUrl);
+      var entry=drinks.find(function(x){ return x.id===id; });
+      if(entry){ entry.hasPhoto=true; save(KEYS.drinks,drinks); }
+      renderDrinksToday();
+    });
+    e.target.value=''; ciDrinkPhotoTargetId=null;
+  });
+  function compressDrinkPhoto(file, cb){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var maxW=480, w=img.width, h=img.height;
+        if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+        var canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        var q=0.75, out=canvas.toDataURL('image/jpeg',q);
+        while(out.length>90000 && q>0.3){ q-=0.1; out=canvas.toDataURL('image/jpeg',q); }
+        cb(out);
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
 
   /* ---- Poop ---- */
   $('ciPoopRow').querySelectorAll('.ci-poop-btn').forEach(function(btn){
@@ -8250,16 +8477,18 @@ textarea.mid{ min-height:90px; }
   function openDayDetail(dateKey){
     var modal=$('ciDayModal'); if(!modal) return;
     var h=healthLog[dateKey]||null;
+    var dayDrinks=drinks.filter(function(d){ return d.date===dateKey; });
+    var moodVals=getMoodVals(h);
     var parts=dateKey.split('-');
     $('ciDayModalDate').textContent=parseInt(parts[0])+'年'+parseInt(parts[1])+'月'+parseInt(parts[2])+'日';
     var body=$('ciDayModalBody'); body.innerHTML='';
-    var hasAny=h&&(h.sleep||h.water||h.mood||(h.poop>=0)|h.note||
-      (h.meals&&['breakfast','lunch','dinner','snack'].some(function(m){ return h.meals[m]&&h.meals[m].eaten; }))||
-      (h.period&&(h.period.flow||h.period.discomfort)));
+    var hasAny=(h&&(h.sleep||h.water||moodVals.length||(h.poop>=0)||h.note||
+      (h.meals&&['breakfast','lunch','dinner','snack','other'].some(function(m){ return h.meals[m]&&h.meals[m].eaten; }))||
+      (h.period&&(h.period.flow||h.period.discomfort))))||dayDrinks.length;
     if(!hasAny){
       body.innerHTML='<div class="ci-no-data">這天還沒有健康紀錄 🌿<br><span style="font-size:12px">記錄習慣，從今天開始</span></div>';
     } else {
-      if(h.sleep||h.bedtime||h.wakeup){
+      if(h&&(h.sleep||h.bedtime||h.wakeup)){
         var sr=dmRow('😴','睡眠'); var sc='';
         if(h.sleep) sc+='<span style="font-size:16px;font-weight:700;color:var(--companion)">'+h.sleep+'h</span>&ensp;';
         if(h.bedtime||h.wakeup){
@@ -8271,9 +8500,9 @@ textarea.mid{ min-height:90px; }
         }
         sr.querySelector('.ci-dm-val').innerHTML=sc; body.appendChild(sr);
       }
-      if(h.meals){
-        var mealOrder=['breakfast','lunch','dinner','snack'];
-        var mealLabels={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'點心'};
+      if(h&&h.meals){
+        var mealOrder=['breakfast','lunch','dinner','snack','other'];
+        var mealLabels={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'點心',other:'其他'};
         var mr=dmRow('🍽️','飲食'); var mc='';
         mealOrder.forEach(function(m){
           var meal=h.meals[m]; if(!meal) return;
@@ -8282,6 +8511,7 @@ textarea.mid{ min-height:90px; }
             var tags=[];
             if(meal.protein) tags.push('🥩蛋白質'); if(meal.veg) tags.push('🥦蔬菜');
             if(meal.carb) tags.push('🍚澱粉'); if(meal.fruit) tags.push('🍎水果');
+            if(meal.junk) tags.push('🍬加工/含糖');
             if(tags.length) mc+=tags.map(function(t){ return '<span class="ci-dm-meal-tag">'+t+'</span>'; }).join('');
             else mc+='<span class="ci-dm-meal-tag">✓ 有吃</span>';
           } else { mc+='<span class="ci-dm-meal-tag no-eat">—</span>'; }
@@ -8289,17 +8519,53 @@ textarea.mid{ min-height:90px; }
         });
         mr.querySelector('.ci-dm-val').innerHTML=mc; body.appendChild(mr);
       }
-      if(h.water){ var wr=dmRow('💧','飲水'); wr.querySelector('.ci-dm-val').innerHTML='<span style="font-size:16px;font-weight:700;color:var(--companion)">'+(h.water>=1000?(h.water/1000).toFixed(1)+'L':h.water+'mL')+'</span>'; body.appendChild(wr); }
-      if(h.mood){ var mor=dmRow('💕','心情'); var moods=['','😔 很差','😕 不好','😐 普通','🙂 不錯','😄 很棒']; mor.querySelector('.ci-dm-val').textContent=moods[h.mood]||''; body.appendChild(mor); }
-      if(h.period&&(h.period.flow||h.period.discomfort||h.period.periodMood)){
+      if(dayDrinks.length){
+        var dr=dmRow('🥤','飲料 x'+dayDrinks.length);
+        var carousel=document.createElement('div'); carousel.className='ci-dm-drink-carousel';
+        dayDrinks.forEach(function(entry){
+          var meta=DRINK_TYPE_META[entry.type]||DRINK_TYPE_META.other;
+          var c=document.createElement('div'); c.className='ci-dm-drink-card';
+          if(entry.hasPhoto){
+            var img=document.createElement('img'); img.src=localStorage.getItem(drinkPhotoKey(entry.id))||'';
+            c.appendChild(img);
+          } else {
+            var noimg=document.createElement('div'); noimg.className='ci-dm-drink-card-noimg'; noimg.textContent=meta.icon;
+            c.appendChild(noimg);
+          }
+          var nm=document.createElement('div'); nm.className='ci-dm-drink-card-name'; nm.textContent=meta.icon+' '+meta.label;
+          var tm=document.createElement('div'); tm.className='ci-dm-drink-card-time'; tm.textContent=entry.time||'';
+          c.appendChild(nm); c.appendChild(tm);
+          if(entry.tags&&entry.tags.length){
+            var tagsWrap=document.createElement('div'); tagsWrap.className='ci-dm-drink-card-tags';
+            entry.tags.forEach(function(tk){
+              var tmeta=DRINK_TAG_META[tk]; if(!tmeta) return;
+              var tag=document.createElement('span'); tag.className='ci-dm-drink-card-tag'; tag.textContent=tmeta.icon+tmeta.label;
+              tagsWrap.appendChild(tag);
+            });
+            c.appendChild(tagsWrap);
+          }
+          carousel.appendChild(c);
+        });
+        dr.querySelector('.ci-dm-val').innerHTML=''; dr.querySelector('.ci-dm-val').appendChild(carousel);
+        body.appendChild(dr);
+      }
+      if(h&&h.water){ var wr=dmRow('💧','飲水'); wr.querySelector('.ci-dm-val').innerHTML='<span style="font-size:16px;font-weight:700;color:var(--companion)">'+(h.water>=1000?(h.water/1000).toFixed(1)+'L':h.water+'mL')+'</span>'; body.appendChild(wr); }
+      if(moodVals.length){
+        var mor=dmRow('💕','心情 x'+moodVals.length);
+        var chipsHtml=(h.moods&&h.moods.length?h.moods:moodVals.map(function(v){return {val:v,time:''};})).map(function(m){
+          return '<span class="ci-dm-meal-tag" style="background:'+(MOOD_COLORS[m.val]||'var(--companion-soft)')+';color:#fff;">'+(m.time?m.time+' ':'')+(MOOD_LABELS[m.val]||'')+'</span>';
+        }).join(' ');
+        mor.querySelector('.ci-dm-val').innerHTML=chipsHtml; body.appendChild(mor);
+      }
+      if(h&&h.period&&(h.period.flow||h.period.discomfort||h.period.periodMood)){
         var pr2=dmRow('🩸','生理期'); var pd=h.period; var pArr=[];
         if(pd.flow){var flows={1:'少',2:'中',3:'多',4:'很多'};pArr.push('血量：'+flows[pd.flow]);}
         if(pd.discomfort) pArr.push('不適度：'+pd.discomfort+'/5');
         if(pd.periodMood){var pm={1:'還好',2:'不太好',3:'很不適'};pArr.push(pm[pd.periodMood]);}
         pr2.querySelector('.ci-dm-val').textContent=pArr.join(' · '); body.appendChild(pr2);
       }
-      if(h.poop>=0){ var por=dmRow('🚽','排便'); var pl={0:'沒有',1:'正常 ✓',2:'異常'}; por.querySelector('.ci-dm-val').textContent=pl[h.poop]||''; body.appendChild(por); }
-      if(h.note){ var nor=dmRow('📝','備註'); nor.querySelector('.ci-dm-val').textContent=h.note; body.appendChild(nor); }
+      if(h&&h.poop>=0){ var por=dmRow('🚽','排便'); var pl={0:'沒有',1:'正常 ✓',2:'異常'}; por.querySelector('.ci-dm-val').textContent=pl[h.poop]||''; body.appendChild(por); }
+      if(h&&h.note){ var nor=dmRow('📝','備註'); nor.querySelector('.ci-dm-val').textContent=h.note; body.appendChild(nor); }
     }
     modal.classList.add('open');
   }
