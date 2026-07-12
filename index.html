@@ -253,7 +253,14 @@ body{
 .typing-dot:nth-child(2){ animation-delay:.15s; }
 .typing-dot:nth-child(3){ animation-delay:.3s; }
 @keyframes typing-bounce{ 0%,60%,100%{ transform:translateY(0); opacity:.5; } 30%{ transform:translateY(-3px); opacity:1; } }
-.chat-error{ align-self:flex-start; color:#a64949; font-size:12.5px; background:#fbe6e6; padding:8px 12px; border-radius:12px; max-width:88%; line-height:1.5; }
+.chat-error{ align-self:flex-start; color:#a64949; font-size:12.5px; background:#fbe6e6; padding:10px 12px; border-radius:12px; max-width:88%; line-height:1.5; }
+/* 錯誤說明卡片：標題／中文解釋／解法／可展開原始錯誤（聊天室與測試連線共用） */
+.err-title{ font-size:13.5px; font-weight:700; color:#a64949; margin-bottom:3px; }
+.err-detail{ color:#8a5050; margin-bottom:6px; }
+.err-fix{ color:#6a7a4a; background:rgba(126,163,89,0.12); border-radius:8px; padding:6px 9px; margin-bottom:4px; }
+.err-raw{ margin-top:4px; }
+.err-raw summary{ cursor:pointer; color:#a68080; font-size:11px; user-select:none; }
+.err-raw-text{ font-size:10.5px; color:#8a7070; background:rgba(0,0,0,0.04); border-radius:6px; padding:6px 8px; margin-top:4px; word-break:break-all; white-space:pre-wrap; max-height:120px; overflow-y:auto; }
 
 /* ---------- Composer ---------- */
 .composer{
@@ -5240,6 +5247,57 @@ textarea.mid{ min-height:90px; }
     }
   }
 
+  // 把英文/數字錯誤代碼翻成中文說明＋解決方案，減少「貼錯誤訊息來問」的往返
+  function explainApiError(err){
+    var msg = (err && err.message) ? err.message : String(err||'');
+    var lower = msg.toLowerCase();
+    var statusMatch = msg.match(/API 回應狀態 (\d+)/);
+    var status = statusMatch ? parseInt(statusMatch[1]) : null;
+
+    if(lower.indexOf('insufficient_quota')>=0 || lower.indexOf('credit balance is too low')>=0 || lower.indexOf('exceeded your current quota')>=0 || lower.indexOf('insufficient credit')>=0){
+      return { title:'💳 額度／餘額不足', detail:'目前使用的服務帳號沒有足夠的可用額度或儲值餘額。', fix:'請登入該服務商官網（例如 openrouter.ai 或 aistudio.google.com）儲值或申請額度，或到後台「連線設定」暫時切換成免費額度較高的模型。' };
+    }
+    if(lower.indexOf('invalid api key')>=0 || lower.indexOf('invalid_api_key')>=0 || lower.indexOf('incorrect api key')>=0 || lower.indexOf('unauthorized')>=0){
+      return { title:'🔑 API 金鑰無效', detail:'金鑰格式不對、已被撤銷過期，或跟你目前選擇的模型不是同一家服務商申請的。', fix:'回「連線設定」確認金鑰有沒有貼對、貼完整，並確認金鑰跟目前選的模型是同一家（例如 Gemini 金鑰不能用在 Claude 模型）。' };
+    }
+    if(lower.indexOf('model_not_found')>=0 || (lower.indexOf('does not exist')>=0 && lower.indexOf('model')>=0)){
+      return { title:'❓ 找不到這個模型', detail:'目前設定的模型名稱可能打錯字，或該模型已下架、你的帳號沒有使用權限。', fix:'回「連線設定」重新從下拉選單選一次模型（避免自訂模式打錯字），或確認帳號是否有此模型的存取權限。' };
+    }
+    switch(status){
+      case 400: return { title:'⚠️ 請求格式錯誤', detail:'送出的內容格式不符合服務商的要求，常見於自訂模式下網址或模型名稱設定錯誤。', fix:'檢查「連線設定」裡的模型名稱與 API 網址是否正確；建議改用下拉選單裡的預設選項，而不是手動輸入。' };
+      case 401: return { title:'🔑 金鑰驗證失敗', detail:'API 金鑰無效、過期，或沒有正確帶入請求中。', fix:'回「連線設定」重新貼上正確的金鑰，並確認沒有多餘空格。' };
+      case 402: return { title:'💳 額度／餘額不足', detail:'帳號的可用額度或儲值餘額已經用完。', fix:'到服務商官網儲值，或切換成免費額度較高的模型（例如 Gemini）。' };
+      case 403: return { title:'🚫 沒有存取權限', detail:'這把金鑰沒有使用目前所選模型的權限。', fix:'確認金鑰所屬帳號的方案是否支援此模型，或改選其他模型。' };
+      case 404: return { title:'❓ 找不到模型或網址', detail:'模型名稱或 API 網址可能打錯，或該模型已被服務商下架。', fix:'回「連線設定」重新選擇一次模型，避免手動輸入打錯字。' };
+      case 413: return { title:'📦 請求內容太長', detail:'聊天記錄、事件設定或訊息內容加起來超過模型允許的長度上限。', fix:'到後台「事件」刪減一些內容，或清除部分聊天記錄，也可以改用上下文容量較大的模型（例如 Gemini 或 Claude）。' };
+      case 429: return { title:'⏳ 請求太頻繁', detail:'短時間內的用量超過服務商限制的速率（常見於 Groq 等免費方案）。', fix:'稍等 1 分鐘後再試，或到「連線設定」切換成限制較寬鬆的模型（例如 Gemini）。' };
+      case 500: return { title:'🔧 伺服器內部錯誤', detail:'服務商那邊發生非預期的錯誤，跟你的設定無關。', fix:'稍後再試一次；如果持續發生，可以先切換其他模型。' };
+      case 502: case 504: return { title:'🌐 伺服器連線逾時', detail:'服務商的伺服器目前回應不穩定或逾時。', fix:'稍後再試一次，通常幾分鐘內會恢復。' };
+      case 503: return { title:'🚦 伺服器過載', detail:'目前使用這個模型的人太多，服務商暫時處理不過來（不是你設定錯誤）。', fix:'稍等幾分鐘再試，或到「連線設定」暫時切換成其他模型。' };
+    }
+    if(lower.indexOf('failed to fetch')>=0 || lower.indexOf('networkerror')>=0 || lower.indexOf('network request failed')>=0){
+      return { title:'📡 網路連線失敗', detail:'裝置目前連不上服務商的伺服器，可能是網路斷線，或瀏覽器/防火牆擋下了對外連線。', fix:'檢查手機或電腦的網路連線；建議用 Chrome 或 Edge 開啟本站；若在公司或學校網路，可能被防火牆擋下對外 API 連線。' };
+    }
+    return { title:'⚠️ 未知的連線問題', detail:'發生了一個沒有預期到的錯誤。', fix:'可以把下方「原始錯誤內容」複製起來詢問開發者協助排查。' };
+  }
+  // 錯誤說明卡片的共用內容（標題／中文解釋／解法／可展開原始錯誤）
+  function errorInnerHtml(err){
+    var info = explainApiError(err);
+    var raw = (err && err.message) ? err.message : String(err||'');
+    var rawEsc = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return '<div class="err-title">'+info.title+'</div>'+
+      '<div class="err-detail">'+info.detail+'</div>'+
+      '<div class="err-fix">💡 '+info.fix+'</div>'+
+      '<details class="err-raw"><summary>原始錯誤內容</summary><div class="err-raw-text">'+rawEsc+'</div></details>';
+  }
+  // 聊天室裡顯示的錯誤卡片
+  function buildErrorBox(err){
+    var box = document.createElement('div');
+    box.className = 'chat-error';
+    box.innerHTML = errorInnerHtml(err);
+    return box;
+  }
+
   function estimateTokens(text){
     return Math.ceil((text||'').length / 2.5);
   }
@@ -5349,10 +5407,7 @@ textarea.mid{ min-height:90px; }
       if(!activeSceneId) maybeExtractMemory();
     }).catch(function(err){
       hideTyping();
-      var box = document.createElement('div');
-      box.className = 'chat-error';
-      box.textContent = '訊息沒送出去：' + (err && err.message ? err.message : String(err));
-      thread.appendChild(box);
+      thread.appendChild(buildErrorBox(err));
       scrollThread();
       setSending(false);
       console.error(err);
@@ -5640,10 +5695,13 @@ textarea.mid{ min-height:90px; }
       out.className='test-result'; out.textContent='連線不穩（'+(status||'網路錯誤')+'），重試中…（'+n+'/'+total+'）';
     }).then(function(r){
       if(r.ok){ out.className='test-result ok'; out.textContent='✓ 連線成功！可以回聊天室開始跟卄珩對話了。'; renderThread(); fetchOrBalance(); }
-      else{ return r.text().then(function(t){ out.className='test-result err'; out.textContent='✗ 失敗（'+r.status+'）：'+t.slice(0,200); }); }
+      else{ return r.text().then(function(t){
+        out.className='test-result err';
+        out.innerHTML = errorInnerHtml(new Error('API 回應狀態 ' + r.status + '：' + t.slice(0,300)));
+      }); }
     }).catch(function(e){
       out.className='test-result err';
-      out.textContent='✗ 連線失敗：'+(e&&e.message?e.message:e);
+      out.innerHTML = errorInnerHtml(e);
     });
   });
 
@@ -7365,9 +7423,7 @@ textarea.mid{ min-height:90px; }
       scrollThread(); setSending(false); maybeExtractMemory();
     }).catch(function(err){
       hideTyping();
-      var box=document.createElement('div'); box.className='chat-error';
-      box.textContent='訊息沒送出去：'+(err&&err.message?err.message:String(err));
-      thread.appendChild(box); scrollThread(); setSending(false);
+      thread.appendChild(buildErrorBox(err)); scrollThread(); setSending(false);
     });
   }
   // 「每日問題」網格按鈕 → 打開歷史紀錄頁
@@ -7599,9 +7655,7 @@ textarea.mid{ min-height:90px; }
       scrollThread(); setSending(false); maybeExtractMemory();
     }).catch(function(err){
       hideTyping();
-      var box=document.createElement('div'); box.className='chat-error';
-      box.textContent='訊息沒送出去：'+(err&&err.message?err.message:String(err));
-      thread.appendChild(box); scrollThread(); setSending(false);
+      thread.appendChild(buildErrorBox(err)); scrollThread(); setSending(false);
     });
   });
 
