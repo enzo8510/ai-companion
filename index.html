@@ -2013,6 +2013,11 @@ textarea.mid{ min-height:90px; }
 .sfh-meal.done{ background:var(--companion); color:#fff; }
 .sfh-meal.miss{ background:transparent; border:1px dashed var(--line); color:var(--ink-soft); }
 .sfh-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:24px 0; }
+.sfh-pager{ display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
+.sfh-pager-btn{ font-size:12px; padding:5px 12px; border-radius:999px; border:1.5px solid var(--line); background:var(--chat-bg); color:var(--ink); cursor:pointer; font-family:inherit; transition:all .15s; }
+.sfh-pager-btn:disabled{ opacity:.35; cursor:default; }
+.sfh-pager-btn:not(:disabled):active{ background:var(--companion-soft); border-color:var(--companion); }
+.sfh-pager-label{ font-size:12px; color:var(--ink-soft); font-weight:600; }
 /* ---- Login screen ---- */
 .login-view{
   position:absolute; inset:0; z-index:1000; overflow:hidden;
@@ -2705,6 +2710,11 @@ textarea.mid{ min-height:90px; }
             <button class="icon-btn" id="starFeedHistClose" type="button" style="font-size:20px;">←</button>
             <span class="star-feed-hist-title">🍚 餵食紀錄</span>
             <div style="width:36px;"></div>
+          </div>
+          <div class="sfh-pager">
+            <button class="sfh-pager-btn" id="sfhPagerPrev" type="button">‹ 更早</button>
+            <span class="sfh-pager-label" id="sfhPagerLabel"></span>
+            <button class="sfh-pager-btn" id="sfhPagerNext" type="button">更近 ›</button>
           </div>
           <div class="star-feed-hist-body" id="starFeedHistBody"></div>
         </div>
@@ -8031,16 +8041,26 @@ textarea.mid{ min-height:90px; }
     }).join('');
   }
 
+  var SFH_PAGE_SIZE = 7;
+  var sfhPage = 0; // 0 = 最近 7 筆，往上加 = 更早的一週
   function renderStarFeedHistory(){
     var body = $('starFeedHistBody'); if(!body) return;
     var feeds = starState.dailyFeeds || {};
     var keys = Object.keys(feeds).sort(function(a,b){ return new Date(b)-new Date(a); });
+    var pagerPrev=$('sfhPagerPrev'), pagerNext=$('sfhPagerNext'), pagerLabel=$('sfhPagerLabel');
     if(!keys.length){
-      body.innerHTML = '<div class="sfh-empty">還沒有餵食記錄</div>'; return;
+      body.innerHTML = '<div class="sfh-empty">還沒有餵食記錄</div>';
+      if(pagerPrev){ pagerPrev.disabled=true; pagerNext.disabled=true; pagerLabel.textContent=''; }
+      return;
     }
+    var totalPages = Math.max(1, Math.ceil(keys.length/SFH_PAGE_SIZE));
+    if(sfhPage>=totalPages) sfhPage=totalPages-1;
+    if(sfhPage<0) sfhPage=0;
+    var start=sfhPage*SFH_PAGE_SIZE;
+    var pageKeys = keys.slice(start, start+SFH_PAGE_SIZE);
     var todayStr = new Date().toISOString().slice(0,10);
     var yestStr = new Date(Date.now()-86400000).toISOString().slice(0,10);
-    body.innerHTML = keys.slice(0, 60).map(function(k){
+    body.innerHTML = pageKeys.map(function(k){
       var f = feeds[k] || {};
       var d = new Date(k);
       var dateLabel = (d.getMonth()+1) + '/' + d.getDate() + '（' + ['日','一','二','三','四','五','六'][d.getDay()] + '）';
@@ -8056,7 +8076,14 @@ textarea.mid{ min-height:90px; }
       }).join('');
       return '<div class="sfh-row"><div class="sfh-date">'+dateLabel+subHtml+'</div><div class="sfh-meals">'+mealHtml+'</div></div>';
     }).join('');
+    if(pagerPrev){
+      pagerNext.disabled = sfhPage<=0;
+      pagerPrev.disabled = sfhPage>=totalPages-1;
+      pagerLabel.textContent = '第 '+(sfhPage+1)+' / '+totalPages+' 週';
+    }
   }
+  if($('sfhPagerPrev')) $('sfhPagerPrev').addEventListener('click', function(){ sfhPage++; renderStarFeedHistory(); });
+  if($('sfhPagerNext')) $('sfhPagerNext').addEventListener('click', function(){ sfhPage--; renderStarFeedHistory(); });
 
   function renderCiCalGrid(){
     $('ciCalMonthLabel').textContent = ciCalYear+'年 '+(ciCalMonth+1)+'月';
@@ -8574,6 +8601,7 @@ textarea.mid{ min-height:90px; }
   function openCiCalOverlay(){ openCheckinView(); }
   $('ciBackBtn').addEventListener('click', showHome);
   $('starFeedHistBtn').addEventListener('click', function(){
+    sfhPage = 0;
     renderStarFeedHistory();
     $('starFeedHistOverlay').classList.remove('hidden');
   });
