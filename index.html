@@ -770,14 +770,6 @@ textarea.mid{ min-height:90px; }
 .btc-checkin-btn:active{ opacity:.85; }
 .btc-checkin-btn:disabled{ opacity:.45; cursor:default; }
 .btc-checkin-done{ width:100%; padding:16px; border-radius:16px; background:var(--surface); color:var(--ink-soft); border:1.5px solid var(--line); font-size:15px; font-weight:600; font-family:inherit; text-align:center; margin-top:4px; }
-.btc-achieve-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-.btc-badge{ display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 8px; border-radius:12px; flex:1; min-width:60px; border:1.5px solid var(--line); background:var(--chat-bg); }
-.btc-badge.unlocked{ border-color:var(--companion); background:var(--companion-soft); }
-.btc-badge.super{ border-color:#f0a03e; background:rgba(240,160,62,.1); }
-.btc-badge-emoji{ font-size:20px; }
-.btc-badge-label{ font-size:9px; color:var(--ink-soft); text-align:center; line-height:1.3; font-weight:600; }
-.btc-badge.unlocked .btc-badge-label{ color:var(--companion); }
-.btc-badge.super .btc-badge-label{ color:#e07a20; }
 .btc-hint{ font-size:12px; color:var(--ink-soft); text-align:center; padding:8px 0 4px; }
 /* Period bar visual — pill spanning multiple days */
 .btc-period-day{ background:transparent; border-radius:0; position:relative; }
@@ -3315,7 +3307,6 @@ textarea.mid{ min-height:90px; }
           </div>
           <div class="btc-grid" id="ciCalGrid"></div>
         </div>
-        <div class="btc-achieve-row" id="ciAchievements"></div>
         <button class="btc-checkin-btn" id="ciCheckinBtn" type="button">🌙 今日打卡</button>
         <!-- Charts section -->
         <div class="ci-charts-section" id="ciChartsSection">
@@ -8028,12 +8019,6 @@ textarea.mid{ min-height:90px; }
   });
 
   /* ============ Check-in Calendar Overlay ============ */
-  var CI_ACHIEVEMENTS = [
-    { id:'7',  emoji:'⭐', label:'一週達人',   threshold:7,  type:'streak' },
-    { id:'14', emoji:'🌟', label:'雙週堅持',   threshold:14, type:'streak' },
-    { id:'21', emoji:'💫', label:'三週毅力',   threshold:21, type:'streak' },
-    { id:'month', emoji:'🏆', label:'整月達成', threshold:0,  type:'month' }
-  ];
   function renderCiRecentList(){
     var el = $('ciRecentList'); if(!el) return;
     var history = (checkin.history || []).slice().reverse().slice(0, 20);
@@ -8136,15 +8121,6 @@ textarea.mid{ min-height:90px; }
     var ciBtn = $('ciCheckinBtn');
     if(todayDone){ ciBtn.textContent='✅ 今天已打卡'; ciBtn.disabled=true; ciBtn.className='btc-checkin-btn'; ciBtn.style.opacity='.45'; }
     else{ ciBtn.textContent='🌙 今日打卡'; ciBtn.disabled=false; ciBtn.className='btc-checkin-btn'; ciBtn.style.opacity='1'; }
-    // Render achievements
-    var ach = $('ciAchievements'); ach.innerHTML='';
-    CI_ACHIEVEMENTS.forEach(function(a){
-      var unlocked = a.type==='streak' ? streak>=a.threshold : monthCount===daysInMon;
-      var badge = document.createElement('div');
-      badge.className='btc-badge '+(unlocked?(a.id==='month'?'super':'unlocked'):'');
-      badge.innerHTML='<span class="btc-badge-emoji">'+(unlocked?a.emoji:'🔒')+'</span><span class="btc-badge-label">'+a.label+(a.type==='streak'?'<br>'+a.threshold+'天':'')+'</span>';
-      ach.appendChild(badge);
-    });
   }
   /* ============ Health Log ============ */
   var healthLog = load(KEYS.healthLog) || {};
