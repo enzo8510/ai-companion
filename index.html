@@ -174,15 +174,16 @@ body{
 }
 .chat-thread::-webkit-scrollbar, .admin-body::-webkit-scrollbar{ width:6px; }
 .chat-thread::-webkit-scrollbar-thumb, .admin-body::-webkit-scrollbar-thumb{ background:rgba(91,74,66,0.15); border-radius:10px; }
-/* 沒有聊天背景圖時，比照登入畫面的漸層＋光暈效果 */
+/* 沒有聊天背景圖時，比照登入畫面的漸層＋光暈效果。
+   background-attachment 必須是 scroll（不能是 local），否則光暈會跟著訊息內容捲動出畫面，滑幾則訊息就完全看不到了。 */
 #thread.no-chatbg-gradient{
   background-color:transparent;
   background-image:
-    radial-gradient(circle at 92% -8%, var(--companion-shadow) 0%, transparent 42%),
-    radial-gradient(circle at -8% 108%, var(--companion-shadow) 0%, transparent 48%),
+    radial-gradient(circle at 92% -8%, color-mix(in srgb, var(--companion) 55%, transparent) 0%, transparent 60%),
+    radial-gradient(circle at -8% 108%, color-mix(in srgb, var(--companion) 55%, transparent) 0%, transparent 65%),
     linear-gradient(170deg, var(--companion-soft) 0%, var(--bg) 45%, var(--surface) 100%);
   background-size:auto;
-  background-attachment:local;
+  background-attachment:scroll;
 }
 
 .system-note{
