@@ -238,10 +238,9 @@ body{
   white-space:pre-wrap;
 }
 .bubble-time{ font-size:10px; color:rgba(26,26,46,0.45); white-space:nowrap; flex-shrink:0; line-height:1; padding-bottom:3px; }
-.msg-page-tag{ display:flex; flex-direction:column; align-items:flex-start; gap:3px; width:fit-content; max-width:88%; margin:-4px 0 2px 32px; padding:6px 12px; border-radius:4px 12px 12px 12px; background:var(--companion); color:#fff; box-shadow:0 2px 6px rgba(50,58,80,0.18); animation:rise .5s ease both; }
-.msg-page-tag.me{ align-self:flex-end; align-items:flex-end; margin:-4px 32px 2px 0; border-radius:12px 4px 12px 12px; }
-.msg-page-tag .mpt-page{ font-size:13px; font-weight:700; letter-spacing:1px; }
-.msg-page-tag .mpt-date{ font-size:10.5px; opacity:.9; display:flex; align-items:center; gap:4px; }
+.bubble .msg-page-tag{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; margin-top:10px; padding-top:8px; border-top:1px solid color-mix(in srgb, currentColor 22%, transparent); }
+.bubble .msg-page-tag .mpt-page{ font-size:13px; font-weight:700; letter-spacing:1px; }
+.bubble .msg-page-tag .mpt-date{ font-size:10.5px; opacity:.75; display:flex; align-items:center; gap:4px; }
 .bubble.her{ background:rgba(176,158,212,0.85); color:#1a1a2e; border-radius:18px 18px 18px 5px; }
 .bubble.me{ background:rgba(245,240,255,0.92); color:#1a1a2e; border-radius:18px 18px 5px 18px; box-shadow:0 1px 4px rgba(50,58,80,0.12); }
 .bubble.her strong{ font-weight:600; }
@@ -4936,7 +4935,7 @@ textarea.mid{ min-height:90px; }
     return card;
   }
 
-  function bubbleRow(role, text, msgIndex, ts){
+  function bubbleRow(role, text, msgIndex, ts, pageEntry){
     var row = document.createElement('div');
     row.className = 'row ' + (role==='assistant' ? 'her' : 'me');
     if(msgIndex!==undefined) row.setAttribute('data-msg-index', msgIndex);
@@ -4969,6 +4968,11 @@ textarea.mid{ min-height:90px; }
     b.innerHTML = parseMarkdown(text||'');
     row.appendChild(b);
 
+    if(pageEntry){
+      var pt = buildPageTag(pageEntry);
+      if(pt) b.appendChild(pt);
+    }
+
     if(timeEl) row.appendChild(timeEl);
     if(msgIndex!==undefined){
       (function(idx){
@@ -4996,19 +5000,19 @@ textarea.mid{ min-height:90px; }
   }
   function scrollThread(instant){ if(instant){ thread.scrollTop = thread.scrollHeight; } else { var last = thread.lastElementChild; if(last) last.scrollIntoView({ behavior:smooth(), block:'end' }); } }
 
-  /* 頁碼標記：僅主聊天室顯示（場景不影響主線，不編頁），頁碼＝該則訊息在主聊天記錄中的順位 */
+  /* 頁碼標記：只標角色（assistant）的對話，且僅主聊天室（場景不影響主線，不編頁）。頁碼＝該則訊息在角色所有發言中的順位 */
   function mainChatPageNumber(entry){
-    var list = chatHistory.filter(function(m){ return m.type !== 'scene-end'; });
+    var list = chatHistory.filter(function(m){ return m.role === 'assistant'; });
     var i = list.indexOf(entry);
     return i>=0 ? i+1 : null;
   }
   function buildPageTag(entry){
-    if(activeSceneId || !entry || !entry.ts) return null;
+    if(activeSceneId || !entry || entry.role !== 'assistant' || !entry.ts) return null;
     var n = mainChatPageNumber(entry);
     if(n===null) return null;
     var d = new Date(entry.ts);
     var dateStr = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
-    var tag = document.createElement('div'); tag.className = 'msg-page-tag' + (entry.role==='user' ? ' me' : '');
+    var tag = document.createElement('div'); tag.className = 'msg-page-tag';
     var pageEl = document.createElement('div'); pageEl.className='mpt-page'; pageEl.textContent = 'P . ' + n;
     var dateEl = document.createElement('div'); dateEl.className='mpt-date'; dateEl.textContent = '📅 ' + dateStr;
     tag.appendChild(pageEl); tag.appendChild(dateEl);
@@ -5078,19 +5082,16 @@ textarea.mid{ min-height:90px; }
       insertDateDividerIfNeeded(t.ts);
       if(t.isDiary && t.role==='user'){
         thread.appendChild(createDiaryCard(t.content, t.mood, t.diaryDate, idx));
-        var pt1 = buildPageTag(t); if(pt1) thread.appendChild(pt1);
       } else if(t.isQa && t.role==='user'){
         thread.appendChild(createQaCard(t.content, idx));
-        var pt2 = buildPageTag(t); if(pt2) thread.appendChild(pt2);
       } else {
         if(t.img){
           var ir = document.createElement('div'); ir.className='chat-img-row';
           var ie = document.createElement('img'); ie.src=t.img; ie.alt=''; ir.appendChild(ie);
           thread.appendChild(ir);
         }
-        if(t.content) thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
-        else if(!t.img)  thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts));
-        var pt3 = buildPageTag(t); if(pt3) thread.appendChild(pt3);
+        if(t.content) thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts, t));
+        else if(!t.img)  thread.appendChild(bubbleRow(t.role, t.content, idx, t.ts, t));
       }
     });
     requestAnimationFrame(function(){
@@ -5414,10 +5415,7 @@ textarea.mid{ min-height:90px; }
     var userTs = Date.now();
     var userEntry = { role:'user', content:t||'', img:img||null, ts:userTs };
     getActiveHistory().push(userEntry);
-    if(t){
-      thread.appendChild(bubbleRow('user', t, undefined, userTs));
-      var upt = buildPageTag(userEntry); if(upt) thread.appendChild(upt);
-    }
+    if(t) thread.appendChild(bubbleRow('user', t, undefined, userTs, userEntry));
     saveActiveHistory();
     chatInput.value = ''; chatInput.style.height='auto';
     setSending(true);
@@ -5430,8 +5428,7 @@ textarea.mid{ min-height:90px; }
       hideTyping();
       var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
       getActiveHistory().push(assistantEntry);
-      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
-      var apt = buildPageTag(assistantEntry); if(apt) thread.appendChild(apt);
+      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs, assistantEntry));
       saveActiveHistory();
       updateTokenBar(result.usage);
       scrollThread();
@@ -7448,8 +7445,7 @@ textarea.mid{ min-height:90px; }
       hideTyping();
       var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
       chatHistory.push(assistantEntry);
-      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
-      var apt = buildPageTag(assistantEntry); if(apt) thread.appendChild(apt);
+      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs, assistantEntry));
       save(KEYS.chat, chatHistory);
       updateTokenBar(result.usage);
       var qaIdx = qaHistory.findIndex(function(h){ return h.question === q && h.date === todayLabel(); });
@@ -7681,8 +7677,7 @@ textarea.mid{ min-height:90px; }
       hideTyping();
       var assistantEntry = { role:'assistant', content:reply, ts:replyTs };
       chatHistory.push(assistantEntry);
-      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs));
-      var apt = buildPageTag(assistantEntry); if(apt) thread.appendChild(apt);
+      thread.appendChild(bubbleRow('assistant', reply, undefined, replyTs, assistantEntry));
       save(KEYS.chat, chatHistory);
       updateTokenBar(result.usage);
       // save answer back to qaHistory entry
@@ -8010,7 +8005,8 @@ textarea.mid{ min-height:90px; }
         else thread.classList.remove('dark-bg');
       });
     } else {
-      thread.style.backgroundImage='';
+      /* 沒有背景圖片時，改用跟登入畫面一致的漸層色，而非純色底 */
+      thread.style.backgroundImage='linear-gradient(170deg,var(--companion-soft) 0%,var(--bg) 45%,var(--surface) 100%)';
       thread.style.backgroundSize='';
       thread.style.backgroundPosition='';
       thread.classList.remove('has-chatbg');
