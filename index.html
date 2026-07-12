@@ -8116,9 +8116,11 @@ textarea.mid{ min-height:90px; }
         if(hEntry.water){ var d2=document.createElement('div'); d2.className='btc-day-hdot'; d2.style.background='#74b3e0'; dotRow.appendChild(d2); }
         if(moodValsC.length){
           var d3=document.createElement('div'); d3.className='btc-day-hdot';
-          var uniqueMoodColors=moodValsC.map(function(v){ return MOOD_COLORS[v]||'var(--companion)'; }).filter(function(c,idx,arr){ return arr.indexOf(c)===idx; });
-          if(uniqueMoodColors.length===1){ d3.style.background=uniqueMoodColors[0]; }
-          else { d3.style.width='9px'; d3.style.background='linear-gradient(90deg,'+uniqueMoodColors.join(',')+')'; }
+          // 最多混兩色：取當天第一筆與最後一筆心情（呈現一整天的情緒走向）
+          var firstColor=MOOD_COLORS[moodValsC[0]]||'var(--companion)';
+          var lastColor=MOOD_COLORS[moodValsC[moodValsC.length-1]]||'var(--companion)';
+          if(firstColor===lastColor){ d3.style.background=firstColor; }
+          else { d3.style.width='9px'; d3.style.background='linear-gradient(90deg,'+firstColor+','+lastColor+')'; }
           dotRow.appendChild(d3);
         }
         cell.appendChild(dotRow);
@@ -8337,6 +8339,10 @@ textarea.mid{ min-height:90px; }
       var h=getOrCreateTodayHealth();
       h.moods.push({time:nowTimeStr(),val:parseInt(this.dataset.val)});
       save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts();
+      // 記錄心情視同今日已打卡
+      if(typeof performCheckin==='function' && performCheckin()){
+        showCheckinToast('🌙 今日已打卡（心情紀錄）✨ 連續 '+checkin.streak+' 天');
+      }
     });
   });
 
@@ -8600,10 +8606,11 @@ textarea.mid{ min-height:90px; }
   });
   $('ciCalPrev').addEventListener('click',function(){ ciCalMonth--; if(ciCalMonth<0){ciCalMonth=11;ciCalYear--;} renderCiCalGrid(); });
   $('ciCalNext').addEventListener('click',function(){ ciCalMonth++; if(ciCalMonth>11){ciCalMonth=0;ciCalYear++;} renderCiCalGrid(); });
-  $('ciCheckinBtn').addEventListener('click', function(){
+  // 執行打卡（按鈕手動觸發，或記錄心情時自動觸發）。回傳 true 代表這次真的完成了打卡。
+  function performCheckin(){
     var today = todayLabel();
     if(!checkin.history) checkin.history=[];
-    if(checkin.lastDate === today){ showCheckinToast('今天已經打過卡了 ✓'); return; }
+    if(checkin.lastDate === today) return false;
     var d=new Date(); d.setDate(d.getDate()-1);
     var yest=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
     checkin.streak=(checkin.lastDate===yest)?checkin.streak+1:1;
@@ -8613,6 +8620,10 @@ textarea.mid{ min-height:90px; }
     updateCheckinBtn();
     renderCiCalGrid();
     renderCiRecentList();
+    return true;
+  }
+  $('ciCheckinBtn').addEventListener('click', function(){
+    if(!performCheckin()){ showCheckinToast('今天已經打過卡了 ✓'); return; }
     showCheckinToast('打卡成功！✨  連續 '+checkin.streak+' 天');
   });
 
