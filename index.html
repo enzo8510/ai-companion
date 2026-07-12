@@ -2385,7 +2385,6 @@ textarea.mid{ min-height:90px; }
         <button class="tab-btn" data-tab="persona">人格設定</button>
         <button class="tab-btn" data-tab="knowledge">事件</button>
         <button class="tab-btn" data-tab="memory">記憶體</button>
-        <button class="tab-btn" data-tab="journal">生活日誌</button>
       </div>
 
       <div class="admin-body">
@@ -2603,16 +2602,6 @@ textarea.mid{ min-height:90px; }
             <button class="toolbar-btn primary" id="memAddBtn" type="button">＋ 新增記憶</button>
           </div>
           <div id="memList"></div>
-        </section>
-
-        <!-- 生活日誌 -->
-        <section class="panel" id="panel-journal">
-          <h2>生活日誌</h2>
-          <p class="lead">由你自行新增與編輯的生活日誌，記錄每天的點滴。可以新增、修改或刪除每一頁。每則最多 80 字。</p>
-          <div class="panel-toolbar">
-            <button class="toolbar-btn primary" id="jrAddBtn" type="button">＋ 新增一頁</button>
-          </div>
-          <div id="jrList"></div>
         </section>
 
       </div>
@@ -6118,51 +6107,9 @@ textarea.mid{ min-height:90px; }
     save(KEYS.memories, memories); renderMemories(); flashSaved();
   });
 
-  /* ============ Journal panel ============ */
-  var jrList = $('jrList');
-  function renderJournal(){
-    jrList.innerHTML = '';
-    if(!journal.length){
-      jrList.innerHTML = '<div class="panel-empty"><div class="empty-icon">📖</div><div class="empty-title">還沒有生活日誌</div><div class="empty-sub">點「新增一頁」為你們的故事留下紀錄</div></div>';
-      return;
-    }
-    journal.forEach(function(j){
-      var card = document.createElement('div'); card.className='jr-card';
-
-      var head = document.createElement('div'); head.className='jr-card-head';
-      var ico = document.createElement('button'); ico.type='button'; ico.className='jr-date-icon cal-trigger'; ico.title='選擇日期'; ico.textContent='📅';
-      var dateInput = document.createElement('input'); dateInput.type='text'; dateInput.className='jr-date-input';
-      dateInput.value=j.date||''; dateInput.placeholder='YYYY年M月D日';
-      dateInput.addEventListener('change', function(){ j.date=dateInput.value; save(KEYS.journal, journal); flashSaved(); });
-      ico.addEventListener('click', function(e){
-        e.stopPropagation();
-        openCalendar(ico, j.date, function(str){ j.date=str; dateInput.value=str; save(KEYS.journal, journal); flashSaved(); });
-      });
-      var delBtn = document.createElement('button'); delBtn.className='icon-action del'; delBtn.title='刪除'; delBtn.textContent='✕';
-      delBtn.addEventListener('click', function(){
-        if(!confirm('刪除這一頁日誌？')) return;
-        journal = journal.filter(function(x){ return x.id!==j.id; });
-        save(KEYS.journal, journal); renderJournal(); flashSaved();
-      });
-      head.appendChild(ico); head.appendChild(dateInput); head.appendChild(delBtn);
-
-      var body = document.createElement('div'); body.className='jr-card-body';
-      var ta = document.createElement('textarea'); ta.setAttribute('maxlength','80'); ta.value=j.content||''; ta.placeholder='今天想說的話…';
-      var jrCnt = document.createElement('div'); jrCnt.className='entry-char-count';
-      function updJrCnt(){ var l=(ta.value||'').length; jrCnt.textContent=l+'/80'; jrCnt.className='entry-char-count'+(l>=80?' limit':l>=60?' warn':''); }
-      updJrCnt();
-      ta.addEventListener('change', function(){ j.content=ta.value; save(KEYS.journal, journal); flashSaved(); updJrCnt(); });
-      ta.addEventListener('input', function(){ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; updJrCnt(); });
-
-      body.appendChild(ta); body.appendChild(jrCnt); card.appendChild(head); card.appendChild(body);
-      jrList.appendChild(card);
-    });
-  }
-  $('jrAddBtn').addEventListener('click', function(){
-    if(journal.length >= 100){ alert('生活日誌已達 100 筆上限，請先刪除舊的再新增。'); return; }
-    journal.unshift({ id:uid('jr'), date:todayLabel(), content:'' });
-    save(KEYS.journal, journal); renderJournal(); flashSaved();
-  });
+  /* ============ Journal data ============ */
+  // 後台生活日誌編輯面板已移除；journal 資料繼續保留，供聊天室「📓 日記」與心情月曆使用。
+  function renderJournal(){}
 
   /* ============ Daily Check-in ============ */
   function showCheckinToast(msg){
