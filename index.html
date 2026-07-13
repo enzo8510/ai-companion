@@ -843,6 +843,15 @@ textarea.mid{ min-height:90px; }
 .ci-bar-inner{ position:relative; width:100%; display:flex; align-items:flex-end; justify-content:center; flex:1; }
 .ci-bar{ width:80%; border-radius:4px 4px 0 0; background:var(--companion); opacity:.6; transition:height .3s ease; min-height:2px; }
 .ci-bar.today{ opacity:1; }
+/* Weekly overview — colorful rounded pill bars with % */
+.ci-week-overview{ background:var(--chat-bg); border-radius:18px; border:1px solid var(--line); padding:16px; margin-bottom:14px; box-shadow:0 4px 16px rgba(0,0,0,.05); }
+.ci-week-overview-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:14px; }
+.ci-week-bars{ display:flex; gap:10px; align-items:flex-end; height:110px; }
+.ci-week-bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; height:100%; min-width:0; }
+.ci-week-bar-track{ flex:1; width:100%; max-width:44px; border-radius:999px; background:var(--surface); display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden; margin:0 auto; }
+.ci-week-bar-fill{ width:100%; border-radius:999px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px; transition:height .4s ease; }
+.ci-week-bar-pct{ font-size:11px; font-weight:700; color:#fff; }
+.ci-week-bar-label{ font-size:11px; color:var(--ink-soft); margin-top:8px; font-weight:600; white-space:nowrap; }
 .ci-bar-wrap.no-data .ci-bar{ background:var(--line); opacity:.3; }
 .ci-bar-date{ font-size:9px; color:var(--ink-soft); margin-top:3px; white-space:nowrap; line-height:1; }
 .ci-bar-date.today-lbl{ color:var(--companion); font-weight:700; }
@@ -3349,6 +3358,11 @@ textarea.mid{ min-height:90px; }
         </div>
       </div>
       <div class="btc-body">
+        <!-- Weekly overview: colorful percentage pill bars -->
+        <div class="ci-week-overview" id="ciWeekOverview">
+          <div class="ci-week-overview-title">📊 本週總覽</div>
+          <div class="ci-week-bars" id="ciWeekBars"></div>
+        </div>
         <div class="btc-cal-card">
           <div class="btc-month-nav">
             <button class="btc-month-btn" id="ciCalPrev" type="button">‹</button>
@@ -8694,8 +8708,51 @@ textarea.mid{ min-height:90px; }
     }
   }
 
+  /* ---- Weekly overview (colorful pill bars) ---- */
+  function renderWeekOverview(){
+    var wrap=$('ciWeekBars'); if(!wrap) return;
+    wrap.innerHTML='';
+    var today=new Date();
+    var days=[];
+    for(var i=6;i>=0;i--){
+      var dc=new Date(today); dc.setDate(dc.getDate()-i);
+      var k=dc.getFullYear()+'-'+String(dc.getMonth()+1).padStart(2,'0')+'-'+String(dc.getDate()).padStart(2,'0');
+      var label=dc.getFullYear()+'年'+(dc.getMonth()+1)+'月'+dc.getDate()+'日';
+      days.push({key:k,label:label});
+    }
+    var history=checkin.history||[];
+    var checkinCount=days.filter(function(d){ return history.indexOf(d.label)>=0; }).length;
+    var sleepVals=[], waterVals=[], moodVals=[];
+    days.forEach(function(d){
+      var h=healthLog[d.key]; if(!h) return;
+      if(h.sleep) sleepVals.push(h.sleep);
+      if(h.water) waterVals.push(h.water);
+      moodVals=moodVals.concat(getMoodVals(h));
+    });
+    function avg(arr){ return arr.length ? arr.reduce(function(s,x){return s+x;},0)/arr.length : 0; }
+    var metrics=[
+      { label:'打卡', pct:Math.round(checkinCount/7*100), color:'var(--companion)' },
+      { label:'睡眠', pct:Math.round(Math.min(100, avg(sleepVals)/8*100)), color:'#6C4FCE' },
+      { label:'飲水', pct:Math.round(Math.min(100, avg(waterVals)/2000*100)), color:'#5AC8E8' },
+      { label:'心情', pct:Math.round(Math.min(100, avg(moodVals)/5*100)), color:'#F5A623' }
+    ];
+    metrics.forEach(function(m){
+      var col=document.createElement('div'); col.className='ci-week-bar-col';
+      var track=document.createElement('div'); track.className='ci-week-bar-track';
+      var fill=document.createElement('div'); fill.className='ci-week-bar-fill';
+      fill.style.height=Math.max(m.pct,12)+'%';
+      fill.style.background=m.color;
+      var pctEl=document.createElement('span'); pctEl.className='ci-week-bar-pct'; pctEl.textContent=m.pct+'%';
+      fill.appendChild(pctEl); track.appendChild(fill);
+      var lbl=document.createElement('div'); lbl.className='ci-week-bar-label'; lbl.textContent=m.label;
+      col.appendChild(track); col.appendChild(lbl);
+      wrap.appendChild(col);
+    });
+  }
+
   /* ---- Charts ---- */
   function renderHealthCharts(){
+    renderWeekOverview();
     var chart=$('ciBarChart'); if(!chart) return;
     chart.innerHTML='';
     var today=new Date();
