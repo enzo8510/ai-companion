@@ -5312,6 +5312,65 @@ textarea.mid{ min-height:90px; }
   }
   function hideTyping(){ if(typingRow){ typingRow.remove(); typingRow=null; } }
 
+  /* ============ 生活紀錄摘要（紀念日/行事曆/打卡/生理期健康），餵給 AI 當背景資訊 ============ */
+  function buildLifeContextSummary(){
+    var parts = [];
+    var today = new Date(); today.setHours(0,0,0,0);
+
+    // 紀念日與生日倒數
+    var annis = events.filter(function(e){ return e.type==='anniversary' || e.type==='birthday'; });
+    var anniLines = [];
+    annis.forEach(function(e){
+      var d = parseMemDate(e.date);
+      if(!d) return;
+      var next = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+      if(next < today) next.setFullYear(today.getFullYear()+1);
+      var diff = Math.round((next-today)/86400000);
+      var label = e.type==='birthday' ? (e.title+'的生日') : e.title;
+      anniLines.push('- ' + label + '：' + (diff===0 ? '就是今天！' : '還有 '+diff+' 天') + '（每年 '+(d.getMonth()+1)+'月'+d.getDate()+'日）');
+    });
+    if(anniLines.length) parts.push('## 紀念日與生日倒數\n' + anniLines.join('\n'));
+
+    // 近期行事曆事項（未來14天內，排除紀念日/生日）
+    var upcoming = events.filter(function(e){
+      if(e.type==='anniversary' || e.type==='birthday') return false;
+      var d = parseMemDate(e.date);
+      if(!d) return false;
+      var diff = Math.round((d-today)/86400000);
+      return diff >= 0 && diff <= 14;
+    }).sort(function(a,b){ return parseMemDate(a.date) - parseMemDate(b.date); });
+    if(upcoming.length){
+      var evLines = upcoming.map(function(e){
+        var d = parseMemDate(e.date);
+        var diff = Math.round((d-today)/86400000);
+        return '- ' + e.title + '（' + (diff===0 ? '今天' : diff+' 天後') + '，' + e.date + '）';
+      });
+      parts.push('## 近期行事曆事項\n' + evLines.join('\n'));
+    }
+
+    // 打卡連續天數／我們的星狀態
+    var dailyLines = [];
+    if(checkin && checkin.streak) dailyLines.push('目前連續打卡 ' + checkin.streak + ' 天。');
+    if(starState) dailyLines.push('「我們的星」目前飽食度 ' + starState.hunger + '/100，心情 ' + starState.mood + '/100。');
+    if(dailyLines.length) parts.push('## 每日打卡與我們的星\n' + dailyLines.join('\n'));
+
+    // 生理期與健康紀錄
+    var healthLines = [];
+    if(periodRecords.length){
+      var lastPeriod = periodRecords[periodRecords.length-1];
+      healthLines.push('最近一次生理期記錄：' + lastPeriod.start + ' 至 ' + (lastPeriod.end || '（尚未結束）'));
+    }
+    var todayHealth = healthLog[todayHealthKey()];
+    if(todayHealth){
+      if(todayHealth.sleep) healthLines.push('今天睡眠時數：' + todayHealth.sleep + ' 小時');
+      if(todayHealth.moods && todayHealth.moods.length) healthLines.push('今天心情記錄：' + todayHealth.moods.map(function(m){ return m.val; }).join('、'));
+      if(todayHealth.note) healthLines.push('今天的健康備註：' + todayHealth.note);
+    }
+    if(healthLines.length) parts.push('## 生理期與健康紀錄\n' + healthLines.join('\n'));
+
+    return parts.join('\n\n');
+  }
+
   /* ============ Build system prompt ============ */
   function buildSystemPrompt(){
     var sc = getActiveScene();
@@ -5353,6 +5412,10 @@ textarea.mid{ min-height:90px; }
           return (parseMemDate(a.date||'')||new Date(0)).getTime() - (parseMemDate(b.date||'')||new Date(0)).getTime();
         });
         sortedMems.forEach(function(m){ parts.push('- 【' + (m.date||'') + '】' + (m.text||'')); });
+      }
+      var lifeContext = buildLifeContextSummary();
+      if(lifeContext){
+        parts.push('\n\n# 江黎的生活紀錄（來自網站的行事曆、紀念日、打卡、生理期健康紀錄，可自然地在對話中提起，例如關心她的身體狀況或提到快到的紀念日）\n' + lifeContext);
       }
     }
     // 放在系統提示最後面（AI 生成回覆前讀到的最後一段），提高格式遵從度
