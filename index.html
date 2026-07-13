@@ -3211,6 +3211,44 @@ textarea.mid{ min-height:90px; }
           <div id="calOvDayList"><div class="btc-detail-nosel">📅 點選日期，查看當天記錄</div></div>
         </div>
 
+        <!-- Add event section -->
+        <div class="btc-add-section" style="margin-bottom:14px;">
+          <div class="btc-add-title btc-has-body" id="calEventCollapseTitle">
+            <span>✨ 新增事項</span>
+            <div style="display:flex;align-items:center;gap:2px;">
+              <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:15px;">⚙</button>
+              <span class="btc-chevron">›</span>
+            </div>
+          </div>
+          <div class="btc-collapse-body" id="calEventBody" style="display:none;">
+            <div class="cal-add-row">
+              <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
+            </div>
+            <div class="cal-add-row">
+              <input type="text" id="calAddDate" placeholder="開始日期" readonly class="input-date" style="flex:1">
+              <input type="text" id="calAddEndDate" placeholder="結束日期（多日可選）" readonly class="input-date" style="flex:1;color:var(--ink-soft)">
+            </div>
+            <div class="cal-add-row" id="calColorRow" style="display:none">
+              <div class="cal-color-row">
+                <span class="cal-color-label">橫條色</span>
+                <div class="cal-color-swatches" id="calColorSwatches">
+                  <div class="cal-color-swatch active" data-color="auto" style="background:var(--event-color)" title="主題色"></div>
+                  <div class="cal-color-swatch" data-color="#E84C78" style="background:#E84C78" title="粉紅"></div>
+                  <div class="cal-color-swatch" data-color="#3BADCC" style="background:#3BADCC" title="天藍"></div>
+                  <div class="cal-color-swatch" data-color="#e08050" style="background:#e08050" title="橘橙"></div>
+                  <div class="cal-color-swatch" data-color="#6db56d" style="background:#6db56d" title="草綠"></div>
+                  <div class="cal-color-swatch" data-color="#9b6fc0" style="background:#9b6fc0" title="紫"></div>
+                  <div class="cal-color-swatch" data-color="#c8a44a" style="background:#c8a44a" title="金黃"></div>
+                </div>
+              </div>
+            </div>
+            <div class="cal-add-row">
+              <select id="calAddType" class="select-category"></select>
+            </div>
+            <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">新增事項</button>
+          </div>
+        </div>
+
         <!-- Anniversaries & Birthdays -->
         <div class="btc-add-section" style="margin-bottom:14px;">
           <div class="btc-add-title">
@@ -3255,43 +3293,6 @@ textarea.mid{ min-height:90px; }
           </div>
         </div>
 
-        <!-- Add event section -->
-        <div class="btc-add-section">
-          <div class="btc-add-title btc-has-body" id="calEventCollapseTitle">
-            <span>✨ 新增事項</span>
-            <div style="display:flex;align-items:center;gap:2px;">
-              <button class="icon-btn" id="calTypeManagerBtn" type="button" title="管理分類" style="font-size:15px;">⚙</button>
-              <span class="btc-chevron">›</span>
-            </div>
-          </div>
-          <div class="btc-collapse-body" id="calEventBody" style="display:none;">
-            <div class="cal-add-row">
-              <input type="text" id="calAddTitle" placeholder="事項標題" class="input-large">
-            </div>
-            <div class="cal-add-row">
-              <input type="text" id="calAddDate" placeholder="開始日期" readonly class="input-date" style="flex:1">
-              <input type="text" id="calAddEndDate" placeholder="結束日期（多日可選）" readonly class="input-date" style="flex:1;color:var(--ink-soft)">
-            </div>
-            <div class="cal-add-row" id="calColorRow" style="display:none">
-              <div class="cal-color-row">
-                <span class="cal-color-label">橫條色</span>
-                <div class="cal-color-swatches" id="calColorSwatches">
-                  <div class="cal-color-swatch active" data-color="auto" style="background:var(--event-color)" title="主題色"></div>
-                  <div class="cal-color-swatch" data-color="#E84C78" style="background:#E84C78" title="粉紅"></div>
-                  <div class="cal-color-swatch" data-color="#3BADCC" style="background:#3BADCC" title="天藍"></div>
-                  <div class="cal-color-swatch" data-color="#e08050" style="background:#e08050" title="橘橙"></div>
-                  <div class="cal-color-swatch" data-color="#6db56d" style="background:#6db56d" title="草綠"></div>
-                  <div class="cal-color-swatch" data-color="#9b6fc0" style="background:#9b6fc0" title="紫"></div>
-                  <div class="cal-color-swatch" data-color="#c8a44a" style="background:#c8a44a" title="金黃"></div>
-                </div>
-              </div>
-            </div>
-            <div class="cal-add-row">
-              <select id="calAddType" class="select-category"></select>
-            </div>
-            <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">新增事項</button>
-          </div>
-        </div>
       </div>
     </div>
 
