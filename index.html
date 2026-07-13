@@ -933,6 +933,13 @@ textarea.mid{ min-height:90px; }
 .ci-dm-meal-tag{ font-size:10px; padding:2px 7px; border-radius:6px; background:var(--companion-soft); color:var(--companion); font-weight:600; }
 .ci-dm-meal-tag.no-eat{ background:var(--line); color:var(--ink-soft); }
 .ci-no-data{ text-align:center; padding:28px 0 8px; color:var(--ink-soft); font-size:13px; line-height:2.2; }
+/* 健康紀錄圖示化量表 */
+.ci-dm-gauge{ width:56px; height:56px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; background:conic-gradient(var(--gauge-color,var(--companion)) calc(var(--gauge-pct,0)*1%), var(--line) 0); }
+.ci-dm-gauge-inner{ width:44px; height:44px; border-radius:50%; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ci-dm-gauge-num{ font-size:12.5px; font-weight:700; color:var(--ink); line-height:1.15; }
+.ci-dm-mood-emoji-row{ display:flex; gap:6px; flex-wrap:wrap; }
+.ci-dm-mood-emoji{ display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; font-size:15px; box-shadow:0 2px 6px rgba(0,0,0,.1); }
+.ci-dm-poop-badge{ display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:999px; font-size:12px; font-weight:700; }
 .btc-day-health{ display:flex; justify-content:center; gap:2px; margin-top:2px; }
 .btc-day-hdot{ width:4px; height:4px; border-radius:50%; }
 /* ---- Download overlay ---- */
@@ -8964,8 +8971,7 @@ textarea.mid{ min-height:90px; }
       body.innerHTML='<div class="ci-no-data">這天還沒有健康紀錄 🌿<br><span style="font-size:12px">記錄習慣，從今天開始</span></div>';
     } else {
       if(h&&(h.sleep||h.bedtime||h.wakeup)){
-        var sr=dmRow('😴','睡眠'); var sc='';
-        if(h.sleep) sc+='<span style="font-size:16px;font-weight:700;color:var(--companion)">'+h.sleep+'h</span>&ensp;';
+        var sc='';
         if(h.bedtime||h.wakeup){
           sc+='<div class="ci-clock-display">';
           if(h.bedtime) sc+='<span class="ci-clock-item">🌙&nbsp;'+h.bedtime+'</span>';
@@ -8973,7 +8979,11 @@ textarea.mid{ min-height:90px; }
           if(h.wakeup) sc+='<span class="ci-clock-item">☀️&nbsp;'+h.wakeup+'</span>';
           sc+='</div>';
         }
-        sr.querySelector('.ci-dm-val').innerHTML=sc; body.appendChild(sr);
+        var sr = h.sleep
+          ? dmGaugeRow(h.sleep/8*100, 'var(--companion)', h.sleep+'h', '睡眠', sc)
+          : dmRow('😴','睡眠');
+        if(!h.sleep) sr.querySelector('.ci-dm-val').innerHTML=sc;
+        body.appendChild(sr);
       }
       if(h&&h.meals){
         var mealOrder=['breakfast','lunch','dinner','snack','other'];
@@ -9024,13 +9034,22 @@ textarea.mid{ min-height:90px; }
         dr.querySelector('.ci-dm-val').innerHTML=''; dr.querySelector('.ci-dm-val').appendChild(carousel);
         body.appendChild(dr);
       }
-      if(h&&h.water){ var wr=dmRow('💧','飲水'); wr.querySelector('.ci-dm-val').innerHTML='<span style="font-size:16px;font-weight:700;color:var(--companion)">'+(h.water>=1000?(h.water/1000).toFixed(1)+'L':h.water+'mL')+'</span>'; body.appendChild(wr); }
+      if(h&&h.water){
+        var waterLabel=h.water>=1000?(h.water/1000).toFixed(1)+'L':h.water+'mL';
+        var wr=dmGaugeRow(h.water/2000*100, '#5AC8E8', waterLabel, '飲水', '<span style="font-size:12px;color:var(--ink-soft)">今日目標 2000mL</span>');
+        body.appendChild(wr);
+      }
       if(moodVals.length){
         var mor=dmRow('💕','心情 x'+moodVals.length);
-        var chipsHtml=(h.moods&&h.moods.length?h.moods:moodVals.map(function(v){return {val:v,time:''};})).map(function(m){
-          return '<span class="ci-dm-meal-tag" style="background:'+(MOOD_COLORS[m.val]||'var(--companion-soft)')+';color:#fff;">'+(m.time?m.time+' ':'')+(MOOD_LABELS[m.val]||'')+'</span>';
-        }).join(' ');
-        mor.querySelector('.ci-dm-val').innerHTML=chipsHtml; body.appendChild(mor);
+        var moodWrap=document.createElement('div'); moodWrap.className='ci-dm-mood-emoji-row';
+        (h.moods&&h.moods.length?h.moods:moodVals.map(function(v){return {val:v,time:''};})).forEach(function(m){
+          var lbl=MOOD_LABELS[m.val]||''; var emoji=lbl.split(' ')[0]||'';
+          var b=document.createElement('div'); b.className='ci-dm-mood-emoji';
+          b.style.background=MOOD_COLORS[m.val]||'var(--companion-soft)';
+          b.textContent=emoji; b.title=(m.time?m.time+' ':'')+lbl;
+          moodWrap.appendChild(b);
+        });
+        mor.querySelector('.ci-dm-val').appendChild(moodWrap); body.appendChild(mor);
       }
       if(h&&h.period&&(h.period.flow||h.period.discomfort||h.period.periodMood)){
         var pr2=dmRow('🩸','生理期'); var pd=h.period; var pArr=[];
@@ -9039,7 +9058,13 @@ textarea.mid{ min-height:90px; }
         if(pd.periodMood){var pm={1:'還好',2:'不太好',3:'很不適'};pArr.push(pm[pd.periodMood]);}
         pr2.querySelector('.ci-dm-val').textContent=pArr.join(' · '); body.appendChild(pr2);
       }
-      if(h&&h.poop>=0){ var por=dmRow('🚽','排便'); var pl={0:'沒有',1:'正常 ✓',2:'異常'}; por.querySelector('.ci-dm-val').textContent=pl[h.poop]||''; body.appendChild(por); }
+      if(h&&h.poop>=0){
+        var por=dmRow('🚽','排便');
+        var poopMeta={0:{label:'沒有',bg:'var(--line)',color:'var(--ink-soft)',icon:'—'},1:{label:'正常',bg:'rgba(61,190,108,.15)',color:'#3DBE6C',icon:'✓'},2:{label:'異常',bg:'rgba(224,82,82,.12)',color:'#e05252',icon:'!'}};
+        var pm2=poopMeta[h.poop];
+        por.querySelector('.ci-dm-val').innerHTML='<span class="ci-dm-poop-badge" style="background:'+pm2.bg+';color:'+pm2.color+'">'+pm2.icon+' '+pm2.label+'</span>';
+        body.appendChild(por);
+      }
       if(h&&h.note){ var nor=dmRow('📝','備註'); nor.querySelector('.ci-dm-val').textContent=h.note; body.appendChild(nor); }
     }
     modal.classList.add('open');
@@ -9047,6 +9072,18 @@ textarea.mid{ min-height:90px; }
   function dmRow(icon,label){
     var row=document.createElement('div'); row.className='ci-dm-row';
     row.innerHTML='<div class="ci-dm-icon">'+icon+'</div><div class="ci-dm-info"><div class="ci-dm-label">'+label+'</div><div class="ci-dm-val"></div></div>';
+    return row;
+  }
+  function dmGaugeRow(pct, color, gaugeNum, label, valHtml){
+    var row=document.createElement('div'); row.className='ci-dm-row';
+    var gauge=document.createElement('div'); gauge.className='ci-dm-gauge';
+    gauge.style.setProperty('--gauge-pct', Math.max(0,Math.min(100,pct)));
+    gauge.style.setProperty('--gauge-color', color);
+    gauge.innerHTML='<div class="ci-dm-gauge-inner"><div class="ci-dm-gauge-num">'+gaugeNum+'</div></div>';
+    row.appendChild(gauge);
+    var info=document.createElement('div'); info.className='ci-dm-info';
+    info.innerHTML='<div class="ci-dm-label">'+label+'</div><div class="ci-dm-val">'+(valHtml||'')+'</div>';
+    row.appendChild(info);
     return row;
   }
   function closeDayModal(){ $('ciDayModal').classList.remove('open'); }
