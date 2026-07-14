@@ -1511,7 +1511,7 @@ textarea.mid{ min-height:90px; }
   .star-cat-img{ width:clamp(120px, 40vw, 160px); }
 }
 .star-char{ width:96px; height:96px; border-radius:50%; background:#F8F4F0; border:3px solid #E0D4C8; position:relative; box-shadow:0 4px 16px rgba(100,80,60,0.12); }
-.star-char.bounce{ animation:starBounce .38s ease; }
+.star-cat-img.bounce{ animation:starBounce .38s ease; }
 @keyframes starBounce{ 0%,100%{ transform:translateY(0) scale(1); } 35%{ transform:translateY(-14px) scale(0.96); } 70%{ transform:translateY(-6px) scale(1.02); } }
 @keyframes petPat{ 0%{ transform:rotateZ(0deg) scale(1); } 25%{ transform:rotateZ(-8deg) scale(1.02); } 50%{ transform:rotateZ(8deg) scale(1.02); } 75%{ transform:rotateZ(-4deg) scale(1.01); } 100%{ transform:rotateZ(0deg) scale(1); } }
 @keyframes floatHeart{ 0%{ opacity:1; transform:translate(var(--tx,0), var(--ty,0)) scale(1); } 100%{ opacity:0; transform:translate(var(--tx,0), calc(var(--ty,0) - 60px)) scale(0.5); } }
@@ -4862,7 +4862,7 @@ textarea.mid{ min-height:90px; }
     showOnly('adminView');
     if($('setMaxTokens')) $('setMaxTokens').value = settings.maxTokens || 1500;
   }
-  function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); updateFeedingStatus(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; animateCat(); }
+  function showStar(){ showOnly('starView'); renderStarStats(); renderStarOutfitGrid(); updateFeedingStatus(); clearTimeout(catAnimationTimer); catCurrentFrame = 0; catLastInteraction = Date.now(); catSleeping = false; catShowingExpr = false; animateCat(); }
 
   function floatHeart(element){
     var container = element.closest('#starView') || element.parentElement;
@@ -9830,9 +9830,36 @@ textarea.mid{ min-height:90px; }
   var catAnimationTimer = null;
   var catFrames = ['ster/cat001.png', 'ster/cat002.png'];
   var catCurrentFrame = 0;
+  var CAT_EXPR = {
+    confused: 'ster/[困惑]from-PixAI-2032905215772732057-2.png',
+    belly:    'ster/[翻肚子]from-PixAI-2033359983251464545-2.png',
+    sleep:    'ster/[睡覺]from-PixAI-2032898764746494390-0.png',
+    ball:     'ster/[玩球]from-PixAI-2032908602599556936-2.png',
+    shocked:  'ster/[震驚]from-PixAI-2032910309226865171-3.png'
+  };
+  var CAT_SLEEP_IDLE_MS = 90000; // 待機超過 90 秒沒有互動就進入睡覺狀態
+  var CAT_EXPR_CHANCE = 0.12; // 待機時每輪約 12% 機率短暫切換成翻肚子/困惑等表情
+  var catLastInteraction = Date.now();
+  var catSleeping = false;
+  var catShowingExpr = false;
   function animateCat(){
     var img = $('starChar');
     if(img){
+      var idleFor = Date.now() - catLastInteraction;
+      if(idleFor >= CAT_SLEEP_IDLE_MS){
+        catSleeping = true;
+        img.src = CAT_EXPR.sleep;
+        catAnimationTimer = setTimeout(animateCat, 1500);
+        return;
+      }
+      catSleeping = false;
+      if(!catShowingExpr && Math.random() < CAT_EXPR_CHANCE){
+        catShowingExpr = true;
+        var idlePool = [CAT_EXPR.confused, CAT_EXPR.belly, CAT_EXPR.ball, CAT_EXPR.shocked];
+        img.src = idlePool[Math.floor(Math.random()*idlePool.length)];
+        catAnimationTimer = setTimeout(function(){ catShowingExpr = false; animateCat(); }, 1800);
+        return;
+      }
       catCurrentFrame = (catCurrentFrame + 1) % catFrames.length;
       img.src = catFrames[catCurrentFrame];
     }
@@ -9887,7 +9914,7 @@ textarea.mid{ min-height:90px; }
       btn.appendChild(dot); btn.appendChild(lbl);
       btn.addEventListener('click', function(){
         starState.clothes = i;
-        save(KEYS.star, starState); bounceStarChar();
+        save(KEYS.star, starState); catLastInteraction = Date.now(); catSleeping = false; bounceStarChar();
         showStarBubble(i > 0 ? '換上了' + OUTFIT_LABELS[i] + '！✨' : '換回了素裝！');
         renderStarStats(); renderStarOutfitGrid(); closeStarModal();
       });
@@ -9935,7 +9962,7 @@ textarea.mid{ min-height:90px; }
       else if(hour >= 11 && hour < 17) starState.dailyFeeds[today].lunch = true;
       else if(hour >= 17 || hour < 5) starState.dailyFeeds[today].dinner = true;
 
-      save(KEYS.star, starState); bounceStarChar(); floatHeart($('starChar'));
+      save(KEYS.star, starState); catLastInteraction = Date.now(); catSleeping = false; bounceStarChar(); floatHeart($('starChar'));
       var msgs=['好吃！謝謝你！😋','哇，我最喜歡吃東西了！','謝謝～味道不錯耶！','嗯嗯～吃飽了好開心！'];
       showStarBubble(msgs[Math.floor(Math.random()*msgs.length)]);
       renderStarStats(); updateFeedingStatus(); closeStarModal();
@@ -9947,10 +9974,17 @@ textarea.mid{ min-height:90px; }
     starState.lastPetTime = Date.now();
     starState.lastDecayTime = Date.now();
     save(KEYS.star, starState);
+    catLastInteraction = Date.now();
+    catSleeping = false;
     var catImg = $('starChar');
     catImg.classList.remove('pet');
     void catImg.offsetWidth;
     catImg.classList.add('pet');
+    // 摸摸反應：翻肚子或困惑（隨機擇一），短暫顯示後恢復待機動畫
+    clearTimeout(catAnimationTimer);
+    catShowingExpr = true;
+    catImg.src = Math.random() < 0.5 ? CAT_EXPR.belly : CAT_EXPR.confused;
+    catAnimationTimer = setTimeout(function(){ catShowingExpr = false; animateCat(); }, 1500);
     floatHeart($('starChar'));
     var m=['呀！好舒服～💕','謝謝你摸我！','嗯嗯～感覺很溫暖','嘿嘿，我喜歡這樣！'];
     showStarBubble(m[Math.floor(Math.random()*m.length)]);
