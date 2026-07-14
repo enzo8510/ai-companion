@@ -3488,7 +3488,10 @@ textarea.mid{ min-height:90px; }
           <div class="ci-health-row">
             <div class="ci-health-icon">💕</div>
             <div class="ci-health-info">
-              <div class="ci-health-label">今日心情（可點多次，記錄一整天的變化）</div>
+              <div class="ci-health-label" style="display:flex;align-items:center;justify-content:space-between;">
+                <span>今日心情（可點多次，記錄一整天的變化）</span>
+                <button class="icon-btn" id="moodColorBtn" type="button" title="自訂心情顏色" style="font-size:14px;flex:0 0 auto;">🎨</button>
+              </div>
               <div class="ci-mood-btns" id="ciMoodOpts">
                 <button class="ci-mood-btn" data-val="1" type="button">😔 很差</button>
                 <button class="ci-mood-btn" data-val="2" type="button">😕 不好</button>
@@ -3858,6 +3861,20 @@ textarea.mid{ min-height:90px; }
         <div id="dotColorList"></div>
         <button class="toolbar-btn" id="dotColorResetBtn" type="button" style="width:100%;justify-content:center;margin-top:6px;">恢復預設顏色</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="cal-overlay hidden" id="moodColorOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title">🎨 自訂心情顏色</div>
+      <button class="icon-btn" id="moodColorClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div style="font-size:11px;color:var(--ink-soft);margin-bottom:14px;">點選表情圖案即可更換該心情等級的顏色，會同步套用到月曆日期圓圈與紀錄彈窗</div>
+      <div id="moodColorList"></div>
+      <button class="toolbar-btn" id="moodColorResetBtn" type="button" style="width:100%;justify-content:center;margin-top:14px;">恢復預設顏色</button>
     </div>
   </div>
 </div>
@@ -4282,7 +4299,7 @@ textarea.mid{ min-height:90px; }
     tokenStats:'companion:tokenStats',
     chatBg:'companion:chatBg', chatBgGallery:'companion:chatBgGallery', chatBgActive:'companion:chatBgActive',
     theme:'companion:theme', star:'companion:star', eventTypes:'companion:eventTypes',
-    dotColors:'companion:dotColors',
+    dotColors:'companion:dotColors', moodColors:'companion:moodColors',
     qaHistory:'companion:qaHistory',
     periodRecords:'companion:periodRecords',
     healthLog:'companion:healthLog',
@@ -7202,6 +7219,22 @@ textarea.mid{ min-height:90px; }
     $('eventTypeManagerOverlay').classList.remove('hidden');
   });
 
+  $('moodColorBtn').addEventListener('click', function(){
+    renderMoodColorList();
+    $('moodColorOverlay').classList.remove('hidden');
+  });
+  $('moodColorClose').addEventListener('click', function(){ $('moodColorOverlay').classList.add('hidden'); });
+  $('moodColorOverlay').addEventListener('click', function(e){ if(e.target === $('moodColorOverlay')) $('moodColorOverlay').classList.add('hidden'); });
+  $('moodColorResetBtn').addEventListener('click', function(){
+    localStorage.removeItem(KEYS.moodColors);
+    pushKeyToFirebase(KEYS.moodColors, '{}');
+    applyMoodColors();
+    renderMoodColorList();
+    if(typeof renderCiCalGrid === 'function') renderCiCalGrid();
+    if(typeof renderHealthCard === 'function') renderHealthCard();
+    flashSaved('已恢復預設顏色 ✓');
+  });
+
   $('calAddDate').addEventListener('click',function(e){
     e.stopPropagation();
     openCalendar($('calAddDate'), calAddDateVal||todayLabel(), function(str){ calAddDateVal=str; $('calAddDate').value=str; });
@@ -8656,8 +8689,60 @@ textarea.mid{ min-height:90px; }
     return healthLog[k];
   }
   /* ---- Mood helpers (支援一天多筆、月曆漸層色) ---- */
+  var MOOD_COLOR_DEFAULTS = {1:'#D9636B',2:'#E0955A',3:'#C9BFE0',4:'#8FBF6E',5:'#8B6FC7'};
   var MOOD_COLORS = {1:'#D9636B',2:'#E0955A',3:'#C9BFE0',4:'#8FBF6E',5:'#8B6FC7'};
   var MOOD_LABELS = {1:'😔 很差',2:'😕 不好',3:'😐 普通',4:'🙂 不錯',5:'😄 很棒'};
+  function applyMoodColors(){
+    var saved = load(KEYS.moodColors) || {};
+    for(var k in MOOD_COLOR_DEFAULTS){ MOOD_COLORS[k] = saved[k] || MOOD_COLOR_DEFAULTS[k]; }
+  }
+  applyMoodColors();
+  function renderMoodColorList(){
+    var box = $('moodColorList'); if(!box) return;
+    box.innerHTML = '';
+    var saved = load(KEYS.moodColors) || {};
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:10px;';
+    for(var k in MOOD_COLOR_DEFAULTS){
+      (function(key){
+        var color = saved[key] || MOOD_COLOR_DEFAULTS[key];
+        var card = document.createElement('label');
+        card.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;';
+        card.title = '點擊更換顏色';
+        var inp = document.createElement('input');
+        inp.type = 'color'; inp.value = color;
+        inp.style.cssText = 'position:absolute;opacity:0;width:0;height:0;pointer-events:none;';
+        var circle = document.createElement('div');
+        circle.style.cssText = [
+          'width:44px;height:44px;border-radius:50%;',
+          'background:'+color+';',
+          'display:flex;align-items:center;justify-content:center;',
+          'font-size:17px;',
+          'box-shadow:0 3px 10px rgba(0,0,0,0.15);',
+          'transition:transform .15s,box-shadow .15s;',
+          'position:relative;'
+        ].join('');
+        circle.textContent = (MOOD_LABELS[key]||'').split(' ')[0]||'';
+        card.addEventListener('mouseenter', function(){ circle.style.transform='scale(1.1)'; });
+        card.addEventListener('mouseleave', function(){ circle.style.transform=''; });
+        var lbl = document.createElement('span');
+        lbl.textContent = (MOOD_LABELS[key]||'').split(' ')[1]||'';
+        lbl.style.cssText = 'font-size:10px;color:var(--ink-soft);font-weight:600;text-align:center;white-space:nowrap;';
+        inp.addEventListener('input', function(){
+          var cur = load(KEYS.moodColors) || {};
+          cur[key] = inp.value;
+          save(KEYS.moodColors, cur);
+          circle.style.background = inp.value;
+          applyMoodColors();
+          if(typeof renderCiCalGrid === 'function') renderCiCalGrid();
+          if(typeof renderHealthCard === 'function') renderHealthCard();
+        });
+        card.appendChild(inp); card.appendChild(circle); card.appendChild(lbl);
+        grid.appendChild(card);
+      })(k);
+    }
+    box.appendChild(grid);
+  }
   function nowTimeStr(){ var d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
   function getMoodVals(h){
     if(h&&h.moods&&h.moods.length) return h.moods.map(function(m){ return m.val; });
