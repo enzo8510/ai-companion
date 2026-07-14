@@ -8598,6 +8598,16 @@ textarea.mid{ min-height:90px; }
       cell.style.cursor='pointer';
       (function(dk){ cell.addEventListener('click',function(){ openDayDetail(dk); }); })(healthKey);
       var numEl=document.createElement('div'); numEl.className='btc-day-num'; numEl.textContent=d;
+      var hEntry=healthLog[healthKey];
+      var moodValsC=getMoodVals(hEntry);
+      if(moodValsC.length){
+        // 當天有心情紀錄：日期圓圈直接顯示情緒色，多筆不同心情則呈現漸層（依紀錄順序）
+        var uniqueMoods=moodValsC.filter(function(v,i,arr){ return arr.indexOf(v)===i; });
+        var moodColors=uniqueMoods.map(function(v){ return MOOD_COLORS[v]||'var(--companion)'; });
+        numEl.style.background=moodColors.length>1?('linear-gradient(135deg,'+moodColors.join(',')+')'):moodColors[0];
+        numEl.style.color='#fff';
+        numEl.style.border='none';
+      }
       cell.appendChild(numEl);
       var dayDrinkCount=drinks.filter(function(dk2){ return dk2.date===healthKey; }).length;
       if(isDone||dayDrinkCount){
@@ -8610,21 +8620,10 @@ textarea.mid{ min-height:90px; }
         }
         cell.appendChild(ic);
       }
-      var hEntry=healthLog[healthKey];
-      var moodValsC=getMoodVals(hEntry);
-      if(hEntry&&(hEntry.sleep||hEntry.water||moodValsC.length)){
+      if(hEntry&&(hEntry.sleep||hEntry.water)){
         var dotRow=document.createElement('div'); dotRow.className='btc-day-health';
         if(hEntry.sleep){ var d1=document.createElement('div'); d1.className='btc-day-hdot'; d1.style.background='#7ec8a0'; dotRow.appendChild(d1); }
         if(hEntry.water){ var d2=document.createElement('div'); d2.className='btc-day-hdot'; d2.style.background='#74b3e0'; dotRow.appendChild(d2); }
-        if(moodValsC.length){
-          var d3=document.createElement('div'); d3.className='btc-day-hdot';
-          // 最多混兩色：取當天第一筆與最後一筆心情（呈現一整天的情緒走向）
-          var firstColor=MOOD_COLORS[moodValsC[0]]||'var(--companion)';
-          var lastColor=MOOD_COLORS[moodValsC[moodValsC.length-1]]||'var(--companion)';
-          if(firstColor===lastColor){ d3.style.background=firstColor; }
-          else { d3.style.width='9px'; d3.style.background='linear-gradient(90deg,'+firstColor+','+lastColor+')'; }
-          dotRow.appendChild(d3);
-        }
         cell.appendChild(dotRow);
       }
       grid.appendChild(cell);
@@ -8877,7 +8876,7 @@ textarea.mid{ min-height:90px; }
     btn.addEventListener('click',function(){
       var h=getOrCreateTodayHealth();
       h.moods.push({time:nowTimeStr(),val:parseInt(this.dataset.val)});
-      save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts();
+      save(KEYS.healthLog,healthLog); renderHealthCard(); renderHealthCharts(); renderCiCalGrid();
       // 記錄心情視同今日已打卡
       if(typeof performCheckin==='function' && performCheckin()){
         showCheckinToast('🌙 今日已打卡（心情紀錄）✨ 連續 '+checkin.streak+' 天');
