@@ -923,8 +923,8 @@ textarea.mid{ min-height:90px; }
 .ci-period-health-section{ border-top:1px solid rgba(232,76,120,.2); margin-top:4px; padding-top:10px; }
 .ci-period-health-title{ font-size:12px; font-weight:700; color:var(--period-color,#e84c78); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
 .ci-flow-btns,.ci-period-mood-btns{ display:flex; gap:5px; flex-wrap:wrap; }
-.ci-flow-btn,.ci-period-mood-btn{ padding:4px 11px; border-radius:9px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
-.ci-flow-btn.active,.ci-period-mood-btn.active{ border-color:var(--period-color,#e84c78); background:rgba(232,76,120,.08); color:var(--period-color,#e84c78); font-weight:700; }
+.ci-flow-btn,.ci-period-mood-btn,.ci-painkiller-btn{ padding:4px 11px; border-radius:9px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
+.ci-flow-btn.active,.ci-period-mood-btn.active,.ci-painkiller-btn.active{ border-color:var(--period-color,#e84c78); background:rgba(232,76,120,.08); color:var(--period-color,#e84c78); font-weight:700; }
 .ci-discomfort-btns{ display:flex; gap:4px; }
 .ci-discomfort-btn{ width:30px; height:30px; border-radius:50%; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; display:flex; align-items:center; justify-content:center; }
 .ci-discomfort-btn.active{ border-color:var(--period-color,#e84c78); background:rgba(232,76,120,.08); color:var(--period-color,#e84c78); font-weight:700; }
@@ -1048,6 +1048,8 @@ textarea.mid{ min-height:90px; }
 .period-info-strip{ background:linear-gradient(135deg, rgba(232,160,200,0.1) 0%, rgba(232,160,200,0.05) 100%); border-left:4px solid var(--period-color); border-radius:12px; padding:var(--space-md) var(--space-lg); border:1px solid rgba(232,160,200,0.2); border-left:4px solid var(--period-color); }
 .period-info-label{ font-size:12px; font-weight:700; color:var(--period-color); margin-bottom:6px; }
 .period-info-range{ font-size:13px; font-weight:600; color:var(--ink); }
+.period-info-predict{ font-size:12px; color:var(--ink-soft); margin-top:6px; padding-top:6px; border-top:1px dashed rgba(232,76,120,0.25); }
+.period-info-predict b{ color:var(--period-color); font-weight:700; }
 /* ---- Period Calendar ---- */
 .period-date-range{ background:var(--chat-bg); border-radius:14px; padding:var(--space-lg); border:1px solid var(--line); margin-bottom:var(--space-lg); }
 .period-range-label{ font-size:12px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
@@ -1591,7 +1593,7 @@ textarea.mid{ min-height:90px; }
 .cnt-anni-info{ flex:1; min-width:0; }
 .cnt-anni-name{ font-size:14px; font-weight:600; color:var(--ink); }
 .cnt-anni-sub{ font-size:11.5px; color:var(--ink-soft); margin-top:3px; }
-.cnt-anni-days{ font-family:'LXGW WenKai TC',serif; font-size:22px; font-weight:700; color:var(--companion); text-align:right; flex:0 0 auto; }
+.cnt-anni-days{ font-family:'LXGW WenKai TC',serif; font-size:24px; font-weight:700; color:var(--companion); text-align:right; flex:0 0 auto; }
 .cnt-anni-del{ background:none; border:none; color:var(--ink-soft); font-size:15px; cursor:pointer; padding:4px 6px; border-radius:6px; flex:0 0 auto; }
 .cnt-anni-del:hover{ color:#e05252; background:rgba(224,82,82,.1); }
 .cnt-anni-empty{ font-size:13px; color:var(--ink-soft); text-align:center; padding:14px 0 4px; }
@@ -3238,6 +3240,7 @@ textarea.mid{ min-height:90px; }
         <div id="calPeriodStrip" class="period-info-strip" style="display:none; margin-bottom:14px;">
           <div class="period-info-label">🌸 生理期</div>
           <div class="period-info-range" id="calPeriodRange"></div>
+          <div class="period-info-predict" id="calPeriodPredict" style="display:none;"></div>
         </div>
 
         <!-- Calendar card -->
@@ -3547,6 +3550,15 @@ textarea.mid{ min-height:90px; }
                   <button class="ci-period-mood-btn" data-val="1" type="button">還好</button>
                   <button class="ci-period-mood-btn" data-val="2" type="button">不太好</button>
                   <button class="ci-period-mood-btn" data-val="3" type="button">很不適</button>
+                </div>
+              </div>
+            </div>
+            <div class="ci-health-row">
+              <div class="ci-health-icon" style="font-size:15px;line-height:2;">止痛藥</div>
+              <div class="ci-health-info">
+                <div class="ci-painkiller-btns" id="ciPainkillerBtns">
+                  <button class="ci-painkiller-btn" data-val="0" type="button">沒吃</button>
+                  <button class="ci-painkiller-btn" data-val="1" type="button">💊 有吃</button>
                 </div>
               </div>
             </div>
@@ -5437,7 +5449,7 @@ textarea.mid{ min-height:90px; }
     // 生理期與健康紀錄
     var healthLines = [];
     if(periodRecords.length){
-      var lastPeriod = periodRecords[periodRecords.length-1];
+      var lastPeriod = getLatestPeriodRecord();
       healthLines.push('最近一次生理期記錄：' + lastPeriod.start + ' 至 ' + (lastPeriod.end || '（尚未結束）'));
     }
     var todayHealth = healthLog[todayHealthKey()];
@@ -6534,6 +6546,14 @@ textarea.mid{ min-height:90px; }
   var periodStartDate = null, periodEndDate = null; // kept for period overlay compat
   var periodRecords = []; // array of { id, start:'YYYY-MM-DD', end:'YYYY-MM-DD' }
 
+  // 依「開始日期」找出最新一筆，而非陣列最後一筆（新增/編輯順序不代表時間順序）
+  function getLatestPeriodRecord(){
+    if(!periodRecords.length) return null;
+    return periodRecords.slice().sort(function(a,b){
+      return new Date(b.start.replace(/-/g,'/')) - new Date(a.start.replace(/-/g,'/'));
+    })[0];
+  }
+
   function loadPeriodData(){
     // Load new array format
     var arr = load(KEYS.periodRecords);
@@ -6549,7 +6569,7 @@ textarea.mid{ min-height:90px; }
     }
     // Keep periodStartDate/periodEndDate in sync with most recent record (for overlay)
     if(periodRecords.length){
-      var last = periodRecords[periodRecords.length-1];
+      var last = getLatestPeriodRecord();
       periodStartDate = new Date(last.start.replace(/-/g,'/'));
       periodEndDate   = last.end ? new Date(last.end.replace(/-/g,'/')) : null;
       if(periodEndDate) updatePeriodDisplay();
@@ -6920,7 +6940,7 @@ textarea.mid{ min-height:90px; }
           periodRecords = periodRecords.filter(function(x){ return x.id!==rec.id; });
           save(KEYS.periodRecords, periodRecords);
           if(periodRecords.length){
-            var last=periodRecords[periodRecords.length-1];
+            var last=getLatestPeriodRecord();
             periodStartDate=new Date(last.start.replace(/-/g,'/'));
             periodEndDate=last.end?new Date(last.end.replace(/-/g,'/')):null;
           } else { periodStartDate=null; periodEndDate=null; }
@@ -7033,7 +7053,7 @@ textarea.mid{ min-height:90px; }
       periodRecords.push({ id:uid('pr'), start:s, end:e });
     }
     save(KEYS.periodRecords, periodRecords);
-    var last=periodRecords[periodRecords.length-1];
+    var last=getLatestPeriodRecord();
     periodStartDate=new Date(last.start.replace(/-/g,'/'));
     periodEndDate=last.end?new Date(last.end.replace(/-/g,'/')):null;
     _editingPeriodId = null;
@@ -7296,8 +7316,21 @@ textarea.mid{ min-height:90px; }
     updatePeriodInfoStrip();
   }
 
+  // 依過去生理期紀錄的間隔天數，推估平均週期與下一次生理期日期（至少需要 2 筆紀錄才能算出 1 個週期間隔）
+  function predictNextPeriod(){
+    if(periodRecords.length < 2) return null;
+    var starts = periodRecords.map(function(r){ var d=new Date(r.start.replace(/-/g,'/')); d.setHours(0,0,0,0); return d; }).sort(function(a,b){ return a-b; });
+    var diffs = [];
+    for(var i=1;i<starts.length;i++){ diffs.push(Math.round((starts[i]-starts[i-1])/86400000)); }
+    // 只取最近 6 次週期平均，避免太久以前的紀錄拉低準確度
+    var recentDiffs = diffs.slice(-6);
+    var avgCycle = Math.round(recentDiffs.reduce(function(s,x){ return s+x; },0)/recentDiffs.length);
+    var lastStart = starts[starts.length-1];
+    var predicted = new Date(lastStart); predicted.setDate(predicted.getDate()+avgCycle);
+    return { date:predicted, avgCycle:avgCycle, basedOn:recentDiffs.length };
+  }
+
   function updatePeriodInfoStrip(){
-    $('calPeriodStrip').style.display='none'; return;
     var strip = $('calPeriodStrip');
     var today = new Date(); today.setHours(0,0,0,0);
     var active = periodRecords.find(function(r){
@@ -7307,7 +7340,8 @@ textarea.mid{ min-height:90px; }
       var ed=new Date(r.end.replace(/-/g,'/')); ed.setHours(0,0,0,0);
       return today>=sd && today<=ed;
     });
-    var show = active || (periodRecords.length ? periodRecords[periodRecords.length-1] : null);
+    var show = active || getLatestPeriodRecord();
+    var predictEl = $('calPeriodPredict');
     if(show){
       var sd=new Date(show.start.replace(/-/g,'/'));
       var isOngoing=!show.end;
@@ -7315,6 +7349,14 @@ textarea.mid{ min-height:90px; }
       var label = active ? (isOngoing?'🌸 生理期中（進行中）':'🌸 生理期中') : '🌸 最近記錄';
       $('calPeriodStrip').querySelector('.period-info-label').textContent = label;
       $('calPeriodRange').textContent = isOngoing ? fmt(sd)+' ～ 進行中' : fmt(sd)+' ～ '+fmt(new Date(show.end.replace(/-/g,'/')));
+      var pred = predictNextPeriod();
+      if(pred && !active){
+        var diff = Math.round((pred.date-today)/86400000);
+        predictEl.innerHTML = '預計下次生理期：<b>'+fmt(pred.date)+'</b>'+(diff>=0?'（還有 '+diff+' 天）':'')+' ・ 平均週期 '+pred.avgCycle+' 天';
+        predictEl.style.display = 'block';
+      } else {
+        predictEl.style.display = 'none';
+      }
       strip.style.display = 'block';
     } else {
       strip.style.display = 'none';
@@ -8809,6 +8851,7 @@ textarea.mid{ min-height:90px; }
       $('ciFlowBtns').querySelectorAll('.ci-flow-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.flow||0)); });
       $('ciDiscomfortBtns').querySelectorAll('.ci-discomfort-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.discomfort||0)); });
       $('ciPeriodMoodBtns').querySelectorAll('.ci-period-mood-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.periodMood||0)); });
+      $('ciPainkillerBtns').querySelectorAll('.ci-painkiller-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.painkiller?1:0)); });
     }
   }
 
@@ -9106,13 +9149,16 @@ textarea.mid{ min-height:90px; }
 
   /* ---- Period in health ---- */
   $('ciFlowBtns').querySelectorAll('.ci-flow-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0}; h.period.flow=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0,painkiller:0}; h.period.flow=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
   });
   $('ciDiscomfortBtns').querySelectorAll('.ci-discomfort-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0}; h.period.discomfort=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0,painkiller:0}; h.period.discomfort=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
   });
   $('ciPeriodMoodBtns').querySelectorAll('.ci-period-mood-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0}; h.period.periodMood=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0,painkiller:0}; h.period.periodMood=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
+  });
+  $('ciPainkillerBtns').querySelectorAll('.ci-painkiller-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ var h=getOrCreateTodayHealth(); if(!h.period) h.period={flow:0,discomfort:0,periodMood:0,painkiller:0}; h.period.painkiller=parseInt(this.dataset.val); save(KEYS.healthLog,healthLog); renderHealthCard(); });
   });
 
   /* ---- Note ---- */
@@ -9214,11 +9260,12 @@ textarea.mid{ min-height:90px; }
         });
         mor.querySelector('.ci-dm-val').appendChild(moodWrap); body.appendChild(mor);
       }
-      if(h&&h.period&&(h.period.flow||h.period.discomfort||h.period.periodMood)){
+      if(h&&h.period&&(h.period.flow||h.period.discomfort||h.period.periodMood||h.period.painkiller)){
         var pr2=dmRow('🩸','生理期'); var pd=h.period; var pArr=[];
         if(pd.flow){var flows={1:'少',2:'中',3:'多',4:'很多'};pArr.push('血量：'+flows[pd.flow]);}
         if(pd.discomfort) pArr.push('不適度：'+pd.discomfort+'/5');
         if(pd.periodMood){var pm={1:'還好',2:'不太好',3:'很不適'};pArr.push(pm[pd.periodMood]);}
+        if(pd.painkiller) pArr.push('💊 有吃止痛藥');
         pr2.querySelector('.ci-dm-val').textContent=pArr.join(' · '); body.appendChild(pr2);
       }
       if(h&&h.poop>=0){
