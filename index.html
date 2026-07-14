@@ -1505,10 +1505,12 @@ textarea.mid{ min-height:90px; }
 .star-plant{ display:none; }
 .star-room::after{ content:''; position:absolute; bottom:0; left:0; right:0; height:28px; background:#C8B8A4; border-top:2px solid #B8A894; }
 .star-char-wrap{ position:absolute; bottom:35px; left:50%; transform:translateX(-50%); }
-.star-cat-img{ width:180px; height:auto; }
+/* 固定寬高的正方形容器 + object-fit:contain，讓不同表情圖（各自比例、留白不同）切換時
+   貓咪維持同一個尺寸與底部基準線，不會因為切換圖片而忽大忽小、上下跳動 */
+.star-cat-img{ width:180px; height:180px; object-fit:contain; object-position:center bottom; }
 /* 手機上貓咪依螢幕寬度縮放，避免過大 */
 @media (max-width:520px){
-  .star-cat-img{ width:clamp(120px, 40vw, 160px); }
+  .star-cat-img{ width:clamp(120px, 40vw, 160px); height:clamp(120px, 40vw, 160px); }
 }
 .star-char{ width:96px; height:96px; border-radius:50%; background:#F8F4F0; border:3px solid #E0D4C8; position:relative; box-shadow:0 4px 16px rgba(100,80,60,0.12); }
 .star-cat-img.bounce{ animation:starBounce .38s ease; }
