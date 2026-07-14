@@ -723,7 +723,8 @@ textarea.mid{ min-height:90px; }
 .btc-chip.active{ background:var(--ink); color:var(--chat-bg); border-color:var(--ink); }
 .btc-body{ flex:1; overflow-y:auto; padding:0 16px 20px; scrollbar-width:none; }
 .btc-body::-webkit-scrollbar{ display:none; }
-.btc-cal-card{ background:var(--chat-bg); border-radius:20px; border:1px solid var(--line); padding:16px; margin-bottom:16px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+.btc-cal-card{ background:#fff; border-radius:20px; border:1px solid var(--line); padding:16px; margin-bottom:16px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+:root[data-theme="dark"] .btc-cal-card{ background:var(--chat-bg); }
 .btc-month-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
 .btc-month-btn{ width:34px; height:34px; border-radius:50%; border:1.5px solid var(--line); background:var(--surface); font-size:17px; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
 .btc-month-btn:hover{ border-color:var(--companion); color:var(--companion); }
@@ -3210,7 +3211,7 @@ textarea.mid{ min-height:90px; }
           <div class="btc-stat-num accent" id="calStatEvents">0</div>
           <div class="btc-stat-label">本月事項</div>
         </div>
-        <div class="btc-stat-item">
+        <div class="btc-stat-item" id="calAnniStatItem" style="cursor:pointer;">
           <div class="btc-stat-num" id="calStatAnni">0</div>
           <div class="btc-stat-label">紀念日</div>
         </div>
@@ -3293,13 +3294,6 @@ textarea.mid{ min-height:90px; }
           </div>
         </div>
 
-        <!-- Anniversaries & Birthdays -->
-        <div class="btc-add-section" style="margin-bottom:14px;">
-          <div class="btc-add-title">
-            <span>🎂 紀念日 & 生日</span>
-          </div>
-          <div id="calAnniList"></div>
-        </div>
 
         <!-- Period records section -->
         <div class="btc-add-section" style="margin-bottom:14px;">
@@ -3875,6 +3869,18 @@ textarea.mid{ min-height:90px; }
       <div style="font-size:11px;color:var(--ink-soft);margin-bottom:14px;">點選表情圖案即可更換該心情等級的顏色，會同步套用到月曆日期圓圈與紀錄彈窗</div>
       <div id="moodColorList"></div>
       <button class="toolbar-btn" id="moodColorResetBtn" type="button" style="width:100%;justify-content:center;margin-top:14px;">恢復預設顏色</button>
+    </div>
+  </div>
+</div>
+
+<div class="cal-overlay hidden" id="calAnniOverlay">
+  <div class="cal-sheet">
+    <div class="cal-sheet-head">
+      <div class="cal-sheet-title">🎂 紀念日 & 生日</div>
+      <button class="icon-btn" id="calAnniClose" type="button">✕</button>
+    </div>
+    <div class="cal-sheet-body">
+      <div id="calAnniList"></div>
     </div>
   </div>
 </div>
@@ -7234,6 +7240,13 @@ textarea.mid{ min-height:90px; }
     if(typeof renderHealthCard === 'function') renderHealthCard();
     flashSaved('已恢復預設顏色 ✓');
   });
+
+  $('calAnniStatItem').addEventListener('click', function(){
+    renderAnniSection();
+    $('calAnniOverlay').classList.remove('hidden');
+  });
+  $('calAnniClose').addEventListener('click', function(){ $('calAnniOverlay').classList.add('hidden'); });
+  $('calAnniOverlay').addEventListener('click', function(e){ if(e.target === $('calAnniOverlay')) $('calAnniOverlay').classList.add('hidden'); });
 
   $('calAddDate').addEventListener('click',function(e){
     e.stopPropagation();
