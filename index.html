@@ -1504,13 +1504,13 @@ textarea.mid{ min-height:90px; }
 .star-window::after{ top:50%; left:0; right:0; height:2px; transform:translateY(-50%); }
 .star-plant{ display:none; }
 .star-room::after{ content:''; position:absolute; bottom:0; left:0; right:0; height:28px; background:#C8B8A4; border-top:2px solid #B8A894; }
-.star-char-wrap{ position:absolute; bottom:35px; left:50%; transform:translateX(-50%); }
-/* 固定寬高的正方形容器 + object-fit:contain，讓不同表情圖（各自比例、留白不同）切換時
-   貓咪維持同一個尺寸與底部基準線，不會因為切換圖片而忽大忽小、上下跳動 */
-.star-cat-img{ width:180px; height:180px; object-fit:contain; object-position:center bottom; }
-/* 手機上貓咪依螢幕寬度縮放，避免過大 */
+/* 180x190 的參考座標系；每張表情圖實際佔用的像素範圍不同（見 CAT_SPRITE_META），
+   靠 JS 依內容邊界算出的 width/height/left/top 個別定位，讓貓咪視覺大小與腳底地板線一致，
+   不是只讓外框一樣大。手機版用 transform:scale 整體等比縮小，內部定位邏輯不用重算。 */
+.star-char-wrap{ position:absolute; bottom:35px; left:50%; width:180px; height:190px; transform:translateX(-50%); transform-origin:bottom center; }
+.star-cat-img{ position:absolute; }
 @media (max-width:520px){
-  .star-cat-img{ width:clamp(120px, 40vw, 160px); height:clamp(120px, 40vw, 160px); }
+  .star-char-wrap{ transform:translateX(-50%) scale(0.82); }
 }
 .star-char{ width:96px; height:96px; border-radius:50%; background:#F8F4F0; border:3px solid #E0D4C8; position:relative; box-shadow:0 4px 16px rgba(100,80,60,0.12); }
 .star-cat-img.bounce{ animation:starBounce .38s ease; }
@@ -9844,13 +9844,35 @@ textarea.mid{ min-height:90px; }
   var catLastInteraction = Date.now();
   var catSleeping = false;
   var catShowingExpr = false;
+  // 每張圖實際內容（貓咪本體，排除透明留白）的像素邊界分析結果，換算成統一顯示大小＋
+  // 腳底地板線對齊所需的 width/height/left/top（相對 .star-char-wrap 180x190 的參考座標）。
+  // 不是用外框（object-fit）硬套，而是依每張圖各自的內容比例分別定位，避免大小/位置跳動。
+  var CAT_SPRITE_META = {
+    'ster/cat001.png': { w:146.0, h:153.6, left:17.1, top:31.2 },
+    'ster/cat002.png': { w:148.7, h:156.5, left:17.3, top:29.0 },
+    'ster/[困惑]from-PixAI-2032905215772732057-2.png': { w:187.3, h:187.3, left:-6.6, top:16.6 },
+    'ster/[玩球]from-PixAI-2032908602599556936-2.png': { w:190.6, h:190.6, left:-3.2, top:6.7 },
+    'ster/[睡覺]from-PixAI-2032898764746494390-0.png': { w:191.5, h:191.5, left:-11.4, top:14.4 },
+    'ster/[翻肚子]from-PixAI-2033359983251464545-2.png': { w:169.2, h:169.2, left:6.2, top:28.0 },
+    'ster/[震驚]from-PixAI-2032910309226865171-3.png': { w:183.7, h:183.7, left:2.2, top:11.9 }
+  };
+  function setCatSprite(img, src){
+    img.src = src;
+    var m = CAT_SPRITE_META[src];
+    if(m){
+      img.style.width = m.w + 'px';
+      img.style.height = m.h + 'px';
+      img.style.left = m.left + 'px';
+      img.style.top = m.top + 'px';
+    }
+  }
   function animateCat(){
     var img = $('starChar');
     if(img){
       var idleFor = Date.now() - catLastInteraction;
       if(idleFor >= CAT_SLEEP_IDLE_MS){
         catSleeping = true;
-        img.src = CAT_EXPR.sleep;
+        setCatSprite(img, CAT_EXPR.sleep);
         catAnimationTimer = setTimeout(animateCat, 1500);
         return;
       }
@@ -9858,12 +9880,12 @@ textarea.mid{ min-height:90px; }
       if(!catShowingExpr && Math.random() < CAT_EXPR_CHANCE){
         catShowingExpr = true;
         var idlePool = [CAT_EXPR.confused, CAT_EXPR.belly, CAT_EXPR.ball, CAT_EXPR.shocked];
-        img.src = idlePool[Math.floor(Math.random()*idlePool.length)];
+        setCatSprite(img, idlePool[Math.floor(Math.random()*idlePool.length)]);
         catAnimationTimer = setTimeout(function(){ catShowingExpr = false; animateCat(); }, 1800);
         return;
       }
       catCurrentFrame = (catCurrentFrame + 1) % catFrames.length;
-      img.src = catFrames[catCurrentFrame];
+      setCatSprite(img, catFrames[catCurrentFrame]);
     }
     catAnimationTimer = setTimeout(animateCat, 500);
   }
@@ -9985,7 +10007,7 @@ textarea.mid{ min-height:90px; }
     // 摸摸反應：翻肚子或困惑（隨機擇一），短暫顯示後恢復待機動畫
     clearTimeout(catAnimationTimer);
     catShowingExpr = true;
-    catImg.src = Math.random() < 0.5 ? CAT_EXPR.belly : CAT_EXPR.confused;
+    setCatSprite(catImg, Math.random() < 0.5 ? CAT_EXPR.belly : CAT_EXPR.confused);
     catAnimationTimer = setTimeout(function(){ catShowingExpr = false; animateCat(); }, 1500);
     floatHeart($('starChar'));
     var m=['呀！好舒服～💕','謝謝你摸我！','嗯嗯～感覺很溫暖','嘿嘿，我喜歡這樣！'];
