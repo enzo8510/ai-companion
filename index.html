@@ -718,6 +718,10 @@ textarea.mid{ min-height:90px; }
 .btc-stat-item{ flex:1; background:var(--chat-bg); border-radius:18px; padding:14px 10px; text-align:center; border:1px solid var(--line); box-shadow:0 3px 12px rgba(0,0,0,.05); }
 .btc-stat-num{ font-size:24px; font-weight:700; color:var(--ink); font-family:'LXGW WenKai TC',serif; line-height:1.1; }
 .btc-stat-num.accent{ color:var(--companion); }
+/* 統計數字跟下方篩選 chip / 月曆色點同一套顏色語言，讓整頁的「類型=顏色」邏輯前後呼應 */
+#calStatEvents{ color:var(--event-color); }
+#calStatAnni{ color:var(--birthday-color); }
+#calStatPeriod{ color:var(--period-color); }
 .btc-stat-label{ font-size:10px; font-weight:600; color:var(--ink-soft); margin-top:3px; letter-spacing:.03em; }
 .btc-filter-row{ flex:0 0 auto; display:flex; gap:8px; padding:0 16px 14px; overflow-x:auto; scrollbar-width:none; }
 .btc-filter-row::-webkit-scrollbar{ display:none; }
@@ -737,18 +741,16 @@ textarea.mid{ min-height:90px; }
 .btc-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px 2px; }
 .btc-day{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:0 0 4px; border-radius:12px; cursor:pointer; min-height:60px; transition:background .1s; user-select:none; }
 .btc-day:hover{ background:var(--surface); }
-.btc-day-num{ font-size:16px; font-weight:700; color:var(--ink); line-height:1; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--surface); transition:background .15s,color .15s,border-color .15s; }
-.btc-day.today .btc-day-num{ border:2px solid var(--companion); color:var(--companion); background:var(--chat-bg); }
+.btc-day-num{ font-size:15px; font-weight:600; color:var(--ink); line-height:1; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:transparent; transition:background .15s,color .15s,border-color .15s; }
+.btc-day.today .btc-day-num{ font-weight:700; border:1.5px solid var(--companion); color:var(--companion); background:transparent; }
 .btc-day.checked .btc-day-num{ background:var(--companion); color:#fff; font-weight:700; border:none; }
 .btc-day.today.checked .btc-day-num{ background:var(--companion); color:#fff; border:none; }
-.btc-day.selected .btc-day-num{ background:var(--ink); color:#fff; border:none; }
+.btc-day.selected .btc-day-num{ background:var(--ink); color:#fff; border:none; font-weight:700; }
 .btc-day.empty{ pointer-events:none; }
 .btc-day.empty .btc-day-num{ background:transparent; }
 .btc-day.other-month .btc-day-num{ background:transparent; color:var(--ink-soft); opacity:.35; }
-.btc-day-icons{ display:flex; flex-wrap:wrap; justify-content:center; gap:1px; margin-top:3px; max-width:100%; }
-.btc-day-icon{ font-size:10px; line-height:1; }
-.btc-day-dot{ width:5px; height:5px; border-radius:50%; background:var(--companion); }
-.btc-day-more{ font-size:8px; color:var(--ink-soft); }
+.btc-day-dots{ display:flex; justify-content:center; align-items:center; gap:3px; margin-top:5px; height:5px; }
+.btc-day-dotitem{ width:4.5px; height:4.5px; border-radius:50%; flex-shrink:0; }
 .btc-day-detail{ background:var(--chat-bg); border-radius:18px; border:1px solid var(--line); padding:16px; margin-bottom:14px; box-shadow:0 4px 16px rgba(0,0,0,.05); }
 .btc-detail-nosel{ font-size:13px; color:var(--ink-soft); text-align:center; padding:10px 0 6px; }
 .btc-detail-date{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:10px; }
@@ -819,6 +821,15 @@ textarea.mid{ min-height:90px; }
 .ci-health-icon{ font-size:20px; flex:0 0 28px; text-align:center; }
 .ci-health-info{ flex:1; min-width:0; }
 .ci-health-label{ font-size:11px; color:var(--ink-soft); font-weight:600; margin-bottom:5px; }
+/* 可收合的健康紀錄子區塊：預設收起，只留標題+今天摘要，點開才展開完整選項 */
+.ci-health-section{ border-top:1px solid var(--line); }
+.ci-health-title + .ci-health-section{ border-top:none; }
+.ci-health-sec-title{ display:flex; align-items:center; gap:8px; padding:11px 0; cursor:pointer; user-select:none; }
+.ci-health-sec-icon{ font-size:18px; flex:0 0 24px; text-align:center; }
+.ci-health-sec-label{ font-size:13px; font-weight:600; color:var(--ink); flex:0 0 auto; white-space:nowrap; }
+.ci-health-sec-summary{ flex:1; min-width:0; font-size:12px; color:var(--ink-soft); text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ci-health-sec-title.open .btc-chevron{ transform:rotate(90deg); }
+.ci-health-sec-body{ padding-bottom:12px; }
 .ci-h-opts{ display:flex; gap:4px; flex-wrap:wrap; }
 .ci-h-opt{ padding:4px 9px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:inherit; transition:all .15s; }
 .ci-h-opt.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
@@ -851,15 +862,6 @@ textarea.mid{ min-height:90px; }
 .ci-bar-inner{ position:relative; width:100%; display:flex; align-items:flex-end; justify-content:center; flex:1; }
 .ci-bar{ width:80%; border-radius:4px 4px 0 0; background:var(--companion); opacity:.6; transition:height .3s ease; min-height:2px; }
 .ci-bar.today{ opacity:1; }
-/* Weekly overview — colorful rounded pill bars with % */
-.ci-week-overview{ background:var(--chat-bg); border-radius:18px; border:1px solid var(--line); padding:16px; margin-bottom:14px; box-shadow:0 4px 16px rgba(0,0,0,.05); }
-.ci-week-overview-title{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:14px; }
-.ci-week-bars{ display:flex; gap:10px; align-items:flex-end; height:110px; }
-.ci-week-bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; height:100%; min-width:0; }
-.ci-week-bar-track{ flex:1; width:100%; max-width:44px; border-radius:999px; background:var(--surface); display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden; margin:0 auto; }
-.ci-week-bar-fill{ width:100%; border-radius:999px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px; transition:height .4s ease; }
-.ci-week-bar-pct{ font-size:11px; font-weight:700; color:#fff; }
-.ci-week-bar-label{ font-size:11px; color:var(--ink-soft); margin-top:8px; font-weight:600; white-space:nowrap; }
 .ci-bar-wrap.no-data .ci-bar{ background:var(--line); opacity:.3; }
 .ci-bar-date{ font-size:9px; color:var(--ink-soft); margin-top:3px; white-space:nowrap; line-height:1; }
 .ci-bar-date.today-lbl{ color:var(--companion); font-weight:700; }
@@ -910,8 +912,6 @@ textarea.mid{ min-height:90px; }
 .ci-dm-drink-card-time{ font-size:9.5px; color:var(--ink-soft); margin-bottom:4px; }
 .ci-dm-drink-card-tags{ display:flex; flex-wrap:wrap; gap:3px; justify-content:center; }
 .ci-dm-drink-card-tag{ font-size:9px; padding:1px 5px; border-radius:6px; background:var(--companion-soft); color:var(--companion); font-weight:600; }
-.btc-day-icons{ position:relative; }
-.btc-day-drink-badge{ position:absolute; top:-4px; right:-6px; font-size:8px; background:var(--surface); border-radius:999px; padding:0 3px; line-height:1.4; }
 .ci-mood-btn.active{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
 /* Sleep times */
 .ci-sleep-times{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
@@ -959,8 +959,6 @@ textarea.mid{ min-height:90px; }
 .ci-dm-mood-emoji-row{ display:flex; gap:6px; flex-wrap:wrap; }
 .ci-dm-mood-emoji{ display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; font-size:15px; box-shadow:0 2px 6px rgba(0,0,0,.1); }
 .ci-dm-poop-badge{ display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:999px; font-size:12px; font-weight:700; }
-.btc-day-health{ display:flex; justify-content:center; gap:2px; margin-top:2px; }
-.btc-day-hdot{ width:4px; height:4px; border-radius:50%; }
 /* ---- Download overlay ---- */
 .dl-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:center; justify-content:center; padding:24px; }
 .dl-overlay.hidden{ display:none; }
@@ -1018,19 +1016,9 @@ textarea.mid{ min-height:90px; }
 /* ---- Check-in calendar overlay ---- */
 .ci-cal-stats{ display:flex; gap:var(--space-md); justify-content:center; margin-bottom:var(--space-lg); }
 /* ---- Checkin Calendar Styling ---- */
-.ci-cal-grid-styled .cal-full-day{ border-radius:50% !important; background:transparent !important; border:none !important; font-weight:500; color:var(--ink); }
-.ci-cal-grid-styled .cal-full-day.cal-fd-today{ background:var(--companion) !important; color:#fff; box-shadow:0 2px 8px var(--companion-shadow,rgba(169,135,216,0.4)); }
-.ci-cal-grid-styled .cal-full-day.ci-done-1{ background:var(--companion) !important; color:#fff; box-shadow:0 2px 6px var(--companion-shadow,rgba(169,135,216,0.35)); }
-.ci-cal-grid-styled .cal-full-day.ci-done-2{ background:var(--health-color) !important; color:#fff; box-shadow:0 2px 6px rgba(141,198,76,0.35); }
-.ci-cal-grid-styled .cal-full-day.ci-done-3{ background:var(--birthday-color) !important; color:#fff; box-shadow:0 2px 6px rgba(224,128,80,0.35); }
-.ci-cal-grid-styled .cal-full-day.ci-done-4{ background:var(--period-color) !important; color:#fff; box-shadow:0 2px 6px rgba(232,76,120,0.35); }
-.ci-cal-grid-styled .cal-full-day.cal-fd-empty{ background:transparent !important; border:none !important; }
 .ci-stat-box{ background:linear-gradient(135deg, var(--companion-soft), rgba(169,135,216,0.08)); border-radius:18px; padding:var(--space-lg) var(--space-xl); text-align:center; border:1px solid rgba(169,135,216,0.2); box-shadow:0 3px 14px rgba(169,135,216,0.08); }
 .ci-stat-num{ font-size:24px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
 .ci-stat-label{ font-size:11px; color:var(--ink-soft); margin-top:var(--space-sm); font-weight:600; }
-.cal-full-day.ci-done{ background:var(--companion); color:#fff !important; border-color:var(--companion); box-shadow:0 2px 8px var(--companion-shadow,rgba(169,135,216,0.3)); font-weight:700; }
-.cal-full-day.ci-done:hover{ opacity:.9; }
-
 /* ---- Calendar grid compact ---- */
 .cal-full-grid{ gap:var(--space-xs) !important; margin-bottom:var(--space-lg) !important; }
 .cal-full-day{ font-size:12px !important; }
@@ -3363,11 +3351,6 @@ textarea.mid{ min-height:90px; }
         </div>
       </div>
       <div class="btc-body">
-        <!-- Weekly overview: colorful percentage pill bars -->
-        <div class="ci-week-overview" id="ciWeekOverview">
-          <div class="ci-week-overview-title">📊 本週總覽</div>
-          <div class="ci-week-bars" id="ciWeekBars"></div>
-        </div>
         <div class="btc-cal-card">
           <div class="btc-month-nav">
             <button class="btc-month-btn" id="ciCalPrev" type="button">‹</button>
@@ -3401,10 +3384,14 @@ textarea.mid{ min-height:90px; }
         <div class="ci-health-card" id="ciHealthCard">
           <div class="ci-health-title">🌿 今日健康紀錄</div>
           <!-- Sleep -->
-          <div class="ci-health-row">
-            <div class="ci-health-icon">😴</div>
-            <div class="ci-health-info">
-              <div class="ci-health-label">睡眠</div>
+          <div class="ci-health-section">
+            <div class="ci-health-sec-title btc-has-body" data-body="ciSleepBody">
+              <span class="ci-health-sec-icon">😴</span>
+              <span class="ci-health-sec-label">睡眠</span>
+              <span class="ci-health-sec-summary" id="ciSleepSummary">尚未填寫</span>
+              <span class="btc-chevron">›</span>
+            </div>
+            <div class="btc-collapse-body ci-health-sec-body" id="ciSleepBody" style="display:none">
               <div class="ci-h-opts" id="ciSleepOpts">
                 <button class="ci-h-opt" data-val="4" type="button">4h</button>
                 <button class="ci-h-opt" data-val="5" type="button">5h</button>
@@ -3427,10 +3414,14 @@ textarea.mid{ min-height:90px; }
             </div>
           </div>
           <!-- Diet -->
-          <div class="ci-health-row">
-            <div class="ci-health-icon">🍽️</div>
-            <div class="ci-health-info">
-              <div class="ci-health-label">飲食紀錄</div>
+          <div class="ci-health-section">
+            <div class="ci-health-sec-title btc-has-body" data-body="ciDietBody">
+              <span class="ci-health-sec-icon">🍽️</span>
+              <span class="ci-health-sec-label">飲食紀錄</span>
+              <span class="ci-health-sec-summary" id="ciDietSummary">尚未填寫</span>
+              <span class="btc-chevron">›</span>
+            </div>
+            <div class="btc-collapse-body ci-health-sec-body" id="ciDietBody" style="display:none">
               <div class="ci-meal-tabs" id="ciMealTabs">
                 <button class="ci-meal-tab active" data-meal="breakfast" type="button">🌅 早餐</button>
                 <button class="ci-meal-tab" data-meal="lunch" type="button">☀️ 午餐</button>
@@ -3456,10 +3447,14 @@ textarea.mid{ min-height:90px; }
             </div>
           </div>
           <!-- Drinks -->
-          <div class="ci-health-row">
-            <div class="ci-health-icon">🥤</div>
-            <div class="ci-health-info">
-              <div class="ci-health-label">今日飲料</div>
+          <div class="ci-health-section">
+            <div class="ci-health-sec-title btc-has-body" data-body="ciDrinksBody">
+              <span class="ci-health-sec-icon">🥤</span>
+              <span class="ci-health-sec-label">今日飲料</span>
+              <span class="ci-health-sec-summary" id="ciDrinksSummary">尚未記錄</span>
+              <span class="btc-chevron">›</span>
+            </div>
+            <div class="btc-collapse-body ci-health-sec-body" id="ciDrinksBody" style="display:none">
               <div class="ci-drink-type-btns" id="ciDrinkTypeBtns">
                 <button class="ci-drink-type-btn" data-type="coffee" type="button">☕ 咖啡</button>
                 <button class="ci-drink-type-btn" data-type="bubble" type="button">🧋 手搖</button>
@@ -3472,10 +3467,14 @@ textarea.mid{ min-height:90px; }
             </div>
           </div>
           <!-- Water -->
-          <div class="ci-health-row">
-            <div class="ci-health-icon">💧</div>
-            <div class="ci-health-info">
-              <div class="ci-health-label">飲水量</div>
+          <div class="ci-health-section">
+            <div class="ci-health-sec-title btc-has-body" data-body="ciWaterBody">
+              <span class="ci-health-sec-icon">💧</span>
+              <span class="ci-health-sec-label">飲水量</span>
+              <span class="ci-health-sec-summary" id="ciWaterSummary">尚未記錄</span>
+              <span class="btc-chevron">›</span>
+            </div>
+            <div class="btc-collapse-body ci-health-sec-body" id="ciWaterBody" style="display:none">
               <div class="ci-water-row">
                 <span class="ci-water-num" id="ciWaterVal">0</span>
                 <span class="ci-water-unit">mL</span>
@@ -3486,13 +3485,16 @@ textarea.mid{ min-height:90px; }
             </div>
           </div>
           <!-- Mood -->
-          <div class="ci-health-row">
-            <div class="ci-health-icon">💕</div>
-            <div class="ci-health-info">
-              <div class="ci-health-label" style="display:flex;align-items:center;justify-content:space-between;">
-                <span>今日心情（可點多次，記錄一整天的變化）</span>
-                <button class="icon-btn" id="moodColorBtn" type="button" title="自訂心情顏色" style="font-size:14px;flex:0 0 auto;">🎨</button>
-              </div>
+          <div class="ci-health-section">
+            <div class="ci-health-sec-title btc-has-body" data-body="ciMoodBody">
+              <span class="ci-health-sec-icon">💕</span>
+              <span class="ci-health-sec-label">今日心情</span>
+              <span class="ci-health-sec-summary" id="ciMoodSummary">尚未記錄</span>
+              <button class="icon-btn" id="moodColorBtn" type="button" title="自訂心情顏色" style="font-size:14px;flex:0 0 auto;">🎨</button>
+              <span class="btc-chevron">›</span>
+            </div>
+            <div class="btc-collapse-body ci-health-sec-body" id="ciMoodBody" style="display:none">
+              <div class="ci-health-label" style="margin-bottom:8px;">可點多次，記錄一整天的變化</div>
               <div class="ci-mood-btns" id="ciMoodOpts">
                 <button class="ci-mood-btn" data-val="1" type="button">😔 很差</button>
                 <button class="ci-mood-btn" data-val="2" type="button">😕 不好</button>
@@ -3504,10 +3506,14 @@ textarea.mid{ min-height:90px; }
             </div>
           </div>
           <!-- Poop -->
-          <div class="ci-health-row">
-            <div class="ci-health-icon">🚽</div>
-            <div class="ci-health-info">
-              <div class="ci-health-label">排便狀況</div>
+          <div class="ci-health-section">
+            <div class="ci-health-sec-title btc-has-body" data-body="ciPoopBody">
+              <span class="ci-health-sec-icon">🚽</span>
+              <span class="ci-health-sec-label">排便狀況</span>
+              <span class="ci-health-sec-summary" id="ciPoopSummary">尚未記錄</span>
+              <span class="btc-chevron">›</span>
+            </div>
+            <div class="btc-collapse-body ci-health-sec-body" id="ciPoopBody" style="display:none">
               <div class="ci-poop-row" id="ciPoopRow">
                 <button class="ci-poop-btn" data-val="0" type="button">沒有</button>
                 <button class="ci-poop-btn" data-val="1" type="button">正常</button>
@@ -3516,59 +3522,70 @@ textarea.mid{ min-height:90px; }
             </div>
           </div>
           <!-- Period (shown only when in period) -->
-          <div class="ci-period-health-section" id="ciPeriodHealthSection" style="display:none">
-            <div class="ci-period-health-title">🩸 生理期狀態</div>
-            <div class="ci-health-row" style="border-top:none;padding-top:0;">
-              <div class="ci-health-icon" style="font-size:15px;line-height:2;">血量</div>
-              <div class="ci-health-info">
-                <div class="ci-flow-btns" id="ciFlowBtns">
-                  <button class="ci-flow-btn" data-val="1" type="button">少</button>
-                  <button class="ci-flow-btn" data-val="2" type="button">中</button>
-                  <button class="ci-flow-btn" data-val="3" type="button">多</button>
-                  <button class="ci-flow-btn" data-val="4" type="button">很多</button>
-                </div>
-              </div>
+          <div class="ci-health-section" id="ciPeriodHealthSection" style="display:none">
+            <div class="ci-health-sec-title btc-has-body" data-body="ciPeriodHealthBody">
+              <span class="ci-health-sec-icon">🩸</span>
+              <span class="ci-health-sec-label">生理期狀態</span>
+              <span class="ci-health-sec-summary" id="ciPeriodHealthSummary">尚未填寫</span>
+              <span class="btc-chevron">›</span>
             </div>
-            <div class="ci-health-row">
-              <div class="ci-health-icon" style="font-size:15px;line-height:2;">不適</div>
-              <div class="ci-health-info">
-                <div style="display:flex;align-items:center;gap:8px;">
-                  <div class="ci-discomfort-btns" id="ciDiscomfortBtns">
-                    <button class="ci-discomfort-btn" data-val="1" type="button">1</button>
-                    <button class="ci-discomfort-btn" data-val="2" type="button">2</button>
-                    <button class="ci-discomfort-btn" data-val="3" type="button">3</button>
-                    <button class="ci-discomfort-btn" data-val="4" type="button">4</button>
-                    <button class="ci-discomfort-btn" data-val="5" type="button">5</button>
+            <div class="btc-collapse-body ci-health-sec-body" id="ciPeriodHealthBody" style="display:none">
+              <div class="ci-health-row" style="border-top:none;padding-top:0;">
+                <div class="ci-health-icon" style="font-size:15px;line-height:2;">血量</div>
+                <div class="ci-health-info">
+                  <div class="ci-flow-btns" id="ciFlowBtns">
+                    <button class="ci-flow-btn" data-val="1" type="button">少</button>
+                    <button class="ci-flow-btn" data-val="2" type="button">中</button>
+                    <button class="ci-flow-btn" data-val="3" type="button">多</button>
+                    <button class="ci-flow-btn" data-val="4" type="button">很多</button>
                   </div>
-                  <span style="font-size:11px;color:var(--ink-soft);">1=輕微 5=劇烈</span>
                 </div>
               </div>
-            </div>
-            <div class="ci-health-row">
-              <div class="ci-health-icon" style="font-size:15px;line-height:2;">心情</div>
-              <div class="ci-health-info">
-                <div class="ci-period-mood-btns" id="ciPeriodMoodBtns">
-                  <button class="ci-period-mood-btn" data-val="1" type="button">還好</button>
-                  <button class="ci-period-mood-btn" data-val="2" type="button">不太好</button>
-                  <button class="ci-period-mood-btn" data-val="3" type="button">很不適</button>
+              <div class="ci-health-row">
+                <div class="ci-health-icon" style="font-size:15px;line-height:2;">不適</div>
+                <div class="ci-health-info">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="ci-discomfort-btns" id="ciDiscomfortBtns">
+                      <button class="ci-discomfort-btn" data-val="1" type="button">1</button>
+                      <button class="ci-discomfort-btn" data-val="2" type="button">2</button>
+                      <button class="ci-discomfort-btn" data-val="3" type="button">3</button>
+                      <button class="ci-discomfort-btn" data-val="4" type="button">4</button>
+                      <button class="ci-discomfort-btn" data-val="5" type="button">5</button>
+                    </div>
+                    <span style="font-size:11px;color:var(--ink-soft);">1=輕微 5=劇烈</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="ci-health-row">
-              <div class="ci-health-icon" style="font-size:15px;line-height:2;">止痛藥</div>
-              <div class="ci-health-info">
-                <div class="ci-painkiller-btns" id="ciPainkillerBtns">
-                  <button class="ci-painkiller-btn" data-val="0" type="button">沒吃</button>
-                  <button class="ci-painkiller-btn" data-val="1" type="button">💊 有吃</button>
+              <div class="ci-health-row">
+                <div class="ci-health-icon" style="font-size:15px;line-height:2;">心情</div>
+                <div class="ci-health-info">
+                  <div class="ci-period-mood-btns" id="ciPeriodMoodBtns">
+                    <button class="ci-period-mood-btn" data-val="1" type="button">還好</button>
+                    <button class="ci-period-mood-btn" data-val="2" type="button">不太好</button>
+                    <button class="ci-period-mood-btn" data-val="3" type="button">很不適</button>
+                  </div>
+                </div>
+              </div>
+              <div class="ci-health-row" style="border-bottom:none;">
+                <div class="ci-health-icon" style="font-size:15px;line-height:2;">止痛藥</div>
+                <div class="ci-health-info">
+                  <div class="ci-painkiller-btns" id="ciPainkillerBtns">
+                    <button class="ci-painkiller-btn" data-val="0" type="button">沒吃</button>
+                    <button class="ci-painkiller-btn" data-val="1" type="button">💊 有吃</button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <!-- Notes -->
-          <div class="ci-health-row" style="padding-bottom:4px;">
-            <div class="ci-health-icon">📝</div>
-            <div class="ci-health-info">
-              <div class="ci-health-label">今日備註</div>
+          <div class="ci-health-section">
+            <div class="ci-health-sec-title btc-has-body" data-body="ciNoteBody">
+              <span class="ci-health-sec-icon">📝</span>
+              <span class="ci-health-sec-label">今日備註</span>
+              <span class="ci-health-sec-summary" id="ciNoteSummary">尚未填寫</span>
+              <span class="btc-chevron">›</span>
+            </div>
+            <div class="btc-collapse-body ci-health-sec-body" id="ciNoteBody" style="display:none">
               <textarea id="ciHealthNote" class="ci-health-note" placeholder="記錄一下今天的狀態…" maxlength="200" rows="2"></textarea>
             </div>
           </div>
@@ -6826,24 +6843,22 @@ textarea.mid{ min-height:90px; }
       var key2=calOvYear+'-'+(calOvMonth+1)+'-'+d;
       var items=dateMap[key2]||[];
 
-      var icons=[];
+      // 用色點取代表情符號：跟篩選 chip / 當日清單同一套顏色語言，一眼就能對應「這是什麼類型」
+      // 多天事項已經用橫條顏色表示過了，起始日不再重複疊一顆點造成雙重訊號
+      var dotColors=[];
       items.forEach(function(it){
-        var emojiMap={event:'📝',anniversary:'🎂',birthday:'🎂',health:'💪',diary:'📔',journal:'📝',memory:'🧠',health:'💪',work:'💼'};
-        var em=emojiMap[it.type]||'📌';
-        if(icons.indexOf(em)<0) icons.push(em);
+        if(it.type==='event' && eventBarMap[d]) return; // 已經有橫條了，不重複顯示點
+        var c='var('+(CAL_TYPE_COLOR[it.type]||'--companion')+')';
+        if(dotColors.indexOf(c)<0) dotColors.push(c);
       });
 
-      if(icons.length){
-        var iconWrap=document.createElement('div'); iconWrap.className='btc-day-icons';
-        icons.slice(0,2).forEach(function(ic){
-          var sp=document.createElement('span'); sp.className='btc-day-icon'; sp.textContent=ic;
-          iconWrap.appendChild(sp);
+      if(dotColors.length){
+        var dotWrap=document.createElement('div'); dotWrap.className='btc-day-dots';
+        dotColors.slice(0,3).forEach(function(c){
+          var dot=document.createElement('span'); dot.className='btc-day-dotitem'; dot.style.background=c;
+          dotWrap.appendChild(dot);
         });
-        if(icons.length>2){
-          var more=document.createElement('span'); more.className='btc-day-more'; more.textContent='+';
-          iconWrap.appendChild(more);
-        }
-        cell.appendChild(iconWrap);
+        cell.appendChild(dotWrap);
       }
 
       grid.appendChild(cell);
@@ -6859,6 +6874,8 @@ textarea.mid{ min-height:90px; }
   }
 
   var TYPE_EMOJI = { event:'📝', anniversary:'🎂', birthday:'🎂', health:'💪', period:'🌸', journal:'📖' };
+  // 跟月曆格子色點共用同一套顏色語言：篩選 chip、格子色點、當日清單、統計數字，同一類型全站同色
+  var CAL_TYPE_COLOR = { event:'--event-color', anniversary:'--birthday-color', birthday:'--birthday-color', health:'--health-color', diary:'--journal-color', journal:'--journal-color', memory:'--companion', work:'--work-color', period:'--period-color' };
 
   function renderDayDetail(day){
     var label=$('calOvDayLabel'), list=$('calOvDayList');
@@ -6900,6 +6917,9 @@ textarea.mid{ min-height:90px; }
       var row=document.createElement('div'); row.className='btc-event-row';
       var em=document.createElement('div'); em.className='btc-event-emoji';
       em.textContent = it._ci ? '🌙' : (TYPE_EMOJI[it.type]||'📌');
+      // 跟月曆格子上的色點呼應：同一類型的底色調性一致，讓清單跟格子看起來是同一套系統
+      var typeColorVar = CAL_TYPE_COLOR[it._ci ? 'health' : it.type] || '--companion';
+      em.style.background = 'color-mix(in srgb, var('+typeColorVar+') 16%, var(--chat-bg))';
       var info=document.createElement('div'); info.className='btc-event-info';
       var titleEl=document.createElement('div'); titleEl.className='btc-event-title'; titleEl.textContent=it.title;
       info.appendChild(titleEl);
@@ -8773,33 +8793,28 @@ textarea.mid{ min-height:90px; }
       cell.style.cursor='pointer';
       (function(dk){ cell.addEventListener('click',function(){ openDayDetail(dk); }); })(healthKey);
       var numEl=document.createElement('div'); numEl.className='btc-day-num'; numEl.textContent=d;
+      cell.appendChild(numEl);
+
+      // 圓圈本身只代表「有沒有打卡」（.checked），心情/睡眠/飲水/飲品這些細節
+      // 一律降級成下方的小色點——跟行事曆頁面同一套語言，圓圈不再被心情漸層蓋掉
       var hEntry=healthLog[healthKey];
       var moodValsC=getMoodVals(hEntry);
-      if(moodValsC.length){
-        // 當天有心情紀錄：日期圓圈直接顯示情緒色，多筆不同心情則呈現漸層（依紀錄順序）
-        var uniqueMoods=moodValsC.filter(function(v,i,arr){ return arr.indexOf(v)===i; });
-        var moodColors=uniqueMoods.map(function(v){ return MOOD_COLORS[v]||'var(--companion)'; });
-        numEl.style.background=moodColors.length>1?('linear-gradient(135deg,'+moodColors.join(',')+')'):moodColors[0];
-        numEl.style.color='#fff';
-        numEl.style.border='none';
-      }
-      cell.appendChild(numEl);
       var dayDrinkCount=drinks.filter(function(dk2){ return dk2.date===healthKey; }).length;
-      if(isDone||dayDrinkCount){
-        var ic=document.createElement('div'); ic.className='btc-day-icons';
-        ic.innerHTML=isDone?'<span class="btc-day-icon">🌙</span>':'';
-        if(dayDrinkCount){
-          var badge=document.createElement('span'); badge.className='btc-day-drink-badge';
-          badge.textContent='🥤'+(dayDrinkCount>1?dayDrinkCount:'');
-          ic.appendChild(badge);
-        }
-        cell.appendChild(ic);
+      var dots=[];
+      if(moodValsC.length){
+        var uniqueMoods=moodValsC.filter(function(v,i,arr){ return arr.indexOf(v)===i; });
+        dots.push(MOOD_COLORS[uniqueMoods[0]]||'var(--companion)');
       }
-      if(hEntry&&(hEntry.sleep||hEntry.water)){
-        var dotRow=document.createElement('div'); dotRow.className='btc-day-health';
-        if(hEntry.sleep){ var d1=document.createElement('div'); d1.className='btc-day-hdot'; d1.style.background='#7ec8a0'; dotRow.appendChild(d1); }
-        if(hEntry.water){ var d2=document.createElement('div'); d2.className='btc-day-hdot'; d2.style.background='#74b3e0'; dotRow.appendChild(d2); }
-        cell.appendChild(dotRow);
+      if(hEntry&&hEntry.sleep) dots.push('#7ec8a0');
+      if(hEntry&&hEntry.water) dots.push('#74b3e0');
+      if(dayDrinkCount) dots.push('var(--health-color)');
+      if(dots.length){
+        var dotWrap=document.createElement('div'); dotWrap.className='btc-day-dots';
+        dots.slice(0,3).forEach(function(c){
+          var dot=document.createElement('span'); dot.className='btc-day-dotitem'; dot.style.background=c;
+          dotWrap.appendChild(dot);
+        });
+        cell.appendChild(dotWrap);
       }
       grid.appendChild(cell);
     }
@@ -8916,6 +8931,59 @@ textarea.mid{ min-height:90px; }
       tag.style.pointerEvents=eaten?'auto':'none';
     });
   }
+  // 健康紀錄各子區塊收合：預設全收起，點標題展開；點內部按鈕（如心情顏色）不觸發收合
+  $('ciHealthCard').querySelectorAll('.ci-health-sec-title').forEach(function(title){
+    title.addEventListener('click', function(e){
+      if(e.target.closest('button')) return;
+      btcToggleSection(this, $(this.dataset.body));
+    });
+  });
+
+  var CI_MOOD_EMOJI=['','😔','😕','😐','🙂','😄'];
+  var CI_POOP_LABEL={0:'沒有',1:'正常',2:'異常'};
+  var CI_FLOW_LABEL={1:'少',2:'中',3:'多',4:'很多'};
+  function ciMealEatenCount(h){
+    var meals=['breakfast','lunch','dinner','snack','other'];
+    return meals.filter(function(m){ return h.meals&&h.meals[m]&&h.meals[m].eaten; }).length;
+  }
+  // 每個收起的區塊標題旁顯示今天已填的摘要，不用點開也能一眼看到記錄了什麼
+  function renderCiSectionSummaries(h){
+    var sleepParts=[];
+    if(h.sleep) sleepParts.push(h.sleep+'h');
+    if(h.bedtime) sleepParts.push('🌙'+h.bedtime);
+    if(h.wakeup) sleepParts.push('☀️'+h.wakeup);
+    $('ciSleepSummary').textContent = sleepParts.length ? sleepParts.join(' · ') : '尚未填寫';
+
+    var eatenCount=ciMealEatenCount(h);
+    $('ciDietSummary').textContent = eatenCount ? '已記錄 '+eatenCount+'/5 餐' : '尚未填寫';
+
+    var dayDrinkCount=drinks.filter(function(dk){ return dk.date===todayHealthKey(); }).length;
+    $('ciDrinksSummary').textContent = dayDrinkCount ? '已記錄 '+dayDrinkCount+' 杯' : '尚未記錄';
+
+    $('ciWaterSummary').textContent = h.water ? h.water+' mL' : '尚未記錄';
+
+    var moodVals=getMoodVals(h);
+    if(moodVals.length){
+      var last=moodVals[moodVals.length-1];
+      $('ciMoodSummary').textContent=(CI_MOOD_EMOJI[last]||'')+(moodVals.length>1?' ×'+moodVals.length:'');
+    } else {
+      $('ciMoodSummary').textContent='尚未記錄';
+    }
+
+    $('ciPoopSummary').textContent = (h.poop!=null && h.poop>=0) ? CI_POOP_LABEL[h.poop] : '尚未記錄';
+
+    if(h.period && (h.period.flow||h.period.discomfort||h.period.periodMood||h.period.painkiller)){
+      var pd=h.period, parts2=[];
+      if(pd.flow) parts2.push('血量'+(CI_FLOW_LABEL[pd.flow]||pd.flow));
+      if(pd.discomfort) parts2.push('不適'+pd.discomfort+'/5');
+      $('ciPeriodHealthSummary').textContent = parts2.length ? parts2.join(' · ') : '尚未填寫';
+    } else if($('ciPeriodHealthSummary')){
+      $('ciPeriodHealthSummary').textContent='尚未填寫';
+    }
+
+    $('ciNoteSummary').textContent = h.note ? (h.note.length>8?h.note.slice(0,8)+'…':h.note) : '尚未填寫';
+  }
+
   function renderHealthCard(){
     var h=healthLog[todayHealthKey()]||{sleep:0,bedtime:'',wakeup:'',meals:{},water:0,moods:[],poop:-1,period:null,note:''};
     if(!h.meals) h.meals={breakfast:{},lunch:{},dinner:{},snack:{},other:{}};
@@ -8937,53 +9005,12 @@ textarea.mid{ min-height:90px; }
       $('ciPeriodMoodBtns').querySelectorAll('.ci-period-mood-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.periodMood||0)); });
       $('ciPainkillerBtns').querySelectorAll('.ci-painkiller-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.dataset.val)===(pd.painkiller?1:0)); });
     }
+    renderCiSectionSummaries(h);
   }
 
   /* ---- Weekly overview (colorful pill bars) ---- */
-  function renderWeekOverview(){
-    var wrap=$('ciWeekBars'); if(!wrap) return;
-    wrap.innerHTML='';
-    var today=new Date();
-    var days=[];
-    for(var i=6;i>=0;i--){
-      var dc=new Date(today); dc.setDate(dc.getDate()-i);
-      var k=dc.getFullYear()+'-'+String(dc.getMonth()+1).padStart(2,'0')+'-'+String(dc.getDate()).padStart(2,'0');
-      var label=dc.getFullYear()+'年'+(dc.getMonth()+1)+'月'+dc.getDate()+'日';
-      days.push({key:k,label:label});
-    }
-    var history=checkin.history||[];
-    var checkinCount=days.filter(function(d){ return history.indexOf(d.label)>=0; }).length;
-    var sleepVals=[], waterVals=[], moodVals=[];
-    days.forEach(function(d){
-      var h=healthLog[d.key]; if(!h) return;
-      if(h.sleep) sleepVals.push(h.sleep);
-      if(h.water) waterVals.push(h.water);
-      moodVals=moodVals.concat(getMoodVals(h));
-    });
-    function avg(arr){ return arr.length ? arr.reduce(function(s,x){return s+x;},0)/arr.length : 0; }
-    var metrics=[
-      { label:'打卡', pct:Math.round(checkinCount/7*100), color:'var(--companion)' },
-      { label:'睡眠', pct:Math.round(Math.min(100, avg(sleepVals)/8*100)), color:'#6C4FCE' },
-      { label:'飲水', pct:Math.round(Math.min(100, avg(waterVals)/2000*100)), color:'#5AC8E8' },
-      { label:'心情', pct:Math.round(Math.min(100, avg(moodVals)/5*100)), color:'#F5A623' }
-    ];
-    metrics.forEach(function(m){
-      var col=document.createElement('div'); col.className='ci-week-bar-col';
-      var track=document.createElement('div'); track.className='ci-week-bar-track';
-      var fill=document.createElement('div'); fill.className='ci-week-bar-fill';
-      fill.style.height=Math.max(m.pct,12)+'%';
-      fill.style.background=m.color;
-      var pctEl=document.createElement('span'); pctEl.className='ci-week-bar-pct'; pctEl.textContent=m.pct+'%';
-      fill.appendChild(pctEl); track.appendChild(fill);
-      var lbl=document.createElement('div'); lbl.className='ci-week-bar-label'; lbl.textContent=m.label;
-      col.appendChild(track); col.appendChild(lbl);
-      wrap.appendChild(col);
-    });
-  }
-
   /* ---- Charts ---- */
   function renderHealthCharts(){
-    renderWeekOverview();
     var chart=$('ciBarChart'); if(!chart) return;
     chart.innerHTML='';
     var today=new Date();
