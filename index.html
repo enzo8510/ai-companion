@@ -1198,9 +1198,12 @@ textarea.mid{ min-height:90px; }
   background-attachment:local;
 }
 .diary-page{ margin:auto 0; }
-.diary-page-date{ font-family:'LXGW WenKai TC',serif; font-size:17px; font-weight:700; color:var(--ink); letter-spacing:.06em; text-align:center; margin-bottom:10px; }
-.diary-page-rule{ width:34px; height:2px; border-radius:2px; background:var(--companion); opacity:.5; margin:0 auto 18px; }
-.diary-page-mood{ font-family:'LXGW WenKai TC',serif; font-style:italic; font-size:13px; text-align:center; margin-bottom:26px; font-weight:600; min-height:1em; }
+/* 標題區三列（日期／分隔線／心情）各自固定佔一個格線高度（34px），
+   不管心情有沒有文字，標題區加總永遠是 3 格，日期跟分隔線才會跟橫線對上 */
+.diary-page-date{ font-family:'LXGW WenKai TC',serif; font-size:16px; font-weight:700; color:var(--ink); letter-spacing:.06em; text-align:center; line-height:34px; margin:0; }
+.diary-page-rule-row{ height:34px; display:flex; align-items:center; justify-content:center; }
+.diary-page-rule{ width:34px; height:2px; border-radius:2px; background:var(--companion); opacity:.5; }
+.diary-page-mood{ font-family:'LXGW WenKai TC',serif; font-style:italic; font-size:13px; text-align:center; line-height:34px; height:34px; margin:0; font-weight:600; overflow:hidden; }
 .diary-page-text{ font-family:'LXGW WenKai TC',serif; font-size:17px; line-height:34px; color:var(--ink); }
 .diary-page-para{ margin:0; text-indent:2em; }
 .diary-page-para:first-child{ text-indent:0; }
@@ -3760,7 +3763,7 @@ textarea.mid{ min-height:90px; }
   <div class="diary-reader-body" id="diaryReaderBody">
     <div class="diary-page">
       <div class="diary-page-date" id="diaryReaderDate"></div>
-      <div class="diary-page-rule"></div>
+      <div class="diary-page-rule-row"><div class="diary-page-rule"></div></div>
       <div class="diary-page-mood" id="diaryReaderMood"></div>
       <div class="diary-page-text" id="diaryReaderText"></div>
     </div>
