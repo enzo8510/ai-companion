@@ -903,11 +903,24 @@ textarea.mid{ min-height:90px; }
 .ci-drink-card-photo-row{ display:flex; align-items:center; gap:8px; margin-top:6px; }
 .ci-drink-card-photo{ width:36px; height:36px; border-radius:8px; object-fit:cover; cursor:pointer; }
 .ci-drink-photo-btn{ font-size:10.5px; padding:3px 9px; border-radius:8px; border:1.5px dashed var(--line); background:none; color:var(--ink-soft); cursor:pointer; font-family:inherit; }
+/* 統一的圓形漸層徽章：所有小圖示（打卡項目、飲料、心情）共用同一套「霧面玻璃球」光澤處理，
+   取代原本各自為政的平面色塊/貼紙感，顏色由 --badge-c 自訂變數決定 */
+.dm-badge{
+  border-radius:50%; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
+  background:radial-gradient(circle at 32% 26%, color-mix(in srgb, var(--badge-c,var(--companion)) 30%, white) 0%, var(--badge-c,var(--companion)) 65%, color-mix(in srgb, var(--badge-c,var(--companion)) 80%, black) 100%);
+  box-shadow:0 3px 8px rgba(0,0,0,.15), inset 0 -2px 3px rgba(0,0,0,.08), inset 0 1.5px 2px rgba(255,255,255,.55);
+}
 /* Drink carousel in day detail */
 .ci-dm-drink-carousel{ display:flex; gap:8px; overflow-x:auto; padding:2px 0 4px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
-.ci-dm-drink-card{ flex:0 0 auto; width:120px; scroll-snap-align:start; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:8px; text-align:center; }
+/* 卡片底色用該飲品類型的顏色調出淡淡漸層暈染，跟裡面的圖示球呼應成同一套主題色 */
+.ci-dm-drink-card{
+  flex:0 0 auto; width:120px; scroll-snap-align:start; text-align:center; padding:10px 8px;
+  border-radius:14px; box-shadow:0 4px 14px rgba(0,0,0,.06);
+  background:linear-gradient(160deg, color-mix(in srgb, var(--card-c,var(--companion)) 18%, var(--surface)), var(--surface));
+  border:1px solid color-mix(in srgb, var(--card-c,var(--companion)) 22%, var(--line));
+}
 .ci-dm-drink-card img{ width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:6px; }
-.ci-dm-drink-card-noimg{ width:100%; height:80px; border-radius:8px; margin-bottom:6px; background:var(--chat-bg); display:flex; align-items:center; justify-content:center; font-size:28px; }
+.ci-dm-drink-card-noimg{ width:56px; height:56px; margin:0 auto 8px; font-size:26px; }
 .ci-dm-drink-card-name{ font-size:11px; font-weight:700; color:var(--ink); }
 .ci-dm-drink-card-time{ font-size:9.5px; color:var(--ink-soft); margin-bottom:4px; }
 .ci-dm-drink-card-tags{ display:flex; flex-wrap:wrap; gap:3px; justify-content:center; }
@@ -940,7 +953,7 @@ textarea.mid{ min-height:90px; }
 .ci-day-modal-date{ font-size:15px; font-weight:700; color:var(--ink); }
 .ci-day-modal-close{ font-size:18px; color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:50%; }
 .ci-dm-row{ display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-top:1px solid var(--line); }
-.ci-dm-icon{ font-size:18px; flex:0 0 26px; text-align:center; padding-top:2px; }
+.ci-dm-icon{ width:30px; height:30px; font-size:14px; color:#fff; }
 .ci-dm-info{ flex:1; min-width:0; }
 .ci-dm-label{ font-size:10px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
 .ci-dm-val{ font-size:13px; color:var(--ink); line-height:1.6; }
@@ -949,7 +962,7 @@ textarea.mid{ min-height:90px; }
 .ci-dm-meal-row{ display:flex; align-items:center; gap:8px; padding:3px 0; }
 .ci-dm-meal-name{ font-size:11px; color:var(--ink-soft); width:38px; flex:0 0 auto; }
 .ci-dm-meal-tags{ display:flex; gap:4px; flex-wrap:wrap; }
-.ci-dm-meal-tag{ font-size:10px; padding:2px 7px; border-radius:6px; background:var(--companion-soft); color:var(--companion); font-weight:600; }
+.ci-dm-meal-tag{ font-size:10px; padding:2px 7px; border-radius:6px; font-weight:600; background:linear-gradient(135deg, color-mix(in srgb, var(--tag-c,var(--companion)) 30%, white), color-mix(in srgb, var(--tag-c,var(--companion)) 16%, white)); color:color-mix(in srgb, var(--tag-c,var(--companion)) 70%, black); }
 .ci-dm-meal-tag.no-eat{ background:var(--line); color:var(--ink-soft); }
 .ci-no-data{ text-align:center; padding:28px 0 8px; color:var(--ink-soft); font-size:13px; line-height:2.2; }
 /* 健康紀錄圖示化量表 */
@@ -957,7 +970,7 @@ textarea.mid{ min-height:90px; }
 .ci-dm-gauge-inner{ width:44px; height:44px; border-radius:50%; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .ci-dm-gauge-num{ font-size:12.5px; font-weight:700; color:var(--ink); line-height:1.15; }
 .ci-dm-mood-emoji-row{ display:flex; gap:6px; flex-wrap:wrap; }
-.ci-dm-mood-emoji{ display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; font-size:15px; box-shadow:0 2px 6px rgba(0,0,0,.1); }
+.ci-dm-mood-emoji{ width:30px; height:30px; font-size:15px; }
 .ci-dm-poop-badge{ display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:999px; font-size:12px; font-weight:700; }
 /* ---- Download overlay ---- */
 .dl-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:center; justify-content:center; padding:24px; }
@@ -8914,12 +8927,13 @@ textarea.mid{ min-height:90px; }
   }
   /* ---- Drinks helpers ---- */
   var DRINK_TYPE_META = {
-    coffee:{icon:'☕',label:'咖啡'}, bubble:{icon:'🧋',label:'手搖'}, tea:{icon:'🍵',label:'茶'},
-    soda:{icon:'🥤',label:'汽水'}, other:{icon:'🧃',label:'其他'}
+    coffee:{icon:'☕',label:'咖啡',color:'#8B5E3C'}, bubble:{icon:'🧋',label:'手搖',color:'#C9975A'}, tea:{icon:'🍵',label:'茶',color:'#7FA65C'},
+    soda:{icon:'🥤',label:'汽水',color:'#4FB4D8'}, other:{icon:'🧃',label:'其他',color:'#9B6FC0'}
   };
   var DRINK_TAG_META = {
     milk:{icon:'🥛',label:'奶'}, sugar:{icon:'🍯',label:'糖'}, caffeine:{icon:'⚡',label:'咖啡因'}, boba:{icon:'🧋',label:'配料'}
   };
+  var NUTRIENT_COLOR = { protein:'#D97C6B', veg:'#7CB86B', carb:'#D9A94B', fruit:'#E0729B', junk:'#9B8F80' };
   var drinks = load(KEYS.drinks) || [];
   function drinkPhotoKey(id){ return 'companion:drinkPhoto:'+id; }
   function isTodayInPeriod(){
@@ -9307,23 +9321,23 @@ textarea.mid{ min-height:90px; }
         }
         var sr = h.sleep
           ? dmGaugeRow(h.sleep/8*100, 'var(--companion)', h.sleep+'h', '睡眠', sc)
-          : dmRow('😴','睡眠');
+          : dmRow('😴','睡眠','var(--companion)');
         if(!h.sleep) sr.querySelector('.ci-dm-val').innerHTML=sc;
         body.appendChild(sr);
       }
       if(h&&h.meals){
         var mealOrder=['breakfast','lunch','dinner','snack','other'];
         var mealLabels={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'點心',other:'其他'};
-        var mr=dmRow('🍽️','飲食'); var mc='';
+        var mr=dmRow('🍽️','飲食','#E8A33D'); var mc='';
         mealOrder.forEach(function(m){
           var meal=h.meals[m]; if(!meal) return;
           mc+='<div class="ci-dm-meal-row"><span class="ci-dm-meal-name">'+mealLabels[m]+'</span><div class="ci-dm-meal-tags">';
           if(meal.eaten){
             var tags=[];
-            if(meal.protein) tags.push('🥩蛋白質'); if(meal.veg) tags.push('🥦蔬菜');
-            if(meal.carb) tags.push('🍚澱粉'); if(meal.fruit) tags.push('🍎水果');
-            if(meal.junk) tags.push('🍬加工/含糖');
-            if(tags.length) mc+=tags.map(function(t){ return '<span class="ci-dm-meal-tag">'+t+'</span>'; }).join('');
+            if(meal.protein) tags.push({icon:'🥩',label:'蛋白質',c:NUTRIENT_COLOR.protein}); if(meal.veg) tags.push({icon:'🥦',label:'蔬菜',c:NUTRIENT_COLOR.veg});
+            if(meal.carb) tags.push({icon:'🍚',label:'澱粉',c:NUTRIENT_COLOR.carb}); if(meal.fruit) tags.push({icon:'🍎',label:'水果',c:NUTRIENT_COLOR.fruit});
+            if(meal.junk) tags.push({icon:'🍬',label:'加工/含糖',c:NUTRIENT_COLOR.junk});
+            if(tags.length) mc+=tags.map(function(t){ return '<span class="ci-dm-meal-tag" style="--tag-c:'+t.c+'">'+t.icon+t.label+'</span>'; }).join('');
             else mc+='<span class="ci-dm-meal-tag">✓ 有吃</span>';
           } else { mc+='<span class="ci-dm-meal-tag no-eat">—</span>'; }
           mc+='</div></div>';
@@ -9331,16 +9345,16 @@ textarea.mid{ min-height:90px; }
         mr.querySelector('.ci-dm-val').innerHTML=mc; body.appendChild(mr);
       }
       if(dayDrinks.length){
-        var dr=dmRow('🥤','飲料 x'+dayDrinks.length);
+        var dr=dmRow('🥤','飲料 x'+dayDrinks.length,'#4FB4D8');
         var carousel=document.createElement('div'); carousel.className='ci-dm-drink-carousel';
         dayDrinks.forEach(function(entry){
           var meta=DRINK_TYPE_META[entry.type]||DRINK_TYPE_META.other;
-          var c=document.createElement('div'); c.className='ci-dm-drink-card';
+          var c=document.createElement('div'); c.className='ci-dm-drink-card'; c.style.setProperty('--card-c', meta.color);
           if(entry.hasPhoto){
             var img=document.createElement('img'); img.src=localStorage.getItem(drinkPhotoKey(entry.id))||'';
             c.appendChild(img);
           } else {
-            var noimg=document.createElement('div'); noimg.className='ci-dm-drink-card-noimg'; noimg.textContent=meta.icon;
+            var noimg=document.createElement('div'); noimg.className='ci-dm-drink-card-noimg dm-badge'; noimg.style.setProperty('--badge-c', meta.color); noimg.textContent=meta.icon;
             c.appendChild(noimg);
           }
           var nm=document.createElement('div'); nm.className='ci-dm-drink-card-name'; nm.textContent=meta.icon+' '+meta.label;
@@ -9366,19 +9380,19 @@ textarea.mid{ min-height:90px; }
         body.appendChild(wr);
       }
       if(moodVals.length){
-        var mor=dmRow('💕','心情 x'+moodVals.length);
+        var mor=dmRow('💕','心情 x'+moodVals.length,'#E0729B');
         var moodWrap=document.createElement('div'); moodWrap.className='ci-dm-mood-emoji-row';
         (h.moods&&h.moods.length?h.moods:moodVals.map(function(v){return {val:v,time:''};})).forEach(function(m){
           var lbl=MOOD_LABELS[m.val]||''; var emoji=lbl.split(' ')[0]||'';
-          var b=document.createElement('div'); b.className='ci-dm-mood-emoji';
-          b.style.background=MOOD_COLORS[m.val]||'var(--companion-soft)';
+          var b=document.createElement('div'); b.className='ci-dm-mood-emoji dm-badge';
+          b.style.setProperty('--badge-c', MOOD_COLORS[m.val]||'var(--companion)');
           b.textContent=emoji; b.title=(m.time?m.time+' ':'')+lbl;
           moodWrap.appendChild(b);
         });
         mor.querySelector('.ci-dm-val').appendChild(moodWrap); body.appendChild(mor);
       }
       if(h&&h.period&&(h.period.flow||h.period.discomfort||h.period.periodMood||h.period.painkiller)){
-        var pr2=dmRow('🩸','生理期'); var pd=h.period; var pArr=[];
+        var pr2=dmRow('🩸','生理期','var(--period-color)'); var pd=h.period; var pArr=[];
         if(pd.flow){var flows={1:'少',2:'中',3:'多',4:'很多'};pArr.push('血量：'+flows[pd.flow]);}
         if(pd.discomfort) pArr.push('不適度：'+pd.discomfort+'/5');
         if(pd.periodMood){var pm={1:'還好',2:'不太好',3:'很不適'};pArr.push(pm[pd.periodMood]);}
@@ -9386,19 +9400,19 @@ textarea.mid{ min-height:90px; }
         pr2.querySelector('.ci-dm-val').textContent=pArr.join(' · '); body.appendChild(pr2);
       }
       if(h&&h.poop>=0){
-        var por=dmRow('🚽','排便');
+        var por=dmRow('🚽','排便','#6FA96F');
         var poopMeta={0:{label:'沒有',bg:'var(--line)',color:'var(--ink-soft)',icon:'—'},1:{label:'正常',bg:'rgba(61,190,108,.15)',color:'#3DBE6C',icon:'✓'},2:{label:'異常',bg:'rgba(224,82,82,.12)',color:'#e05252',icon:'!'}};
         var pm2=poopMeta[h.poop];
         por.querySelector('.ci-dm-val').innerHTML='<span class="ci-dm-poop-badge" style="background:'+pm2.bg+';color:'+pm2.color+'">'+pm2.icon+' '+pm2.label+'</span>';
         body.appendChild(por);
       }
-      if(h&&h.note){ var nor=dmRow('📝','備註'); nor.querySelector('.ci-dm-val').textContent=h.note; body.appendChild(nor); }
+      if(h&&h.note){ var nor=dmRow('📝','備註','#8891A4'); nor.querySelector('.ci-dm-val').textContent=h.note; body.appendChild(nor); }
     }
     modal.classList.add('open');
   }
-  function dmRow(icon,label){
+  function dmRow(icon,label,color){
     var row=document.createElement('div'); row.className='ci-dm-row';
-    row.innerHTML='<div class="ci-dm-icon">'+icon+'</div><div class="ci-dm-info"><div class="ci-dm-label">'+label+'</div><div class="ci-dm-val"></div></div>';
+    row.innerHTML='<div class="ci-dm-icon dm-badge" style="--badge-c:'+(color||'var(--companion)')+'">'+icon+'</div><div class="ci-dm-info"><div class="ci-dm-label">'+label+'</div><div class="ci-dm-val"></div></div>';
     return row;
   }
   function dmGaugeRow(pct, color, gaugeNum, label, valHtml){
