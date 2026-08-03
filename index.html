@@ -1181,8 +1181,11 @@ textarea.mid{ min-height:90px; }
 .ci-achieve-badge.super{ background:linear-gradient(135deg,#fdf2dc,#fcead0); color:#c87830; border:1.5px solid #e8a530; box-shadow:0 2px 8px rgba(232,165,48,0.3); }
 
 /* ---- Diary reader：翻頁式日記閱讀，仿電子書頁面 ---- */
-.diary-reader-overlay{ position:absolute; inset:0; z-index:360; background:var(--bg); display:flex; flex-direction:column; }
+/* 跟其他彈窗一樣用 fixed+dimmed backdrop，內層卡片維持跟 .phone-frame 一樣的視窗尺寸，
+   不整片蓋過瀏覽器視窗（.diary-reader-overlay 是背景遮罩，.diary-reader-card 才是實際內容） */
+.diary-reader-overlay{ position:fixed; inset:0; z-index:2000; background:rgba(30,36,52,0.38); display:flex; align-items:center; justify-content:center; padding:28px 14px; }
 .diary-reader-overlay.hidden{ display:none; }
+.diary-reader-card{ width:100%; max-width:460px; height:calc(100vh - 56px); min-height:560px; background:var(--bg); border-radius:30px; box-shadow:0 24px 60px var(--frame-shadow,rgba(0,0,0,.3)); overflow:hidden; display:flex; flex-direction:column; }
 .diary-reader-header{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; flex:0 0 auto; }
 .diary-reader-counter{ font-size:12px; color:var(--ink-soft); font-weight:600; }
 .diary-reader-del{ background:none; border:none; font-size:16px; color:var(--ink-soft); cursor:pointer; padding:6px; }
@@ -1716,6 +1719,8 @@ textarea.mid{ min-height:90px; }
   html,body{ height:100dvh; overflow:hidden; }
   .app-bg{ padding:0; align-items:stretch; min-height:100dvh; height:100dvh; overflow:hidden; }
   .phone-frame{ max-width:100%; width:100%; height:100dvh; min-height:0; border-radius:0; box-shadow:none; }
+  .diary-reader-overlay{ padding:0; }
+  .diary-reader-card{ max-width:100%; width:100%; height:100dvh; min-height:0; border-radius:0; box-shadow:none; }
   /* 4欄格子在小螢幕改為2欄，避免擠壓 */
   .star-modal-grid{ grid-template-columns:repeat(2,1fr); gap:var(--space-sm); }
   /* 星星行動按鈕 padding 縮小 */
@@ -3732,6 +3737,7 @@ textarea.mid{ min-height:90px; }
 
 <!-- ============ DIARY READER（翻頁式日記閱讀）============ -->
 <div class="diary-reader-overlay hidden" id="diaryReaderOverlay">
+ <div class="diary-reader-card">
   <div class="diary-reader-header">
     <button class="icon-btn" id="diaryReaderClose" type="button">✕</button>
     <span class="diary-reader-counter" id="diaryReaderCounter"></span>
@@ -3749,6 +3755,7 @@ textarea.mid{ min-height:90px; }
     <span class="diary-page-num" id="diaryReaderPageNum"></span>
     <button class="diary-reader-nav" id="diaryReaderNext" type="button">›</button>
   </div>
+ </div>
 </div>
 
 <!-- calOverlay removed: all IDs merged into calendarView full-screen view -->
