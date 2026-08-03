@@ -1180,27 +1180,21 @@ textarea.mid{ min-height:90px; }
 .ci-achieve-badge.unlocked{ background:linear-gradient(135deg, var(--gold-soft), rgba(216,238,248,0.5)); color:#7a5a1c; border:1px solid #e0c86a; box-shadow:0 2px 6px rgba(224,200,106,0.2); }
 .ci-achieve-badge.super{ background:linear-gradient(135deg,#fdf2dc,#fcead0); color:#c87830; border:1.5px solid #e8a530; box-shadow:0 2px 8px rgba(232,165,48,0.3); }
 
-/* ---- Mood diary centered modal override ---- */
-#moodDiaryOverlay{ align-items:center; padding:20px 14px; }
-#moodDiaryOverlay .cal-sheet{ border-radius:22px !important; border-bottom-left-radius:22px !important; border-bottom-right-radius:22px !important; }
-
-/* ---- Mood percentage bar ---- */
-.mood-pct-wrap{ margin-bottom:12px; }
-.mood-pct-bar{ display:flex; height:9px; border-radius:5px; overflow:hidden; margin-bottom:7px; background:var(--chat-bg); }
-.mood-pct-seg{ height:100%; }
-.mood-pct-legend{ display:flex; flex-wrap:wrap; gap:6px; }
-.mood-pct-item{ display:flex; align-items:center; gap:4px; font-size:10.5px; color:var(--ink-soft); }
-.mood-pct-dot{ width:7px; height:7px; border-radius:50%; flex:0 0 auto; }
-
-/* ---- Mood filter chips ---- */
-.mood-filter-row{ display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px; }
-.mood-filter-chip{ padding:4px 10px; border-radius:999px; font-size:11px; border:1.5px solid var(--line); cursor:pointer; background:none; font-family:inherit; color:var(--ink-soft); white-space:nowrap; }
-.mood-filter-chip.active{ border-color:transparent; color:#fff; }
-
-/* ---- Mood diary item delete button ---- */
-.mood-diary-item{ position:relative; }
-.mood-diary-del{ position:absolute; top:10px; right:10px; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:13px; padding:2px 5px; border-radius:6px; line-height:1; }
-.mood-diary-del:hover{ color:#e05252; background:rgba(224,82,82,0.08); }
+/* ---- Diary reader：翻頁式日記閱讀，仿電子書頁面 ---- */
+.diary-reader-overlay{ position:absolute; inset:0; z-index:360; background:var(--bg); display:flex; flex-direction:column; }
+.diary-reader-overlay.hidden{ display:none; }
+.diary-reader-header{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; flex:0 0 auto; }
+.diary-reader-counter{ font-size:12px; color:var(--ink-soft); font-weight:600; }
+.diary-reader-del{ background:none; border:none; font-size:16px; color:var(--ink-soft); cursor:pointer; padding:6px; }
+.diary-reader-body{ flex:1; overflow-y:auto; padding:8px 28px 20px; display:flex; flex-direction:column; }
+.diary-page{ margin:auto 0; }
+.diary-page-date{ font-size:12px; color:var(--ink-soft); letter-spacing:.03em; margin-bottom:6px; text-align:center; }
+.diary-page-mood{ font-size:12px; text-align:center; margin-bottom:22px; font-weight:600; min-height:1em; }
+.diary-page-text{ font-family:'LXGW WenKai TC',serif; font-size:17px; line-height:2; color:var(--ink); white-space:pre-wrap; }
+.diary-reader-footer{ display:flex; align-items:center; justify-content:center; gap:20px; padding:14px 0 22px; flex:0 0 auto; }
+.diary-reader-nav{ width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--surface); font-size:18px; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.diary-reader-nav:disabled{ opacity:.25; cursor:default; }
+.diary-page-num{ font-size:12px; color:var(--ink-soft); min-width:50px; text-align:center; }
 
 /* ---- Countdown selector overlay ---- */
 .cnt-sel-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
@@ -1714,20 +1708,6 @@ textarea.mid{ min-height:90px; }
   z-index:1;
   font-style:italic;
 }
-
-/* ---- Mood diary overlay ---- */
-.mood-summary-row{ display:flex; gap:var(--space-md); flex-wrap:wrap; margin-bottom:var(--space-lg); padding:var(--space-md) 0; border-bottom:1px solid var(--line); min-height:40px; align-items:center; }
-.mood-summary-chip{ display:inline-flex; align-items:center; gap:var(--space-xs); padding:var(--space-xs) var(--space-md); border-radius:999px; font-size:12px; font-weight:600; color:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
-.mood-diary-list{ display:flex; flex-direction:column; gap:var(--space-lg); }
-.mood-diary-item{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:var(--space-lg); transition:all .15s; }
-.mood-diary-item:hover{ box-shadow:0 2px 8px var(--companion-shadow); border-color:var(--companion); }
-.mood-diary-item-head{ display:flex; align-items:center; gap:var(--space-md); margin-bottom:var(--space-md); }
-.mood-diary-item-date{ font-size:12px; color:var(--ink-soft); font-weight:500; }
-/* diary-note cards inside overlay reset margin */
-.mood-diary-list .diary-note{ margin:0; }
-.mood-diary-item-mood{ font-size:11px; padding:var(--space-xs) var(--space-md); border-radius:999px; font-weight:700; color:#fff; margin-left:auto; box-shadow:0 2px 4px rgba(0,0,0,0.15); }
-.mood-diary-item-text{ font-size:13px; color:var(--ink); line-height:1.7; }
-.mood-diary-empty{ text-align:center; padding:32px 0; color:var(--ink-soft); font-size:13px; line-height:1.8; }
 
 /* ---- Responsive ---- */
 @media (max-width:520px){
@@ -3750,23 +3730,24 @@ textarea.mid{ min-height:90px; }
   </div>
 </div>
 
-<!-- ============ MOOD DIARY OVERLAY ============ -->
-<div class="cal-overlay hidden" id="moodDiaryOverlay">
-  <div class="cal-sheet">
-    <div class="cal-sheet-head">
-      <button class="cal-nav" id="moodDiaryPrev" type="button">‹</button>
-      <div class="cal-sheet-title" id="moodDiaryMonthLabel"></div>
-      <button class="cal-nav" id="moodDiaryNext" type="button">›</button>
-      <button class="icon-btn" id="moodDiaryClose" type="button">✕</button>
+<!-- ============ DIARY READER（翻頁式日記閱讀）============ -->
+<div class="diary-reader-overlay hidden" id="diaryReaderOverlay">
+  <div class="diary-reader-header">
+    <button class="icon-btn" id="diaryReaderClose" type="button">✕</button>
+    <span class="diary-reader-counter" id="diaryReaderCounter"></span>
+    <button class="diary-reader-del" id="diaryReaderDelete" type="button">🗑</button>
+  </div>
+  <div class="diary-reader-body" id="diaryReaderBody">
+    <div class="diary-page">
+      <div class="diary-page-date" id="diaryReaderDate"></div>
+      <div class="diary-page-mood" id="diaryReaderMood"></div>
+      <div class="diary-page-text" id="diaryReaderText"></div>
     </div>
-    <div class="cal-sheet-body">
-      <div class="mood-pct-wrap hidden" id="moodPctWrap">
-        <div class="mood-pct-bar" id="moodPctBar"></div>
-        <div class="mood-pct-legend" id="moodPctLegend"></div>
-      </div>
-      <div class="mood-filter-row" id="moodFilterRow"></div>
-      <div class="mood-diary-list" id="moodDiaryList"></div>
-    </div>
+  </div>
+  <div class="diary-reader-footer">
+    <button class="diary-reader-nav" id="diaryReaderPrev" type="button">‹</button>
+    <span class="diary-page-num" id="diaryReaderPageNum"></span>
+    <button class="diary-reader-nav" id="diaryReaderNext" type="button">›</button>
   </div>
 </div>
 
@@ -9514,92 +9495,45 @@ textarea.mid{ min-height:90px; }
   }
 
 
-  /* ============ Mood Diary Overlay ============ */
-  var moodDiaryYear = new Date().getFullYear(), moodDiaryMonth = new Date().getMonth();
-  var moodDiaryFilter = ''; // '' = all
-  function renderMoodDiaryOverlay(){
-    $('moodDiaryMonthLabel').textContent = moodDiaryYear+'年 '+(moodDiaryMonth+1)+'月';
-    var monthEntries = journal.filter(function(j){
-      var d = parseMemDate(j.date);
-      return d && d.getFullYear()===moodDiaryYear && d.getMonth()===moodDiaryMonth;
+  /* ============ Diary Reader（翻頁式日記閱讀，仿電子書頁面）============ */
+  var diaryReaderList = [];
+  var diaryReaderIdx = 0;
+  function openMoodDiaryOverlay(){
+    // 依日期由舊到新排序，翻頁邏輯：‹ 往舊、› 往新，預設開在最新一篇
+    diaryReaderList = journal.slice().filter(function(j){ return j.date; }).sort(function(a,b){
+      var da=parseMemDate(a.date), db=parseMemDate(b.date);
+      return (da?da.getTime():0) - (db?db.getTime():0);
     });
-    // --- Percentage bar ---
-    var moodCounts = {};
-    monthEntries.forEach(function(j){ if(j.mood) moodCounts[j.mood]=(moodCounts[j.mood]||0)+1; });
-    var total = monthEntries.filter(function(j){ return j.mood; }).length;
-    var pctWrap=$('moodPctWrap'), pctBar=$('moodPctBar'), pctLegend=$('moodPctLegend');
-    if(total > 0){
-      pctWrap.classList.remove('hidden'); pctBar.innerHTML=''; pctLegend.innerHTML='';
-      Object.keys(moodCounts).forEach(function(m){
-        var info=MOODS[m]||{emoji:'📝',color:'#8891a4'};
-        var pct=Math.round(moodCounts[m]/total*100);
-        var seg=document.createElement('div'); seg.className='mood-pct-seg';
-        seg.style.background=info.color; seg.style.width=pct+'%'; seg.title=m+' '+pct+'%';
-        pctBar.appendChild(seg);
-        var leg=document.createElement('div'); leg.className='mood-pct-item';
-        var dot=document.createElement('div'); dot.className='mood-pct-dot'; dot.style.background=info.color;
-        leg.appendChild(dot); leg.appendChild(document.createTextNode(info.emoji+' '+m+' '+pct+'%'));
-        pctLegend.appendChild(leg);
-      });
-    } else { pctWrap.classList.add('hidden'); }
-    // --- Filter chips ---
-    var filterRow=$('moodFilterRow'); filterRow.innerHTML='';
-    var allChip=document.createElement('button'); allChip.type='button'; allChip.className='mood-filter-chip'+(moodDiaryFilter===''?' active':'');
-    allChip.style.background=moodDiaryFilter===''?'var(--companion)':''; allChip.textContent='全部';
-    allChip.addEventListener('click',function(){ moodDiaryFilter=''; renderMoodDiaryOverlay(); });
-    filterRow.appendChild(allChip);
-    Object.keys(moodCounts).forEach(function(m){
-      var info=MOODS[m]||{emoji:'📝',color:'#8891a4'};
-      var chip=document.createElement('button'); chip.type='button';
-      chip.className='mood-filter-chip'+(moodDiaryFilter===m?' active':'');
-      if(moodDiaryFilter===m) chip.style.background=info.color; else chip.style.background='';
-      chip.textContent=info.emoji+' '+m;
-      (function(mood){ chip.addEventListener('click',function(){ moodDiaryFilter=mood; renderMoodDiaryOverlay(); }); })(m);
-      filterRow.appendChild(chip);
-    });
-    // --- Entry list ---
-    var filtered = moodDiaryFilter ? monthEntries.filter(function(j){ return j.mood===moodDiaryFilter; }) : monthEntries;
-    var list=$('moodDiaryList'); list.innerHTML='';
-    if(!filtered.length){
-      list.innerHTML='<div class="mood-diary-empty">'+(monthEntries.length?'這個心情標籤本月沒有日記':'這個月還沒有日記<br>在聊天室點「📓 今日日記」來生成')+'</div>';
+    diaryReaderIdx = diaryReaderList.length - 1;
+    renderDiaryReaderPage();
+    $('diaryReaderOverlay').classList.remove('hidden');
+  }
+  function renderDiaryReaderPage(){
+    var total = diaryReaderList.length;
+    if(!total){
+      $('diaryReaderDate').textContent='';
+      $('diaryReaderMood').textContent='';
+      $('diaryReaderText').textContent='這裡還沒有日記\n在聊天室點「📓 今日日記」來生成第一篇';
+      $('diaryReaderCounter').textContent='';
+      $('diaryReaderPageNum').textContent='';
+      $('diaryReaderPrev').disabled=true; $('diaryReaderNext').disabled=true;
+      $('diaryReaderDelete').style.display='none';
       return;
     }
-    filtered.forEach(function(j){
-      var info=j.mood?(MOODS[j.mood]||{emoji:'📝',color:'#8891a4'}):{emoji:'📝',color:'#8891a4'};
-      var card=document.createElement('div'); card.className='diary-note';
-      card.style.borderLeftColor=info.color;
-
-      var head=document.createElement('div'); head.className='diary-note-head';
-      var left=document.createElement('div'); left.className='diary-note-left';
-      var lbl=document.createElement('span'); lbl.className='diary-note-label'; lbl.textContent='📓 今日日記';
-      left.appendChild(lbl);
-      if(j.mood){
-        var tag=document.createElement('span'); tag.className='diary-mood-tag';
-        tag.style.background=info.color; tag.textContent=info.emoji+' '+escHtml(j.mood);
-        left.appendChild(tag);
-      }
-      var del=document.createElement('button'); del.className='diary-note-delete'; del.type='button'; del.textContent='✕';
-      (function(jid){ del.addEventListener('click',function(e){
-        e.stopPropagation();
-        if(!confirm('刪除這篇日記？')) return;
-        journal=journal.filter(function(x){ return x.id!==jid; });
-        save(KEYS.journal,journal); renderMoodDiaryOverlay();
-      }); })(j.id);
-      head.appendChild(left); head.appendChild(del);
-      card.appendChild(head);
-
-      var txt=document.createElement('div'); txt.className='diary-note-text'; txt.textContent=j.content||'';
-      card.appendChild(txt);
-      var dt=document.createElement('div'); dt.className='diary-note-date'; dt.textContent=j.date||'';
-      card.appendChild(dt);
-      list.appendChild(card);
-    });
-  }
-  function openMoodDiaryOverlay(){
-    moodDiaryYear=new Date().getFullYear(); moodDiaryMonth=new Date().getMonth();
-    moodDiaryFilter='';
-    renderMoodDiaryOverlay();
-    $('moodDiaryOverlay').classList.remove('hidden');
+    $('diaryReaderDelete').style.display='';
+    var j=diaryReaderList[diaryReaderIdx];
+    $('diaryReaderDate').textContent = j.date||'';
+    if(j.mood){
+      var info=MOODS[j.mood]||{emoji:'📝',color:'#8891a4'};
+      $('diaryReaderMood').textContent = info.emoji+' '+j.mood;
+      $('diaryReaderMood').style.color = info.color;
+    } else { $('diaryReaderMood').textContent=''; }
+    $('diaryReaderText').textContent = j.content||'';
+    $('diaryReaderCounter').textContent = (diaryReaderIdx+1)+' / '+total;
+    $('diaryReaderPageNum').textContent = diaryReaderIdx+1;
+    $('diaryReaderPrev').disabled = diaryReaderIdx<=0;
+    $('diaryReaderNext').disabled = diaryReaderIdx>=total-1;
+    $('diaryReaderBody').scrollTop = 0;
   }
   /* ============ User avatar gallery ============ */
   function applyUserAvatarLargePreview(){
@@ -11541,10 +11475,18 @@ textarea.mid{ min-height:90px; }
   }, 3600000); // 每小時一次
 
   $('rpBackup').addEventListener('click', function(){ closeRightPanel(); openBackupOverlay(); });
-  $('moodDiaryClose').addEventListener('click',function(){ $('moodDiaryOverlay').classList.add('hidden'); });
-  $('moodDiaryOverlay').addEventListener('click',function(e){ if(e.target===$('moodDiaryOverlay')) $('moodDiaryOverlay').classList.add('hidden'); });
-  $('moodDiaryPrev').addEventListener('click',function(){ moodDiaryMonth--; if(moodDiaryMonth<0){moodDiaryMonth=11;moodDiaryYear--;} moodDiaryFilter=''; renderMoodDiaryOverlay(); });
-  $('moodDiaryNext').addEventListener('click',function(){ moodDiaryMonth++; if(moodDiaryMonth>11){moodDiaryMonth=0;moodDiaryYear++;} moodDiaryFilter=''; renderMoodDiaryOverlay(); });
+  $('diaryReaderClose').addEventListener('click',function(){ $('diaryReaderOverlay').classList.add('hidden'); });
+  $('diaryReaderPrev').addEventListener('click',function(){ if(diaryReaderIdx>0){ diaryReaderIdx--; renderDiaryReaderPage(); } });
+  $('diaryReaderNext').addEventListener('click',function(){ if(diaryReaderIdx<diaryReaderList.length-1){ diaryReaderIdx++; renderDiaryReaderPage(); } });
+  $('diaryReaderDelete').addEventListener('click',function(){
+    var j=diaryReaderList[diaryReaderIdx]; if(!j) return;
+    if(!confirm('刪除這篇日記？')) return;
+    journal=journal.filter(function(x){ return x.id!==j.id; });
+    save(KEYS.journal,journal);
+    diaryReaderList.splice(diaryReaderIdx,1);
+    if(diaryReaderIdx>=diaryReaderList.length) diaryReaderIdx=diaryReaderList.length-1;
+    renderDiaryReaderPage();
+  });
 
   /* ============ Image Upload ============ */
   function clearPendingImg(){
