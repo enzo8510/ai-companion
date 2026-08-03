@@ -1190,10 +1190,12 @@ textarea.mid{ min-height:90px; }
 .diary-reader-header{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; flex:0 0 auto; }
 .diary-reader-counter{ font-family:'LXGW WenKai TC',serif; font-size:12px; color:var(--ink-soft); font-weight:600; }
 .diary-reader-del{ background:none; border:none; font-size:16px; color:var(--ink-soft); cursor:pointer; padding:6px; }
-/* 仿筆記本橫線紙：整頁（含標題區）都鋪滿橫線，不是只圍著正文那一小塊 */
+/* 仿筆記本橫線紙：整頁（含標題區）都鋪滿橫線；線的相位由 JS 對齊到正文實際的行位置，
+   確保文字剛好「寫在」線上，而不是跟線錯開（background-attachment:local 讓線跟著內容捲動）*/
 .diary-reader-body{
   flex:1; overflow-y:auto; padding:8px 30px 24px; display:flex; flex-direction:column;
   background-image:repeating-linear-gradient(to bottom, transparent, transparent 33px, var(--line) 33px, var(--line) 34px);
+  background-attachment:local;
 }
 .diary-page{ margin:auto 0; }
 .diary-page-date{ font-family:'LXGW WenKai TC',serif; font-size:17px; font-weight:700; color:var(--ink); letter-spacing:.06em; text-align:center; margin-bottom:10px; }
@@ -9525,8 +9527,9 @@ textarea.mid{ min-height:90px; }
       return (da?da.getTime():0) - (db?db.getTime():0);
     });
     diaryReaderIdx = diaryReaderList.length - 1;
-    renderDiaryReaderPage();
+    // 先解除隱藏再渲染：對齊橫線需要量測實際排版位置，display:none 時量到的都是 0
     $('diaryReaderOverlay').classList.remove('hidden');
+    renderDiaryReaderPage();
   }
   // 把日記內容拆成段落 <div>，每段獨立才能讓第一段的首字放大、其餘段落首行縮排（文筆感）
   function renderDiaryParagraphs(container, text){
@@ -9564,6 +9567,14 @@ textarea.mid{ min-height:90px; }
     $('diaryReaderPrev').disabled = diaryReaderIdx<=0;
     $('diaryReaderNext').disabled = diaryReaderIdx>=total-1;
     $('diaryReaderBody').scrollTop = 0;
+    alignDiaryRuledLines();
+  }
+  // 把橫線背景的相位對齊到正文實際的行位置，讓文字剛好「寫在」線上（而不是跟線錯開）；
+  // 標題區高度、置中留白都會隨內容變動，用量出來的實際位置對齊才可靠，寫死數字會不準
+  function alignDiaryRuledLines(){
+    var body=$('diaryReaderBody'), textEl=$('diaryReaderText');
+    var offset = textEl.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    body.style.backgroundPositionY = offset+'px';
   }
   /* ============ User avatar gallery ============ */
   function applyUserAvatarLargePreview(){
