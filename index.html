@@ -1026,7 +1026,7 @@ textarea.mid{ min-height:90px; }
 .ci-cal-grid-styled .cal-full-day.ci-done-4{ background:var(--period-color) !important; color:#fff; box-shadow:0 2px 6px rgba(232,76,120,0.35); }
 .ci-cal-grid-styled .cal-full-day.cal-fd-empty{ background:transparent !important; border:none !important; }
 .ci-stat-box{ background:linear-gradient(135deg, var(--companion-soft), rgba(169,135,216,0.08)); border-radius:18px; padding:var(--space-lg) var(--space-xl); text-align:center; border:1px solid rgba(169,135,216,0.2); box-shadow:0 3px 14px rgba(169,135,216,0.08); }
-.ci-stat-num{ font-size:30px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
+.ci-stat-num{ font-size:24px; font-weight:700; color:var(--companion); font-family:'LXGW WenKai TC',serif; line-height:1; }
 .ci-stat-label{ font-size:11px; color:var(--ink-soft); margin-top:var(--space-sm); font-weight:600; }
 .cal-full-day.ci-done{ background:var(--companion); color:#fff !important; border-color:var(--companion); box-shadow:0 2px 8px var(--companion-shadow,rgba(169,135,216,0.3)); font-weight:700; }
 .cal-full-day.ci-done:hover{ opacity:.9; }
@@ -1756,7 +1756,6 @@ textarea.mid{ min-height:90px; }
   .cal-sheet{ max-height:96dvh; }
   /* 打卡統計盒子縮排 */
   .ci-stat-box{ padding:var(--space-md); }
-  .ci-stat-num{ font-size:24px; }
   /* home actions 確保觸控目標夠大 */
   .home-action-btn{ min-height:68px; }
 }
@@ -4376,8 +4375,9 @@ textarea.mid{ min-height:90px; }
       var strVal = JSON.stringify(val);
       localStorage.setItem(key, strVal);
       pushKeyToFirebase(key, strVal); // 立即上傳到 Firebase
+      return true;
     }
-    catch(e){ console.error('儲存失敗', key, e); }
+    catch(e){ console.error('儲存失敗', key, e); return false; }
   }
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
   function uid(p){ return (p||'id') + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6); }
@@ -4528,6 +4528,88 @@ textarea.mid{ min-height:90px; }
     }catch(e){ return remoteStr; }
   }
 
+  // 陣列型資料的合併規則：以「id 欄位」判斷每一筆項目的身分。
+  // 遠端目前有的項目一律保留；本地獨有、遠端沒有的項目，只有在「遠端過去也從沒見過」時才視為
+  // 尚未同步的新增而補回去——如果遠端過去有過這筆但現在不見了，代表是被其他裝置刪除的，不應該復原。
+  function mergeListStr(remoteStr, localStr, prevRemoteStr, keyFn, sortFn){
+    try{
+      var r = JSON.parse(remoteStr);
+      if(!Array.isArray(r)) return remoteStr;
+      var l = localStr ? JSON.parse(localStr) : [];
+      if(!Array.isArray(l)) return remoteStr;
+      var prevIds = {};
+      if(prevRemoteStr){
+        try{
+          var p = JSON.parse(prevRemoteStr);
+          if(Array.isArray(p)) p.forEach(function(item){ var k = keyFn(item); if(k!=null) prevIds[k]=true; });
+        }catch(e){}
+      }
+      var remoteIds = {};
+      r.forEach(function(item){ var k = keyFn(item); if(k!=null) remoteIds[k]=true; });
+      var localOnly = l.filter(function(item){
+        var k = keyFn(item);
+        if(k==null || remoteIds[k]) return false;
+        return !prevIds[k];
+      });
+      if(!localOnly.length) return remoteStr;
+      var merged = r.concat(localOnly);
+      if(sortFn) merged.sort(sortFn);
+      return JSON.stringify(merged);
+    }catch(e){ return remoteStr; }
+  }
+
+  // 每筆有唯一 id 的陣列型資料：key 為 KEYS.xxx，value 為該筆項目用來識別身分的欄位名稱
+  var MERGE_ARRAY_ID_KEY = {};
+  MERGE_ARRAY_ID_KEY[KEYS.events] = 'id';
+  MERGE_ARRAY_ID_KEY[KEYS.memories] = 'id';
+  MERGE_ARRAY_ID_KEY[KEYS.knowledge] = 'id';
+  MERGE_ARRAY_ID_KEY[KEYS.drinks] = 'id';
+  MERGE_ARRAY_ID_KEY[KEYS.scenes] = 'id';
+  MERGE_ARRAY_ID_KEY[KEYS.periodRecords] = 'id';
+  MERGE_ARRAY_ID_KEY[KEYS.qaHistory] = 'date';
+
+  function chatMsgKey(m){ return m ? (m.ts!=null ? m.ts : m.time) : null; }
+  function chatMsgSort(a,b){ return (a.ts!=null?a.ts:(a.time||0)) - (b.ts!=null?b.ts:(b.time||0)); }
+
+  // healthLog 以日期字串為 key 的物件（非陣列）：兩邊都有的日期以遠端為準，只補回遠端完全沒有的日期
+  function mergeHealthLogStr(remoteStr, localStr){
+    try{
+      var r = JSON.parse(remoteStr);
+      if(!r || typeof r !== 'object' || Array.isArray(r)) return remoteStr;
+      var l = localStr ? JSON.parse(localStr) : null;
+      if(l && typeof l === 'object'){
+        Object.keys(l).forEach(function(dateKey){ if(!(dateKey in r)) r[dateKey] = l[dateKey]; });
+      }
+      return JSON.stringify(r);
+    }catch(e){ return remoteStr; }
+  }
+
+  // 打卡連續紀錄：history（日期字串陣列）取聯集，streak/lastDate 等統計值以遠端為準
+  function mergeCheckinStr(remoteStr, localStr){
+    try{
+      var r = JSON.parse(remoteStr);
+      if(!r || typeof r !== 'object') return remoteStr;
+      var l = localStr ? JSON.parse(localStr) : null;
+      if(l && Array.isArray(l.history)){
+        if(!Array.isArray(r.history)) r.history = [];
+        var set = {}; r.history.forEach(function(d){ set[d]=true; });
+        l.history.forEach(function(d){ if(!set[d]){ r.history.push(d); set[d]=true; } });
+      }
+      return JSON.stringify(r);
+    }catch(e){ return remoteStr; }
+  }
+
+  // 統一入口：依 key 決定合併策略，其餘未列出的 key 維持原本「遠端整包覆蓋」行為
+  function mergeSyncedValue(key, remoteStr, localStr, prevRemoteStr){
+    if(key === KEYS.settings) return mergeSettingsStr(remoteStr, localStr);
+    if(key === KEYS.chat) return mergeListStr(remoteStr, localStr, prevRemoteStr, chatMsgKey, chatMsgSort);
+    if(key === KEYS.healthLog) return mergeHealthLogStr(remoteStr, localStr);
+    if(key === KEYS.checkin) return mergeCheckinStr(remoteStr, localStr);
+    var idField = MERGE_ARRAY_ID_KEY[key];
+    if(idField) return mergeListStr(remoteStr, localStr, prevRemoteStr, function(item){ return item && item[idField]; });
+    return remoteStr;
+  }
+
   function uploadAllLocalData(){
     if(!isFirebaseReady || !database) return;
     if(!initialSnapshotReceived) return; // 尚未拉取雲端前不上傳，避免空值覆蓋
@@ -4556,6 +4638,7 @@ textarea.mid{ min-height:90px; }
         var remoteValue = remoteData[key];
         if(!remoteValue || remoteValue.length > 500000) return;
         if(lastSeenRemote[key] === remoteValue) return; // 跟上次一樣，跳過
+        var prevRemoteValue = lastSeenRemote[key]; // 這個 key 上一次已知的雲端內容，用來判斷本地獨有項目是新增還是被刪除
         lastSeenRemote[key] = remoteValue;
         var localValue = localStorage.getItem(key);
         // 音檔含 base64 blob，無法進 Firebase，永遠保留本地資料
@@ -4572,8 +4655,8 @@ textarea.mid{ min-height:90px; }
           pushKeyToFirebase(key, localValue);
           return;
         }
-        // 設定類特別處理：保留本地非空金鑰，避免被雲端空值清掉
-        var valueToStore = (key === KEYS.settings) ? mergeSettingsStr(remoteValue, localValue) : remoteValue;
+        // 依 key 類型合併（設定類保留本地非空金鑰；陣列/物件類補回本地尚未同步的新增，但不復原已被刪除的項目）
+        var valueToStore = mergeSyncedValue(key, remoteValue, localValue, prevRemoteValue);
         if(valueToStore !== localValue){
           localStorage.setItem(key, valueToStore);
           // 個別 try/catch：單一 key 載入失敗不會中斷其他 key 的同步
@@ -4587,7 +4670,6 @@ textarea.mid{ min-height:90px; }
         // 重新渲染需要完整刷新的 UI（包在 try/catch 中，避免渲染錯誤中斷監聽）
         try {
           if(typeof renderMemories === 'function') renderMemories();
-          if(typeof renderJournal === 'function') renderJournal();
           if(typeof renderKnowledge === 'function' && changed.indexOf(KEYS.knowledge) >= 0) renderKnowledge();
           if(typeof renderThread === 'function' && changed.indexOf(KEYS.chat) >= 0) renderThread();
           if(typeof renderStarStats === 'function' && changed.indexOf(KEYS.star) >= 0) renderStarStats();
@@ -4712,7 +4794,6 @@ textarea.mid{ min-height:90px; }
 
       // 重新渲染所有需要刷新的 UI
       if(typeof renderMemories === 'function') renderMemories();
-      if(typeof renderJournal === 'function') renderJournal();
       if(typeof renderThread === 'function') renderThread();
       if(typeof renderStarStats === 'function') renderStarStats();
       syncAvatar();
@@ -4852,6 +4933,8 @@ textarea.mid{ min-height:90px; }
   function showOnly(id){
     ALL_VIEWS.forEach(function(v){ $(v).classList[v===id?'remove':'add']('hidden'); });
     try{ sessionStorage.setItem('companion:activeView', id); } catch(e){}
+    // 離開「我們的星」頁面時停止貓咪待機動畫迴圈，避免它在背景無限空轉
+    if(id !== 'starView' && typeof catAnimationTimer !== 'undefined'){ clearTimeout(catAnimationTimer); }
   }
   function showHome(){ showOnly('homeView'); }
   function showFront(){
@@ -6516,7 +6599,6 @@ textarea.mid{ min-height:90px; }
 
   /* ============ Journal data ============ */
   // 後台生活日誌編輯面板已移除；journal 資料繼續保留，供聊天室「📓 日記」與心情月曆使用。
-  function renderJournal(){}
 
   /* ============ Daily Check-in ============ */
   function showCheckinToast(msg){
@@ -9396,7 +9478,6 @@ textarea.mid{ min-height:90px; }
       journal.unshift(entry);
       if(journal.length > 100) journal = journal.slice(0, 100);
       save(KEYS.journal, journal);
-      renderJournal();
       // Add diary to chat history
       chatHistory.push({ role:'user', content:diaryText, ts:Date.now(), isDiary:true, mood:mood, diaryDate:today });
       save(KEYS.chat, chatHistory);
@@ -9475,7 +9556,7 @@ textarea.mid{ min-height:90px; }
         e.stopPropagation();
         if(!confirm('刪除這篇日記？')) return;
         journal=journal.filter(function(x){ return x.id!==jid; });
-        save(KEYS.journal,journal); renderJournal(); renderMoodDiaryOverlay();
+        save(KEYS.journal,journal); renderMoodDiaryOverlay();
       }); })(j.id);
       head.appendChild(left); head.appendChild(del);
       card.appendChild(head);
@@ -10434,9 +10515,7 @@ textarea.mid{ min-height:90px; }
     reader.onload = function(ev){
       function saveTrack(track){
         audioTracks.push(track);
-        try{
-          save(AUDIO_KEY, audioTracks);
-        }catch(err){
+        if(!save(AUDIO_KEY, audioTracks)){
           audioTracks.pop();
           alert('本地儲存空間不足，無法儲存此音檔。\n請刪除一些舊音檔後再試。');
           renderAudioList(); return;
@@ -11417,7 +11496,8 @@ textarea.mid{ min-height:90px; }
       try {
         var data = gatherAllData();
         var timestamp = new Date().toISOString();
-        database.ref('backups/auto/' + timestamp).set({
+        var pathSafeTimestamp = timestamp.replace(/[.:]/g, '-'); // Firebase 路徑不可含 . 或 :
+        database.ref('backups/auto/' + pathSafeTimestamp).set({
           data: data,
           timestamp: timestamp
         }, function(err){
@@ -11467,7 +11547,6 @@ textarea.mid{ min-height:90px; }
   fillPersona();
   renderKnowledge();
   renderMemories();
-  renderJournal();
   renderAvatarGallery();
   renderThread();
   updateCheckinBtn();
