@@ -504,8 +504,31 @@ body{
 .panel .lead{ font-size:var(--font-size-body); color:var(--ink-soft); line-height:1.6; margin:0 0 var(--space-lg); }
 
 .field{ margin-bottom:var(--space-lg); }
-.field > label{ display:block; font-size:var(--font-size-body); color:var(--ink); margin-bottom:var(--space-sm); font-weight:500; }
+/* 表單欄位標籤：輸入框上方那一行小標。
+   原本社交編輯器那幾個是逐個寫 inline style（12px／ink-soft／margin 6px），
+   跟這裡的 .field > label 是同一個東西，只是數值各走各的。 */
+.field > label, .field-label{ display:block; font-size:var(--font-size-body); color:var(--ink); margin-bottom:var(--space-sm); font-weight:500; }
+/* 右側掛字數統計的版本 */
+.field > label.is-split, .el-label.is-split{ display:flex; justify-content:space-between; align-items:baseline; gap:var(--space-sm); }
 .field .sub{ font-size:var(--font-size-caption); color:var(--ink-soft); font-weight:400; }
+
+/* ===== 動作列與彈窗底部 =====
+   「並排一到兩顆按鈕」原本每次都在 HTML 裡重寫一次
+   display:flex + gap:8px + 每顆 flex:1;justify-content:center，
+   外層 margin-top 還有 8／14／16px 三種。 */
+.action-row{ display:flex; gap:var(--space-sm); margin-top:var(--space-lg); }
+.action-row > .toolbar-btn, .action-row > .btn{ flex:1; justify-content:center; }
+.action-row > .is-fixed{ flex:0 0 auto; }
+.action-row.is-leading{ margin-top:0; margin-bottom:var(--space-lg); }
+.action-row.is-divided{ border-top:1px solid var(--line); padding-top:var(--space-lg); }
+/* 單獨一顆佔滿整行 */
+.toolbar-btn.block{ width:100%; justify-content:center; }
+/* Bottom Sheet 底部固定的操作區，本身就是動作列 */
+.sheet-footer{ flex:0 0 auto; display:flex; gap:var(--space-sm); padding:var(--space-md) var(--space-lg); border-top:1px solid var(--line); }
+.sheet-footer > .toolbar-btn{ flex:1; justify-content:center; }
+.sheet-footer > .is-fixed{ flex:0 0 auto; }
+/* Bottom Sheet 中間可捲動的內容區 */
+.sheet-scroll{ flex:1; overflow-y:auto; min-height:40px; padding:var(--space-xs) var(--space-lg) var(--space-md); }
 .field input, .field textarea, .field select{
   width:100%;
   border:1px solid rgba(91,74,66,0.18);
@@ -988,6 +1011,8 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
 .ci-health-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--line); }
 .ci-health-title + .ci-health-row{ border-top:none; }
 .ci-health-icon{ font-size:var(--font-size-title); flex:0 0 28px; text-align:center; }
+/* 用中文字代替 emoji 的那幾欄（血量／不適／心情／止痛藥）要小一級才對得齊 */
+.ci-health-icon.is-text{ font-size:var(--font-size-body-large); line-height:2; }
 .ci-health-info{ flex:1; min-width:0; }
 .ci-health-label{ font-size:var(--font-size-caption); color:var(--ink-soft); font-weight:600; margin-bottom:5px; }
 /* 可收合的健康紀錄子區塊：預設收起，只留標題+今天摘要，點開才展開完整選項 */
@@ -2111,7 +2136,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
 .qa-review-a-text{ font-size:var(--font-size-body); color:var(--ink); line-height:1.8; }
 .qa-review-a-text .action{ color:var(--companion); opacity:.65; font-style:italic; }
 .qa-review-no-ans{ font-size:var(--font-size-small); color:var(--ink-soft); font-style:italic; text-align:center; padding:24px 0; }
-.qa-review-footer{ flex:0 0 auto; padding:12px 16px; border-top:1px solid var(--line); display:flex; gap:8px; }
+
 .qa-review-note-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-control); padding:14px 16px; }
 .qa-review-note-label{ margin-bottom:var(--space-sm); }
 .qa-review-note-input{ width:100%; box-sizing:border-box; background:var(--chat-bg); border:1px solid var(--line); border-radius:var(--radius-control); padding:10px 12px; font-size:var(--font-size-body); color:var(--ink); line-height:1.7; resize:none; font-family:inherit; outline:none; transition:border-color .15s; }
@@ -2676,7 +2701,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
           <div class="field">
             <label id="apiKeyLabel">Gemini API 金鑰</label>
             <input type="password" id="setApiKey" placeholder="貼上你的 Gemini 金鑰">
-            <div class="btn-row" style="margin-top:8px;">
+            <div class="btn-row" style="margin-top:var(--space-sm);">
               <button class="btn ghost small" id="toggleKeyBtn" type="button">顯示金鑰</button>
             </div>
           </div>
@@ -2711,7 +2736,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
           <div id="modelLimitHint" style="display:none;margin-top:10px;padding:10px 12px;border-radius:var(--radius-control);font-size:var(--font-size-body);line-height:1.7;"></div>
 
           <!-- 最大回覆長度 -->
-          <div class="field" style="margin-top:20px;">
+          <div class="field" style="margin-top:var(--space-xl);">
             <label>📝 最大回覆長度 <span class="sub">（tokens，預設 1500 ≈ 約 750 中文字）</span></label>
             <input type="number" id="setMaxTokens" placeholder="1500" min="300" max="8000" step="100">
           </div>
@@ -2726,10 +2751,10 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
           <!-- 修改密碼 -->
           <div class="field">
             <label>🔒 修改登入密碼</label>
-            <input type="password" id="pwdCurrent" placeholder="目前密碼" style="margin-bottom:8px;">
-            <input type="password" id="pwdNew" placeholder="新密碼（至少 4 字元）" style="margin-bottom:8px;">
+            <input type="password" id="pwdCurrent" placeholder="目前密碼" style="margin-bottom:var(--space-sm);">
+            <input type="password" id="pwdNew" placeholder="新密碼（至少 4 字元）" style="margin-bottom:var(--space-sm);">
             <input type="password" id="pwdConfirm" placeholder="確認新密碼">
-            <div class="btn-row" style="margin-top:8px;">
+            <div class="btn-row" style="margin-top:var(--space-sm);">
               <button class="btn" id="pwdChangeBtn" type="button">更新密碼</button>
             </div>
             <div id="pwdMsg" style="font-size:var(--font-size-body);min-height:18px;margin-top:6px;text-align:center;"></div>
@@ -2739,9 +2764,9 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
           <div class="field" style="margin-top:24px;border-top:1px solid var(--line);padding-top:20px;">
             <label>☁️ Firebase 雲端帳號</label>
             <p style="font-size:var(--font-size-small);color:var(--ink-soft);margin:4px 0 10px;">設定後，此裝置改用固定帳號同步資料，手機與電腦共用同一份資料。</p>
-            <input type="email" id="fbEmailInput" placeholder="Firebase 帳號 Email" style="margin-bottom:8px;">
+            <input type="email" id="fbEmailInput" placeholder="Firebase 帳號 Email" style="margin-bottom:var(--space-sm);">
             <input type="password" id="fbPassInput" placeholder="Firebase 帳號密碼">
-            <div class="btn-row" style="margin-top:8px;">
+            <div class="btn-row" style="margin-top:var(--space-sm);">
               <button class="btn" id="fbCredSaveBtn" type="button">儲存並重新連線</button>
               <button class="btn" id="fbCredClearBtn" type="button" style="background:var(--surface);color:var(--ink-soft);border:1px solid var(--line);">清除設定</button>
             </div>
@@ -2762,28 +2787,28 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
             <input type="text" id="perStatus">
           </div>
           <div class="field">
-            <label style="display:flex;justify-content:space-between;align-items:baseline;">
+            <label class="is-split">
               <span>基本資訊 <span class="sub">（身份、個性、互動風格）</span></span>
               <span class="sub" id="perPromptCount">0 / 700</span>
             </label>
             <textarea id="perPrompt" class="tall" maxlength="700"></textarea>
           </div>
           <div class="field">
-            <label style="display:flex;justify-content:space-between;align-items:baseline;">
+            <label class="is-split">
               <span>性格 <span class="sub">（價值觀、情感傾向、世界觀）</span></span>
               <span class="sub" id="perBackgroundCount">0 / 700</span>
             </label>
             <textarea id="perBackground" class="tall" maxlength="700" placeholder="例如：現在是 2025 年，卄珩與江黎剛剛重逢…"></textarea>
           </div>
           <div class="field">
-            <label style="display:flex;justify-content:space-between;align-items:baseline;">
+            <label class="is-split">
               <span>說話風格與習慣 <span class="sub">（口吻、慣用語、回覆格式）</span></span>
               <span class="sub" id="perReplyRulesCount">0 / 700</span>
             </label>
             <textarea id="perReplyRules" class="tall" maxlength="700" placeholder="例如：語氣簡短自然、每次 1 到 3 句話…"></textarea>
           </div>
           <div class="field">
-            <label style="display:flex;justify-content:space-between;align-items:baseline;">
+            <label class="is-split">
               <span>回覆格式規則 <span class="sub">（每次回覆必須遵守的格式與行為限制）</span></span>
               <span class="sub" id="perFormatRulesCount">0 / 700</span>
             </label>
@@ -3031,7 +3056,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
               <input type="text" id="elVoiceInput" class="el-input" placeholder="貼上 Voice ID（從 elevenlabs.io 複製）">
             </div>
 
-            <button class="btn" id="elSettingsSave" type="button" style="width:100%;margin-top:8px;">儲存設定</button>
+            <button class="btn" id="elSettingsSave" type="button" style="width:100%;margin-top:var(--space-sm);">儲存設定</button>
 
             <!-- Usage display -->
             <div id="elUsageWrap" style="margin-top:14px;padding:12px;background:var(--surface);border-radius:var(--radius-control);border:1px solid var(--line);display:none;">
@@ -3043,7 +3068,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
                 <span id="elUsageText" style="font-size:var(--font-size-small);color:var(--ink-soft);white-space:nowrap;"></span>
               </div>
             </div>
-            <button class="btn ghost small" id="elCheckUsageBtn" type="button" style="width:100%;margin-top:8px;">📊 查看用量</button>
+            <button class="btn ghost small" id="elCheckUsageBtn" type="button" style="width:100%;margin-top:var(--space-sm);">📊 查看用量</button>
             <div id="elUsageStatus" style="font-size:var(--font-size-small);color:var(--ink-soft);text-align:center;min-height:16px;margin-top:4px;"></div>
 
             <div class="el-hint" style="margin-top:10px;">💡 支援多語言模型（eleven_multilingual_v2），中文語音請選擇支援中文的聲音。</div>
@@ -3061,13 +3086,13 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
           </div>
           <div class="el-sheet-body">
             <div class="field">
-              <label class="el-label" style="display:flex;justify-content:space-between;align-items:baseline;">
+              <label class="el-label is-split">
                 <span>輸入文字（動作描述將自動過濾）</span>
                 <span id="elTtsCharCount" style="font-size:var(--font-size-caption);color:var(--ink-soft);font-weight:400;">0 / 5000</span>
               </label>
               <textarea id="elTtsText" class="el-textarea" placeholder="輸入要生成語音的文字，或點下方按鈕帶入最新 AI 回覆…" rows="5" maxlength="5000"></textarea>
             </div>
-            <button class="btn ghost small" id="elFillLastReply" type="button" style="margin-bottom:12px;">帶入最新 AI 回覆</button>
+            <button class="btn ghost small" id="elFillLastReply" type="button" style="margin-bottom:var(--space-md);">帶入最新 AI 回覆</button>
 
             <!-- Voice quality sliders -->
             <div style="background:var(--surface);border-radius:var(--radius-control);border:1px solid var(--line);padding:12px;margin-bottom:12px;">
@@ -3076,7 +3101,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
                   <span>穩定度（Stability）</span>
                   <span id="elStabilityVal" style="color:var(--companion);font-weight:600;">0.30</span>
                 </label>
-                <p class="el-hint" style="margin:2px 0 5px;font-size:var(--font-size-caption);">越低越有起伏感情，越高越平穩</p>
+                <p class="el-hint" style="margin:var(--space-xs) 0;font-size:var(--font-size-caption);">越低越有起伏感情，越高越平穩</p>
                 <input type="range" id="elStabilitySlider" min="0" max="1" step="0.05" value="0.3" style="width:100%;accent-color:var(--companion);">
               </div>
               <div>
@@ -3084,7 +3109,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
                   <span>風格誇張度（Style）</span>
                   <span id="elStyleVal" style="color:var(--companion);font-weight:600;">0.50</span>
                 </label>
-                <p class="el-hint" style="margin:2px 0 5px;font-size:var(--font-size-caption);">越高語調變化越豐富</p>
+                <p class="el-hint" style="margin:var(--space-xs) 0;font-size:var(--font-size-caption);">越高語調變化越豐富</p>
                 <input type="range" id="elStyleSlider" min="0" max="1" step="0.05" value="0.5" style="width:100%;accent-color:var(--companion);">
               </div>
             </div>
@@ -3175,9 +3200,9 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
               <div class="audio-cat-option" data-cat="other">🎵 其他</div>
             </div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:16px;">
-            <button class="toolbar-btn primary" id="audioEditSave" type="button" style="flex:1;justify-content:center;">儲存</button>
-            <button class="toolbar-btn danger" id="audioEditDelete" type="button" style="flex:1;justify-content:center;">刪除</button>
+          <div class="action-row">
+            <button class="toolbar-btn primary" id="audioEditSave" type="button">儲存</button>
+            <button class="toolbar-btn danger" id="audioEditDelete" type="button">刪除</button>
           </div>
           <button class="toolbar-btn ghost" id="audioEditCancel" type="button" style="width:100%;justify-content:center;margin-top:8px;">取消</button>
         </div>
@@ -3347,8 +3372,8 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
             <div class="qa-review-note-saved hidden" id="qaReviewNoteSaved">已儲存 ✓</div>
           </div>
         </div>
-        <div class="qa-review-footer">
-          <button class="toolbar-btn ghost" id="qaReviewReask" type="button" style="flex:1;justify-content:center;">↩ 重新詢問</button>
+        <div class="sheet-footer">
+          <button class="toolbar-btn ghost" id="qaReviewReask" type="button">↩ 重新詢問</button>
         </div>
       </div>
     </div>
@@ -3415,7 +3440,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
         </div>
 
         <!-- Add event section -->
-        <div class="btc-add-section" style="margin-bottom:14px;">
+        <div class="btc-add-section" style="margin-bottom:var(--space-lg);">
           <div class="btc-add-title btc-has-body" id="calEventCollapseTitle">
             <span>✨ 新增事項</span>
             <div style="display:flex;align-items:center;gap:2px;">
@@ -3448,13 +3473,13 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
             <div class="cal-add-row">
               <select id="calAddType" class="select-category"></select>
             </div>
-            <button class="toolbar-btn primary" id="calAddBtn" type="button" style="width:100%;justify-content:center;">新增事項</button>
+            <button class="toolbar-btn primary block" id="calAddBtn" type="button">新增事項</button>
           </div>
         </div>
 
 
         <!-- Period records section -->
-        <div class="btc-add-section" style="margin-bottom:14px;">
+        <div class="btc-add-section" style="margin-bottom:var(--space-lg);">
           <div class="btc-add-title btc-has-body" id="calPeriodCollapseTitle">
             <span>🌸 生理期記錄</span>
             <div style="display:flex;align-items:center;gap:2px;">
@@ -3480,9 +3505,9 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
                   仍在生理期中（尚未結束）
                 </label>
               </div>
-              <div style="display:flex;gap:8px;margin-top:8px;">
-                <button class="toolbar-btn ghost" id="calPeriodCancelBtn" type="button" style="flex:1;justify-content:center;">取消</button>
-                <button class="toolbar-btn primary" id="calPeriodSaveBtn" type="button" style="flex:1;justify-content:center;">💾 儲存</button>
+              <div class="action-row">
+                <button class="toolbar-btn ghost" id="calPeriodCancelBtn" type="button">取消</button>
+                <button class="toolbar-btn primary" id="calPeriodSaveBtn" type="button">💾 儲存</button>
               </div>
             </div>
             <div id="calPeriodList"></div>
@@ -3657,7 +3682,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
               <span class="btc-chevron">›</span>
             </div>
             <div class="btc-collapse-body ci-health-sec-body" id="ciMoodBody" style="display:none">
-              <div class="ci-health-label" style="margin-bottom:8px;">可點多次，記錄一整天的變化</div>
+              <div class="ci-health-label" style="margin-bottom:var(--space-sm);">可點多次，記錄一整天的變化</div>
               <div class="ci-mood-btns" id="ciMoodOpts">
                 <button class="ci-mood-btn" data-val="1" type="button">😔 很差</button>
                 <button class="ci-mood-btn" data-val="2" type="button">😕 不好</button>
@@ -3694,7 +3719,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
             </div>
             <div class="btc-collapse-body ci-health-sec-body" id="ciPeriodHealthBody" style="display:none">
               <div class="ci-health-row" style="border-top:none;padding-top:0;">
-                <div class="ci-health-icon" style="font-size:var(--font-size-body-large);line-height:2;">血量</div>
+                <div class="ci-health-icon is-text">血量</div>
                 <div class="ci-health-info">
                   <div class="ci-flow-btns" id="ciFlowBtns">
                     <button class="ci-flow-btn" data-val="1" type="button">少</button>
@@ -3705,7 +3730,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
                 </div>
               </div>
               <div class="ci-health-row">
-                <div class="ci-health-icon" style="font-size:var(--font-size-body-large);line-height:2;">不適</div>
+                <div class="ci-health-icon is-text">不適</div>
                 <div class="ci-health-info">
                   <div style="display:flex;align-items:center;gap:8px;">
                     <div class="ci-discomfort-btns" id="ciDiscomfortBtns">
@@ -3720,7 +3745,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
                 </div>
               </div>
               <div class="ci-health-row">
-                <div class="ci-health-icon" style="font-size:var(--font-size-body-large);line-height:2;">心情</div>
+                <div class="ci-health-icon is-text">心情</div>
                 <div class="ci-health-info">
                   <div class="ci-period-mood-btns" id="ciPeriodMoodBtns">
                     <button class="ci-period-mood-btn" data-val="1" type="button">還好</button>
@@ -3730,7 +3755,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
                 </div>
               </div>
               <div class="ci-health-row" style="border-bottom:none;">
-                <div class="ci-health-icon" style="font-size:var(--font-size-body-large);line-height:2;">止痛藥</div>
+                <div class="ci-health-icon is-text">止痛藥</div>
                 <div class="ci-health-info">
                   <div class="ci-painkiller-btns" id="ciPainkillerBtns">
                     <button class="ci-painkiller-btn" data-val="0" type="button">沒吃</button>
@@ -3901,7 +3926,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
         <div class="cnt-emoji-grid" id="cntMsEmojiGrid"></div>
       </div>
 
-      <div class="cnt-section-label" style="margin-top:20px;">📅 紀念日</div>
+      <div class="cnt-section-label" style="margin-top:var(--space-xl);">📅 紀念日</div>
       <div class="cnt-anni-list" id="cntAnniList"></div>
       <!-- inline add anniversary form -->
       <div class="cnt-add-anni-form hidden" id="cntAddAnniForm">
@@ -3911,9 +3936,9 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
         </div>
         <div class="cnt-emoji-grid hidden" id="cntAddAnniEmojiGrid"></div>
         <input class="cnt-add-anni-input" id="cntAddAnniDate" type="date">
-        <div style="display:flex;gap:8px;margin-top:6px;">
-          <button class="toolbar-btn ghost" id="cntAddAnniCancel" type="button" style="flex:1;justify-content:center;">取消</button>
-          <button class="toolbar-btn primary" id="cntAddAnniSave" type="button" style="flex:1;justify-content:center;">儲存</button>
+        <div class="action-row">
+          <button class="toolbar-btn ghost" id="cntAddAnniCancel" type="button">取消</button>
+          <button class="toolbar-btn primary" id="cntAddAnniSave" type="button">儲存</button>
         </div>
       </div>
       <!-- floating emoji picker for existing cards -->
@@ -3997,25 +4022,25 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
     </div>
     <div class="cal-sheet-body">
       <div class="cal-add-row">
-        <label style="display:block;font-size:var(--font-size-small);color:var(--ink-soft);margin-bottom:6px;font-weight:500;">姓名</label>
+        <label class="field-label">姓名</label>
         <input type="text" id="socialEditName" placeholder="卄珩" class="input-large">
       </div>
       <div class="cal-add-row">
-        <label style="display:block;font-size:var(--font-size-small);color:var(--ink-soft);margin-bottom:6px;font-weight:500;">簽名</label>
+        <label class="field-label">簽名</label>
         <input type="text" id="socialEditHandle" placeholder="@zhan_heng · 特種部隊指揮官" class="input-large">
       </div>
       <div class="cal-add-row">
-        <label style="display:block;font-size:var(--font-size-small);color:var(--ink-soft);margin-bottom:6px;font-weight:500;">個人簡介</label>
+        <label class="field-label">個人簡介</label>
         <textarea id="socialEditBio" placeholder="少將。INTJ-A。不習慣解釋自己，但記得你說的每一句話。" class="input-large" style="resize:vertical;min-height:80px;"></textarea>
       </div>
-      <div style="border-top:1px solid var(--line);padding-top:14px;">
-        <label style="display:block;font-size:var(--font-size-small);color:var(--ink-soft);margin-bottom:6px;font-weight:500;">首圖</label>
+      <div style="border-top:1px solid var(--line);padding-top:var(--space-lg);">
+        <label class="field-label">首圖</label>
         <button class="toolbar-btn primary" id="socialEditCoverBtn" type="button" style="width:100%;justify-content:center;margin-bottom:10px;">📸 選擇首圖</button>
         <input type="file" id="socialCoverFileInput" accept="image/*" style="display:none;">
       </div>
-      <div style="display:flex;gap:8px;margin-top:14px;">
-        <button class="toolbar-btn" id="socialProfileEditorSaveBtn" type="button" style="flex:1;justify-content:center;">保存</button>
-        <button class="toolbar-btn ghost" id="socialProfileEditorCancelBtn" type="button" style="flex:1;justify-content:center;">取消</button>
+      <div class="action-row">
+        <button class="toolbar-btn" id="socialProfileEditorSaveBtn" type="button">保存</button>
+        <button class="toolbar-btn ghost" id="socialProfileEditorCancelBtn" type="button">取消</button>
       </div>
     </div>
   </div>
@@ -4032,14 +4057,14 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
       <div class="cal-add-row">
         <textarea id="socialPostEditText" placeholder="分享你的想法…" class="input-large" style="resize:vertical;min-height:100px;"></textarea>
       </div>
-      <div id="socialPostEditImageContainer" style="margin-bottom:12px;"></div>
-      <div style="display:flex;gap:8px;margin-bottom:14px;">
-        <button class="toolbar-btn" id="socialPostEditAddImageBtn" type="button" style="flex:1;justify-content:center;">📸 新增圖片</button>
+      <div id="socialPostEditImageContainer" style="margin-bottom:var(--space-md);"></div>
+      <div class="action-row is-leading">
+        <button class="toolbar-btn" id="socialPostEditAddImageBtn" type="button">📸 新增圖片</button>
         <input type="file" id="socialPostImageInput" accept="image/*" style="display:none;">
       </div>
-      <div style="display:flex;gap:8px;border-top:1px solid var(--line);padding-top:14px;">
-        <button class="toolbar-btn primary" id="socialPostEditSaveBtn" type="button" style="flex:1;justify-content:center;">保存</button>
-        <button class="toolbar-btn danger" id="socialPostEditDeleteBtn" type="button" style="flex:1;justify-content:center;">刪除</button>
+      <div class="action-row is-divided">
+        <button class="toolbar-btn primary" id="socialPostEditSaveBtn" type="button">保存</button>
+        <button class="toolbar-btn danger" id="socialPostEditDeleteBtn" type="button">刪除</button>
       </div>
     </div>
   </div>
@@ -4054,12 +4079,12 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
     </div>
     <div class="cal-sheet-body">
       <div id="eventTypeList" style="margin-bottom:16px;"></div>
-      <div style="border-top:1px solid var(--line);padding-top:14px;">
+      <div style="border-top:1px solid var(--line);padding-top:var(--space-lg);">
         <div style="display:flex;gap:8px;margin-bottom:12px;">
           <input type="text" id="eventTypeNameInput" placeholder="分類名稱 (例：交通)" style="flex:1;border:1px solid var(--line);border-radius:var(--radius-control);padding:8px 12px;font-size:var(--font-size-body);font-family:inherit;color:var(--ink);background:var(--chat-bg);outline:none;">
           <input type="text" id="eventTypeEmojiInput" placeholder="😊" style="width:50px;border:1px solid var(--line);border-radius:var(--radius-control);padding:8px;font-size:var(--font-size-title-small);text-align:center;background:var(--chat-bg);outline:none;">
         </div>
-        <button class="toolbar-btn primary" id="eventTypeAddBtn" type="button" style="width:100%;justify-content:center;">＋ 新增分類</button>
+        <button class="toolbar-btn primary block" id="eventTypeAddBtn" type="button">＋ 新增分類</button>
       </div>
       <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:16px;">
         <div style="font-size:var(--font-size-body);font-weight:600;color:var(--ink);margin-bottom:4px;">🎨 點點顏色</div>
@@ -4142,9 +4167,9 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
       </div>
     </div>
     <div class="wal-custom-label">已上傳背景</div>
-    <div id="walGalleryBody" style="overflow-y:auto;flex:1;min-height:40px;padding:4px 16px 14px;"></div>
-    <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;">
-      <button class="toolbar-btn primary" id="walGalleryUploadBtn" type="button" style="width:100%;justify-content:center;">＋ 新增桌布</button>
+    <div id="walGalleryBody" class="sheet-scroll"></div>
+    <div class="sheet-footer">
+      <button class="toolbar-btn primary" id="walGalleryUploadBtn" type="button">＋ 新增桌布</button>
       <input type="file" id="walGalleryFileInput" accept="image/*" style="display:none;">
     </div>
   </div>
@@ -4157,7 +4182,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
       <div class="cnt-sel-title">👤 更換頭像</div>
       <button class="icon-btn" id="avatarOverlayClose" type="button">✕</button>
     </div>
-    <div style="padding:14px 16px 0;display:flex;align-items:center;gap:14px;">
+    <div style="padding:var(--space-lg) var(--space-lg) 0;display:flex;align-items:center;gap:var(--space-lg);">
       <div class="avatar-preview" id="avatarPreview"></div>
       <button class="btn danger small" id="avatarClearBtn" type="button">移除頭像</button>
     </div>
@@ -4174,8 +4199,8 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
     </div>
     <!-- 已上傳頭像 -->
     <div class="avatar-custom-label">已上傳頭像</div>
-    <div id="avatarGalleryWrap" style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 8px;min-height:40px;"></div>
-    <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;">
+    <div id="avatarGalleryWrap" style="display:flex;gap:var(--space-sm);flex-wrap:wrap;padding:0 var(--space-lg) var(--space-sm);min-height:40px;"></div>
+    <div class="sheet-footer">
       <label class="toolbar-btn primary" style="cursor:pointer;text-align:center;display:block;box-sizing:border-box;">
         ＋ 新增頭像
         <input type="file" id="avatarFile" accept="image/*" style="display:none;">
@@ -4191,7 +4216,7 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
       <div class="cnt-sel-title">🙋 玩家頭像</div>
       <button class="icon-btn" id="userAvatarOverlayClose" type="button">✕</button>
     </div>
-    <div style="padding:14px 16px 0;display:flex;align-items:center;gap:14px;">
+    <div style="padding:var(--space-lg) var(--space-lg) 0;display:flex;align-items:center;gap:var(--space-lg);">
       <div class="avatar-preview" id="userAvatarLargePreview"></div>
       <button class="btn danger small" id="userAvatarClearBtn" type="button">移除頭像</button>
     </div>
@@ -4205,8 +4230,8 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
       </div>
     </div>
     <div class="avatar-custom-label">已上傳頭像</div>
-    <div id="userAvatarGalleryWrap" style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 8px;min-height:40px;"></div>
-    <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;">
+    <div id="userAvatarGalleryWrap" style="display:flex;gap:var(--space-sm);flex-wrap:wrap;padding:0 var(--space-lg) var(--space-sm);min-height:40px;"></div>
+    <div class="sheet-footer">
       <label class="toolbar-btn primary" style="cursor:pointer;text-align:center;display:block;box-sizing:border-box;">
         ＋ 新增頭像
         <input type="file" id="userAvatarFile" accept="image/*" style="display:none;">
@@ -4256,10 +4281,10 @@ select.select-category{ padding:var(--space-sm) var(--space-md); }
       </div>
     </div>
     <div class="wal-custom-label">已上傳背景</div>
-    <div id="chatBgGalleryBody" style="overflow-y:auto;flex:1;min-height:40px;padding:4px 16px 14px;"></div>
-    <div style="padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;display:flex;gap:8px;">
-      <button class="toolbar-btn primary" id="chatBgUploadBtn" type="button" style="flex:1;justify-content:center;">＋ 新增背景</button>
-      <button class="toolbar-btn" id="chatBgRemoveBtn" type="button" style="flex:0 0 auto;color:var(--ink-soft);">移除背景</button>
+    <div id="chatBgGalleryBody" class="sheet-scroll"></div>
+    <div class="sheet-footer">
+      <button class="toolbar-btn primary" id="chatBgUploadBtn" type="button">＋ 新增背景</button>
+      <button class="toolbar-btn is-fixed" id="chatBgRemoveBtn" type="button">移除背景</button>
       <input type="file" id="chatBgFileInput" accept="image/*" style="display:none;">
     </div>
   </div>
