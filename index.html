@@ -494,12 +494,12 @@ textarea.mid{ min-height:90px; }
 .saved-chip.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
 /* ---- Home Screen ---- */
-#homeView{ background:var(--bg); justify-content:center; align-items:center; position:relative; }
-.home-wrap{ display:flex; flex-direction:column; align-items:center; padding:var(--space-3xl) var(--space-2xl); width:100%; }
-.home-avatar-ring{ width:132px; height:132px; border-radius:50%; background:transparent; padding:0; display:flex; align-items:center; justify-content:center; margin-bottom:var(--space-xl); }
+#homeView{ background:var(--bg); justify-content:center; align-items:center; position:relative; overflow-y:auto; }
+.home-wrap{ display:flex; flex-direction:column; align-items:center; padding:24px 20px 28px; gap:0; width:100%; }
+.home-avatar-ring{ width:132px; height:132px; border-radius:50%; background:transparent; padding:0; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
 .home-avatar{ width:106px; height:106px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #CBE8F5, var(--companion) 72%); background-size:contain; background-position:center; background-repeat:no-repeat; border:3px solid var(--bg); }
-.home-name{ font-family:'LXGW WenKai TC', serif; font-size:38px; font-weight:700; color:var(--ink); letter-spacing:.04em; margin-bottom:var(--space-sm); line-height:1.2; }
-.home-tagline{ font-size:12.5px; color:var(--ink-soft); letter-spacing:.05em; margin-bottom:var(--space-xl); text-align:center; line-height:1.9; opacity:0.85; }
+.home-name{ font-family:'LXGW WenKai TC', serif; font-size:38px; font-weight:700; color:var(--ink); letter-spacing:.04em; margin-bottom:4px; line-height:1.2; }
+.home-tagline{ font-size:12.5px; color:var(--ink-soft); letter-spacing:.05em; margin-bottom:14px; text-align:center; line-height:1.9; opacity:0.85; }
 .home-enter-btn{ display:flex; align-items:center; gap:10px; background:var(--companion); color:#fff; border:none; font-family:inherit; font-size:15px; font-weight:600; padding:15px 40px; border-radius:999px; cursor:pointer; transition:all .18s; letter-spacing:.04em; box-shadow:0 4px 18px var(--companion-shadow); }
 .home-enter-btn:hover{ opacity:.88; }
 .home-enter-arrow{ font-size:18px; line-height:1; }
@@ -525,8 +525,6 @@ textarea.mid{ min-height:90px; }
 .mem-date-wrap .icon-action{ font-size:13px; padding:3px 5px; }
 
 /* ---- Home screen extended ---- */
-#homeView{ overflow-y:auto; justify-content:center; align-items:center; }
-.home-wrap{ padding:32px 24px 36px; }
 .home-countdown-strip{ width:100%; background:linear-gradient(135deg, rgba(255,255,255,0.96) 0%, var(--companion-soft) 100%); border:1.5px solid rgba(169,135,216,0.22); border-radius:18px; padding:var(--space-lg); margin-bottom:var(--space-lg); display:flex; align-items:center; justify-content:center; gap:var(--space-md); text-align:center; cursor:pointer; transition:all .18s; box-shadow:0 4px 18px rgba(169,135,216,0.08); }
 .home-countdown-strip:hover{ opacity:.92; }
 .home-countdown-strip.hidden{ display:none; }
@@ -535,7 +533,7 @@ textarea.mid{ min-height:90px; }
 .cnt-unit{ font-size:12px; color:var(--ink-soft); font-weight:500; }
 .cnt-event{ font-size:12.5px; color:var(--ink); font-weight:600; }
 .cnt-today{ font-size:13px; color:var(--companion); font-weight:600; }
-.home-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm); margin-bottom:var(--space-xl); width:100%; }
+.home-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm); width:100%; }
 /* 首頁功能分組（資訊架構 §2.3）：標題+格子當成一個間距單位，內層 .home-actions 自身的下邊距讓給區塊管 */
 .home-section{ margin-bottom:var(--space-xl); }
 .home-section:last-of-type{ margin-bottom:0; }
@@ -543,7 +541,7 @@ textarea.mid{ min-height:90px; }
 .home-section-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase; margin:0 0 var(--space-sm) 0; }
 .home-actions--cols-2{ grid-template-columns:repeat(2,1fr); }
 .home-actions--single{ grid-template-columns:1fr; }
-.home-action-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:rgba(255,255,255,0.92); border:1.5px solid rgba(50,58,80,0.07); border-radius:18px; padding:var(--space-md); min-height:84px; cursor:pointer; font-family:inherit; transition:all .18s; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+.home-action-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:rgba(255,255,255,0.92); border:1.5px solid rgba(50,58,80,0.07); border-radius:18px; padding:var(--space-md); height:72px; min-height:72px; cursor:pointer; font-family:inherit; transition:all .18s; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
 /* 首頁圖示統一成跟健康彈窗同一套「霧面玻璃球」漸層徽章（.dm-badge 的變體），
    不同 emoji 風格再怎麼混雜，被同一個容器包住看起來就是同一組圖示系統 */
 .home-action-btn .act-icon{
@@ -554,7 +552,6 @@ textarea.mid{ min-height:90px; }
 }
 .home-action-btn:hover{ opacity:.92; }
 .home-action-btn.done{ border-color:var(--companion); background:var(--companion-soft); }
-.act-icon{ font-size:24px; line-height:1; }
 .act-label{ font-size:11px; color:var(--ink); font-weight:500; white-space:nowrap; }
 .act-streak{ font-size:10px; color:var(--companion); font-weight:600; }
 
@@ -1777,8 +1774,6 @@ textarea.mid{ min-height:90px; }
   .cal-sheet{ max-height:96dvh; }
   /* 打卡統計盒子縮排 */
   .ci-stat-box{ padding:var(--space-md); }
-  /* home actions 確保觸控目標夠大 */
-  .home-action-btn{ min-height:68px; }
 }
 /* 防止 iOS Safari 在點擊輸入框時自動放大畫面：font-size 須 >= 16px */
 @media (pointer: coarse){
@@ -2064,13 +2059,11 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .kb-editor-header{ background:var(--surface); }
 :root[data-theme="dark"] .kb-editor-field input, :root[data-theme="dark"] .kb-editor-field textarea{ color:var(--ink); }
 
-/* ---- Home screen action buttons — fixed height ---- */
-.home-action-btn{ height:72px; min-height:72px; }
+/* .home-action-btn／.home-wrap／.home-avatar-ring／.home-name／.home-tagline 的數值已併回各自的基礎規則（見上）。
+   這裡只留下 .home-actions 的下邊距：首頁格子都在 .home-section 裡、由更高優先權的
+   .home-section .home-actions{margin-bottom:0} 決定間距，但聊天室工具 Bottom Sheet 裡的
+   .home-actions 沒有 .home-section 包著，仍然要靠這條規則留白，所以不能刪。 */
 .home-actions{ margin-bottom:14px; }
-.home-wrap{ padding:24px 20px 28px; gap:0; }
-.home-avatar-ring{ margin-bottom:16px; }
-.home-name{ margin-bottom:4px; }
-.home-tagline{ margin-bottom:14px; }
 /* ---- Check-in recent list ---- */
 .ci-recent-section{ margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
 .ci-recent-title{ font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:8px; letter-spacing:.5px; }
