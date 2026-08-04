@@ -379,6 +379,13 @@ textarea.mid{ min-height:90px; }
 .btn.small{ font-size:12px; padding:6px 12px; }
 .btn-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 
+/* 延續關心視窗（元件庫 §17）：置中 Modal，字級/間距/圓角/陰影對照 design-system 文件的允許清單 */
+.care-modal-overlay{ position:fixed; inset:0; z-index:2100; background:rgba(30,26,40,.38); display:flex; align-items:center; justify-content:center; padding:16px; }
+.care-modal-overlay.hidden{ display:none; }
+.care-modal{ background:var(--surface); border-radius:24px; width:100%; max-width:360px; padding:24px 16px; box-shadow:0 16px 48px rgba(35,30,45,.18); text-align:center; }
+.care-modal-label{ font-size:11px; font-weight:700; color:var(--companion); letter-spacing:.06em; text-transform:uppercase; margin:0 0 8px; }
+.care-modal-message{ font-size:15px; line-height:1.6; color:var(--ink); margin:0 0 16px; }
+
 .hint{
   font-size:12px; color:var(--ink-soft); line-height:1.6;
   background:var(--gold-soft); color:#8a6a2c;
@@ -529,6 +536,12 @@ textarea.mid{ min-height:90px; }
 .cnt-event{ font-size:12.5px; color:var(--ink); font-weight:600; }
 .cnt-today{ font-size:13px; color:var(--companion); font-weight:600; }
 .home-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm); margin-bottom:var(--space-xl); width:100%; }
+/* 首頁功能分組（資訊架構 §2.3）：標題+格子當成一個間距單位，內層 .home-actions 自身的下邊距讓給區塊管 */
+.home-section{ margin-bottom:var(--space-xl); }
+.home-section:last-of-type{ margin-bottom:0; }
+.home-section .home-actions{ margin-bottom:0; }
+.home-section-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase; margin:0 0 var(--space-sm) 0; }
+.home-actions--cols-2{ grid-template-columns:repeat(2,1fr); }
 .home-action-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:rgba(255,255,255,0.92); border:1.5px solid rgba(50,58,80,0.07); border-radius:18px; padding:var(--space-md); min-height:84px; cursor:pointer; font-family:inherit; transition:all .18s; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
 .home-action-btn:hover{ opacity:.92; }
 .home-action-btn.done{ border-color:var(--companion); background:var(--companion-soft); }
@@ -1122,10 +1135,6 @@ textarea.mid{ min-height:90px; }
 .or-balance{ margin-top:8px; padding:8px 12px; border-radius:8px; background:var(--surface); border:1px solid var(--line); font-size:12px; color:var(--ink-soft); display:flex; align-items:center; gap:8px; }
 .or-balance b{ color:var(--ink); font-weight:600; }
 .or-balance .or-bal-used{ opacity:.7; font-size:11px; }
-/* ---- Chat toolbar ---- */
-.chat-toolbar{ flex:0 0 auto; display:flex; align-items:center; gap:5px; padding:6px 10px; background:var(--surface); border-top:1px solid var(--line); }
-.chat-tool-btn{ display:flex; align-items:center; gap:3px; background:var(--chat-bg); border:1px solid var(--line); border-radius:999px; padding:5px 9px; font-family:inherit; font-size:12px; color:var(--ink-soft); cursor:pointer; white-space:nowrap; transition:border-color .1s, color .1s; flex:1; justify-content:center; min-width:0; }
-.chat-tool-btn:hover{ border-color:var(--companion); color:var(--companion); }
 .chat-context-menu{ position:fixed; z-index:1000; background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); overflow:hidden; min-width:140px; }
 .chat-context-menu.hidden{ display:none; }
 .context-menu-item{ display:block; width:100%; padding:10px 16px; border:none; background:none; color:var(--ink); font-size:13px; text-align:left; cursor:pointer; font-family:inherit; transition:background-color .1s; }
@@ -2256,43 +2265,64 @@ textarea.mid{ min-height:90px; }
         </div>
 
         <!-- Action buttons -->
-        <div class="home-actions">
-          <button class="home-action-btn" id="checkinBtn" type="button">
-            <span class="act-icon" id="checkinIcon">🌙</span>
-            <span class="act-label">每日打卡</span>
-          </button>
-          <button class="home-action-btn" id="homeCalBtn" type="button">
-            <span class="act-icon">📅</span>
-            <span class="act-label">行事曆</span>
-          </button>
-          <button class="home-action-btn" id="homeStarBtn" type="button">
-            <span class="act-icon">🐱</span>
-            <span class="act-label">我們的星</span>
-          </button>
-          <button class="home-action-btn" id="homeDiaryBtn" type="button">
-            <span class="act-icon">📓</span>
-            <span class="act-label">今日日記</span>
-          </button>
-          <button class="home-action-btn" id="homeQaHistoryBtn" type="button">
-            <span class="act-icon">🎲</span>
-            <span class="act-label">每日問題</span>
-          </button>
-          <button class="home-action-btn" id="homeSocialBtn" type="button">
-            <span class="act-icon">📱</span>
-            <span class="act-label">社交平台</span>
-          </button>
-          <button class="home-action-btn" id="homeAudioBtn" type="button">
-            <span class="act-icon">🎶</span>
-            <span class="act-label">他的音檔</span>
-          </button>
-          <button class="home-action-btn" id="homeWithMeBtn" type="button">
-            <span class="act-icon">💕</span>
-            <span class="act-label">with me</span>
-          </button>
-          <button class="home-action-btn" id="homeChessBtn" type="button">
-            <span class="act-icon">🪄</span>
-            <span class="act-label">魔法咒語</span>
-          </button>
+        <div class="home-section">
+          <div class="home-section-label">生活紀錄</div>
+          <div class="home-actions">
+            <button class="home-action-btn" id="checkinBtn" type="button">
+              <span class="act-icon" id="checkinIcon">🌙</span>
+              <span class="act-label">每日打卡</span>
+            </button>
+            <button class="home-action-btn" id="homeCalBtn" type="button">
+              <span class="act-icon">📅</span>
+              <span class="act-label">行事曆</span>
+            </button>
+            <button class="home-action-btn" id="homeDiaryBtn" type="button">
+              <span class="act-icon">📓</span>
+              <span class="act-label">今日日記</span>
+            </button>
+            <button class="home-action-btn" id="homeQaHistoryBtn" type="button">
+              <span class="act-icon">🎲</span>
+              <span class="act-label">每日問題</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="home-section">
+          <div class="home-section-label">關係與共同生活</div>
+          <div class="home-actions home-actions--cols-2">
+            <button class="home-action-btn" id="homeStarBtn" type="button">
+              <span class="act-icon">🐱</span>
+              <span class="act-label">我們的星</span>
+            </button>
+            <button class="home-action-btn" id="homeWithMeBtn" type="button">
+              <span class="act-icon">💕</span>
+              <span class="act-label">with me</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="home-section">
+          <div class="home-section-label">媒體與收藏</div>
+          <div class="home-actions home-actions--cols-2">
+            <button class="home-action-btn" id="homeAudioBtn" type="button">
+              <span class="act-icon">🎶</span>
+              <span class="act-label">他的音檔</span>
+            </button>
+            <button class="home-action-btn" id="homeSocialBtn" type="button">
+              <span class="act-icon">📱</span>
+              <span class="act-label">社交平台</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="home-section">
+          <div class="home-section-label">個人化與情境工具</div>
+          <div class="home-actions home-actions--cols-2">
+            <button class="home-action-btn" id="homeChessBtn" type="button">
+              <span class="act-icon">🪄</span>
+              <span class="act-label">魔法咒語</span>
+            </button>
+          </div>
         </div>
 
         <button class="home-enter-btn" id="homeEnterBtn">
@@ -2365,15 +2395,6 @@ textarea.mid{ min-height:90px; }
         <span class="img-pending-label">圖片已就緒，輸入說明後送出</span>
       </div>
 
-      <div class="chat-toolbar">
-        <button class="chat-tool-btn" id="imgUploadBtn" type="button">🏕️ 圖片</button>
-        <button class="chat-tool-btn" id="chatDiaryBtn" type="button">📓 日記</button>
-        <button class="chat-tool-btn" id="hbBtn" type="button">💌 紅包</button>
-        <button class="chat-tool-btn" id="chatSceneBtn" type="button">🌼 場景</button>
-        <button class="chat-tool-btn" id="chatMagicSaveBtn" type="button">🪄 儲存</button>
-        <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
-      </div>
-
       <!-- 紅包彈窗 -->
       <div class="hb-overlay hidden" id="hbOverlay">
         <button class="hb-x" id="hbClose" type="button">✕</button>
@@ -2414,8 +2435,44 @@ textarea.mid{ min-height:90px; }
       </div>
 
       <div class="composer">
+        <button class="icon-btn" id="chatToolOpenBtn" type="button" aria-label="更多功能" title="更多功能">+</button>
         <textarea id="chatInput" placeholder="跟卄珩說點什麼…" autocomplete="off" aria-label="跟卄珩說話" rows="1"></textarea>
         <button class="send-btn" id="sendBtn" aria-label="送出">➤</button>
+      </div>
+
+      <!-- 工具 Bottom Sheet：圖片/日記/紅包/場景/咒語，收進單一入口，不永久排在輸入框旁 -->
+      <div class="cal-overlay hidden" id="chatToolSheetOverlay">
+        <div class="cal-sheet">
+          <div class="cal-sheet-head">
+            <div class="cal-sheet-title">更多功能</div>
+            <button class="icon-btn" id="chatToolSheetClose" type="button" aria-label="關閉">✕</button>
+          </div>
+          <div class="cal-sheet-body">
+            <div class="home-actions">
+              <button class="home-action-btn" id="imgUploadBtn" type="button">
+                <span class="act-icon">🏕️</span>
+                <span class="act-label">圖片</span>
+              </button>
+              <button class="home-action-btn" id="chatDiaryBtn" type="button">
+                <span class="act-icon">📓</span>
+                <span class="act-label">日記</span>
+              </button>
+              <button class="home-action-btn" id="hbBtn" type="button">
+                <span class="act-icon">💌</span>
+                <span class="act-label">紅包</span>
+              </button>
+              <button class="home-action-btn" id="chatSceneBtn" type="button">
+                <span class="act-icon">🌼</span>
+                <span class="act-label">場景</span>
+              </button>
+              <button class="home-action-btn" id="chatMagicSaveBtn" type="button">
+                <span class="act-icon">🪄</span>
+                <span class="act-label">儲存</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
       </div>
 
       <!-- Right slide panel -->
@@ -3622,6 +3679,18 @@ textarea.mid{ min-height:90px; }
     </div>
 
     <div class="saved-chip" id="savedChip">已儲存 ✓</div>
+
+    <!-- 延續關心視窗：進聊天室前，有值得延續的內容才會出現 -->
+    <div class="care-modal-overlay hidden" id="careModalOverlay">
+      <div class="care-modal">
+        <div class="care-modal-label">他還記得</div>
+        <p class="care-modal-message" id="careModalMessage"></p>
+        <div class="btn-row" style="justify-content:center;">
+          <button class="btn" id="careReplyBtn" type="button">回覆他</button>
+          <button class="btn ghost" id="careSkipBtn" type="button">先進聊天室</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ============ KNOWLEDGE EVENT EDITOR ============ -->
     <div class="kb-editor-overlay hidden" id="kbEditorOverlay">
@@ -4979,6 +5048,93 @@ textarea.mid{ min-height:90px; }
       requestAnimationFrame(function(){ scrollThread(true); });
     });
   }
+
+  /* ============ 延續關心視窗（進聊天室前）============ */
+  // 彙整「有沒有東西值得延續關心」的候選素材，純本地運算、不呼叫網路。
+  // 完全沒素材時回傳 null，讓呼叫端直接跳過 AI 請求。
+  function buildCareCandidates(){
+    var parts = [];
+    var cutoff = Date.now() - 36*3600*1000;
+    var recentMsgs = chatHistory.filter(function(m){ return !m.type && m.ts && m.ts >= cutoff; }).slice(-6);
+    if(recentMsgs.length){
+      parts.push('## 最近對話片段\n' + recentMsgs.map(function(m){
+        return (m.role==='user'?'江黎':'卄珩') + '：' + (m.content||'');
+      }).join('\n'));
+    }
+    var todayH = healthLog[todayHealthKey()];
+    var y = new Date(); y.setDate(y.getDate()-1);
+    var yKey = y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    var yH = healthLog[yKey];
+    [['今天', todayH], ['昨天', yH]].forEach(function(pair){
+      var label = pair[0], h = pair[1];
+      if(!h) return;
+      var bits = [];
+      if(h.note) bits.push('備註：'+h.note);
+      var moods = getMoodVals(h); if(moods.length) bits.push('心情：'+moods.join('、'));
+      if(bits.length) parts.push('## '+label+'的健康紀錄\n'+bits.join('\n'));
+    });
+    var today0 = new Date(); today0.setHours(0,0,0,0);
+    var soon = events.filter(function(e){
+      var d = parseMemDate(e.date); if(!d) return false;
+      var diff = Math.round((d-today0)/86400000);
+      return diff >= 0 && diff <= 3;
+    });
+    if(soon.length) parts.push('## 近期事項\n' + soon.map(function(e){ return '- '+e.title; }).join('\n'));
+
+    if(!parts.length) return null;
+    return parts.join('\n\n');
+  }
+
+  // 即時請 AI 針對候選素材判斷「有沒有一件真正值得延續關心的事」，只回一句話；
+  // 沒有適合的內容就回 NONE。任何逾時/失敗都回傳 null，絕不讓進聊天室卡住。
+  async function fetchCareMessage(candidatesText){
+    var charName = (persona && persona.name) || '卄珩';
+    var sys = '你是'+charName+'，一位AI伴侶。使用者剛要打開聊天室，你會看到他最近的生活片段。' +
+      '請判斷其中是否有「一件」真正值得主動延續關心的事（例如未完成的話題、近期的心情、快到的行程）。' +
+      '如果有，只輸出一句話（不超過35字），口語自然，不要用客服語氣，不要虛構沒發生的事。' +
+      '如果沒有真正值得延續的內容，只輸出：NONE（不要輸出其他任何文字）。';
+    var controller = new AbortController();
+    var timer = setTimeout(function(){ controller.abort(); }, 5000);
+    try{
+      var resp = await fetch(endpoint(), {
+        method:'POST', headers: apiHeaders(), signal: controller.signal,
+        body: JSON.stringify({ model: settings.model || 'gpt-4o',
+          messages:[{role:'system',content:sys},{role:'user',content:candidatesText}],
+          temperature:0.6, max_tokens:80 })
+      });
+      clearTimeout(timer);
+      if(!resp.ok) return null;
+      var data = await resp.json();
+      var content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      var text = (content||'').trim().replace(/^["「『]|["」』]$/g,'');
+      if(!text || /^NONE$/i.test(text)) return null;
+      return text;
+    }catch(e){ clearTimeout(timer); return null; }
+  }
+
+  // 裝置本地去重（跟 tombstone／activeView 同一慣例，不走雲端同步）：同一句話不連續彈第二次
+  function careWasJustShown(text){
+    try{ return localStorage.getItem('companion:careLastMsg') === text; }catch(e){ return false; }
+  }
+  function markCareShown(text){
+    try{ localStorage.setItem('companion:careLastMsg', text); }catch(e){}
+  }
+
+  async function enterChatWithCare(){
+    var btn = $('homeEnterBtn');
+    var candidates = settings.apiKey ? buildCareCandidates() : null;
+    if(!candidates){ showFront(); return; }
+    var origLabel = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '連接中<span class="home-enter-arrow">…</span>';
+    var msg = await fetchCareMessage(candidates);
+    btn.disabled = false;
+    btn.innerHTML = origLabel;
+    if(!msg || careWasJustShown(msg)){ showFront(); return; }
+    markCareShown(msg);
+    $('careModalMessage').textContent = msg;
+    $('careModalOverlay').classList.remove('hidden');
+  }
   function showAdmin(){
     showOnly('adminView');
     if($('setMaxTokens')) $('setMaxTokens').value = settings.maxTokens || 1500;
@@ -5049,7 +5205,16 @@ textarea.mid{ min-height:90px; }
     localStorage.removeItem(AUTH_KEY);
     location.reload();
   });
-  $('homeEnterBtn').addEventListener('click', showFront);
+  $('homeEnterBtn').addEventListener('click', enterChatWithCare);
+  $('careReplyBtn').addEventListener('click', function(){
+    $('careModalOverlay').classList.add('hidden');
+    showFront();
+    requestAnimationFrame(function(){ chatInput.focus(); });
+  });
+  $('careSkipBtn').addEventListener('click', function(){
+    $('careModalOverlay').classList.add('hidden');
+    showFront();
+  });
   $('chatHomeBtn').addEventListener('click', showHome);
   $('homeAdminBtn').addEventListener('click', function(){ showAdmin(); selectTab('settings'); });
 
@@ -9875,7 +10040,6 @@ textarea.mid{ min-height:90px; }
 
   // Toolbar button
   $('chatSceneBtn').addEventListener('click', openSceneList);
-  $('homeChessBtn').addEventListener('click', function(){ alert('🪄 魔法咒語 — 功能即將開放！'); });
   // Right panel button
   $('rpScene').addEventListener('click', function(){ closeRightPanel(); openSceneList(); });
   // Scene list controls
@@ -11552,6 +11716,17 @@ textarea.mid{ min-height:90px; }
     $('imgPendingWrap').classList.add('hidden');
     $('imgPendingThumb').src='';
   }
+  // 聊天室工具收進單一入口：點 + 開啟 Bottom Sheet，選了任一工具後自動關閉，各工具自己的行為完全不動
+  function openChatToolSheet(){ $('chatToolSheetOverlay').classList.remove('hidden'); }
+  function closeChatToolSheet(){ $('chatToolSheetOverlay').classList.add('hidden'); }
+  $('chatToolOpenBtn').addEventListener('click', openChatToolSheet);
+  $('chatToolSheetClose').addEventListener('click', closeChatToolSheet);
+  $('chatToolSheetOverlay').addEventListener('click', function(e){
+    if(e.target === $('chatToolSheetOverlay')) closeChatToolSheet();
+  });
+  ['imgUploadBtn','chatDiaryBtn','hbBtn','chatSceneBtn','chatMagicSaveBtn'].forEach(function(id){
+    $(id).addEventListener('click', closeChatToolSheet);
+  });
   $('imgUploadBtn').addEventListener('click',function(){ $('imgFileInput').click(); });
   $('imgFileInput').addEventListener('change',function(e){
     var f=e.target.files&&e.target.files[0]; if(!f) return;
