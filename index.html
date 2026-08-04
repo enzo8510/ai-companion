@@ -533,14 +533,7 @@ textarea.mid{ min-height:90px; }
 .cnt-unit{ font-size:12px; color:var(--ink-soft); font-weight:500; }
 .cnt-event{ font-size:12.5px; color:var(--ink); font-weight:600; }
 .cnt-today{ font-size:13px; color:var(--companion); font-weight:600; }
-.home-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm); width:100%; }
-/* 首頁功能分組（資訊架構 §2.3）：標題+格子當成一個間距單位，內層 .home-actions 自身的下邊距讓給區塊管 */
-.home-section{ margin-bottom:var(--space-xl); }
-.home-section:last-of-type{ margin-bottom:0; }
-.home-section .home-actions{ margin-bottom:0; }
-.home-section-label{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase; margin:0 0 var(--space-sm) 0; }
-.home-actions--cols-2{ grid-template-columns:repeat(2,1fr); }
-.home-actions--single{ grid-template-columns:1fr; }
+.home-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm); margin-bottom:var(--space-xl); width:100%; }
 .home-action-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:rgba(255,255,255,0.92); border:1.5px solid rgba(50,58,80,0.07); border-radius:18px; padding:var(--space-md); height:72px; min-height:72px; cursor:pointer; font-family:inherit; transition:all .18s; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
 /* 首頁圖示統一成跟健康彈窗同一套「霧面玻璃球」漸層徽章（.dm-badge 的變體），
    不同 emoji 風格再怎麼混雜，被同一個容器包住看起來就是同一組圖示系統 */
@@ -2060,10 +2053,9 @@ textarea.mid{ min-height:90px; }
 :root[data-theme="dark"] .kb-editor-field input, :root[data-theme="dark"] .kb-editor-field textarea{ color:var(--ink); }
 
 /* .home-action-btn／.home-wrap／.home-avatar-ring／.home-name／.home-tagline 的數值已併回各自的基礎規則（見上）。
-   這裡只留下 .home-actions 的下邊距：首頁格子都在 .home-section 裡、由更高優先權的
-   .home-section .home-actions{margin-bottom:0} 決定間距，但聊天室工具 Bottom Sheet 裡的
-   .home-actions 沒有 .home-section 包著，仍然要靠這條規則留白，所以不能刪。 */
-.home-actions{ margin-bottom:14px; }
+   聊天室工具 Bottom Sheet 裡的圖示格子跟首頁共用 .home-actions，但下邊距要小一點，
+   特別限定在這個 Sheet 底下，才不會反過來影響首頁那份用基礎規則 24px 的格子。 */
+#chatToolSheetOverlay .home-actions{ margin-bottom:14px; }
 /* ---- Check-in recent list ---- */
 .ci-recent-section{ margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
 .ci-recent-title{ font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:8px; letter-spacing:.5px; }
@@ -2267,64 +2259,43 @@ textarea.mid{ min-height:90px; }
         </div>
 
         <!-- Action buttons -->
-        <div class="home-section">
-          <div class="home-section-label">生活紀錄</div>
-          <div class="home-actions home-actions--cols-2">
-            <button class="home-action-btn" id="checkinBtn" type="button">
-              <span class="act-icon" id="checkinIcon" style="--icon-c:#78A956">🌙</span>
-              <span class="act-label">每日打卡</span>
-            </button>
-            <button class="home-action-btn" id="homeCalBtn" type="button">
-              <span class="act-icon" style="--icon-c:#A987D8">📅</span>
-              <span class="act-label">行事曆</span>
-            </button>
-            <button class="home-action-btn" id="homeDiaryBtn" type="button">
-              <span class="act-icon" style="--icon-c:#526B9B">📓</span>
-              <span class="act-label">今日日記</span>
-            </button>
-            <button class="home-action-btn" id="homeQaHistoryBtn" type="button">
-              <span class="act-icon" style="--icon-c:#E7A13D">🎲</span>
-              <span class="act-label">每日問題</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="home-section">
-          <div class="home-section-label">關係與共同生活</div>
-          <div class="home-actions home-actions--cols-2">
-            <button class="home-action-btn" id="homeStarBtn" type="button">
-              <span class="act-icon" style="--icon-c:#A987D8">🐱</span>
-              <span class="act-label">我們的星</span>
-            </button>
-            <button class="home-action-btn" id="homeWithMeBtn" type="button">
-              <span class="act-icon" style="--icon-c:#E0729B">💕</span>
-              <span class="act-label">with me</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="home-section">
-          <div class="home-section-label">媒體與收藏</div>
-          <div class="home-actions home-actions--cols-2">
-            <button class="home-action-btn" id="homeAudioBtn" type="button">
-              <span class="act-icon" style="--icon-c:#6A9BB8">🎶</span>
-              <span class="act-label">他的音檔</span>
-            </button>
-            <button class="home-action-btn" id="homeSocialBtn" type="button">
-              <span class="act-icon" style="--icon-c:#5DAAA4">📱</span>
-              <span class="act-label">社交平台</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="home-section">
-          <div class="home-section-label">個人化與情境工具</div>
-          <div class="home-actions home-actions--single">
-            <button class="home-action-btn" id="homeChessBtn" type="button">
-              <span class="act-icon" style="--icon-c:#A987D8">🪄</span>
-              <span class="act-label">魔法咒語</span>
-            </button>
-          </div>
+        <div class="home-actions">
+          <button class="home-action-btn" id="checkinBtn" type="button">
+            <span class="act-icon" id="checkinIcon" style="--icon-c:#78A956">🌙</span>
+            <span class="act-label">每日打卡</span>
+          </button>
+          <button class="home-action-btn" id="homeCalBtn" type="button">
+            <span class="act-icon" style="--icon-c:#A987D8">📅</span>
+            <span class="act-label">行事曆</span>
+          </button>
+          <button class="home-action-btn" id="homeStarBtn" type="button">
+            <span class="act-icon" style="--icon-c:#A987D8">🐱</span>
+            <span class="act-label">我們的星</span>
+          </button>
+          <button class="home-action-btn" id="homeDiaryBtn" type="button">
+            <span class="act-icon" style="--icon-c:#526B9B">📓</span>
+            <span class="act-label">今日日記</span>
+          </button>
+          <button class="home-action-btn" id="homeQaHistoryBtn" type="button">
+            <span class="act-icon" style="--icon-c:#E7A13D">🎲</span>
+            <span class="act-label">每日問題</span>
+          </button>
+          <button class="home-action-btn" id="homeSocialBtn" type="button">
+            <span class="act-icon" style="--icon-c:#5DAAA4">📱</span>
+            <span class="act-label">社交平台</span>
+          </button>
+          <button class="home-action-btn" id="homeAudioBtn" type="button">
+            <span class="act-icon" style="--icon-c:#6A9BB8">🎶</span>
+            <span class="act-label">他的音檔</span>
+          </button>
+          <button class="home-action-btn" id="homeWithMeBtn" type="button">
+            <span class="act-icon" style="--icon-c:#E0729B">💕</span>
+            <span class="act-label">with me</span>
+          </button>
+          <button class="home-action-btn" id="homeChessBtn" type="button">
+            <span class="act-icon" style="--icon-c:#A987D8">🪄</span>
+            <span class="act-label">魔法咒語</span>
+          </button>
         </div>
 
         <button class="home-enter-btn" id="homeEnterBtn">
