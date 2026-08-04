@@ -115,24 +115,63 @@ body{
 .view.hidden{ display:none; }
 
 /* ---------- Header ---------- */
-.chat-header{
+/* ===== Page Header（元件庫 §3）=====
+   全站唯一一組頁首數值。結構固定為 [返回 icon-btn][標題][右側操作或等寬佔位]。
+   下列選擇器是同一個元件在各功能沿用的既有名稱，共用這組規則；
+   改頁首請只改這裡，不要在功能區塊裡再寫一份。 */
+.chat-header,
+.audio-hdr, .audio-ts-header, .btc-header, .diary-reader-header,
+.kb-editor-header, .qa-review-hdr, .qa-view-hdr, .social-hdr,
+.star-header, .edit-msg-hdr, .ci-day-modal-header,
+/* Bottom Sheet 的頁首是同一個元件；.el-sheet-head／.star-feed-hist-head／
+   .scene-ov-head 三者原本是完全一模一樣的宣告，複製了三份 */
+.cal-sheet-head, .el-sheet-head, .star-feed-hist-head, .scene-ov-head,
+.cnt-sel-head, .backup-head, .chat-right-panel-head{
   flex:0 0 auto;
   display:flex;
   align-items:center;
-  gap:12px;
-  padding:14px 16px;
+  gap:var(--space-md);
+  padding:var(--space-md) var(--space-lg);
   background:var(--surface);
-  border-bottom:1px solid rgba(169,135,216,0.12);
-  z-index:5;
-  box-shadow:var(--shadow-card);
+  border-bottom:1px solid var(--line);
 }
-.icon-btn{
+/* 頁首標題：元件庫 §3 規定 18px。一律靠左，緊接返回鍵之後——
+   置中需要左右兩側等寬，但有 5 個頁首根本沒有左側返回鍵、也有頁首右側掛 3 個操作，
+   靠左是唯一在所有情況都成立的排法，也就是元件庫 §3 的 HTML 結構本身。 */
+.audio-hdr-title, .btc-header-title, .social-hdr-title, .star-title,
+.qa-view-title, .qa-review-hdr-title, .kb-editor-title, .edit-msg-title,
+.admin-title,
+.cal-sheet-title, .el-sheet-title, .scene-ov-title, .backup-head-title,
+.cnt-sel-title, .star-feed-hist-title, .chat-right-panel-title{
+  flex:1; min-width:0;
+  font-size:var(--font-size-title); font-weight:600; color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+/* 例外：紀念日選擇屬於規範允許用文楷體的「紀念內容」 */
+.cnt-sel-title{ font-family:'LXGW WenKai TC',serif; }
+/* 例外：這兩個頁首要貼合各自容器的底色（日記紙張／健康彈窗），不套 surface */
+.diary-reader-header, .ci-day-modal-header{ background:transparent; }
+.ci-day-modal-header{ padding-left:0; padding-right:0; }
+/* 例外：聊天室頁首浮在訊息流上方，需要疊層與淡陰影 */
+.chat-header{ z-index:5; box-shadow:var(--shadow-card); }
+/* 區塊標題列：內容區裡「標籤 + 一個操作」的一整列，不是頁首。
+   原本四個功能各寫一份，margin 分別是 6／10／12px，還有一個用 padding:0 2px。 */
+.kb-capacity-header, .ci-charts-header, .qa-card-header, .qa-hist-header{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:var(--space-sm); margin-bottom:var(--space-md);
+}
+/* Icon Button（元件庫 §8）：返回／關閉／設定／刪除等圖示操作共用同一顆按鈕。
+   下列別名原本各自實作，觸控區只有 30–36px，不符規範要求的 44×44。 */
+.icon-btn,
+.qa-back-btn, .kb-editor-back-btn, .diary-reader-del{
   background:none;
   border:none;
   font-size:var(--font-size-title);
   color:var(--ink-soft);
   cursor:pointer;
-  padding:var(--space-md) var(--space-lg);
+  /* 內距對稱即可，觸控區靠 min-width/height 保證 44×44（元件庫 §8）；
+     左右各 16px 會讓一列 3 顆圖示鍵在 320px 下把標題擠掉 */
+  padding:var(--space-md);
   border-radius:var(--radius-control);
   line-height:1;
   min-width:44px;
@@ -141,8 +180,8 @@ body{
   align-items:center;
   justify-content:center;
 }
-.icon-btn:hover{ color:var(--companion); background:var(--companion-soft); }
-.icon-btn:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
+.icon-btn:hover, .qa-back-btn:hover, .kb-editor-back-btn:hover, .diary-reader-del:hover{ color:var(--companion); background:var(--companion-soft); }
+.icon-btn:focus-visible, .qa-back-btn:focus-visible, .kb-editor-back-btn:focus-visible, .diary-reader-del:focus-visible{ outline:2px solid var(--companion); outline-offset:2px; }
 .avatar-orb{
   width:40px;
   height:40px;
@@ -181,7 +220,6 @@ body{
   flex:0 0 auto;
 }
 @keyframes pulse-dot{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
-.admin-title{ font-family:'LXGW WenKai TC', serif; font-weight:700; font-size:var(--font-size-title); flex:1; }
 
 /* ---------- Thread ---------- */
 .chat-thread{
@@ -422,7 +460,6 @@ textarea.mid{ min-height:90px; }
 /* Panel toolbar */
 .panel-toolbar{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
 .kb-capacity-wrap{ margin-bottom:14px; }
-.kb-capacity-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
 .kb-capacity-label{ font-size:var(--font-size-small); font-weight:600; color:var(--ink-soft); }
 .kb-capacity-status{ font-size:var(--font-size-caption); font-weight:700; padding:2px 8px; border-radius:var(--radius-card); background:rgba(76,175,118,.15); color:#4caf76; transition:background .3s,color .3s; }
 .kb-capacity-status.warn{ background:rgba(240,160,62,.15); color:#f0a03e; }
@@ -451,7 +488,7 @@ textarea.mid{ min-height:90px; }
 /* Knowledge cards */
 .kb-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-card); margin-bottom:var(--space-md); overflow:hidden; transition:box-shadow .18s, border-color .15s; cursor:pointer; }
 .kb-card:hover{ box-shadow:var(--shadow-card); border-color:var(--companion); }
-.kb-card-head{ display:flex; align-items:center; gap:10px; padding:13px 14px; user-select:none; }
+.kb-card-head{ display:flex; align-items:center; gap:var(--space-md); padding:var(--space-md) var(--space-lg); user-select:none; }
 .kb-file-icon{ font-size:var(--font-size-title); flex:0 0 auto; }
 .kb-file-name-wrap{ flex:1; min-width:0; }
 .kb-file-name-text{ font-size:var(--font-size-body); font-weight:600; color:var(--ink); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -467,9 +504,6 @@ textarea.mid{ min-height:90px; }
 .kb-editor-overlay{ position:absolute; inset:0; z-index:350; background:var(--bg); display:flex; flex-direction:column; }
 .kb-editor-overlay.hidden{ display:none; }
 .kb-editor-sheet{ display:flex; flex-direction:column; height:100%; overflow:hidden; }
-.kb-editor-header{ display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
-.kb-editor-back-btn{ font-size:var(--font-size-stat); line-height:1; color:var(--ink); background:none; border:none; padding:0 10px 0 0; cursor:pointer; }
-.kb-editor-title{ flex:1; text-align:center; font-size:var(--font-size-title-small); font-weight:600; color:var(--ink); }
 .kb-editor-save-btn{ font-size:var(--font-size-body-large); font-weight:600; color:var(--companion); background:none; border:none; cursor:pointer; padding:0; }
 .kb-editor-body{ flex:1; overflow-y:auto; }
 .kb-editor-field{ padding:14px 16px; border-bottom:1px solid var(--line); }
@@ -578,9 +612,7 @@ textarea.mid{ min-height:90px; }
 .cal-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.38); z-index:2000; display:flex; align-items:flex-end; justify-content:center; }
 .cal-overlay.hidden{ display:none; }
 .cal-sheet{ background:#fff; border-radius:var(--radius-sheet) var(--radius-sheet) 0 0; width:100%; max-width:460px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 -16px 48px rgba(35,30,45,0.18); }
-.cal-sheet-head{ padding:20px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:var(--space-md); flex:0 0 auto; }
-.cal-sheet-title{ flex:1; font-family:'LXGW WenKai TC',serif; font-size:var(--font-size-title); font-weight:700; color:var(--ink); }
-.cal-sheet-body{ flex:1; overflow-y:auto; padding:20px 18px; }
+.cal-sheet-body{ flex:1; overflow-y:auto; padding:var(--space-lg); }
 /* 紀念日彈窗改置中小視窗，不用底部彈出（其他共用 cal-overlay 的彈窗維持底部樣式不動） */
 #calAnniOverlay{ align-items:center; padding:20px; }
 #calAnniOverlay .cal-sheet{ border-radius:var(--radius-sheet); max-height:80vh; box-shadow:var(--shadow-modal); }
@@ -668,8 +700,6 @@ textarea.mid{ min-height:90px; }
 .preset-svc-badge.custom{ background:var(--line); color:var(--ink-soft); }
 /* ---- Audio View ---- */
 .audio-page{ display:flex; flex-direction:column; height:100%; background:var(--surface); overflow:hidden; }
-.audio-hdr{ flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; }
-.audio-hdr-title{ font-size:var(--font-size-title); font-weight:700; color:var(--ink); }
 .audio-upload-btn{ width:34px; height:34px; border-radius:50%; border:1.5px solid var(--companion); background:var(--companion-soft); color:var(--companion); font-size:var(--font-size-title); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; }
 .audio-upload-btn:hover{ background:var(--companion); color:#fff; }
 .audio-body{ flex:1; overflow-y:auto; display:flex; flex-direction:column; }
@@ -688,7 +718,7 @@ textarea.mid{ min-height:90px; }
 .audio-np-btn.play{ width:38px; height:38px; font-size:var(--font-size-title-small); background:var(--companion); color:#fff; border-color:var(--companion); }
 /* Track list */
 .audio-track-list{ padding:0 16px; }
-.audio-section-label{ font-size:var(--font-size-caption); font-weight:700; color:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase; padding:10px 0 6px; }
+.audio-section-label{ font-size:var(--font-size-caption); font-weight:700; color:var(--ink-soft); letter-spacing:.06em; padding:var(--space-md) var(--space-lg) var(--space-sm); }
 .audio-track-row{ display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); cursor:pointer; transition:background .1s; border-radius:var(--radius-control); }
 .audio-track-row:last-child{ border-bottom:none; }
 .audio-track-row.playing .audio-track-title{ color:var(--companion); }
@@ -719,9 +749,7 @@ textarea.mid{ min-height:90px; }
 .el-sheet-overlay{ position:absolute; inset:0; z-index:400; background:rgba(0,0,0,0.4); display:flex; flex-direction:column; justify-content:flex-end; }
 .el-sheet-overlay.hidden{ display:none; }
 .el-sheet{ background:var(--bg); border-radius:var(--radius-sheet) var(--radius-sheet) 0 0; max-height:80vh; display:flex; flex-direction:column; overflow:hidden; }
-.el-sheet-head{ display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
-.el-sheet-title{ flex:1; text-align:center; font-size:var(--font-size-body-large); font-weight:700; color:var(--ink); }
-.el-sheet-body{ flex:1; overflow-y:auto; padding:16px 16px 24px; display:flex; flex-direction:column; gap:10px; }
+.el-sheet-body{ flex:1; overflow-y:auto; padding:var(--space-lg) var(--space-lg) var(--space-xl); display:flex; flex-direction:column; gap:var(--space-md); }
 .el-label{ font-size:var(--font-size-small); font-weight:700; color:var(--ink-soft); display:block; margin-bottom:5px; }
 .el-input{ width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius-control); font-size:var(--font-size-body); background:var(--chat-bg); color:var(--ink); box-sizing:border-box; font-family:inherit; }
 .el-textarea{ width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius-control); font-size:var(--font-size-body); background:var(--chat-bg); color:var(--ink); box-sizing:border-box; font-family:inherit; resize:none; line-height:1.6; }
@@ -730,7 +758,6 @@ textarea.mid{ min-height:90px; }
 /* Transcript overlay (inside phone-frame) */
 .audio-transcript-overlay{ position:absolute; inset:0; z-index:300; background:var(--surface); display:flex; flex-direction:column; }
 .audio-transcript-overlay.hidden{ display:none; }
-.audio-ts-header{ flex:0 0 auto; display:flex; align-items:center; gap:12px; padding:14px 16px 10px; border-bottom:1px solid var(--line); }
 .audio-ts-title{ flex:1; font-size:var(--font-size-body-large); font-weight:700; color:var(--ink); }
 .audio-ts-body{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
 .audio-ts-label{ font-size:var(--font-size-caption); font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
@@ -749,9 +776,6 @@ textarea.mid{ min-height:90px; }
 .audio-cat-option.selected{ border-color:var(--companion); background:var(--companion-soft); color:var(--companion); font-weight:700; }
 /* ---- Bill-Tracker Calendar (checkinView + calendarView) ---- */
 .btc-page{ display:flex; flex-direction:column; height:100%; background:var(--surface); overflow:hidden; }
-.btc-header{ flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; }
-.btc-header-title{ font-size:var(--font-size-title); font-weight:700; color:var(--ink); }
-.btc-header-side{ width:36px; }
 .btc-stats-row{ flex:0 0 auto; display:flex; gap:12px; padding:0 16px 14px; }
 .btc-stat-item{ flex:1; background:var(--chat-bg); border-radius:var(--radius-card); padding:14px 10px; text-align:center; border:1px solid var(--line); box-shadow:var(--shadow-card); }
 .btc-stat-num{ font-size:var(--font-size-stat); font-weight:700; color:var(--ink); font-family:'LXGW WenKai TC',serif; line-height:1.1; }
@@ -888,7 +912,6 @@ textarea.mid{ min-height:90px; }
 .ci-ongoing-label input[type=checkbox]{ accent-color:var(--period-color,#e84c78); width:16px; height:16px; flex:0 0 auto; }
 /* ---- Health Charts ---- */
 .ci-charts-section{ background:var(--chat-bg); border-radius:var(--radius-card); border:1px solid var(--line); padding:14px 16px 16px; margin-top:14px; }
-.ci-charts-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .ci-chart-title{ font-size:var(--font-size-body); font-weight:700; color:var(--ink); }
 .ci-chart-range-sel{ font-size:var(--font-size-caption); border:1.5px solid var(--line); border-radius:var(--radius-small); padding:3px 8px; background:var(--surface); color:var(--ink-soft); font-family:inherit; cursor:pointer; outline:none; }
 .ci-chart-tabs{ display:flex; gap:5px; margin-bottom:12px; }
@@ -987,7 +1010,6 @@ textarea.mid{ min-height:90px; }
 .ci-day-modal-sheet{ background:var(--bg); border-radius:var(--radius-sheet) var(--radius-sheet) 0 0; padding:0 18px 32px; max-height:80vh; overflow-y:auto; position:relative; transform:translateY(100%); transition:transform .28s cubic-bezier(.32,0,.3,1); }
 .ci-day-modal.open .ci-day-modal-sheet{ transform:translateY(0); }
 .ci-day-modal-handle{ width:36px; height:4px; border-radius:var(--radius-small); background:var(--line); margin:14px auto 0; }
-.ci-day-modal-header{ display:flex; align-items:center; justify-content:space-between; padding:14px 0 10px; border-bottom:1px solid var(--line); }
 .ci-day-modal-date{ font-size:var(--font-size-body-large); font-weight:700; color:var(--ink); }
 .ci-day-modal-close{ font-size:var(--font-size-title); color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:50%; }
 .ci-dm-row{ display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-top:1px solid var(--line); }
@@ -1168,8 +1190,6 @@ textarea.mid{ min-height:90px; }
 .edit-msg-overlay{ position:absolute; inset:0; z-index:1200; background:rgba(30,36,52,0.38); display:flex; align-items:center; justify-content:center; padding:20px; }
 .edit-msg-overlay.hidden{ display:none; }
 .edit-msg-card{ background:var(--surface); border-radius:var(--radius-card); width:100%; max-width:340px; max-height:82vh; box-shadow:var(--shadow-modal); overflow:hidden; display:flex; flex-direction:column; }
-.edit-msg-hdr{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid var(--line); flex:0 0 auto; }
-.edit-msg-title{ font-size:var(--font-size-body); font-weight:600; color:var(--ink); }
 .edit-msg-close{ background:none; border:none; font-size:var(--font-size-title); color:var(--ink-soft); cursor:pointer; padding:2px 4px; line-height:1; }
 .edit-msg-body{ padding:14px 16px; overflow-y:auto; flex:1 1 auto; min-height:0; }
 .edit-msg-textarea{ width:100%; height:400px; border:1.5px solid var(--line); border-radius:var(--radius-control); padding:10px 12px; font-family:inherit; font-size:var(--font-size-body); color:var(--ink); background:var(--bg); outline:none; resize:none; box-sizing:border-box; line-height:1.6; }
@@ -1195,7 +1215,6 @@ textarea.mid{ min-height:90px; }
 
 /* ---- Q&A Card in chat ---- */
 .qa-card{ align-self:center; width:min(88%, 340px); margin:var(--space-md) 0; padding:var(--space-lg); background:var(--surface); border:1.5px solid var(--line); border-radius:var(--radius-card); box-shadow:var(--shadow-card); }
-.qa-card-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-md); }
 .qa-card-label{ font-size:var(--font-size-caption); color:var(--qa-title-color); font-weight:600; letter-spacing:.04em; }
 .qa-card-delete{ background:none; border:none; color:var(--ink-soft); font-size:var(--font-size-title); cursor:pointer; padding:0; line-height:1; opacity:.6; transition:opacity .2s; }
 .qa-card-delete:hover{ opacity:1; color:#e05252; }
@@ -1234,9 +1253,8 @@ textarea.mid{ min-height:90px; }
 .diary-reader-overlay.hidden{ display:none; }
 /* 淡淡的紙感底色：從主題強調色調出極淡的暖色，不同主題會自動跟著換色調 */
 .diary-reader-card{ width:100%; max-width:460px; height:calc(100vh - 56px); min-height:560px; background:color-mix(in srgb, var(--companion-soft) 20%, var(--bg)); border-radius:var(--radius-sheet); box-shadow:var(--shadow-modal); overflow:hidden; display:flex; flex-direction:column; }
-.diary-reader-header{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; flex:0 0 auto; }
-.diary-reader-counter{ font-family:'LXGW WenKai TC',serif; font-size:var(--font-size-small); color:var(--ink-soft); font-weight:600; }
-.diary-reader-del{ background:none; border:none; font-size:var(--font-size-title-small); color:var(--ink-soft); cursor:pointer; padding:6px; }
+/* 日記頁碼佔頁首中間欄，跟其他頁首標題一樣置中；字級刻意小一級，它是頁碼不是標題 */
+.diary-reader-counter{ flex:1; min-width:0; text-align:center; font-family:'LXGW WenKai TC',serif; font-size:var(--font-size-small); color:var(--ink-soft); font-weight:600; }
 /* 仿筆記本橫線紙：整頁（含標題區）都鋪滿橫線；線的相位由 JS 對齊到正文實際的行位置，
    確保文字剛好「寫在」線上，而不是跟線錯開（background-attachment:local 讓線跟著內容捲動）*/
 .diary-reader-body{
@@ -1270,8 +1288,6 @@ textarea.mid{ min-height:90px; }
 #frontView{ position:relative; overflow:hidden; }
 .chat-right-panel{ position:absolute; top:0; right:0; bottom:0; width:76%; max-width:280px; background:var(--surface); border-left:1.5px solid var(--line); box-shadow:-8px 0 28px rgba(50,45,65,0.12); transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1); z-index:60; display:flex; flex-direction:column; }
 .chat-right-panel.open{ transform:translateX(0); }
-.chat-right-panel-head{ padding:14px 16px; border-bottom:1.5px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; }
-.chat-right-panel-title{ font-size:var(--font-size-body-large); font-weight:700; color:var(--ink); }
 .chat-right-scrim{ position:absolute; inset:0; background:rgba(50,58,80,0.28); z-index:59; pointer-events:none; opacity:0; transition:opacity .26s; }
 .chat-right-scrim.show{ opacity:1; pointer-events:all; }
 /* ---- Right panel menu items ---- */
@@ -1521,8 +1537,6 @@ textarea.mid{ min-height:90px; }
 }
 /* ---- Star view (full screen) ---- */
 #starView{ position:relative; overflow:hidden; background:var(--bg); }
-.star-header{ padding:14px 16px 12px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
-.star-title{ font-size:var(--font-size-title-small); font-weight:700; color:var(--ink); flex:1; text-align:center; }
 .star-room{ flex:1; position:relative; overflow:hidden; background:url('ster/background.png') center/cover no-repeat; min-height:180px; }
 /* ---- Star sub-modals ---- */
 .star-modal{ position:absolute; left:0; right:0; bottom:0; background:var(--surface); border-radius:var(--radius-sheet) var(--radius-sheet) 0 0; padding:0 0 var(--space-xl); box-shadow:0 -16px 48px rgba(35,30,45,0.18); transform:translateY(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); z-index:20; }
@@ -1617,9 +1631,7 @@ textarea.mid{ min-height:90px; }
 .qr-code-wrap{ display:flex; justify-content:center; margin-bottom:16px; }
 .qr-warn{ background:#fff8ee; border:1px solid #f0d080; border-radius:var(--radius-control); padding:10px 14px; font-size:var(--font-size-caption); color:#8a6020; line-height:1.6; }
 .cnt-sel-sheet{ background:#fff; border-radius:var(--radius-sheet); width:100%; max-width:440px; max-height:88vh; display:flex; flex-direction:column; overflow:hidden; }
-.cnt-sel-head{ padding:15px 18px 11px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; flex:0 0 auto; }
-.cnt-sel-title{ flex:1; font-family:'LXGW WenKai TC',serif; font-size:var(--font-size-title-small); font-weight:700; color:var(--ink); }
-.cnt-sel-body{ flex:1; overflow-y:auto; padding:var(--space-lg) var(--space-xl) var(--space-xl); }
+.cnt-sel-body{ flex:1; overflow-y:auto; padding:var(--space-lg) var(--space-lg) var(--space-xl); }
 .cnt-start-row{ display:flex; align-items:center; gap:var(--space-md); margin-bottom:var(--space-xl); background:var(--chat-bg); border-radius:var(--radius-control); padding:var(--space-md); }
 .cnt-start-label{ font-size:var(--font-size-small); color:var(--ink-soft); flex:1; }
 .cnt-start-date-val{ font-size:var(--font-size-small); font-weight:600; color:var(--companion); }
@@ -1810,8 +1822,6 @@ textarea.mid{ min-height:90px; }
 }
 /* ---- Social view ---- */
 #socialView{ position:relative; overflow:hidden; background:var(--bg); }
-.social-hdr{ padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
-.social-hdr-title{ font-size:var(--font-size-title-small); font-weight:700; color:var(--ink); flex:1; text-align:center; }
 .social-body{ flex:1; overflow-y:auto; }
 .social-profile-cover{ height:100px; background:linear-gradient(135deg,var(--companion),var(--sage)); position:relative; flex:0 0 auto; background-size:cover; background-position:center; cursor:pointer; }
 .social-profile-bar{ padding:12px 16px 16px; background:var(--surface); border-bottom:1px solid var(--line); flex:0 0 auto; position:relative; z-index:1; }
@@ -1854,17 +1864,6 @@ textarea.mid{ min-height:90px; }
 /* ---- Today QA View (redesigned) ---- */
 #todayQaView{ background:var(--bg); }
 .qa-view-bg{ display:flex; flex-direction:column; height:100%; background:var(--bg); }
-.qa-view-hdr{
-  display:flex; align-items:center; padding:14px 16px;
-  background:var(--surface); border-bottom:1px solid var(--line); flex:0 0 auto;
-}
-.qa-back-btn{
-  background:none; border:none; font-size:var(--font-size-title); color:var(--ink-soft);
-  cursor:pointer; padding:6px 10px; border-radius:var(--radius-control);
-  min-width:36px; min-height:36px; display:flex; align-items:center; justify-content:center;
-}
-.qa-back-btn:hover{ color:var(--companion); background:var(--companion-soft); }
-.qa-view-title{ flex:1; text-align:center; font-size:var(--font-size-title-small); font-weight:700; color:var(--ink); }
 
 .qa-view-body{
   flex:1; overflow-y:auto; padding:16px 16px 32px;
@@ -1943,7 +1942,6 @@ textarea.mid{ min-height:90px; }
 
 /* History */
 .qa-hist-section{ display:flex; flex-direction:column; gap:10px; }
-.qa-hist-header{ display:flex; align-items:center; justify-content:space-between; padding:0 2px; }
 .qa-hist-title{ font-size:var(--font-size-body); font-weight:700; color:var(--ink); letter-spacing:.02em; }
 .qa-hist-count{ font-size:var(--font-size-small); color:var(--ink-soft); }
 .qa-month-nav{ display:flex; align-items:center; justify-content:center; gap:10px; }
@@ -2001,8 +1999,6 @@ textarea.mid{ min-height:90px; }
 /* QA review overlay (inside todayQaView) */
 .qa-review-overlay{ position:absolute; inset:0; z-index:200; background:var(--surface); display:flex; flex-direction:column; }
 .qa-review-overlay.hidden{ display:none; }
-.qa-review-hdr{ flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line); }
-.qa-review-hdr-title{ flex:1; font-size:var(--font-size-body-large); font-weight:700; color:var(--ink); }
 .qa-review-body{ flex:1; overflow-y:auto; padding:20px 16px; display:flex; flex-direction:column; gap:16px; }
 .qa-review-q-card{ background:var(--chat-bg); border-radius:var(--radius-control); padding:14px 16px; border-left:4px solid var(--companion); }
 .qa-review-q-label{ font-size:var(--font-size-xs); font-weight:700; color:var(--companion); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
@@ -2033,9 +2029,7 @@ textarea.mid{ min-height:90px; }
 .backup-overlay{ position:fixed; inset:0; background:rgba(30,36,52,0.42); z-index:2500; display:flex; align-items:center; justify-content:center; padding:22px 16px; }
 .backup-overlay.hidden{ display:none; }
 .backup-sheet{ background:var(--surface); border-radius:var(--radius-sheet); width:100%; max-width:400px; max-height:88vh; display:flex; flex-direction:column; overflow:hidden; }
-.backup-head{ padding:15px 18px 11px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; flex:0 0 auto; }
-.backup-head-title{ flex:1; font-family:'LXGW WenKai TC',serif; font-size:var(--font-size-title-small); font-weight:700; color:var(--ink); }
-.backup-body{ flex:1; overflow-y:auto; padding:18px; }
+.backup-body{ flex:1; overflow-y:auto; padding:var(--space-lg); }
 .backup-section{ margin-bottom:20px; }
 .backup-section-title{ font-size:var(--font-size-body); font-weight:700; color:var(--ink); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
 .backup-section-lead{ font-size:var(--font-size-small); color:var(--ink-soft); line-height:1.6; margin-bottom:10px; }
@@ -2092,9 +2086,7 @@ textarea.mid{ min-height:90px; }
 .star-feed-hist-overlay{ position:absolute; inset:0; z-index:400; background:rgba(0,0,0,0.4); display:flex; flex-direction:column; justify-content:flex-end; }
 .star-feed-hist-overlay.hidden{ display:none; }
 .star-feed-hist-sheet{ background:var(--bg); border-radius:var(--radius-sheet) var(--radius-sheet) 0 0; max-height:75vh; display:flex; flex-direction:column; overflow:hidden; }
-.star-feed-hist-head{ display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
-.star-feed-hist-title{ flex:1; text-align:center; font-size:var(--font-size-body-large); font-weight:700; color:var(--ink); }
-.star-feed-hist-body{ flex:1; overflow-y:auto; padding:12px 16px 20px; }
+.star-feed-hist-body{ flex:1; overflow-y:auto; padding:var(--space-md) var(--space-lg) var(--space-xl); }
 .sfh-row{ display:grid; grid-template-columns:80px 1fr; align-items:center; gap:10px; padding:11px 2px; border-bottom:1px solid var(--line); }
 .sfh-row:last-child{ border-bottom:none; }
 .sfh-date{ font-size:var(--font-size-body); color:var(--ink); font-weight:700; line-height:1.4; }
@@ -2167,11 +2159,9 @@ textarea.mid{ min-height:90px; }
 .scene-banner-exit{ font-size:var(--font-size-small); color:var(--companion); background:none; border:1px solid var(--companion); cursor:pointer; padding:3px 10px; border-radius:var(--radius-control); margin-left:auto; }
 .scene-overlay{ position:absolute; inset:0; z-index:350; background:var(--bg); display:flex; flex-direction:column; }
 .scene-overlay.hidden{ display:none; }
-.scene-ov-head{ display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--surface); }
 .scene-ov-back{ font-size:var(--font-size-stat); line-height:1; color:var(--ink); background:none; border:none; padding:0 10px 0 0; cursor:pointer; }
-.scene-ov-title{ flex:1; text-align:center; font-size:var(--font-size-title-small); font-weight:600; color:var(--ink); }
 .scene-ov-action{ font-size:var(--font-size-body-large); font-weight:600; color:var(--companion); background:none; border:none; cursor:pointer; padding:0; }
-.scene-ov-body{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.scene-ov-body{ flex:1; overflow-y:auto; padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-md); }
 .scene-ov-foot{ padding:12px 16px; border-top:1px solid var(--line); display:flex; gap:8px; }
 .scene-card{ background:var(--surface); border:1.5px solid var(--line); border-radius:var(--radius-control); overflow:hidden; cursor:pointer; transition:border-color .15s, box-shadow .15s; position:relative; min-height:100px; }
 .scene-card:hover{ border-color:var(--companion); box-shadow:var(--shadow-card); }
@@ -2761,9 +2751,9 @@ textarea.mid{ min-height:90px; }
     <!-- ============ STAR VIEW ============ -->
     <div class="view hidden" id="starView">
       <div class="star-header">
-        <button class="icon-btn" id="starBackBtn" type="button" style="font-size:var(--font-size-title);">←</button>
+        <button class="icon-btn" id="starBackBtn" type="button">←</button>
         <span class="star-title">🐱 我們的星</span>
-        <div style="width:36px;"></div>
+        
       </div>
       <div class="star-room" id="starRoom">
         <div class="star-window"></div>
@@ -2827,9 +2817,9 @@ textarea.mid{ min-height:90px; }
       <div class="star-feed-hist-overlay hidden" id="starFeedHistOverlay">
         <div class="star-feed-hist-sheet">
           <div class="star-feed-hist-head">
-            <button class="icon-btn" id="starFeedHistClose" type="button" style="font-size:var(--font-size-title);">←</button>
+            <button class="icon-btn" id="starFeedHistClose" type="button">←</button>
             <span class="star-feed-hist-title">🍚 餵食紀錄</span>
-            <div style="width:36px;"></div>
+            
           </div>
           <div class="sfh-pager">
             <button class="sfh-pager-btn" id="sfhPagerPrev" type="button">‹ 更早</button>
@@ -2879,9 +2869,9 @@ textarea.mid{ min-height:90px; }
     <!-- ============ SOCIAL VIEW ============ -->
     <div class="view hidden" id="socialView">
       <div class="social-hdr">
-        <button class="icon-btn" id="socialBackBtn" type="button" style="font-size:var(--font-size-title);">←</button>
+        <button class="icon-btn" id="socialBackBtn" type="button">←</button>
         <span class="social-hdr-title">📱 社群平台</span>
-        <button class="icon-btn" id="socialEditProfileBtn" type="button" style="font-size:var(--font-size-title);">✏</button>
+        <button class="icon-btn" id="socialEditProfileBtn" type="button">✏</button>
       </div>
       <div class="social-body" id="socialBody">
         <div class="social-profile-cover" id="socialCover" style="cursor:pointer;" title="點擊編輯首圖"></div>
@@ -2913,9 +2903,8 @@ textarea.mid{ min-height:90px; }
     <div class="view hidden audio-page" id="audioView">
       <!-- Header -->
       <div class="audio-hdr">
-        <button class="icon-btn" id="audioBackBtn" type="button" style="font-size:var(--font-size-title);">←</button>
+        <button class="icon-btn" id="audioBackBtn" type="button">←</button>
         <span class="audio-hdr-title">🎶 他的音檔</span>
-        <span id="audioTrackCount" style="font-size:var(--font-size-caption);color:var(--ink-soft);margin-right:4px;"></span>
         <button class="icon-btn" id="elTtsBtn" type="button" title="AI 語音生成" style="font-size:var(--font-size-title-small);margin-right:2px;">✨</button>
         <button class="icon-btn" id="elSettingsBtn" type="button" title="ElevenLabs 設定" style="font-size:var(--font-size-title-small);margin-right:2px;">⚙</button>
         <input type="file" id="audioFileInput" accept="audio/*" style="display:none;">
@@ -2925,9 +2914,9 @@ textarea.mid{ min-height:90px; }
       <div class="el-sheet-overlay hidden" id="elSettingsOverlay">
         <div class="el-sheet">
           <div class="el-sheet-head">
-            <button class="icon-btn" id="elSettingsClose" type="button" style="font-size:var(--font-size-title);">←</button>
+            <button class="icon-btn" id="elSettingsClose" type="button">←</button>
             <span class="el-sheet-title">⚙ ElevenLabs 設定</span>
-            <div style="width:36px;"></div>
+            
           </div>
           <div class="el-sheet-body">
             <p class="el-hint">前往 <b>elevenlabs.io</b> 註冊後取得 API Key，並在 Voices 頁面複製想使用的 Voice ID。</p>
@@ -2964,9 +2953,9 @@ textarea.mid{ min-height:90px; }
       <div class="el-sheet-overlay hidden" id="elTtsOverlay">
         <div class="el-sheet">
           <div class="el-sheet-head">
-            <button class="icon-btn" id="elTtsClose" type="button" style="font-size:var(--font-size-title);">←</button>
+            <button class="icon-btn" id="elTtsClose" type="button">←</button>
             <span class="el-sheet-title">✨ AI 語音生成</span>
-            <div style="width:36px;"></div>
+            
           </div>
           <div class="el-sheet-body">
             <div class="field">
@@ -3043,7 +3032,8 @@ textarea.mid{ min-height:90px; }
             <button class="audio-np-btn" id="audioNpNext" type="button">⏭</button>
           </div>
         </div>
-        <!-- Track list -->
+        <!-- Track list：數量從頁首移下來，頁首右側最多兩個圖示操作（元件庫 §3） -->
+        <div class="audio-section-label">音檔 <span id="audioTrackCount"></span></div>
         <div class="audio-track-list" id="audioTrackList"></div>
       </div>
       <!-- Storage notice (固定在底部) -->
@@ -3055,7 +3045,7 @@ textarea.mid{ min-height:90px; }
       <!-- Transcript full-screen overlay (inside phone-frame) -->
       <div class="audio-transcript-overlay hidden" id="audioTsOverlay">
         <div class="audio-ts-header">
-          <button class="icon-btn" id="audioTsClose" type="button" style="font-size:var(--font-size-title);">←</button>
+          <button class="icon-btn" id="audioTsClose" type="button">←</button>
           <span class="audio-ts-title" id="audioTsTrackTitle">逐字稿</span>
           <button class="btc-checkin-btn" id="audioTsSave" type="button" style="width:auto;padding:7px 18px;font-size:var(--font-size-body);border-radius:var(--radius-control);margin-top:0;">儲存</button>
         </div>
@@ -3095,9 +3085,9 @@ textarea.mid{ min-height:90px; }
     <!-- ============ WITH ME VIEW ============ -->
     <div class="view hidden" id="withMeView">
       <div class="social-hdr">
-        <button class="icon-btn" id="withMeBackBtn" type="button" style="font-size:var(--font-size-title);">←</button>
+        <button class="icon-btn" id="withMeBackBtn" type="button">←</button>
         <span class="social-hdr-title">💕 with me</span>
-        <div style="width:36px;"></div>
+        
       </div>
       <div class="social-body" id="withMeBody" style="position:relative;overflow:hidden;">
         <!-- Background image -->
@@ -3151,9 +3141,9 @@ textarea.mid{ min-height:90px; }
     <!-- ============ MAGIC VIEW ============ -->
     <div class="view hidden" id="magicView">
       <div class="social-hdr">
-        <button class="icon-btn" id="magicBackBtn" type="button" style="font-size:var(--font-size-title);">←</button>
+        <button class="icon-btn" id="magicBackBtn" type="button">←</button>
         <span class="social-hdr-title">🪄 魔法咒語</span>
-        <div style="width:36px;"></div>
+        
       </div>
       <div class="magic-body" id="magicBody">
         <div class="magic-intro">儲存對話中珍貴的回應，隨時取用或重溫。</div>
@@ -3169,7 +3159,7 @@ textarea.mid{ min-height:90px; }
         <div class="qa-view-hdr">
           <button class="qa-back-btn" id="qaBackBtn" type="button">←</button>
           <span class="qa-view-title">每日問題</span>
-          <div style="width:36px;"></div>
+          
         </div>
 
         <div class="qa-view-body">
@@ -3235,7 +3225,7 @@ textarea.mid{ min-height:90px; }
       <!-- QA Review overlay (inside todayQaView, position:absolute) -->
       <div class="qa-review-overlay hidden" id="qaReviewOverlay">
         <div class="qa-review-hdr">
-          <button class="icon-btn" id="qaReviewClose" type="button" style="font-size:var(--font-size-title);">←</button>
+          <button class="icon-btn" id="qaReviewClose" type="button">←</button>
           <span class="qa-review-hdr-title">回顧答案</span>
           <button class="icon-btn" id="qaReviewDelete" type="button" style="font-size:var(--font-size-title-small);color:var(--danger,#c0392b);" title="刪除此記錄">🗑️</button>
         </div>
@@ -3265,9 +3255,9 @@ textarea.mid{ min-height:90px; }
     <div class="view hidden btc-page" id="calendarView">
       <!-- Header -->
       <div class="btc-header">
-        <button class="icon-btn" id="calBackBtn" type="button" style="font-size:var(--font-size-title);">←</button>
+        <button class="icon-btn" id="calBackBtn" type="button">←</button>
         <span class="btc-header-title">行事曆</span>
-        <div class="btc-header-side"></div>
+        
       </div>
 
       <!-- Stats row -->
@@ -3403,9 +3393,9 @@ textarea.mid{ min-height:90px; }
     <!-- ============ CHECKIN VIEW (full-page) ============ -->
     <div class="view hidden btc-page" id="checkinView">
       <div class="btc-header">
-        <button class="icon-btn" id="ciBackBtn" type="button" style="font-size:var(--font-size-title);">←</button>
+        <button class="icon-btn" id="ciBackBtn" type="button">←</button>
         <span class="btc-header-title">每日打卡</span>
-        <div class="btc-header-side"></div>
+        
       </div>
       <div class="btc-stats-row">
         <div class="btc-stat-item">
